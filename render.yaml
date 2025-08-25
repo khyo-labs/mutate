@@ -1,25 +1,25 @@
 databases:
-  # PostgreSQL Database
+  # PostgreSQL Database (Free tier: 30-day limit, 256MB RAM)
   - name: vgxe-postgres
-    plan: starter
+    plan: free
     region: oregon
 
 services:
-  # Redis Instance
+  # Redis Instance (Free tier: 25MB RAM, 50 connections)
   - type: keyvalue
     name: vgxe-redis
-    plan: starter
+    plan: free
     region: oregon
     ipAllowList:
       - source: 0.0.0.0/0
         description: Allow from anywhere
 
-  # API Service
+  # API Service (Free tier: 512MB RAM, 0.1 CPU, sleeps after 15min)
   - type: web
     name: vgxe-api
     env: node
     region: oregon
-    plan: starter
+    plan: free
     buildCommand: cd apps/api && npm install && npm run build
     startCommand: cd apps/api && npm run db:migrate:prod && npm start
     envVars:
