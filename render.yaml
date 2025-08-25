@@ -2,12 +2,10 @@ services:
   # PostgreSQL Database
   - type: pserv
     name: vgxe-postgres
-    env: docker
     plan: starter
     region: oregon
-    databases:
-      - name: vgxe_db
-        user: vgxe_user
+    databaseName: vgxe_db
+    databaseUser: vgxe_user
 
   # Redis Instance
   - type: redis
