@@ -5,7 +5,7 @@ import type { ApiResponse } from '../types';
 
 // Create axios instance
 export const api = axios.create({
-	baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1',
+	baseURL: `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/v1`,
 	timeout: 10000,
 });
 

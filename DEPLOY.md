@@ -91,7 +91,7 @@ LOG_LEVEL=info
 
 ### PostgreSQL Connection String
 1. Go to your PostgreSQL service in Render
-2. Copy the "External Database URL" 
+2. Copy the "External Database URL"
 3. Format: `postgresql://user:password@hostname:port/database`
 
 ### Redis Connection String
@@ -104,7 +104,7 @@ LOG_LEVEL=info
 Update your frontend's API base URL to point to your deployed API:
 
 ```bash
-VITE_API_BASE_URL=https://your-api-domain.onrender.com/api/v1
+VITE_API_BASE_URL=https://your-api-domain.onrender.com
 ```
 
 ## Important Notes
@@ -181,8 +181,9 @@ npm start
 ## Cost Estimation
 
 - **PostgreSQL Starter**: $7/month
-- **Redis Starter**: $7/month  
+- **Redis Starter**: $7/month
 - **Web Service Starter**: $7/month
 - **Total**: ~$21/month
 
-Free alternatives available but with limitations (services sleep, limited resources).
+Free alternatives available but with limitations (services sleep, limited
+resources).
