@@ -34,11 +34,13 @@ const deleteRowsRuleSchema = baseRuleSchema.extend({
 	type: z.literal('DELETE_ROWS'),
 	params: z.object({
 		method: z.enum(['condition', 'rows']).default('condition'),
-		condition: z.object({
-			type: z.enum(['contains', 'empty', 'pattern']),
-			column: z.string().optional(),
-			value: z.string().optional(),
-		}).optional(),
+		condition: z
+			.object({
+				type: z.enum(['contains', 'empty', 'pattern']),
+				column: z.string().optional(),
+				value: z.string().optional(),
+			})
+			.optional(),
 		rows: z.array(z.number().min(1)).optional(), // 1-based row numbers
 	}),
 });

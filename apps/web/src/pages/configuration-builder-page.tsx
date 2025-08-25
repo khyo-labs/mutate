@@ -1,25 +1,25 @@
-import { useParams, useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Save, Eye } from 'lucide-react';
+import { useNavigate, useParams } from '@tanstack/react-router';
+import { ArrowLeft, Eye, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { CsvOutputPreview } from '../components/csv-output-preview';
+import { FileUpload, type UploadedFile } from '../components/file-upload';
+import { JsonConfigPanel } from '../components/json-config-panel';
 import { Layout } from '../components/layout';
 import { RuleBuilder } from '../components/rule-builder';
-import { FileUpload, type UploadedFile } from '../components/file-upload';
 import { SpreadsheetPreview } from '../components/spreadsheet-preview';
-import { CsvOutputPreview } from '../components/csv-output-preview';
-import { JsonConfigPanel } from '../components/json-config-panel';
 import { useConfigurationStore } from '../stores/config-store';
 import type { Configuration, TransformationRule } from '../types';
 
 export function ConfigurationBuilderPage() {
 	const { configId } = useParams({ from: '/configurations/$configId/builder' });
 	const navigate = useNavigate();
-	const { 
-		fetchConfiguration, 
-		updateConfiguration, 
-		currentConfiguration, 
-		isLoading, 
-		error 
+	const {
+		fetchConfiguration,
+		updateConfiguration,
+		currentConfiguration,
+		isLoading,
+		error,
 	} = useConfigurationStore();
 
 	const [name, setName] = useState('');
@@ -78,7 +78,12 @@ export function ConfigurationBuilderPage() {
 		navigate({ to: '/configurations/$configId', params: { configId } });
 	}
 
-	function handleImportConfig(importedConfig: { name: string; description: string; rules: TransformationRule[]; outputFormat: Configuration['outputFormat'] }) {
+	function handleImportConfig(importedConfig: {
+		name: string;
+		description: string;
+		rules: TransformationRule[];
+		outputFormat: Configuration['outputFormat'];
+	}) {
 		setName(importedConfig.name);
 		setDescription(importedConfig.description);
 		setRules(importedConfig.rules);
@@ -89,7 +94,7 @@ export function ConfigurationBuilderPage() {
 			<Layout>
 				<div className="flex items-center justify-center py-12">
 					<div className="text-center">
-						<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+						<div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
 						<p className="mt-4 text-gray-600">Loading configuration...</p>
 					</div>
 				</div>
@@ -110,12 +115,16 @@ export function ConfigurationBuilderPage() {
 	if (!currentConfiguration) {
 		return (
 			<Layout>
-				<div className="text-center py-12">
-					<h2 className="text-xl font-semibold text-gray-900">Configuration not found</h2>
-					<p className="mt-2 text-gray-600">The configuration you're looking for doesn't exist.</p>
+				<div className="py-12 text-center">
+					<h2 className="text-xl font-semibold text-gray-900">
+						Configuration not found
+					</h2>
+					<p className="mt-2 text-gray-600">
+						The configuration you're looking for doesn't exist.
+					</p>
 					<button
 						onClick={() => navigate({ to: '/configurations' })}
-						className="mt-4 btn btn-primary"
+						className="btn btn-primary mt-4"
 					>
 						Back to Configurations
 					</button>
@@ -129,27 +138,34 @@ export function ConfigurationBuilderPage() {
 			<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 				{/* Header */}
 				<div className="mb-8">
-					<div className="flex items-center space-x-4 mb-4">
+					<div className="mb-4 flex items-center space-x-4">
 						<button
 							onClick={handleCancel}
 							className="flex items-center text-gray-600 hover:text-gray-900"
 						>
-							<ArrowLeft className="h-4 w-4 mr-1" />
+							<ArrowLeft className="mr-1 h-4 w-4" />
 							Back to Configuration
 						</button>
 					</div>
 
 					<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
 						<div>
-							<h1 className="text-2xl font-bold text-gray-900">Edit Configuration</h1>
+							<h1 className="text-2xl font-bold text-gray-900">
+								Edit Configuration
+							</h1>
 							<p className="mt-2 text-gray-600">
 								Modify your data transformation configuration
 							</p>
 						</div>
 
-						<div className="mt-4 sm:mt-0 flex space-x-3">
+						<div className="mt-4 flex space-x-3 sm:mt-0">
 							<button
-								onClick={() => navigate({ to: '/configurations/$configId', params: { configId } })}
+								onClick={() =>
+									navigate({
+										to: '/configurations/$configId',
+										params: { configId },
+									})
+								}
 								className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
 							>
 								<Eye className="mr-2 h-4 w-4" />
@@ -205,15 +221,14 @@ export function ConfigurationBuilderPage() {
 
 						{/* File Upload */}
 						<div className="space-y-4">
-							<h2 className="text-lg font-medium text-gray-900">
-								Sample Data
-							</h2>
+							<h2 className="text-lg font-medium text-gray-900">Sample Data</h2>
 							<p className="text-sm text-gray-600">
-								Upload a sample Excel file to preview how your transformations will affect the data
+								Upload a sample Excel file to preview how your transformations
+								will affect the data
 							</p>
-							<FileUpload 
-								onFileUploaded={setUploadedFile} 
-								currentFile={uploadedFile} 
+							<FileUpload
+								onFileUploaded={setUploadedFile}
+								currentFile={uploadedFile}
 							/>
 						</div>
 
@@ -232,18 +247,15 @@ export function ConfigurationBuilderPage() {
 							<h2 className="text-lg font-medium text-gray-900">
 								Live Preview
 							</h2>
-							<p className="text-sm text-gray-600 mb-4">
+							<p className="mb-4 text-sm text-gray-600">
 								See how your transformation rules will affect the uploaded data
 							</p>
-							<SpreadsheetPreview 
-								file={uploadedFile} 
-								rules={rules}
-							/>
+							<SpreadsheetPreview file={uploadedFile} rules={rules} />
 						</div>
-						
+
 						<div>
-							<CsvOutputPreview 
-								file={uploadedFile} 
+							<CsvOutputPreview
+								file={uploadedFile}
 								rules={rules}
 								outputFormat={{
 									type: 'CSV',

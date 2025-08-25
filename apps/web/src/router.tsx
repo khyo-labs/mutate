@@ -7,31 +7,28 @@ import {
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
-import { ConfigurationsPage } from './pages/configurations-page';
-import { ConfigurationDetailPage } from './pages/configuration-detail-page';
 import { ConfigurationBuilderPage } from './pages/configuration-builder-page';
+import { ConfigurationDetailPage } from './pages/configuration-detail-page';
+import { ConfigurationsPage } from './pages/configurations-page';
 import { DashboardPage } from './pages/dashboard-page';
 import { LoginPage } from './pages/login-page';
 import { NewConfigurationPage } from './pages/new-configuration-page';
 import { RegisterPage } from './pages/register-page';
 import { useAuthStore } from './stores/auth-store';
 
-// Root route component
 function RootComponent() {
 	return (
 		<>
 			<Outlet />
-			<TanStackRouterDevtools />
+			{import.meta.env.DEV && <TanStackRouterDevtools />}
 		</>
 	);
 }
 
-// Root route
 const rootRoute = createRootRoute({
 	component: RootComponent,
 });
 
-// Public routes
 const loginRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	path: '/login',

@@ -113,7 +113,8 @@ export function ConfigurationsPage() {
 						<p className="text-gray-600">
 							Manage your transformation configurations
 							{/* Debug info */}
-							{configurations && ` (${configurations?.length} total, ${filteredConfigurations?.length || 0} filtered)`}
+							{configurations &&
+								` (${configurations?.length} total, ${filteredConfigurations?.length || 0} filtered)`}
 						</p>
 					</div>
 					<Link to="/configurations/new" className="btn btn-primary">
@@ -288,14 +289,18 @@ export function ConfigurationsPage() {
 						</div>
 						<div className="flex space-x-2">
 							<button
-								onClick={() => loadConfigurations(pagination.page - 1, searchTerm)}
+								onClick={() =>
+									loadConfigurations(pagination.page - 1, searchTerm)
+								}
 								disabled={pagination.page <= 1}
 								className="btn btn-outline disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								Previous
 							</button>
 							<button
-								onClick={() => loadConfigurations(pagination.page + 1, searchTerm)}
+								onClick={() =>
+									loadConfigurations(pagination.page + 1, searchTerm)
+								}
 								disabled={pagination.page >= pagination.totalPages}
 								className="btn btn-outline disabled:cursor-not-allowed disabled:opacity-50"
 							>

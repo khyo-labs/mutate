@@ -90,11 +90,13 @@ LOG_LEVEL=info
 ## Getting Connection Strings
 
 ### PostgreSQL Connection String
+
 1. Go to your PostgreSQL service in Render
 2. Copy the "External Database URL"
 3. Format: `postgresql://user:password@hostname:port/database`
 
 ### Redis Connection String
+
 1. Go to your Redis service in Render
 2. Copy the "Redis URL"
 3. Format: `redis://hostname:port`
@@ -110,21 +112,25 @@ VITE_API_BASE_URL=https://your-api-domain.onrender.com
 ## Important Notes
 
 ### 1. **Free Tier Limitations**
+
 - Services spin down after 15 minutes of inactivity
 - First request after spin-down will be slow (30-60 seconds)
 - Consider paid plans for production use
 
 ### 2. **Database Migrations**
+
 - Migrations run automatically on deployment
 - Database schema is created on first deployment
 - Existing data is preserved on updates
 
 ### 3. **File Storage**
+
 - Currently using local storage (`./uploads`)
 - Files are ephemeral on free tier (deleted on service restart)
 - Consider AWS S3 for production file storage
 
 ### 4. **SSL/TLS**
+
 - All Render services use HTTPS by default
 - No additional SSL configuration needed
 

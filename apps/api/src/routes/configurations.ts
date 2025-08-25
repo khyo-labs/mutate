@@ -9,8 +9,8 @@ import {
 	createConfigurationSchema,
 	updateConfigurationSchema,
 } from '../schemas/configuration.js';
-import { logError } from '../utils/logger.js';
 import '../types/fastify.js';
+import { logError } from '../utils/logger.js';
 
 export async function configurationRoutes(fastify: FastifyInstance) {
 	// Add authentication to all routes
@@ -125,10 +125,14 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 			let query = db
 				.select({
 					id: configurations.id,
+					organizationId: configurations.organizationId,
 					name: configurations.name,
 					description: configurations.description,
+					rules: configurations.rules,
+					outputFormat: configurations.outputFormat,
 					version: configurations.version,
 					isActive: configurations.isActive,
+					createdBy: configurations.createdBy,
 					createdAt: configurations.createdAt,
 					updatedAt: configurations.updatedAt,
 				})

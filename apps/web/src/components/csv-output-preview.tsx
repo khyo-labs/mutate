@@ -393,9 +393,7 @@ function simulateTransformations(
 				if (method === 'rows' && rule.params.rows) {
 					// Delete specific row numbers (1-based, convert to 0-based)
 					const rowsToDelete = rule.params.rows.map((r) => r - 1);
-					data = data.filter(
-						(_, rowIndex) => !rowsToDelete.includes(rowIndex),
-					);
+					data = data.filter((_, rowIndex) => !rowsToDelete.includes(rowIndex));
 
 					const deletedCount = initialRowCount - data.length;
 					if (deletedCount > 0) {

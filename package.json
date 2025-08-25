@@ -8,8 +8,8 @@
 		"build": "turbo build",
 		"typecheck": "turbo typecheck",
 		"lint": "turbo lint",
-		"api": "pnpm --filter @convert/api",
-		"web": "pnpm --filter @convert/web",
+		"api": "pnpm --filter @vgxe/api",
+		"web": "pnpm --filter @vgxe/web",
 		"format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\""
 	},
 	"keywords": [],

@@ -110,9 +110,7 @@ function SelectWorksheetForm({
 				</label>
 				<select
 					value={rule.params.identifierType || 'name'}
-					onChange={(e) =>
-						onChange({ identifierType: e.target.value as any })
-					}
+					onChange={(e) => onChange({ identifierType: e.target.value as any })}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
 					<option value="name">By Name</option>
@@ -127,9 +125,7 @@ function SelectWorksheetForm({
 				<input
 					type="text"
 					value={rule.params.worksheetIdentifier || ''}
-					onChange={(e) =>
-						onChange({ worksheetIdentifier: e.target.value })
-					}
+					onChange={(e) => onChange({ worksheetIdentifier: e.target.value })}
 					placeholder={
 						rule.params.identifierType === 'index'
 							? 'e.g., 0'
@@ -219,9 +215,7 @@ function UnmergeAndFillForm({
 				</label>
 				<select
 					value={rule.params.fillDirection || 'down'}
-					onChange={(e) =>
-						onChange({ fillDirection: e.target.value as any })
-					}
+					onChange={(e) => onChange({ fillDirection: e.target.value as any })}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
 					<option value="down">Fill Down</option>
@@ -298,7 +292,7 @@ function DeleteRowsForm({
 	function removeRow(rowNumber: number) {
 		const currentRows = rule.params.rows || [];
 		onChange({
-			rows: currentRows.filter(row => row !== rowNumber),
+			rows: currentRows.filter((row) => row !== rowNumber),
 		});
 	}
 
@@ -314,7 +308,9 @@ function DeleteRowsForm({
 						onChange({
 							method: e.target.value as 'condition' | 'rows',
 							// Clear the other method's params
-							...(e.target.value === 'condition' ? { rows: undefined } : { condition: undefined }),
+							...(e.target.value === 'condition'
+								? { rows: undefined }
+								: { condition: undefined }),
 						})
 					}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
@@ -349,7 +345,8 @@ function DeleteRowsForm({
 					</div>
 					<div>
 						<label className="block text-xs font-medium text-gray-700">
-							Column {rule.params.condition?.type === 'empty' ? '(optional)' : ''}
+							Column{' '}
+							{rule.params.condition?.type === 'empty' ? '(optional)' : ''}
 						</label>
 						<input
 							type="text"
@@ -363,7 +360,7 @@ function DeleteRowsForm({
 								})
 							}
 							placeholder={
-								rule.params.condition?.type === 'empty' 
+								rule.params.condition?.type === 'empty'
 									? "Leave empty to check all columns, or specify column (e.g., 'B', '1', 'Name')"
 									: "Column name, letter, or index (e.g., 'B', '1', 'Name')"
 							}
@@ -371,7 +368,8 @@ function DeleteRowsForm({
 						/>
 						{rule.params.condition?.type === 'empty' && (
 							<div className="mt-1 text-xs text-gray-500">
-								Leave blank to delete rows where ALL columns are empty, or specify a column to check only that column
+								Leave blank to delete rows where ALL columns are empty, or
+								specify a column to check only that column
 							</div>
 						)}
 					</div>

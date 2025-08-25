@@ -1,5 +1,5 @@
 import { ChevronDown, Eye, EyeOff } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
 import type { TransformationRule } from '../types';
@@ -24,15 +24,21 @@ interface WorksheetData {
 	range: XLSX.Range;
 }
 
-export function SpreadsheetPreview({ file, rules, selectedWorksheet }: SpreadsheetPreviewProps) {
+export function SpreadsheetPreview({
+	file,
+	rules,
+	selectedWorksheet,
+}: SpreadsheetPreviewProps) {
 	const [isCollapsed, setIsCollapsed] = useState(false);
-	const [activeWorksheet, setActiveWorksheet] = useState(selectedWorksheet || '');
+	const [activeWorksheet, setActiveWorksheet] = useState(
+		selectedWorksheet || '',
+	);
 	const [showRowNumbers, setShowRowNumbers] = useState(true);
 	const [showHighlights, setShowHighlights] = useState(true);
 
 	const worksheetData = useMemo<WorksheetData | null>(() => {
 		if (!file || !activeWorksheet) return null;
-		
+
 		const worksheet = file.workbook.Sheets[activeWorksheet];
 		if (!worksheet) return null;
 
@@ -54,15 +60,19 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 
 	const cellHighlights = useMemo<CellHighlight[]>(() => {
 		if (!worksheetData || !showHighlights) return [];
-		
+
 		const highlights: CellHighlight[] = [];
-		
+
 		rules.forEach((rule) => {
 			switch (rule.type) {
 				case 'SELECT_WORKSHEET':
 					if (rule.params.worksheetIdentifier === activeWorksheet) {
 						// Highlight entire worksheet header
-						for (let col = worksheetData.range.s.c; col <= worksheetData.range.e.c; col++) {
+						for (
+							let col = worksheetData.range.s.c;
+							col <= worksheetData.range.e.c;
+							col++
+						) {
 							highlights.push({
 								row: 0,
 								col,
@@ -76,9 +86,16 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 
 				case 'DELETE_COLUMNS':
 					rule.params.columns?.forEach((colIdentifier: string) => {
-						const colIndex = parseColumnIdentifier(colIdentifier, worksheetData.data[0] || []);
+						const colIndex = parseColumnIdentifier(
+							colIdentifier,
+							worksheetData.data[0] || [],
+						);
 						if (colIndex !== -1) {
-							for (let row = worksheetData.range.s.r; row <= worksheetData.range.e.r; row++) {
+							for (
+								let row = worksheetData.range.s.r;
+								row <= worksheetData.range.e.r;
+								row++
+							) {
 								highlights.push({
 									row,
 									col: colIndex,
@@ -93,13 +110,17 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 
 				case 'DELETE_ROWS':
 					const method = rule.params.method || 'condition';
-					
+
 					if (method === 'rows' && rule.params.rows) {
 						// Highlight specific row numbers (1-based, convert to 0-based)
 						rule.params.rows.forEach((rowNumber: number) => {
 							const rowIndex = rowNumber - 1; // Convert to 0-based
 							if (rowIndex >= 0 && rowIndex < worksheetData.data.length) {
-								for (let col = worksheetData.range.s.c; col <= worksheetData.range.e.c; col++) {
+								for (
+									let col = worksheetData.range.s.c;
+									col <= worksheetData.range.e.c;
+									col++
+								) {
 									highlights.push({
 										row: rowIndex,
 										col,
@@ -114,7 +135,11 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 						// Highlight rows matching condition
 						worksheetData.data.forEach((rowData, rowIndex) => {
 							if (shouldDeleteRow(rowData, rule.params.condition)) {
-								for (let col = worksheetData.range.s.c; col <= worksheetData.range.e.c; col++) {
+								for (
+									let col = worksheetData.range.s.c;
+									col <= worksheetData.range.e.c;
+									col++
+								) {
 									highlights.push({
 										row: rowIndex,
 										col,
@@ -130,9 +155,16 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 
 				case 'UNMERGE_AND_FILL':
 					rule.params.columns?.forEach((colIdentifier: string) => {
-						const colIndex = parseColumnIdentifier(colIdentifier, worksheetData.data[0] || []);
+						const colIndex = parseColumnIdentifier(
+							colIdentifier,
+							worksheetData.data[0] || [],
+						);
 						if (colIndex !== -1) {
-							for (let row = worksheetData.range.s.r; row <= worksheetData.range.e.r; row++) {
+							for (
+								let row = worksheetData.range.s.r;
+								row <= worksheetData.range.e.r;
+								row++
+							) {
 								highlights.push({
 									row,
 									col: colIndex,
@@ -147,9 +179,14 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 
 				case 'VALIDATE_COLUMNS':
 					const expectedCount = rule.params.expectedCount;
-					const actualCount = worksheetData.range.e.c - worksheetData.range.s.c + 1;
+					const actualCount =
+						worksheetData.range.e.c - worksheetData.range.s.c + 1;
 					if (actualCount !== expectedCount) {
-						for (let col = worksheetData.range.s.c; col <= worksheetData.range.e.c; col++) {
+						for (
+							let col = worksheetData.range.s.c;
+							col <= worksheetData.range.e.c;
+							col++
+						) {
 							highlights.push({
 								row: 0,
 								col,
@@ -166,7 +203,10 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 		return highlights;
 	}, [worksheetData, rules, activeWorksheet, showHighlights]);
 
-	function parseColumnIdentifier(identifier: string, headerRow: (string | number | null)[]): number {
+	function parseColumnIdentifier(
+		identifier: string,
+		headerRow: (string | number | null)[],
+	): number {
 		// Try parsing as column index (0-based)
 		const index = parseInt(identifier);
 		if (!isNaN(index)) {
@@ -179,57 +219,75 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 		}
 
 		// Try finding by header name
-		return headerRow.findIndex(cell => 
-			cell && cell.toString().toLowerCase() === identifier.toLowerCase()
+		return headerRow.findIndex(
+			(cell) =>
+				cell && cell.toString().toLowerCase() === identifier.toLowerCase(),
 		);
 	}
 
-	function shouldDeleteRow(rowData: (string | number | null)[], condition: any): boolean {
+	function shouldDeleteRow(
+		rowData: (string | number | null)[],
+		condition: any,
+	): boolean {
 		if (!condition) return false;
 
 		switch (condition.type) {
 			case 'empty':
 				if (condition.column !== undefined && condition.column.trim() !== '') {
 					// Check if specific column is empty
-					const colIndex = parseColumnIdentifier(condition.column, worksheetData?.data[0] || []);
+					const colIndex = parseColumnIdentifier(
+						condition.column,
+						worksheetData?.data[0] || [],
+					);
 					if (colIndex === -1) return false; // Column not found
 					const cellValue = rowData[colIndex];
 					return !cellValue || cellValue.toString().trim() === '';
 				} else {
 					// Check if entire row is empty (all columns)
-					return rowData.every(cell => !cell || cell.toString().trim() === '');
+					return rowData.every(
+						(cell) => !cell || cell.toString().trim() === '',
+					);
 				}
-			
+
 			case 'contains':
 				if (condition.column !== undefined && condition.column.trim() !== '') {
-					const colIndex = parseColumnIdentifier(condition.column, worksheetData?.data[0] || []);
+					const colIndex = parseColumnIdentifier(
+						condition.column,
+						worksheetData?.data[0] || [],
+					);
 					if (colIndex === -1) return false; // Column not found
 					const cellValue = rowData[colIndex];
-					return Boolean(cellValue && cellValue.toString().includes(condition.value || ''));
+					return Boolean(
+						cellValue && cellValue.toString().includes(condition.value || ''),
+					);
 				}
-				return rowData.some(cell => 
-					cell && cell.toString().includes(condition.value || '')
+				return rowData.some(
+					(cell) => cell && cell.toString().includes(condition.value || ''),
 				);
-			
+
 			case 'pattern':
 				const regex = new RegExp(condition.value || '', 'i');
 				if (condition.column !== undefined && condition.column.trim() !== '') {
-					const colIndex = parseColumnIdentifier(condition.column, worksheetData?.data[0] || []);
+					const colIndex = parseColumnIdentifier(
+						condition.column,
+						worksheetData?.data[0] || [],
+					);
 					if (colIndex === -1) return false; // Column not found
 					const cellValue = rowData[colIndex];
 					return Boolean(cellValue && regex.test(cellValue.toString()));
 				}
-				return rowData.some(cell => 
-					cell && regex.test(cell.toString())
-				);
-			
+				return rowData.some((cell) => cell && regex.test(cell.toString()));
+
 			default:
 				return false;
 		}
 	}
 
-	function getCellHighlight(row: number, col: number): CellHighlight | undefined {
-		return cellHighlights.find(h => h.row === row && h.col === col);
+	function getCellHighlight(
+		row: number,
+		col: number,
+	): CellHighlight | undefined {
+		return cellHighlights.find((h) => h.row === row && h.col === col);
 	}
 
 	function getCellClassName(row: number, col: number): string {
@@ -258,7 +316,9 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 		return (
 			<div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
 				<Eye className="mx-auto h-12 w-12 text-gray-400" />
-				<h3 className="mt-2 text-sm font-medium text-gray-900">No File Uploaded</h3>
+				<h3 className="mt-2 text-sm font-medium text-gray-900">
+					No File Uploaded
+				</h3>
 				<p className="mt-1 text-sm text-gray-500">
 					Upload an Excel file to see the data preview
 				</p>
@@ -301,7 +361,11 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 									: 'bg-gray-100 text-gray-600'
 							}`}
 						>
-							{showHighlights ? <Eye className="mr-1 h-3 w-3" /> : <EyeOff className="mr-1 h-3 w-3" />}
+							{showHighlights ? (
+								<Eye className="mr-1 h-3 w-3" />
+							) : (
+								<EyeOff className="mr-1 h-3 w-3" />
+							)}
 							Highlights
 						</button>
 						<button
@@ -356,14 +420,20 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 											#
 										</th>
 									)}
-									{Array.from({ length: worksheetData.range.e.c - worksheetData.range.s.c + 1 }, (_, i) => (
-										<th
-											key={i}
-											className="border border-gray-300 bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700"
-										>
-											{getColumnLabel(worksheetData.range.s.c + i)}
-										</th>
-									))}
+									{Array.from(
+										{
+											length:
+												worksheetData.range.e.c - worksheetData.range.s.c + 1,
+										},
+										(_, i) => (
+											<th
+												key={i}
+												className="border border-gray-300 bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700"
+											>
+												{getColumnLabel(worksheetData.range.s.c + i)}
+											</th>
+										),
+									)}
 								</tr>
 							</thead>
 							<tbody>
@@ -402,7 +472,7 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 			{/* Legend */}
 			{showHighlights && cellHighlights.length > 0 && (
 				<div className="border-t border-gray-200 p-4">
-					<h4 className="text-sm font-medium text-gray-700 mb-2">Legend</h4>
+					<h4 className="mb-2 text-sm font-medium text-gray-700">Legend</h4>
 					<div className="flex flex-wrap gap-4 text-xs">
 						<div className="flex items-center space-x-2">
 							<div className="h-3 w-3 border border-blue-300 bg-blue-50"></div>

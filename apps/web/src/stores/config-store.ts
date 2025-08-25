@@ -1,7 +1,11 @@
 import { create } from 'zustand';
 
 import { configurationsApi } from '../api/configurations';
-import type { Configuration, TransformationRule, ConfigurationFormData } from '../types';
+import type {
+	Configuration,
+	ConfigurationFormData,
+	TransformationRule,
+} from '../types';
 
 interface ConfigurationStore {
 	configurations: Configuration[];
@@ -16,13 +20,20 @@ interface ConfigurationStore {
 	} | null;
 
 	// Actions
-	fetchConfigurations: (params?: { page?: number; limit?: number; search?: string }) => Promise<void>;
+	fetchConfigurations: (params?: {
+		page?: number;
+		limit?: number;
+		search?: string;
+	}) => Promise<void>;
 	createConfiguration: (data: ConfigurationFormData) => Promise<Configuration>;
-	updateConfiguration: (id: string, data: Partial<ConfigurationFormData>) => Promise<Configuration>;
+	updateConfiguration: (
+		id: string,
+		data: Partial<ConfigurationFormData>,
+	) => Promise<Configuration>;
 	deleteConfiguration: (id: string) => Promise<void>;
 	fetchConfiguration: (id: string) => Promise<Configuration>;
 	setCurrentConfiguration: (config: Configuration | null) => void;
-	
+
 	// Local state setters (for internal use)
 	setConfigurations: (configs: Configuration[]) => void;
 	addConfiguration: (config: Configuration) => void;
@@ -112,13 +123,19 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 			const response = await configurationsApi.list(params);
 			console.log('fetchConfigurations: Success', response);
 			console.log('fetchConfigurations: typeof response', typeof response);
-			console.log('fetchConfigurations: Array.isArray(response)', Array.isArray(response));
+			console.log(
+				'fetchConfigurations: Array.isArray(response)',
+				Array.isArray(response),
+			);
 			console.log('fetchConfigurations: response.data', response.data);
-			console.log('fetchConfigurations: response.pagination', response.pagination);
-			
+			console.log(
+				'fetchConfigurations: response.pagination',
+				response.pagination,
+			);
+
 			// Handle different response formats
 			let configurations: Configuration[], pagination;
-			
+
 			if (Array.isArray(response)) {
 				// Direct array response
 				configurations = response;
@@ -131,21 +148,21 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 				configurations = [];
 				pagination = null;
 			}
-			
+
 			console.log('fetchConfigurations: Final configurations', configurations);
 			console.log('fetchConfigurations: Final pagination', pagination);
-			
-			set({ 
-				configurations, 
+
+			set({
+				configurations,
 				pagination,
-				isLoading: false 
+				isLoading: false,
 			});
 			console.log('fetchConfigurations: State after set', get());
 		} catch (error: any) {
 			console.log('fetchConfigurations: Error', error);
-			set({ 
-				error: error?.message || 'Failed to fetch configurations', 
-				isLoading: false 
+			set({
+				error: error?.message || 'Failed to fetch configurations',
+				isLoading: false,
 			});
 		}
 	},
@@ -158,20 +175,23 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 			console.log('createConfiguration: Success', newConfig);
 			set((state) => ({
 				configurations: [newConfig, ...state.configurations],
-				isLoading: false
+				isLoading: false,
 			}));
 			return newConfig;
 		} catch (error: any) {
 			console.log('createConfiguration: Error', error);
-			set({ 
-				error: error?.message || 'Failed to create configuration', 
-				isLoading: false 
+			set({
+				error: error?.message || 'Failed to create configuration',
+				isLoading: false,
 			});
 			throw error;
 		}
 	},
 
-	updateConfiguration: async (id: string, data: Partial<ConfigurationFormData>) => {
+	updateConfiguration: async (
+		id: string,
+		data: Partial<ConfigurationFormData>,
+	) => {
 		set({ isLoading: true, error: null });
 		try {
 			const updatedConfig = await configurationsApi.update(id, data);
@@ -183,13 +203,13 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 					state.currentConfiguration?.id === id
 						? updatedConfig
 						: state.currentConfiguration,
-				isLoading: false
+				isLoading: false,
 			}));
 			return updatedConfig;
 		} catch (error: any) {
-			set({ 
-				error: error?.message || 'Failed to update configuration', 
-				isLoading: false 
+			set({
+				error: error?.message || 'Failed to update configuration',
+				isLoading: false,
 			});
 			throw error;
 		}
@@ -200,17 +220,19 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 		try {
 			await configurationsApi.delete(id);
 			set((state) => ({
-				configurations: state.configurations.filter((config) => config.id !== id),
+				configurations: state.configurations.filter(
+					(config) => config.id !== id,
+				),
 				currentConfiguration:
 					state.currentConfiguration?.id === id
 						? null
 						: state.currentConfiguration,
-				isLoading: false
+				isLoading: false,
 			}));
 		} catch (error: any) {
-			set({ 
-				error: error?.message || 'Failed to delete configuration', 
-				isLoading: false 
+			set({
+				error: error?.message || 'Failed to delete configuration',
+				isLoading: false,
 			});
 			throw error;
 		}
@@ -223,9 +245,9 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 			set({ currentConfiguration: config, isLoading: false });
 			return config;
 		} catch (error: any) {
-			set({ 
-				error: error?.message || 'Failed to fetch configuration', 
-				isLoading: false 
+			set({
+				error: error?.message || 'Failed to fetch configuration',
+				isLoading: false,
 			});
 			throw error;
 		}

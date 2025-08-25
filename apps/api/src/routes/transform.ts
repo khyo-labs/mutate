@@ -4,8 +4,8 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/connection.js';
 import { configurations, transformationJobs } from '../db/schema.js';
 import { authenticateAPIKey } from '../middleware/auth.js';
-import { logError } from '../utils/logger.js';
 import '../types/fastify.js';
+import { logError } from '../utils/logger.js';
 
 export async function transformRoutes(fastify: FastifyInstance) {
 	// Add API key authentication to all routes

@@ -1,13 +1,13 @@
+import { useNavigate } from '@tanstack/react-router';
 import { Save } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 
+import { CsvOutputPreview } from '../components/csv-output-preview';
+import { FileUpload, type UploadedFile } from '../components/file-upload';
+import { JsonConfigPanel } from '../components/json-config-panel';
 import { Layout } from '../components/layout';
 import { RuleBuilder } from '../components/rule-builder';
-import { FileUpload, type UploadedFile } from '../components/file-upload';
 import { SpreadsheetPreview } from '../components/spreadsheet-preview';
-import { CsvOutputPreview } from '../components/csv-output-preview';
-import { JsonConfigPanel } from '../components/json-config-panel';
 import { useConfigurationStore } from '../stores/config-store';
 import type { Configuration, TransformationRule } from '../types';
 
@@ -54,7 +54,12 @@ export function NewConfigurationPage() {
 		navigate({ to: '/configurations' });
 	}
 
-	function handleImportConfig(importedConfig: { name: string; description: string; rules: TransformationRule[]; outputFormat: Configuration['outputFormat'] }) {
+	function handleImportConfig(importedConfig: {
+		name: string;
+		description: string;
+		rules: TransformationRule[];
+		outputFormat: Configuration['outputFormat'];
+	}) {
 		setName(importedConfig.name);
 		setDescription(importedConfig.description);
 		setRules(importedConfig.rules);
@@ -119,15 +124,14 @@ export function NewConfigurationPage() {
 
 						{/* File Upload */}
 						<div className="space-y-4">
-							<h2 className="text-lg font-medium text-gray-900">
-								Sample Data
-							</h2>
+							<h2 className="text-lg font-medium text-gray-900">Sample Data</h2>
 							<p className="text-sm text-gray-600">
-								Upload a sample Excel file to preview how your transformations will affect the data
+								Upload a sample Excel file to preview how your transformations
+								will affect the data
 							</p>
-							<FileUpload 
-								onFileUploaded={setUploadedFile} 
-								currentFile={uploadedFile} 
+							<FileUpload
+								onFileUploaded={setUploadedFile}
+								currentFile={uploadedFile}
 							/>
 						</div>
 
@@ -146,18 +150,15 @@ export function NewConfigurationPage() {
 							<h2 className="text-lg font-medium text-gray-900">
 								Live Preview
 							</h2>
-							<p className="text-sm text-gray-600 mb-4">
+							<p className="mb-4 text-sm text-gray-600">
 								See how your transformation rules will affect the uploaded data
 							</p>
-							<SpreadsheetPreview 
-								file={uploadedFile} 
-								rules={rules}
-							/>
+							<SpreadsheetPreview file={uploadedFile} rules={rules} />
 						</div>
-						
+
 						<div>
-							<CsvOutputPreview 
-								file={uploadedFile} 
+							<CsvOutputPreview
+								file={uploadedFile}
 								rules={rules}
 								outputFormat={{
 									type: 'CSV',

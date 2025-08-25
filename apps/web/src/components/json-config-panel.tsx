@@ -1,14 +1,26 @@
-import { ChevronDown, Copy, Download, Upload, AlertTriangle, CheckCircle } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import {
+	AlertTriangle,
+	CheckCircle,
+	ChevronDown,
+	Copy,
+	Download,
+	Upload,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
 
-import type { TransformationRule, Configuration } from '../types';
+import type { Configuration, TransformationRule } from '../types';
 
 interface JsonConfigPanelProps {
 	name: string;
 	description: string;
 	rules: TransformationRule[];
 	outputFormat: Configuration['outputFormat'];
-	onImport: (config: { name: string; description: string; rules: TransformationRule[]; outputFormat: Configuration['outputFormat'] }) => void;
+	onImport: (config: {
+		name: string;
+		description: string;
+		rules: TransformationRule[];
+		outputFormat: Configuration['outputFormat'];
+	}) => void;
 }
 
 interface ConfigurationJSON {
@@ -18,7 +30,13 @@ interface ConfigurationJSON {
 	outputFormat: Configuration['outputFormat'];
 }
 
-export function JsonConfigPanel({ name, description, rules, outputFormat, onImport }: JsonConfigPanelProps) {
+export function JsonConfigPanel({
+	name,
+	description,
+	rules,
+	outputFormat,
+	onImport,
+}: JsonConfigPanelProps) {
 	const [isCollapsed, setIsCollapsed] = useState(true);
 	const [showImport, setShowImport] = useState(false);
 	const [importText, setImportText] = useState('');
@@ -60,7 +78,7 @@ export function JsonConfigPanel({ name, description, rules, outputFormat, onImpo
 
 		try {
 			const parsed = JSON.parse(importText.trim());
-			
+
 			// Validate required fields
 			if (!parsed.name || typeof parsed.name !== 'string') {
 				throw new Error('Configuration must have a valid "name" field');
@@ -71,7 +89,9 @@ export function JsonConfigPanel({ name, description, rules, outputFormat, onImpo
 			}
 
 			if (!parsed.outputFormat || typeof parsed.outputFormat !== 'object') {
-				throw new Error('Configuration must have a valid "outputFormat" object');
+				throw new Error(
+					'Configuration must have a valid "outputFormat" object',
+				);
 			}
 
 			// Validate each rule has required fields
@@ -83,7 +103,9 @@ export function JsonConfigPanel({ name, description, rules, outputFormat, onImpo
 					throw new Error(`Rule ${index + 1} must have a valid "type" field`);
 				}
 				if (!rule.params || typeof rule.params !== 'object') {
-					throw new Error(`Rule ${index + 1} must have a valid "params" object`);
+					throw new Error(
+						`Rule ${index + 1} must have a valid "params" object`,
+					);
 				}
 			});
 
@@ -111,12 +133,15 @@ export function JsonConfigPanel({ name, description, rules, outputFormat, onImpo
 				setImportSuccess(false);
 				setShowImport(false);
 			}, 2000);
-
 		} catch (error) {
 			if (error instanceof SyntaxError) {
 				setImportError('Invalid JSON format. Please check your JSON syntax.');
 			} else {
-				setImportError(error instanceof Error ? error.message : 'Failed to import configuration');
+				setImportError(
+					error instanceof Error
+						? error.message
+						: 'Failed to import configuration',
+				);
 			}
 		}
 	}
@@ -136,8 +161,12 @@ export function JsonConfigPanel({ name, description, rules, outputFormat, onImpo
 					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
 				>
 					<div>
-						<h3 className="text-lg font-medium text-gray-900">JSON Configuration</h3>
-						<p className="text-sm text-gray-500">Preview or import configuration as JSON</p>
+						<h3 className="text-lg font-medium text-gray-900">
+							JSON Configuration
+						</h3>
+						<p className="text-sm text-gray-500">
+							Preview or import configuration as JSON
+						</p>
 					</div>
 					<ChevronDown className="h-5 w-5 text-gray-400" />
 				</button>
@@ -151,8 +180,12 @@ export function JsonConfigPanel({ name, description, rules, outputFormat, onImpo
 				<div className="border-b border-gray-200 p-4">
 					<div className="flex items-center justify-between">
 						<div>
-							<h3 className="text-lg font-medium text-gray-900">Import Configuration</h3>
-							<p className="text-sm text-gray-500">Paste your JSON configuration below</p>
+							<h3 className="text-lg font-medium text-gray-900">
+								Import Configuration
+							</h3>
+							<p className="text-sm text-gray-500">
+								Paste your JSON configuration below
+							</p>
 						</div>
 						<button
 							onClick={() => setIsCollapsed(true)}
@@ -166,7 +199,7 @@ export function JsonConfigPanel({ name, description, rules, outputFormat, onImpo
 				<div className="p-4">
 					<div className="space-y-4">
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-2">
+							<label className="mb-2 block text-sm font-medium text-gray-700">
 								JSON Configuration
 							</label>
 							<textarea
@@ -188,7 +221,9 @@ export function JsonConfigPanel({ name, description, rules, outputFormat, onImpo
 						{importSuccess && (
 							<div className="flex items-center space-x-2 rounded-md bg-green-50 p-3">
 								<CheckCircle className="h-4 w-4 text-green-500" />
-								<span className="text-sm text-green-700">Configuration imported successfully!</span>
+								<span className="text-sm text-green-700">
+									Configuration imported successfully!
+								</span>
 							</div>
 						)}
 
@@ -219,29 +254,32 @@ export function JsonConfigPanel({ name, description, rules, outputFormat, onImpo
 			<div className="border-b border-gray-200 p-4">
 				<div className="flex items-center justify-between">
 					<div>
-						<h3 className="text-lg font-medium text-gray-900">JSON Configuration</h3>
+						<h3 className="text-lg font-medium text-gray-900">
+							JSON Configuration
+						</h3>
 						<p className="text-sm text-gray-500">
-							{rules.length} rule{rules.length !== 1 ? 's' : ''} • {configJson.split('\n').length} lines
+							{rules.length} rule{rules.length !== 1 ? 's' : ''} •{' '}
+							{configJson.split('\n').length} lines
 						</p>
 					</div>
 					<div className="flex items-center space-x-3">
 						<button
 							onClick={() => setShowImport(true)}
-							className="inline-flex items-center rounded px-2 py-1 text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200"
+							className="inline-flex items-center rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-200"
 						>
 							<Upload className="mr-1 h-3 w-3" />
 							Import
 						</button>
 						<button
 							onClick={handleCopy}
-							className="inline-flex items-center rounded px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200"
+							className="inline-flex items-center rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200"
 						>
 							<Copy className="mr-1 h-3 w-3" />
 							Copy
 						</button>
 						<button
 							onClick={handleDownload}
-							className="inline-flex items-center rounded px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200"
+							className="inline-flex items-center rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200"
 						>
 							<Download className="mr-1 h-3 w-3" />
 							Download
@@ -258,7 +296,7 @@ export function JsonConfigPanel({ name, description, rules, outputFormat, onImpo
 
 			<div className="p-4">
 				<div className="rounded bg-gray-50 p-3">
-					<pre className="whitespace-pre-wrap font-mono text-xs text-gray-800 max-h-96 overflow-auto">
+					<pre className="max-h-96 overflow-auto whitespace-pre-wrap font-mono text-xs text-gray-800">
 						{configJson}
 					</pre>
 				</div>

@@ -1,10 +1,14 @@
-import pino from 'pino';
 import { FastifyBaseLogger } from 'fastify';
+import pino from 'pino';
 
 import { config } from '../config.js';
 
 // Helper function to safely log errors
-export function logError(logger: FastifyBaseLogger, message: string, error: unknown) {
+export function logError(
+	logger: FastifyBaseLogger,
+	message: string,
+	error: unknown,
+) {
 	if (error instanceof Error) {
 		logger.error({ err: error }, message);
 	} else if (typeof error === 'string') {

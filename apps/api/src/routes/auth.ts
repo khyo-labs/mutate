@@ -9,7 +9,6 @@ import {
 	refreshTokenSchema,
 	registerSchema,
 } from '../schemas/auth.js';
-import { logError } from '../utils/logger.js';
 import type {
 	LoginRequest,
 	RefreshTokenRequest,
@@ -17,6 +16,7 @@ import type {
 } from '../schemas/auth.js';
 import '../types/fastify.js';
 import type { JWTPayload } from '../types/index.js';
+import { logError } from '../utils/logger.js';
 
 export async function authRoutes(fastify: FastifyInstance) {
 	// Register new user and organization
