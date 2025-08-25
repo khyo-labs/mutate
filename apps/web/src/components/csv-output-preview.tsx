@@ -394,7 +394,7 @@ function simulateTransformations(
 					// Delete specific row numbers (1-based, convert to 0-based)
 					const rowsToDelete = rule.params.rows.map((r) => r - 1);
 					data = data.filter(
-						(row, rowIndex) => !rowsToDelete.includes(rowIndex),
+						(_, rowIndex) => !rowsToDelete.includes(rowIndex),
 					);
 
 					const deletedCount = initialRowCount - data.length;
@@ -521,7 +521,7 @@ function shouldDeleteRow(
 				const colIndex = parseColumnIdentifier(condition.column, headers);
 				if (colIndex === -1) return false; // Column not found
 				const cellValue = row[colIndex];
-				return (cellValue && regex.test(cellValue.toString())) ?? false;
+				return Boolean(cellValue && regex.test(cellValue.toString()));
 			}
 			return row.some((cell) => cell && regex.test(cell.toString()));
 

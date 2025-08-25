@@ -131,7 +131,7 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 
 export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 	const { availableRules } = useConfigurationStore();
-	const [activeId, setActiveId] = React.useState<string | null>(null);
+	const [, setActiveId] = React.useState<string | null>(null);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),

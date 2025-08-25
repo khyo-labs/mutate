@@ -37,6 +37,8 @@ export function ConfigurationsPage() {
 	const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [configToDelete, setConfigToDelete] = useState<string | null>(null);
+	const [localError, setLocalError] = useState<string | null>(null);
+	const currentPage = pagination?.page || 1;
 
 	const loadConfigurations = async (page: number = 1, search?: string) => {
 		await fetchConfigurations({
@@ -57,10 +59,10 @@ export function ConfigurationsPage() {
 
 	const handleClone = async (configId: string) => {
 		try {
-			const clonedConfig = await configurationsApi.clone(configId);
+			await configurationsApi.clone(configId);
 			loadConfigurations(currentPage, searchTerm);
 		} catch (error) {
-			setError(
+			setLocalError(
 				error instanceof Error
 					? error.message
 					: 'Failed to clone configuration',
@@ -75,7 +77,7 @@ export function ConfigurationsPage() {
 			setShowDeleteModal(false);
 			setConfigToDelete(null);
 		} catch (error) {
-			setError(
+			setLocalError(
 				error instanceof Error
 					? error.message
 					: 'Failed to delete configuration',

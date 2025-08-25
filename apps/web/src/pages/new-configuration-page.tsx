@@ -13,7 +13,7 @@ import type { Configuration, TransformationRule } from '../types';
 
 export function NewConfigurationPage() {
 	const navigate = useNavigate();
-	const { createConfiguration, isLoading: storeLoading } = useConfigurationStore();
+	const { createConfiguration } = useConfigurationStore();
 	const [name, setName] = useState('');
 	const [description, setDescription] = useState('');
 	const [rules, setRules] = useState<TransformationRule[]>([]);

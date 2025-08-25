@@ -117,7 +117,7 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 			console.log('fetchConfigurations: response.pagination', response.pagination);
 			
 			// Handle different response formats
-			let configurations, pagination;
+			let configurations: Configuration[], pagination;
 			
 			if (Array.isArray(response)) {
 				// Direct array response

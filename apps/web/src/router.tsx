@@ -132,12 +132,6 @@ const routeTree = rootRoute.addChildren([
 export const router = createRouter({
 	routeTree,
 	defaultPreload: 'intent',
-	// Handle auth redirects
-	onRouteError: (error) => {
-		if (error.message === 'Unauthorized') {
-			window.location.href = '/login';
-		}
-	},
 });
 
 // Register router for type safety

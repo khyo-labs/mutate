@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 
 import { Layout } from '../components/layout';
 import { useConfigurationStore } from '../stores/config-store';
-import type { Configuration } from '../types';
 
 export function ConfigurationDetailPage() {
 	const { configId } = useParams({ from: '/configurations/$configId' });

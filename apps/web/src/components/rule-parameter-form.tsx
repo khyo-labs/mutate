@@ -22,7 +22,7 @@ export function RuleParameterForm({ rule, onChange }: RuleParameterFormProps) {
 		onChange({
 			...rule,
 			params: { ...rule.params, ...newParams },
-		});
+		} as TransformationRule);
 	}
 
 	function renderParameterForm() {

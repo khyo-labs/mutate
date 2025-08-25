@@ -205,7 +205,7 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 					const colIndex = parseColumnIdentifier(condition.column, worksheetData?.data[0] || []);
 					if (colIndex === -1) return false; // Column not found
 					const cellValue = rowData[colIndex];
-					return cellValue && cellValue.toString().includes(condition.value || '');
+					return Boolean(cellValue && cellValue.toString().includes(condition.value || ''));
 				}
 				return rowData.some(cell => 
 					cell && cell.toString().includes(condition.value || '')
@@ -217,7 +217,7 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 					const colIndex = parseColumnIdentifier(condition.column, worksheetData?.data[0] || []);
 					if (colIndex === -1) return false; // Column not found
 					const cellValue = rowData[colIndex];
-					return cellValue && regex.test(cellValue.toString());
+					return Boolean(cellValue && regex.test(cellValue.toString()));
 				}
 				return rowData.some(cell => 
 					cell && regex.test(cell.toString())
