@@ -1,0 +1,42 @@
+# Development override for docker-compose.yml
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+version: '3.8'
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: convert_db_dev
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    
+  redis:
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+
+  # BullMQ Dashboard for development
+  bull-board:
+    image: deadly0/bull-board:latest
+    container_name: convert_bull_board
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - convert_network
+
+volumes:
+  postgres_dev_data:
+    name: convert_postgres_dev_data
+  redis_dev_data:
+    name: convert_redis_dev_data

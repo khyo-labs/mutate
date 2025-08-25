@@ -1,0 +1,10 @@
+# Ignore environment overrides
+.env.local
+.env.production
+
+# Ignore log files
+*.log
+
+# Ignore backup files in this directory
+*.sql
+*.sql.gz

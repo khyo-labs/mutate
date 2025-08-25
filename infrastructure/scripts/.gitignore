@@ -1,0 +1,6 @@
+# Ignore log files
+*.log
+
+# Keep backups directory structure but ignore backup files
+backups/
+!backups/.gitkeep
