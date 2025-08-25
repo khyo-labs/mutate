@@ -100,7 +100,7 @@ const gracefulShutdown = async (signal: string) => {
 		await fastify.close();
 		process.exit(0);
 	} catch (err) {
-		fastify.log.error('Error during shutdown:', err);
+		fastify.log.error({ err }, 'Error during shutdown');
 		process.exit(1);
 	}
 };

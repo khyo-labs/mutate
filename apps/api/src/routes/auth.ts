@@ -9,6 +9,7 @@ import {
 	refreshTokenSchema,
 	registerSchema,
 } from '../schemas/auth.js';
+import { logError } from '../utils/logger.js';
 import type {
 	LoginRequest,
 	RefreshTokenRequest,
@@ -113,7 +114,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 				},
 			};
 		} catch (error) {
-			request.log.error('Registration error:', error);
+			logError(request.log, 'Registration error:', error);
 			return reply.code(500).send({
 				success: false,
 				error: {
@@ -209,7 +210,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 				},
 			};
 		} catch (error) {
-			request.log.error('Login error:', error);
+			logError(request.log, 'Login error:', error);
 			return reply.code(500).send({
 				success: false,
 				error: {
@@ -331,7 +332,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 					},
 				};
 			} catch (error) {
-				request.log.error('Get user error:', error);
+				logError(request.log, 'Get user error:', error);
 				return reply.code(500).send({
 					success: false,
 					error: {

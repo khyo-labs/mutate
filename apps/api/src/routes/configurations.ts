@@ -9,6 +9,7 @@ import {
 	createConfigurationSchema,
 	updateConfigurationSchema,
 } from '../schemas/configuration.js';
+import { logError } from '../utils/logger.js';
 import '../types/fastify.js';
 
 export async function configurationRoutes(fastify: FastifyInstance) {
@@ -82,7 +83,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 					},
 				};
 			} catch (error) {
-				request.log.error('Create configuration error:', error);
+				logError(request.log, 'Create configuration error:', error);
 				return reply.code(500).send({
 					success: false,
 					error: {
@@ -193,7 +194,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 				},
 			};
 		} catch (error) {
-			request.log.error('List configurations error:', error);
+			logError(request.log, 'List configurations error:', error);
 			return reply.code(500).send({
 				success: false,
 				error: {
@@ -239,7 +240,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 				data: configuration,
 			};
 		} catch (error) {
-			request.log.error('Get configuration error:', error);
+			logError(request.log, 'Get configuration error:', error);
 			return reply.code(500).send({
 				success: false,
 				error: {
@@ -339,7 +340,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 					data: updatedConfig,
 				};
 			} catch (error) {
-				request.log.error('Update configuration error:', error);
+				logError(request.log, 'Update configuration error:', error);
 				return reply.code(500).send({
 					success: false,
 					error: {
@@ -391,7 +392,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 
 				return reply.code(204).send();
 			} catch (error) {
-				request.log.error('Delete configuration error:', error);
+				logError(request.log, 'Delete configuration error:', error);
 				return reply.code(500).send({
 					success: false,
 					error: {
@@ -467,7 +468,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 					data: clonedConfig,
 				};
 			} catch (error) {
-				request.log.error('Clone configuration error:', error);
+				logError(request.log, 'Clone configuration error:', error);
 				return reply.code(500).send({
 					success: false,
 					error: {

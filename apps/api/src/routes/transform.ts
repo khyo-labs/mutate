@@ -4,6 +4,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/connection.js';
 import { configurations, transformationJobs } from '../db/schema.js';
 import { authenticateAPIKey } from '../middleware/auth.js';
+import { logError } from '../utils/logger.js';
 import '../types/fastify.js';
 
 export async function transformRoutes(fastify: FastifyInstance) {
@@ -117,7 +118,7 @@ export async function transformRoutes(fastify: FastifyInstance) {
 				};
 			}
 		} catch (error) {
-			request.log.error('Transform error:', error);
+			logError(request.log, 'Transform error:', error);
 			return reply.code(500).send({
 				success: false,
 				error: {
@@ -175,7 +176,7 @@ export async function transformRoutes(fastify: FastifyInstance) {
 				},
 			};
 		} catch (error) {
-			request.log.error('Get job status error:', error);
+			logError(request.log, 'Get job status error:', error);
 			return reply.code(500).send({
 				success: false,
 				error: {
