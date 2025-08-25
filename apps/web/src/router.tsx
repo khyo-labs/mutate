@@ -8,6 +8,8 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
 import { ConfigurationsPage } from './pages/configurations-page';
+import { ConfigurationDetailPage } from './pages/configuration-detail-page';
+import { ConfigurationBuilderPage } from './pages/configuration-builder-page';
 import { DashboardPage } from './pages/dashboard-page';
 import { LoginPage } from './pages/login-page';
 import { NewConfigurationPage } from './pages/new-configuration-page';
@@ -82,7 +84,7 @@ const configurationsRoute = createRoute({
 const configurationDetailRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	path: '/configurations/$configId',
-	component: () => <div>Configuration Detail</div>, // Will be replaced
+	component: ConfigurationDetailPage,
 	beforeLoad: () => {
 		const { isAuthenticated } = useAuthStore.getState();
 		if (!isAuthenticated) {
@@ -94,7 +96,7 @@ const configurationDetailRoute = createRoute({
 const configurationBuilderRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	path: '/configurations/$configId/builder',
-	component: () => <div>Configuration Builder</div>, // Will be replaced
+	component: ConfigurationBuilderPage,
 	beforeLoad: () => {
 		const { isAuthenticated } = useAuthStore.getState();
 		if (!isAuthenticated) {
