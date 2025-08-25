@@ -1,7 +1,7 @@
 {
-	"name": "@convert/api",
+	"name": "@vgxe/api",
 	"version": "1.0.0",
-	"description": "Backend API for the Convert platform",
+	"description": "Backend API for the VGXE platform",
 	"main": "dist/index.js",
 	"type": "module",
 	"scripts": {

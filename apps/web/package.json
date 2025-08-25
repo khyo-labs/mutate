@@ -1,7 +1,7 @@
 {
-	"name": "@convert/web",
+	"name": "@vgxe/web",
 	"version": "1.0.0",
-	"description": "Frontend for the Convert platform",
+	"description": "Frontend for the VGXE platform",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
