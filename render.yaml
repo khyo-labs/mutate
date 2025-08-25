@@ -1,17 +1,18 @@
-services:
+databases:
   # PostgreSQL Database
-  - type: pserv
-    name: vgxe-postgres
+  - name: vgxe-postgres
     plan: starter
     region: oregon
-    databaseName: vgxe_db
-    databaseUser: vgxe_user
 
+services:
   # Redis Instance
-  - type: redis
+  - type: keyvalue
     name: vgxe-redis
     plan: starter
     region: oregon
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow from anywhere
 
   # API Service
   - type: web
@@ -34,7 +35,7 @@ services:
           property: connectionString
       - key: REDIS_URL
         fromService:
-          type: redis
+          type: keyvalue
           name: vgxe-redis
           property: connectionString
       - key: JWT_SECRET
