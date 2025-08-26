@@ -18,7 +18,7 @@ services:
   - type: web
     name: mutate-api
     env: node
-    region: oregon
+    region: ohio
     plan: free
     buildCommand: cd apps/api && npm install && npm run build
     startCommand: cd apps/api && npm run db:migrate:prod && npm start
