@@ -18,7 +18,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
 	const navigate = useNavigate();
-	const { login, setLoading, isLoading } = useAuthStore();
+	const { login, isLoading } = useAuthStore();
 	const [showPassword, setShowPassword] = useState(false);
 	const [apiError, setApiError] = useState<string | null>(null);
 

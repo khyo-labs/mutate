@@ -3,7 +3,6 @@ import {
 	createRootRoute,
 	createRoute,
 	createRouter,
-	redirect,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
