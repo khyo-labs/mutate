@@ -50,7 +50,7 @@ export function RegisterPage() {
 		try {
 			await signIn.social({
 				provider,
-				callbackURL: '/',
+				callbackURL: `${import.meta.env.VITE_APP_BASE_URL || 'http://localhost:5173'}`,
 			});
 		} catch (error) {
 			setApiError(
