@@ -34,7 +34,7 @@ export function Layout({ children }: LayoutProps) {
 						<div className="flex">
 							<div className="flex flex-shrink-0 items-center">
 								<h1 className="text-xl font-semibold text-gray-900">
-									Mutate Platform
+									mutate
 								</h1>
 							</div>
 							<div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -157,7 +157,7 @@ export function PublicLayout({ children }: LayoutProps) {
 		<div className="flex min-h-screen flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">
 			<div className="sm:mx-auto sm:w-full sm:max-w-md">
 				<h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-					Mutate Platform
+					mutate
 				</h2>
 			</div>
 			{children}

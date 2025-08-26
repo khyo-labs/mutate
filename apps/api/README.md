@@ -1,6 +1,6 @@
-# Mutate Platform API
+# mutate API
 
-Backend API for the Mutate platform - a multi-tenant SaaS for configurable XLSX to CSV transformations.
+Backend API for the mutate - a multi-tenant SaaS for configurable XLSX to CSV transformations.
 
 ## Prerequisites
 

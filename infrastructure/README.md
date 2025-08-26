@@ -1,6 +1,6 @@
-# Mutate Platform Infrastructure
+# mutate Infrastructure
 
-Local development infrastructure for the Mutate platform using Docker Compose.
+Local development infrastructure for the mutate using Docker Compose.
 
 ## Prerequisites
 

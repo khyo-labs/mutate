@@ -3,7 +3,7 @@
 # Clean up development infrastructure (removes all data!)
 set -e
 
-echo "🧹 Cleaning up Mutate Platform development infrastructure..."
+echo "🧹 Cleaning up mutate development infrastructure..."
 echo "⚠️  This will remove ALL data in the development databases!"
 echo ""
 

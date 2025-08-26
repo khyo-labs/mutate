@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Start development infrastructure for Mutate Platform
+# Start development infrastructure for mutate
 set -e
 
-echo "🚀 Starting Mutate Platform development infrastructure..."
+echo "🚀 Starting mutate development infrastructure..."
 
 # Navigate to docker directory
 cd "$(dirname "$0")/../docker"

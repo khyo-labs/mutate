@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Stop development infrastructure for Mutate Platform
+# Stop development infrastructure for mutate
 set -e
 
-echo "🛑 Stopping Mutate Platform development infrastructure..."
+echo "🛑 Stopping mutate development infrastructure..."
 
 # Navigate to docker directory
 cd "$(dirname "$0")/../docker"

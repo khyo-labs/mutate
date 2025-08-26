@@ -1,4 +1,4 @@
--- Initialize Mutate Platform Database
+-- Initialize mutate Database
 -- This script runs when the PostgreSQL container starts for the first time
 
 -- Create additional databases for testing if needed
@@ -18,5 +18,5 @@ GRANT ALL PRIVILEGES ON DATABASE mutate_db TO postgres;
 -- Log successful initialization
 DO $$
 BEGIN
-    RAISE NOTICE 'Mutate Platform database initialized successfully';
+    RAISE NOTICE 'mutate database initialized successfully';
 END $$;

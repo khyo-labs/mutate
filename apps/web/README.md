@@ -1,6 +1,6 @@
-# Mutate Platform - Frontend
+# mutate - Frontend
 
-Modern React frontend for the Mutate platform built with Vite, TanStack Router, and Tailwind CSS.
+Modern React frontend for the mutate built with Vite, TanStack Router, and Tailwind CSS.
 
 ## Tech Stack
 

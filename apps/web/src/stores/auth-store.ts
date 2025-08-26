@@ -38,6 +38,7 @@ export const useAuthStore = create<AuthStore>()((set) => ({
 				email: data.email,
 				password: data.password,
 				name: data.name,
+				callbackURL: '/',
 			});
 		} finally {
 			set({ isLoading: false });
