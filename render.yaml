@@ -2,14 +2,14 @@ databases:
   # PostgreSQL Database (Free tier: 30-day limit, 256MB RAM)
   - name: mutate-postgres
     plan: free
-    region: oregon
+    region: ohio
 
 services:
   # Redis Instance (Free tier: 25MB RAM, 50 connections)
   - type: keyvalue
     name: mutate-redis
     plan: free
-    region: oregon
+    region: ohio
     ipAllowList:
       - source: 0.0.0.0/0
         description: Allow from anywhere
