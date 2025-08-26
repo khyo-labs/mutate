@@ -46,7 +46,9 @@ export const auth = betterAuth({
 			httpOnly: true,
 		},
 	},
-	trustedOrigins: ['http://localhost:5173', 'http://localhost:3000'],
+	trustedOrigins: process.env.CORS_ORIGINS
+		? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
+		: ['http://localhost:5173', 'http://localhost:3000'],
 	debug: process.env.NODE_ENV === 'development', // Enable debug logging in development
 });
 
