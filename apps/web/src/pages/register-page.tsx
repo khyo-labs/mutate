@@ -31,7 +31,7 @@ export function RegisterPage() {
 		resolver: zodResolver(registerSchema),
 	});
 
-	const onSubmit = async (data: RegisterFormData) => {
+	async function onSubmit(data: RegisterFormData) {
 		try {
 			setApiError(null);
 			await registerUser({
@@ -44,9 +44,9 @@ export function RegisterPage() {
 				error instanceof Error ? error.message : 'Registration failed',
 			);
 		}
-	};
+	}
 
-	const handleOAuthLogin = async (provider: 'github' | 'google') => {
+	async function handleOAuthLogin(provider: 'github' | 'google') {
 		try {
 			await signIn.social({
 				provider,
@@ -57,7 +57,7 @@ export function RegisterPage() {
 				error instanceof Error ? error.message : 'OAuth signup failed',
 			);
 		}
-	};
+	}
 
 	return (
 		<PublicLayout>
