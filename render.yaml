@@ -1,13 +1,13 @@
 databases:
   # PostgreSQL Database (Free tier: 30-day limit, 256MB RAM)
-  - name: vgxe-postgres
+  - name: mutate-postgres
     plan: free
     region: oregon
 
 services:
   # Redis Instance (Free tier: 25MB RAM, 50 connections)
   - type: keyvalue
-    name: vgxe-redis
+    name: mutate-redis
     plan: free
     region: oregon
     ipAllowList:
@@ -16,7 +16,7 @@ services:
 
   # API Service (Free tier: 512MB RAM, 0.1 CPU, sleeps after 15min)
   - type: web
-    name: vgxe-api
+    name: mutate-api
     env: node
     region: oregon
     plan: free
@@ -31,21 +31,21 @@ services:
         value: 10000
       - key: DATABASE_URL
         fromDatabase:
-          name: vgxe-postgres
+          name: mutate-postgres
           property: connectionString
       - key: REDIS_URL
         fromService:
           type: keyvalue
-          name: vgxe-redis
+          name: mutate-redis
           property: connectionString
-      - key: JWT_SECRET
+      - key: BETTER_AUTH_SECRET
         generateValue: true
-      - key: JWT_EXPIRES_IN
-        value: 1h
-      - key: JWT_REFRESH_EXPIRES_IN
-        value: 30d
+      - key: BETTER_AUTH_URL
+        value: https://api.usemutate.com
+      - key: BASE_URL
+        value: https://api.usemutate.com
       - key: CORS_ORIGINS
-        value: https://your-frontend-domain.onrender.com,https://localhost:5173
+        value: https://app.usemutate.com,https://localhost:5173
       - key: DATABASE_MAX_CONNECTIONS
         value: 10
       - key: STORAGE_TYPE
@@ -63,4 +63,4 @@ services:
       - key: LOG_LEVEL
         value: info
     domains:
-      - api.vgxe.com
+      - api.usemutate.com

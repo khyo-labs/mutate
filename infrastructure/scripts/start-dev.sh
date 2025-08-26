@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Start development infrastructure for Convert Platform
+# Start development infrastructure for Mutate Platform
 set -e
 
-echo "🚀 Starting Convert Platform development infrastructure..."
+echo "🚀 Starting Mutate Platform development infrastructure..."
 
 # Navigate to docker directory
 cd "$(dirname "$0")/../docker"
@@ -34,7 +34,7 @@ echo ""
 echo "💡 Database connection:"
 echo "  Host: localhost"
 echo "  Port: 5432"
-echo "  Database: convert_db_dev"
+echo "  Database: mutate_db_dev"
 echo "  User: postgres"
 echo "  Password: password"
 echo ""

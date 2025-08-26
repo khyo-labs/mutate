@@ -1,6 +1,5 @@
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
-import jwt from '@fastify/jwt';
 import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import Fastify from 'fastify';
@@ -8,7 +7,7 @@ import Fastify from 'fastify';
 import { config } from './config.js';
 import { errorHandler } from './middleware/error-handler.js';
 import authPlugin from './plugins/auth.js';
-import { authRoutes } from './routes/auth.js';
+import { betterAuthRoutes } from './routes/better-auth.js';
 import { configurationRoutes } from './routes/configurations.js';
 import { healthRoutes } from './routes/health.js';
 import { transformRoutes } from './routes/transform.js';
@@ -28,8 +27,8 @@ const fastify = Fastify({
 			},
 		}),
 	},
-	bodyLimit: 52428800, // 50MB
-	requestTimeout: 30000, // 30 seconds
+	bodyLimit: 52_428_800, // 50MB
+	requestTimeout: 30_000, // 30 seconds
 });
 
 // Register plugins
@@ -47,22 +46,18 @@ await fastify.register(multipart, {
 		fieldNameSize: 100,
 		fieldSize: 100,
 		fields: 10,
-		fileSize: 52428800, // 50MB
+		fileSize: 52_428_800, // 50MB
 		files: 1,
-		headerPairs: 2000,
+		headerPairs: 2_000,
 	},
 });
 
 await fastify.register(rateLimit, {
-	max: 1000,
+	max: 1_000,
 	timeWindow: '1 minute',
 	keyGenerator: (request) => {
 		return (request.headers['x-api-key'] as string) || request.ip;
 	},
-});
-
-await fastify.register(jwt, {
-	secret: config.JWT_SECRET,
 });
 
 // Register auth plugin
@@ -72,12 +67,12 @@ await fastify.register(authPlugin);
 fastify.setErrorHandler(errorHandler);
 
 // Register routes
-await fastify.register(healthRoutes, { prefix: '/api/v1/health' });
-await fastify.register(authRoutes, { prefix: '/api/v1/auth' });
+await fastify.register(healthRoutes, { prefix: '/v1/health' });
+await fastify.register(betterAuthRoutes, { prefix: '/v1/auth' });
 await fastify.register(configurationRoutes, {
-	prefix: '/api/v1/configurations',
+	prefix: '/v1/configurations',
 });
-await fastify.register(transformRoutes, { prefix: '/api/v1/transform' });
+await fastify.register(transformRoutes, { prefix: '/v1/transform' });
 
 // Start server
 const start = async () => {

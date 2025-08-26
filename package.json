@@ -1,5 +1,5 @@
 {
-	"name": "vgxe",
+	"name": "mutate",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
@@ -8,9 +8,12 @@
 		"build": "turbo build",
 		"typecheck": "turbo typecheck",
 		"lint": "turbo lint",
-		"api": "pnpm --filter @vgxe/api",
-		"web": "pnpm --filter @vgxe/web",
-		"format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\""
+		"api": "pnpm --filter @mutate/api",
+		"web": "pnpm --filter @mutate/web",
+		"format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+		"db:migrate": "pnpm --filter @mutate/api db:migrate",
+		"db:studio": "pnpm --filter @mutate/api db:studio",
+		"db:generate": "pnpm --filter @mutate/api db:generate"
 	},
 	"keywords": [],
 	"author": "",

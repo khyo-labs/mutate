@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Stop development infrastructure for Convert Platform
+# Stop development infrastructure for Mutate Platform
 set -e
 
-echo "🛑 Stopping Convert Platform development infrastructure..."
+echo "🛑 Stopping Mutate Platform development infrastructure..."
 
 # Navigate to docker directory
 cd "$(dirname "$0")/../docker"

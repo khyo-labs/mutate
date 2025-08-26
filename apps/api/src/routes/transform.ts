@@ -1,5 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
+import { ulid } from 'ulid';
 
 import { db } from '../db/connection.js';
 import { configurations, transformationJobs } from '../db/schema.js';
@@ -76,6 +77,7 @@ export async function transformRoutes(fastify: FastifyInstance) {
 			const [job] = await db
 				.insert(transformationJobs)
 				.values({
+					id: ulid(),
 					organizationId: request.currentUser!.organizationId,
 					configurationId: configId,
 					status: isAsync ? 'pending' : 'processing',
@@ -91,7 +93,7 @@ export async function transformRoutes(fastify: FastifyInstance) {
 					data: {
 						jobId: job.id,
 						status: 'processing',
-						statusUrl: `/api/v1/jobs/${job.id}`,
+						statusUrl: `/v1/jobs/${job.id}`,
 					},
 				});
 			} else {

@@ -4,12 +4,12 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
-    container_name: convert_postgres
+    container_name: mutate_postgres
     restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: convert_db
+      POSTGRES_DB: mutate_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       PGDATA: /var/lib/postgresql/data/pgdata
@@ -17,18 +17,18 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ../scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d convert_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mutate_db"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
     networks:
-      - convert_network
+      - mutate_network
 
   # Redis for caching and BullMQ
   redis:
     image: redis:7-alpine
-    container_name: convert_redis
+    container_name: mutate_redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -42,12 +42,12 @@ services:
       retries: 5
       start_period: 30s
     networks:
-      - convert_network
+      - mutate_network
 
   # Redis Commander - Web UI for Redis
   redis-commander:
     image: rediscommander/redis-commander:latest
-    container_name: convert_redis_ui
+    container_name: mutate_redis_ui
     restart: unless-stopped
     ports:
       - "8081:8081"
@@ -59,12 +59,12 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - convert_network
+      - mutate_network
 
   # Adminer - Database management tool
   adminer:
     image: adminer:latest
-    container_name: convert_adminer
+    container_name: mutate_adminer
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -75,15 +75,15 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - convert_network
+      - mutate_network
 
 volumes:
   postgres_data:
-    name: convert_postgres_data
+    name: mutate_postgres_data
   redis_data:
-    name: convert_redis_data
+    name: mutate_redis_data
 
 networks:
-  convert_network:
-    name: convert_network
+  mutate_network:
+    name: mutate_network
     driver: bridge

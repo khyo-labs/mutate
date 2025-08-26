@@ -21,9 +21,9 @@ This guide will help you deploy the API, PostgreSQL, and Redis to Render.com.
 
 1. Go to Render Dashboard → "New" → "PostgreSQL"
 2. Set these values:
-   - **Name**: `convert-postgres`
-   - **Database**: `convert_db`
-   - **User**: `convert_user`
+   - **Name**: `mutate-postgres`
+   - **Database**: `mutate_db`
+   - **User**: `mutate_user`
    - **Region**: Oregon (or preferred)
    - **Plan**: Starter ($7/month)
 
@@ -31,7 +31,7 @@ This guide will help you deploy the API, PostgreSQL, and Redis to Render.com.
 
 1. Go to Render Dashboard → "New" → "Redis"
 2. Set these values:
-   - **Name**: `convert-redis`
+   - **Name**: `mutate-redis`
    - **Region**: Oregon (same as database)
    - **Plan**: Starter ($7/month)
 
@@ -40,7 +40,7 @@ This guide will help you deploy the API, PostgreSQL, and Redis to Render.com.
 1. Go to Render Dashboard → "New" → "Web Service"
 2. Connect your GitHub repository
 3. Set these values:
-   - **Name**: `convert-api`
+   - **Name**: `mutate-api`
    - **Environment**: Node
    - **Region**: Oregon (same as database/redis)
    - **Branch**: `main`
@@ -59,19 +59,14 @@ HOST=0.0.0.0
 PORT=10000
 
 # Database (get from your PostgreSQL service)
-DATABASE_URL=postgresql://convert_user:password@hostname:port/convert_db
+DATABASE_URL=postgresql://mutate_user:password@hostname:port/mutate_db
 DATABASE_MAX_CONNECTIONS=10
 
 # Redis (get from your Redis service)
 REDIS_URL=redis://hostname:port
 
-# JWT Configuration (generate secure secrets)
-JWT_SECRET=your-super-secure-jwt-secret-at-least-32-chars-long
-JWT_EXPIRES_IN=1h
-JWT_REFRESH_EXPIRES_IN=30d
-
 # CORS (update with your frontend domain)
-CORS_ORIGINS=https://your-frontend-domain.onrender.com
+CORS_ORIGINS=https://app.usemutate.com,https://localhost:5173
 
 # File Configuration
 STORAGE_TYPE=local
@@ -137,7 +132,7 @@ VITE_API_BASE_URL=https://your-api-domain.onrender.com
 ## Monitoring
 
 1. **Logs**: View in Render dashboard under your service
-2. **Health Check**: `https://your-api-domain.onrender.com/api/v1/health`
+2. **Health Check**: `https://your-api-domain.onrender.com/v1/health`
 3. **Metrics**: Available in Render dashboard
 
 ## Troubleshooting

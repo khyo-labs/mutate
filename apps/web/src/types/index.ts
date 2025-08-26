@@ -180,7 +180,7 @@ export interface TransformationJob {
 export interface RegisterFormData {
 	email: string;
 	password: string;
-	organizationName: string;
+	name: string;
 	role?: UserRole;
 }
 

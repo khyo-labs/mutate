@@ -1,63 +1,58 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
-import type { AuthState, AuthTokens, User } from '../types';
+import { signIn, signOut, signUp, useSession } from '../lib/auth-client';
+import type { LoginFormData, RegisterFormData } from '../types';
 
-interface AuthStore extends AuthState {
-	login: (user: User, tokens: AuthTokens) => void;
-	logout: () => void;
+interface AuthStore {
+	isLoading: boolean;
 	setLoading: (loading: boolean) => void;
-	updateTokens: (tokens: AuthTokens) => void;
+	login: (credentials: LoginFormData) => Promise<void>;
+	register: (data: RegisterFormData) => Promise<void>;
+	logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthStore>()(
-	persist(
-		(set) => ({
-			user: null,
-			accessToken: null,
-			refreshToken: null,
-			isAuthenticated: false,
-			isLoading: false,
+export const useAuthStore = create<AuthStore>()((set) => ({
+	isLoading: false,
 
-			login: (user: User, tokens: AuthTokens) => {
-				set({
-					user,
-					accessToken: tokens.accessToken,
-					refreshToken: tokens.refreshToken,
-					isAuthenticated: true,
-					isLoading: false,
-				});
-			},
+	setLoading: (isLoading: boolean) => {
+		set({ isLoading });
+	},
 
-			logout: () => {
-				set({
-					user: null,
-					accessToken: null,
-					refreshToken: null,
-					isAuthenticated: false,
-					isLoading: false,
-				});
-			},
+	login: async (credentials: LoginFormData) => {
+		set({ isLoading: true });
+		try {
+			await signIn.email({
+				email: credentials.email,
+				password: credentials.password,
+				callbackURL: '/',
+			});
+		} finally {
+			set({ isLoading: false });
+		}
+	},
 
-			setLoading: (isLoading: boolean) => {
-				set({ isLoading });
-			},
+	register: async (data: RegisterFormData) => {
+		set({ isLoading: true });
+		try {
+			await signUp.email({
+				email: data.email,
+				password: data.password,
+				name: data.name,
+			});
+		} finally {
+			set({ isLoading: false });
+		}
+	},
 
-			updateTokens: (tokens: AuthTokens) => {
-				set({
-					accessToken: tokens.accessToken,
-					refreshToken: tokens.refreshToken,
-				});
-			},
-		}),
-		{
-			name: 'convert-auth',
-			partialize: (state) => ({
-				user: state.user,
-				accessToken: state.accessToken,
-				refreshToken: state.refreshToken,
-				isAuthenticated: state.isAuthenticated,
-			}),
-		},
-	),
-);
+	logout: async () => {
+		set({ isLoading: true });
+		try {
+			await signOut();
+		} finally {
+			set({ isLoading: false });
+		}
+	},
+}));
+
+// Export the Better Auth session hook for components to use
+export { useSession };

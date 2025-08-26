@@ -18,11 +18,6 @@ const configSchema = z.object({
 		.transform((val) => val.split(',').map((s) => s.trim()))
 		.default('http://localhost:5173'),
 
-	// JWT
-	JWT_SECRET: z.string().min(32),
-	JWT_EXPIRES_IN: z.string().default('1h'),
-	JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
-
 	// Database
 	DATABASE_URL: z.string().url(),
 	DATABASE_MAX_CONNECTIONS: z.coerce.number().default(10),
@@ -59,9 +54,6 @@ const env = {
 	PORT: process.env.PORT,
 	HOST: process.env.HOST,
 	CORS_ORIGINS: process.env.CORS_ORIGINS,
-	JWT_SECRET: process.env.JWT_SECRET,
-	JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
-	JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN,
 	DATABASE_URL: process.env.DATABASE_URL,
 	DATABASE_MAX_CONNECTIONS: process.env.DATABASE_MAX_CONNECTIONS,
 	REDIS_URL: process.env.REDIS_URL,

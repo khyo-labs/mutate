@@ -1,6 +1,6 @@
-# Convert Platform Infrastructure
+# Mutate Platform Infrastructure
 
-Local development infrastructure for the Convert platform using Docker Compose.
+Local development infrastructure for the Mutate platform using Docker Compose.
 
 ## Prerequisites
 
@@ -49,7 +49,7 @@ Connect to PostgreSQL using:
 
 - **Host:** localhost
 - **Port:** 5432
-- **Database:** convert_db_dev (development) or convert_db (production)
+- **Database:** mutate_db_dev (development) or mutate_db (production)
 - **Username:** postgres
 - **Password:** password
 
@@ -57,10 +57,10 @@ Connect to PostgreSQL using:
 
 ```bash
 # Development
-DATABASE_URL=postgresql://postgres:password@localhost:5432/convert_db_dev
+DATABASE_URL=postgresql://postgres:password@localhost:5432/mutate_db_dev
 
 # Production (when using main docker-compose.yml)
-DATABASE_URL=postgresql://postgres:password@localhost:5432/convert_db
+DATABASE_URL=postgresql://postgres:password@localhost:5432/mutate_db
 ```
 
 ## Scripts Reference
@@ -111,21 +111,21 @@ open http://localhost:3001  # BullMQ Dashboard
 ./scripts/start-dev.sh
 
 # Restore from backup
-./scripts/restore-dev.sh ./backups/convert_db_backup_20241201_120000.sql.gz
+./scripts/restore-dev.sh ./backups/mutate_db_backup_20241201_120000.sql.gz
 ```
 
 ## Data Persistence
 
 Data is stored in Docker volumes:
 
-- `convert_postgres_dev_data` - PostgreSQL data
-- `convert_redis_dev_data` - Redis data
+- `mutate_postgres_dev_data` - PostgreSQL data
+- `mutate_redis_dev_data` - Redis data
 
 These volumes persist when containers are stopped but are removed with `cleanup-dev.sh`.
 
 ## Networking
 
-All services run on the `convert_network` Docker network and can communicate using service names:
+All services run on the `mutate_network` Docker network and can communicate using service names:
 
 - `postgres:5432`
 - `redis:6379`
@@ -158,10 +158,10 @@ cd docker && docker-compose logs -f
 
 ```bash
 # Check if PostgreSQL is ready
-docker exec convert_postgres pg_isready -U postgres
+docker exec mutate_postgres pg_isready -U postgres
 
 # Connect to database directly
-docker exec -it convert_postgres psql -U postgres -d convert_db_dev
+docker exec -it mutate_postgres psql -U postgres -d mutate_db_dev
 ```
 
 ### Reset everything
@@ -196,7 +196,7 @@ Update your API's `.env` file to use the local infrastructure:
 
 ```bash
 # Database
-DATABASE_URL=postgresql://postgres:password@localhost:5432/convert_db_dev
+DATABASE_URL=postgresql://postgres:password@localhost:5432/mutate_db_dev
 
 # Redis
 REDIS_URL=redis://localhost:6379

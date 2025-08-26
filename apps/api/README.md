@@ -1,6 +1,6 @@
-# Convert Platform API
+# Mutate Platform API
 
-Backend API for the Convert platform - a multi-tenant SaaS for configurable XLSX to CSV transformations.
+Backend API for the Mutate platform - a multi-tenant SaaS for configurable XLSX to CSV transformations.
 
 ## Prerequisites
 
@@ -57,30 +57,30 @@ The API will be available at `http://localhost:3000`
 
 ### Health Endpoints
 
-- `GET /api/v1/health` - Basic health check
-- `GET /api/v1/health/db` - Database health check
+- `GET /v1/health` - Basic health check
+- `GET /v1/health/db` - Database health check
 
 ### Authentication Endpoints
 
-- `POST /api/v1/auth/register` - Register new user and organization
-- `POST /api/v1/auth/login` - Login user
-- `POST /api/v1/auth/refresh` - Refresh access token
-- `GET /api/v1/auth/me` - Get current user info
-- `POST /api/v1/auth/logout` - Logout user
+- `POST /v1/auth/register` - Register new user and organization
+- `POST /v1/auth/login` - Login user
+- `POST /v1/auth/refresh` - Refresh access token
+- `GET /v1/auth/me` - Get current user info
+- `POST /v1/auth/logout` - Logout user
 
 ### Configuration Endpoints (JWT Auth Required)
 
-- `POST /api/v1/configurations` - Create configuration
-- `GET /api/v1/configurations` - List configurations
-- `GET /api/v1/configurations/:id` - Get configuration
-- `PUT /api/v1/configurations/:id` - Update configuration
-- `DELETE /api/v1/configurations/:id` - Delete configuration
-- `POST /api/v1/configurations/:id/clone` - Clone configuration
+- `POST /v1/configurations` - Create configuration
+- `GET /v1/configurations` - List configurations
+- `GET /v1/configurations/:id` - Get configuration
+- `PUT /v1/configurations/:id` - Update configuration
+- `DELETE /v1/configurations/:id` - Delete configuration
+- `POST /v1/configurations/:id/clone` - Clone configuration
 
 ### Transformation Endpoints (API Key Auth Required)
 
-- `POST /api/v1/transform` - Transform file
-- `GET /api/v1/transform/jobs/:jobId` - Get job status
+- `POST /v1/transform` - Transform file
+- `GET /v1/transform/jobs/:jobId` - Get job status
 
 ## Environment Variables
 

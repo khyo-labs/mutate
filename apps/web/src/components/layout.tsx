@@ -3,19 +3,20 @@ import { FileText, Home, LogOut, Menu, X } from 'lucide-react';
 import React from 'react';
 import { useState } from 'react';
 
-import { useAuthStore } from '../stores/auth-store';
+import { useAuthStore, useSession } from '../stores/auth-store';
 
 interface LayoutProps {
 	children: React.ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
-	const { user, logout } = useAuthStore();
+	const { logout } = useAuthStore();
+	const { data: session } = useSession();
 	const navigate = useNavigate();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 	const handleLogout = async () => {
-		logout();
+		await logout();
 		navigate({ to: '/login' });
 	};
 
@@ -33,7 +34,7 @@ export function Layout({ children }: LayoutProps) {
 						<div className="flex">
 							<div className="flex flex-shrink-0 items-center">
 								<h1 className="text-xl font-semibold text-gray-900">
-									Convert Platform
+									Mutate Platform
 								</h1>
 							</div>
 							<div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -61,9 +62,11 @@ export function Layout({ children }: LayoutProps) {
 
 						<div className="hidden sm:ml-6 sm:flex sm:items-center">
 							<div className="flex items-center space-x-4">
-								<span className="text-sm text-gray-700">{user?.email}</span>
+								<span className="text-sm text-gray-700">
+									{session?.user?.email}
+								</span>
 								<span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-500">
-									{user?.role}
+									member
 								</span>
 								<button
 									onClick={handleLogout}
@@ -122,8 +125,10 @@ export function Layout({ children }: LayoutProps) {
 						</div>
 						<div className="border-t border-gray-200 pb-3 pt-4">
 							<div className="px-4">
-								<div className="text-sm text-gray-800">{user?.email}</div>
-								<div className="text-xs text-gray-500">{user?.role}</div>
+								<div className="text-sm text-gray-800">
+									{session?.user?.email}
+								</div>
+								<div className="text-xs text-gray-500">member</div>
 							</div>
 							<div className="mt-3 px-4">
 								<button
@@ -152,7 +157,7 @@ export function PublicLayout({ children }: LayoutProps) {
 		<div className="flex min-h-screen flex-col justify-center bg-gray-50 py-12 sm:px-6 lg:px-8">
 			<div className="sm:mx-auto sm:w-full sm:max-w-md">
 				<h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-					Convert Platform
+					Mutate Platform
 				</h2>
 			</div>
 			{children}

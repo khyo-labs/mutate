@@ -7,37 +7,111 @@ import {
 	pgTable,
 	text,
 	timestamp,
-	uuid,
 	varchar,
 } from 'drizzle-orm/pg-core';
 
-// Organizations table
-export const organizations = pgTable('organizations', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	name: varchar('name', { length: 255 }).notNull(),
-	plan: varchar('plan', { length: 50 }).default('free'),
-	createdAt: timestamp('created_at').defaultNow().notNull(),
-	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+// Better Auth tables
+export const user = pgTable('user', {
+	id: text('id').primaryKey(),
+	name: text('name').notNull(),
+	email: text('email').notNull().unique(),
+	emailVerified: boolean('email_verified')
+		.$defaultFn(() => false)
+		.notNull(),
+	image: text('image'),
+	createdAt: timestamp('created_at')
+		.$defaultFn(() => new Date())
+		.notNull(),
+	updatedAt: timestamp('updated_at')
+		.$defaultFn(() => new Date())
+		.notNull(),
 });
 
-// Users table
-export const users = pgTable('users', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	organizationId: uuid('organization_id')
-		.references(() => organizations.id)
+export const session = pgTable('session', {
+	id: text('id').primaryKey(),
+	expiresAt: timestamp('expires_at').notNull(),
+	token: text('token').notNull().unique(),
+	createdAt: timestamp('created_at').notNull(),
+	updatedAt: timestamp('updated_at').notNull(),
+	ipAddress: text('ip_address'),
+	userAgent: text('user_agent'),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	activeOrganizationId: text('active_organization_id'),
+});
+
+export const account = pgTable('account', {
+	id: text('id').primaryKey(),
+	accountId: text('account_id').notNull(),
+	providerId: text('provider_id').notNull(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	accessToken: text('access_token'),
+	refreshToken: text('refresh_token'),
+	idToken: text('id_token'),
+	accessTokenExpiresAt: timestamp('access_token_expires_at'),
+	refreshTokenExpiresAt: timestamp('refresh_token_expires_at'),
+	scope: text('scope'),
+	password: text('password'),
+	createdAt: timestamp('created_at').notNull(),
+	updatedAt: timestamp('updated_at').notNull(),
+});
+
+export const verification = pgTable('verification', {
+	id: text('id').primaryKey(),
+	identifier: text('identifier').notNull(),
+	value: text('value').notNull(),
+	expiresAt: timestamp('expires_at').notNull(),
+	createdAt: timestamp('created_at')
+		.$defaultFn(() => new Date())
 		.notNull(),
-	email: varchar('email', { length: 255 }).unique().notNull(),
-	passwordHash: varchar('password_hash', { length: 255 }).notNull(),
-	role: varchar('role', { length: 50 }).default('member').notNull(),
-	createdAt: timestamp('created_at').defaultNow().notNull(),
-	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at')
+		.$defaultFn(() => new Date())
+		.notNull(),
+});
+
+export const organization = pgTable('organization', {
+	id: text('id').primaryKey(),
+	name: text('name').notNull(),
+	slug: text('slug').unique(),
+	logo: text('logo'),
+	createdAt: timestamp('created_at').notNull(),
+	metadata: text('metadata'),
+});
+
+export const member = pgTable('member', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.notNull()
+		.references(() => organization.id, { onDelete: 'cascade' }),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	role: text('role').default('member').notNull(),
+	createdAt: timestamp('created_at').notNull(),
+});
+
+export const invitation = pgTable('invitation', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.notNull()
+		.references(() => organization.id, { onDelete: 'cascade' }),
+	email: text('email').notNull(),
+	role: text('role'),
+	status: text('status').default('pending').notNull(),
+	expiresAt: timestamp('expires_at').notNull(),
+	inviterId: text('inviter_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
 });
 
 // Configurations table
-export const configurations = pgTable('configurations', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	organizationId: uuid('organization_id')
-		.references(() => organizations.id)
+export const configurations = pgTable('configuration', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id)
 		.notNull(),
 	name: varchar('name', { length: 255 }).notNull(),
 	description: text('description'),
@@ -45,35 +119,35 @@ export const configurations = pgTable('configurations', {
 	outputFormat: jsonb('output_format').notNull(),
 	version: integer('version').default(1).notNull(),
 	isActive: boolean('is_active').default(true).notNull(),
-	createdBy: uuid('created_by')
-		.references(() => users.id)
+	createdBy: text('created_by')
+		.references(() => user.id)
 		.notNull(),
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 // Configuration versions table
-export const configurationVersions = pgTable('configuration_versions', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	configurationId: uuid('configuration_id')
+export const configurationVersions = pgTable('configuration_version', {
+	id: text('id').primaryKey(),
+	configurationId: text('configuration_id')
 		.references(() => configurations.id)
 		.notNull(),
 	version: integer('version').notNull(),
 	rules: jsonb('rules').notNull(),
 	outputFormat: jsonb('output_format').notNull(),
-	createdBy: uuid('created_by')
-		.references(() => users.id)
+	createdBy: text('created_by')
+		.references(() => user.id)
 		.notNull(),
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 // Transformation jobs table
-export const transformationJobs = pgTable('transformation_jobs', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	organizationId: uuid('organization_id')
-		.references(() => organizations.id)
+export const transformationJobs = pgTable('transformation_job', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id)
 		.notNull(),
-	configurationId: uuid('configuration_id')
+	configurationId: text('configuration_id')
 		.references(() => configurations.id)
 		.notNull(),
 	status: varchar('status', { length: 50 }).default('pending').notNull(),
@@ -83,39 +157,39 @@ export const transformationJobs = pgTable('transformation_jobs', {
 	executionLog: jsonb('execution_log'),
 	startedAt: timestamp('started_at'),
 	completedAt: timestamp('completed_at'),
-	createdBy: uuid('created_by')
-		.references(() => users.id)
+	createdBy: text('created_by')
+		.references(() => user.id)
 		.notNull(),
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 // API keys table
-export const apiKeys = pgTable('api_keys', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	organizationId: uuid('organization_id')
-		.references(() => organizations.id)
+export const apiKeys = pgTable('api_key', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id)
 		.notNull(),
 	keyHash: varchar('key_hash', { length: 255 }).notNull(),
 	name: varchar('name', { length: 255 }),
 	permissions: jsonb('permissions'),
 	lastUsedAt: timestamp('last_used_at'),
-	createdBy: uuid('created_by')
-		.references(() => users.id)
+	createdBy: text('created_by')
+		.references(() => user.id)
 		.notNull(),
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 	expiresAt: timestamp('expires_at'),
 });
 
 // Audit logs table
-export const auditLogs = pgTable('audit_logs', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	organizationId: uuid('organization_id')
-		.references(() => organizations.id)
+export const auditLogs = pgTable('audit_log', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id)
 		.notNull(),
-	userId: uuid('user_id').references(() => users.id),
+	userId: text('user_id').references(() => user.id),
 	action: varchar('action', { length: 100 }).notNull(),
 	resourceType: varchar('resource_type', { length: 50 }),
-	resourceId: uuid('resource_id'),
+	resourceId: text('resource_id'),
 	ipAddress: inet('ip_address'),
 	userAgent: text('user_agent'),
 	requestBody: jsonb('request_body'),
@@ -124,19 +198,20 @@ export const auditLogs = pgTable('audit_logs', {
 });
 
 // Relations
-export const organizationsRelations = relations(organizations, ({ many }) => ({
-	users: many(users),
+export const organizationRelations = relations(organization, ({ many }) => ({
+	members: many(member),
 	configurations: many(configurations),
 	transformationJobs: many(transformationJobs),
 	apiKeys: many(apiKeys),
 	auditLogs: many(auditLogs),
+	invitations: many(invitation),
 }));
 
-export const usersRelations = relations(users, ({ one, many }) => ({
-	organization: one(organizations, {
-		fields: [users.organizationId],
-		references: [organizations.id],
-	}),
+export const userRelations = relations(user, ({ many }) => ({
+	sessions: many(session),
+	accounts: many(account),
+	members: many(member),
+	invitations: many(invitation),
 	configurations: many(configurations),
 	transformationJobs: many(transformationJobs),
 	apiKeys: many(apiKeys),
@@ -147,13 +222,13 @@ export const usersRelations = relations(users, ({ one, many }) => ({
 export const configurationsRelations = relations(
 	configurations,
 	({ one, many }) => ({
-		organization: one(organizations, {
+		organization: one(organization, {
 			fields: [configurations.organizationId],
-			references: [organizations.id],
+			references: [organization.id],
 		}),
-		createdBy: one(users, {
+		createdBy: one(user, {
 			fields: [configurations.createdBy],
-			references: [users.id],
+			references: [user.id],
 		}),
 		transformationJobs: many(transformationJobs),
 		versions: many(configurationVersions),
@@ -167,9 +242,9 @@ export const configurationVersionsRelations = relations(
 			fields: [configurationVersions.configurationId],
 			references: [configurations.id],
 		}),
-		createdBy: one(users, {
+		createdBy: one(user, {
 			fields: [configurationVersions.createdBy],
-			references: [users.id],
+			references: [user.id],
 		}),
 	}),
 );
@@ -177,39 +252,79 @@ export const configurationVersionsRelations = relations(
 export const transformationJobsRelations = relations(
 	transformationJobs,
 	({ one }) => ({
-		organization: one(organizations, {
+		organization: one(organization, {
 			fields: [transformationJobs.organizationId],
-			references: [organizations.id],
+			references: [organization.id],
 		}),
 		configuration: one(configurations, {
 			fields: [transformationJobs.configurationId],
 			references: [configurations.id],
 		}),
-		createdBy: one(users, {
+		createdBy: one(user, {
 			fields: [transformationJobs.createdBy],
-			references: [users.id],
+			references: [user.id],
 		}),
 	}),
 );
 
 export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
-	organization: one(organizations, {
+	organization: one(organization, {
 		fields: [apiKeys.organizationId],
-		references: [organizations.id],
+		references: [organization.id],
 	}),
-	createdBy: one(users, {
+	createdBy: one(user, {
 		fields: [apiKeys.createdBy],
-		references: [users.id],
+		references: [user.id],
 	}),
 }));
 
 export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
-	organization: one(organizations, {
+	organization: one(organization, {
 		fields: [auditLogs.organizationId],
-		references: [organizations.id],
+		references: [organization.id],
 	}),
-	user: one(users, {
+	user: one(user, {
 		fields: [auditLogs.userId],
-		references: [users.id],
+		references: [user.id],
+	}),
+}));
+
+// Better Auth specific relations
+export const sessionRelations = relations(session, ({ one }) => ({
+	user: one(user, {
+		fields: [session.userId],
+		references: [user.id],
+	}),
+}));
+
+export const accountRelations = relations(account, ({ one }) => ({
+	user: one(user, {
+		fields: [account.userId],
+		references: [user.id],
+	}),
+}));
+
+export const memberRelations = relations(
+	member,
+	({ one }) => ({
+		user: one(user, {
+			fields: [member.userId],
+			references: [user.id],
+		}),
+		organization: one(organization, {
+			fields: [member.organizationId],
+			references: [organization.id],
+		}),
+	}),
+);
+
+export const invitationRelations = relations(invitation, ({ one }) => ({
+	inviter: one(user, {
+		fields: [invitation.inviterId],
+		references: [user.id],
+	}),
+	organization: one(organization, {
+		fields: [invitation.organizationId],
+		references: [organization.id],
 	}),
 }));

@@ -45,11 +45,11 @@ Build a multi-tenant SaaS platform that enables users to create visual, reusable
 #### API Endpoints
 
 ```
-POST   /api/v1/auth/register
-POST   /api/v1/auth/login
-POST   /api/v1/auth/refresh
-POST   /api/v1/auth/logout
-GET    /api/v1/auth/me
+POST   /v1/auth/register
+POST   /v1/auth/login
+POST   /v1/auth/refresh
+POST   /v1/auth/logout
+GET    /v1/auth/me
 ```
 
 #### Database Schema
@@ -90,12 +90,12 @@ users
 #### API Endpoints
 
 ```
-POST   /api/v1/configurations
-GET    /api/v1/configurations (paginated)
-GET    /api/v1/configurations/{id}
-PUT    /api/v1/configurations/{id}
-DELETE /api/v1/configurations/{id}
-POST   /api/v1/configurations/{id}/clone
+POST   /v1/configurations
+GET    /v1/configurations (paginated)
+GET    /v1/configurations/{id}
+PUT    /v1/configurations/{id}
+DELETE /v1/configurations/{id}
+POST   /v1/configurations/{id}/clone
 ```
 
 #### Database Schema
@@ -175,7 +175,7 @@ configurations
 #### API Endpoints
 
 ```
-POST   /api/v1/transform
+POST   /v1/transform
   Body: multipart/form-data
     - configId (string)
     - file (binary)
@@ -184,9 +184,9 @@ POST   /api/v1/transform
       - retention (string, e.g., "1h", "24h")
       - callback (webhook URL, optional)
 
-GET    /api/v1/jobs/{jobId}
-GET    /api/v1/files/{fileId}/download
-DELETE /api/v1/files/{fileId}
+GET    /v1/jobs/{jobId}
+GET    /v1/files/{fileId}/download
+DELETE /v1/files/{fileId}
 ```
 
 #### Database Schema
@@ -280,9 +280,9 @@ transformation_jobs
 #### API Endpoints
 
 ```
-POST   /api/v1/api-keys
-GET    /api/v1/api-keys
-DELETE /api/v1/api-keys/{id}
+POST   /v1/api-keys
+GET    /v1/api-keys
+DELETE /v1/api-keys/{id}
 ```
 
 #### Database Schema

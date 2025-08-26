@@ -1,9 +1,10 @@
 import { and, count, desc, eq, ilike } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
+import { ulid } from 'ulid';
 
 import { db } from '../db/connection.js';
 import { configurationVersions, configurations } from '../db/schema.js';
-import { authenticateJWT, requireRole } from '../middleware/auth.js';
+import { authenticateSession, requireRole } from '../middleware/auth.js';
 import {
 	configurationQuerySchema,
 	createConfigurationSchema,
@@ -13,10 +14,7 @@ import '../types/fastify.js';
 import { logError } from '../utils/logger.js';
 
 export async function configurationRoutes(fastify: FastifyInstance) {
-	// Add authentication to all routes
-	fastify.addHook('preHandler', authenticateJWT);
-
-	// Create configuration
+	fastify.addHook('preHandler', authenticateSession);
 	fastify.post(
 		'/',
 		{
@@ -51,6 +49,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 				const [configuration] = await db
 					.insert(configurations)
 					.values({
+						id: ulid(),
 						organizationId: request.currentUser!.organizationId,
 						name,
 						description,
@@ -63,6 +62,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 
 				// Create initial version
 				await db.insert(configurationVersions).values({
+					id: ulid(),
 					configurationId: configuration.id,
 					version: 1,
 					rules,
@@ -330,6 +330,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 				// Create new version if rules changed
 				if (updateData.rules) {
 					await db.insert(configurationVersions).values({
+						id: ulid(),
 						configurationId: id,
 						version: newVersion,
 						rules: updateData.rules,
@@ -448,6 +449,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 				const [clonedConfig] = await db
 					.insert(configurations)
 					.values({
+						id: ulid(),
 						organizationId: originalConfig.organizationId,
 						name: `${originalConfig.name} (Copy)`,
 						description: originalConfig.description,
@@ -460,6 +462,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 
 				// Create initial version for clone
 				await db.insert(configurationVersions).values({
+					id: ulid(),
 					configurationId: clonedConfig.id,
 					version: 1,
 					rules: originalConfig.rules,

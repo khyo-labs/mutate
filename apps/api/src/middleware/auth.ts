@@ -2,46 +2,75 @@ import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { db } from '../db/connection.js';
-import { apiKeys, users } from '../db/schema.js';
-import '../types/fastify.js';
-import type { JWTPayload } from '../types/index.js';
+import { db } from '@/db/connection.js';
+import { apiKeys, member, organization } from '@/db/schema.js';
+import { auth } from '@/lib/auth.js';
+import '@/types/fastify.js';
 
-export async function authenticateJWT(
+export async function authenticateSession(
 	request: FastifyRequest,
 	reply: FastifyReply,
 ) {
 	try {
-		const token = await request.jwtVerify<JWTPayload>();
+		// Create a proper Request object that Better Auth can use
+		const fullUrl = `${request.protocol}://${request.headers.host}${request.url}`;
 
-		// Verify user still exists and is active
-		const user = await db
-			.select()
-			.from(users)
-			.where(eq(users.id, token.userId))
-			.limit(1);
+		// Convert Fastify request to a proper Request object
+		const req = new Request(fullUrl, {
+			method: request.method,
+			headers: request.headers as any,
+			body: request.body ? JSON.stringify(request.body) : undefined,
+		});
 
-		if (!user.length) {
-			return reply.code(401).send({
-				success: false,
-				error: {
-					code: 'INVALID_TOKEN',
-					message: 'User no longer exists',
-				},
+		let session = await auth.api.getSession(req);
+
+		console.log('session', session);
+
+		if (!session) {
+			// Try alternative session retrieval method
+			console.log('Trying alternative session method...');
+			const altSession = await auth.api.getSession({
+				headers: req.headers,
 			});
+			console.log('alt session:', altSession);
+
+			if (!altSession) {
+				return reply.code(401).send({
+					success: false,
+					error: {
+						code: 'NOT_AUTHENTICATED',
+						message: 'No valid session found',
+					},
+				});
+			} else {
+				session = altSession;
+			}
 		}
 
+		const membership = await db
+			.select({
+				organizationId: member.organizationId,
+				role: member.role,
+				organization: organization,
+			})
+			.from(member)
+			.leftJoin(organization, eq(member.organizationId, organization.id))
+			.where(eq(member.userId, session.user.id))
+			.limit(1);
+
+		const userOrgInfo = membership[0];
+
 		request.currentUser = {
-			id: token.userId,
-			organizationId: token.organizationId,
-			role: user[0].role,
+			id: session.user.id,
+			organizationId: userOrgInfo?.organizationId || '',
+			role: userOrgInfo?.role || 'member',
 		};
 	} catch (err) {
 		return reply.code(401).send({
 			success: false,
 			error: {
-				code: 'INVALID_TOKEN',
-				message: 'Invalid or expired token',
+				code: 'INVALID_SESSION',
+				message: 'Invalid or expired session',
 			},
 		});
 	}

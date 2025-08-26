@@ -33,10 +33,10 @@ fi
 # Check if backup is compressed
 if [[ "$BACKUP_FILE" == *.gz ]]; then
     echo "📦 Extracting compressed backup..."
-    gunzip -c "$BACKUP_FILE" | docker exec -i convert_postgres psql -U postgres -d convert_db_dev
+    gunzip -c "$BACKUP_FILE" | docker exec -i mutate_postgres psql -U postgres -d mutate_db_dev
 else
     echo "📦 Restoring uncompressed backup..."
-    cat "$BACKUP_FILE" | docker exec -i convert_postgres psql -U postgres -d convert_db_dev
+    cat "$BACKUP_FILE" | docker exec -i mutate_postgres psql -U postgres -d mutate_db_dev
 fi
 
 echo "✅ Database restored successfully!"

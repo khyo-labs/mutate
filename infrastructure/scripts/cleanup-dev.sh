@@ -3,7 +3,7 @@
 # Clean up development infrastructure (removes all data!)
 set -e
 
-echo "🧹 Cleaning up Convert Platform development infrastructure..."
+echo "🧹 Cleaning up Mutate Platform development infrastructure..."
 echo "⚠️  This will remove ALL data in the development databases!"
 echo ""
 
@@ -24,12 +24,12 @@ docker-compose -f docker-compose.yml -f docker-compose.dev.yml down -v
 
 # Remove volumes explicitly
 echo "🗑️  Removing volumes..."
-docker volume rm convert_postgres_dev_data 2>/dev/null || echo "PostgreSQL dev volume not found"
-docker volume rm convert_redis_dev_data 2>/dev/null || echo "Redis dev volume not found"
+docker volume rm mutate_postgres_dev_data 2>/dev/null || echo "PostgreSQL dev volume not found"
+docker volume rm mutate_redis_dev_data 2>/dev/null || echo "Redis dev volume not found"
 
 # Remove network
 echo "🌐 Removing network..."
-docker network rm convert_network 2>/dev/null || echo "Network not found"
+docker network rm mutate_network 2>/dev/null || echo "Network not found"
 
 # Prune unused containers and images
 echo "🧽 Cleaning up Docker resources..."

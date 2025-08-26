@@ -288,7 +288,7 @@ CREATE TABLE api_keys (
 
 ```yaml
 # Create Configuration
-POST /api/v1/configurations
+POST /v1/configurations
 Headers:
   Authorization: Bearer {token}
   Content-Type: application/json
@@ -307,7 +307,7 @@ Response: 201 Created
   }
 
 # List Configurations
-GET /api/v1/configurations
+GET /v1/configurations
 Query Parameters:
   - page: integer (default: 1)
   - limit: integer (default: 20)
@@ -323,20 +323,20 @@ Response: 200 OK
   }
 
 # Get Configuration
-GET /api/v1/configurations/{configId}
+GET /v1/configurations/{configId}
 Response: 200 OK
 
 # Update Configuration
-PUT /api/v1/configurations/{configId}
+PUT /v1/configurations/{configId}
 Body: { "rules": [...] }
 Response: 200 OK
 
 # Delete Configuration
-DELETE /api/v1/configurations/{configId}
+DELETE /v1/configurations/{configId}
 Response: 204 No Content
 
 # Test Configuration
-POST /api/v1/configurations/{configId}/test
+POST /v1/configurations/{configId}/test
 Body:
   {
     "sampleFile": "multipart/form-data"
@@ -355,7 +355,7 @@ Response: 200 OK
 
 ```yaml
 # Single Transformation
-POST /api/v1/transform
+POST /v1/transform
 Headers:
   X-API-Key: {apiKey}
 Body (multipart/form-data):
@@ -377,11 +377,11 @@ Response (async): 202 Accepted
   {
     "jobId": "job-uuid",
     "status": "processing",
-    "statusUrl": "/api/v1/jobs/job-uuid"
+    "statusUrl": "/v1/jobs/job-uuid"
   }
 
 # Batch Transformation
-POST /api/v1/transform/batch
+POST /v1/transform/batch
 Body:
   {
     "configId": "config-uuid",
@@ -398,7 +398,7 @@ Response: 202 Accepted
   }
 
 # Get Job Status
-GET /api/v1/jobs/{jobId}
+GET /v1/jobs/{jobId}
 Response: 200 OK
   {
     "jobId": "job-uuid",
