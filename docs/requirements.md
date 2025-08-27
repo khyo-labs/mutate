@@ -121,11 +121,11 @@ configurations
 
 1. **SELECT_WORKSHEET**
    - Select worksheet by name, pattern match, or index
-   - Parameters: `worksheetIdentifier`, `identifierType`
+   - Parameters: `value`, `type`
 
 2. **VALIDATE_COLUMNS**
    - Validate expected number of columns
-   - Parameters: `expectedCount`, `onFailure` (stop/notify/continue)
+   - Parameters: `numOfColumns`, `onFailure` (stop/notify/continue)
 
 3. **UNMERGE_AND_FILL**
    - Unmerge cells and fill values down/up

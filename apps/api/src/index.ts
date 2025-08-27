@@ -8,7 +8,7 @@ import { config } from './config.js';
 import { errorHandler } from './middleware/error-handler.js';
 import authPlugin from './plugins/auth.js';
 import { betterAuthRoutes } from './routes/better-auth.js';
-import { configurationRoutes } from './routes/configurations.js';
+import { configurationRoutes } from './routes/configuration/index.js';
 import { healthRoutes } from './routes/health.js';
 import { transformRoutes } from './routes/transform.js';
 import './types/fastify.js';

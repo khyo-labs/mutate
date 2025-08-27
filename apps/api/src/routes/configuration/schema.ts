@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Rule schemas
 const baseRuleSchema = z.object({
 	id: z.string(),
 	type: z.string(),
@@ -9,15 +8,15 @@ const baseRuleSchema = z.object({
 const selectWorksheetRuleSchema = baseRuleSchema.extend({
 	type: z.literal('SELECT_WORKSHEET'),
 	params: z.object({
-		worksheetIdentifier: z.string(),
-		identifierType: z.enum(['name', 'pattern', 'index']),
+		value: z.string(),
+		type: z.enum(['name', 'pattern', 'index']),
 	}),
 });
 
 const validateColumnsRuleSchema = baseRuleSchema.extend({
 	type: z.literal('VALIDATE_COLUMNS'),
 	params: z.object({
-		expectedCount: z.number().min(1),
+		numOfColumns: z.number().min(1),
 		onFailure: z.enum(['stop', 'notify', 'continue']),
 	}),
 });
@@ -84,7 +83,7 @@ const outputFormatSchema = z.object({
 	includeHeaders: z.boolean().default(true),
 });
 
-export const createConfigurationSchema = z.object({
+export const createSchema = z.object({
 	name: z.string().min(1, 'Name is required').max(255, 'Name too long'),
 	description: z.string().max(1000, 'Description too long').optional(),
 	rules: z
@@ -93,7 +92,7 @@ export const createConfigurationSchema = z.object({
 	outputFormat: outputFormatSchema,
 });
 
-export const updateConfigurationSchema = z.object({
+export const updateSchema = z.object({
 	name: z
 		.string()
 		.min(1, 'Name is required')
@@ -113,10 +112,6 @@ export const configurationQuerySchema = z.object({
 	search: z.string().optional(),
 });
 
-export type CreateConfigurationRequest = z.infer<
-	typeof createConfigurationSchema
->;
-export type UpdateConfigurationRequest = z.infer<
-	typeof updateConfigurationSchema
->;
-export type ConfigurationQuery = z.infer<typeof configurationQuerySchema>;
+export type CreateRequest = z.infer<typeof createSchema>;
+export type UpdateRequest = z.infer<typeof updateSchema>;
+export type Query = z.infer<typeof configurationQuerySchema>;

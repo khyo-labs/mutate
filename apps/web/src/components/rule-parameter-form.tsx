@@ -109,8 +109,8 @@ function SelectWorksheetForm({
 					Identifier Type
 				</label>
 				<select
-					value={rule.params.identifierType || 'name'}
-					onChange={(e) => onChange({ identifierType: e.target.value as any })}
+					value={rule.params.type || 'name'}
+					onChange={(e) => onChange({ type: e.target.value as any })}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
 					<option value="name">By Name</option>
@@ -124,12 +124,12 @@ function SelectWorksheetForm({
 				</label>
 				<input
 					type="text"
-					value={rule.params.worksheetIdentifier || ''}
-					onChange={(e) => onChange({ worksheetIdentifier: e.target.value })}
+					value={rule.params.value || ''}
+					onChange={(e) => onChange({ value: e.target.value })}
 					placeholder={
-						rule.params.identifierType === 'index'
+						rule.params.type === 'index'
 							? 'e.g., 0'
-							: rule.params.identifierType === 'pattern'
+							: rule.params.type === 'pattern'
 								? 'e.g., Sheet*'
 								: 'e.g., Sheet1'
 					}
@@ -155,9 +155,9 @@ function ValidateColumnsForm({
 				</label>
 				<input
 					type="number"
-					value={rule.params.expectedCount || 0}
+					value={rule.params.numOfColumns || 0}
 					onChange={(e) =>
-						onChange({ expectedCount: parseInt(e.target.value) || 0 })
+						onChange({ numOfColumns: parseInt(e.target.value) || 0 })
 					}
 					min="1"
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"

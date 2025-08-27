@@ -22,15 +22,15 @@ export interface BaseTransformationRule {
 export interface SelectWorksheetRule extends BaseTransformationRule {
 	type: 'SELECT_WORKSHEET';
 	params: {
-		worksheetIdentifier: string;
-		identifierType: 'name' | 'pattern' | 'index';
+		value: string;
+		type: 'name' | 'pattern' | 'index';
 	};
 }
 
 export interface ValidateColumnsRule extends BaseTransformationRule {
 	type: 'VALIDATE_COLUMNS';
 	params: {
-		expectedCount: number;
+		numOfColumns: number;
 		onFailure: 'stop' | 'notify' | 'continue';
 	};
 }

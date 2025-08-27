@@ -51,15 +51,15 @@ const defaultRuleTemplates: TransformationRule[] = [
 		id: 'template-select-worksheet',
 		type: 'SELECT_WORKSHEET',
 		params: {
-			worksheetIdentifier: 'Sheet1',
-			identifierType: 'name',
+			value: 'Sheet1',
+			type: 'name',
 		},
 	},
 	{
 		id: 'template-validate-columns',
 		type: 'VALIDATE_COLUMNS',
 		params: {
-			expectedCount: 10,
+			numOfColumns: 10,
 			onFailure: 'notify',
 		},
 	},

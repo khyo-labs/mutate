@@ -66,7 +66,7 @@ export function SpreadsheetPreview({
 		rules.forEach((rule) => {
 			switch (rule.type) {
 				case 'SELECT_WORKSHEET':
-					if (rule.params.worksheetIdentifier === activeWorksheet) {
+					if (rule.params.value === activeWorksheet) {
 						// Highlight entire worksheet header
 						for (
 							let col = worksheetData.range.s.c;
@@ -178,10 +178,10 @@ export function SpreadsheetPreview({
 					break;
 
 				case 'VALIDATE_COLUMNS':
-					const expectedCount = rule.params.expectedCount;
+					const numOfColumns = rule.params.numOfColumns;
 					const actualCount =
 						worksheetData.range.e.c - worksheetData.range.s.c + 1;
-					if (actualCount !== expectedCount) {
+					if (actualCount !== numOfColumns) {
 						for (
 							let col = worksheetData.range.s.c;
 							col <= worksheetData.range.e.c;
@@ -191,7 +191,7 @@ export function SpreadsheetPreview({
 								row: 0,
 								col,
 								type: 'warning',
-								reason: `Expected ${expectedCount} columns, found ${actualCount}`,
+								reason: `Expected ${numOfColumns} columns, found ${actualCount}`,
 								ruleId: rule.id,
 							});
 						}

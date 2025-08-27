@@ -2,16 +2,16 @@ import { and, count, desc, eq, ilike } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 import { ulid } from 'ulid';
 
-import { db } from '../db/connection.js';
-import { configurationVersions, configurations } from '../db/schema.js';
-import { authenticateSession, requireRole } from '../middleware/auth.js';
+import { db } from '../../db/connection.js';
+import { configurationVersions, configurations } from '../../db/schema.js';
+import { authenticateSession, requireRole } from '../../middleware/auth.js';
 import {
 	configurationQuerySchema,
-	createConfigurationSchema,
-	updateConfigurationSchema,
-} from '../schemas/configuration.js';
-import '../types/fastify.js';
-import { logError } from '../utils/logger.js';
+	createSchema,
+	updateSchema,
+} from './schema.js';
+import '../../types/fastify.js';
+import { logError } from '../../utils/logger.js';
 
 export async function configurationRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', authenticateSession);
@@ -21,8 +21,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 			preHandler: [requireRole('member')],
 		},
 		async (request, reply) => {
-			// Validate request body
-			const validationResult = createConfigurationSchema.safeParse(
+			const validationResult = createSchema.safeParse(
 				request.body,
 			);
 			if (!validationResult.success) {
@@ -265,7 +264,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 			const { id } = request.params as { id: string };
 
 			// Validate request body
-			const validationResult = updateConfigurationSchema.safeParse(
+			const validationResult = updateSchema.safeParse(
 				request.body,
 			);
 			if (!validationResult.success) {

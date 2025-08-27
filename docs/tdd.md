@@ -117,15 +117,15 @@ graph TB
 			"id": "rule-1",
 			"type": "SELECT_WORKSHEET",
 			"params": {
-				"worksheetIdentifier": "Line",
-				"identifierType": "name"
+				"value": "Line",
+				"type": "name"
 			}
 		},
 		{
 			"id": "rule-2",
 			"type": "VALIDATE_COLUMNS",
 			"params": {
-				"expectedCount": 15,
+				"numOfColumns": 15,
 				"onFailure": {
 					"action": "NOTIFY",
 					"notificationChannel": "email",

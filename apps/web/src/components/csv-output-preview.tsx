@@ -304,7 +304,7 @@ function simulateTransformations(
 	rules.forEach((rule) => {
 		switch (rule.type) {
 			case 'SELECT_WORKSHEET':
-				const targetWorksheet = rule.params.worksheetIdentifier;
+				const targetWorksheet = rule.params.value;
 				if (file.worksheets.includes(targetWorksheet)) {
 					activeWorksheet = targetWorksheet;
 					worksheet = file.workbook.Sheets[activeWorksheet];
@@ -335,11 +335,11 @@ function simulateTransformations(
 				break;
 
 			case 'VALIDATE_COLUMNS':
-				const expectedCount = rule.params.expectedCount;
+				const numOfColumns = rule.params.numOfColumns;
 				const actualCount = data.length > 0 ? data[0].length : 0;
-				if (actualCount !== expectedCount) {
+				if (actualCount !== numOfColumns) {
 					warnings.push(
-						`Expected ${expectedCount} columns, found ${actualCount}`,
+						`Expected ${numOfColumns} columns, found ${actualCount}`,
 					);
 					if (rule.params.onFailure === 'stop') {
 						return {

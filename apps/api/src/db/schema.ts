@@ -10,7 +10,6 @@ import {
 	varchar,
 } from 'drizzle-orm/pg-core';
 
-// Better Auth tables
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
 	name: text('name').notNull(),
@@ -107,7 +106,6 @@ export const invitation = pgTable('invitation', {
 		.references(() => user.id, { onDelete: 'cascade' }),
 });
 
-// Configurations table
 export const configurations = pgTable('configuration', {
 	id: text('id').primaryKey(),
 	organizationId: text('organization_id')
@@ -126,7 +124,6 @@ export const configurations = pgTable('configuration', {
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Configuration versions table
 export const configurationVersions = pgTable('configuration_version', {
 	id: text('id').primaryKey(),
 	configurationId: text('configuration_id')
@@ -141,7 +138,6 @@ export const configurationVersions = pgTable('configuration_version', {
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// Transformation jobs table
 export const transformationJobs = pgTable('transformation_job', {
 	id: text('id').primaryKey(),
 	organizationId: text('organization_id')
@@ -163,7 +159,6 @@ export const transformationJobs = pgTable('transformation_job', {
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// API keys table
 export const apiKeys = pgTable('api_key', {
 	id: text('id').primaryKey(),
 	organizationId: text('organization_id')
@@ -180,7 +175,6 @@ export const apiKeys = pgTable('api_key', {
 	expiresAt: timestamp('expires_at'),
 });
 
-// Audit logs table
 export const auditLogs = pgTable('audit_log', {
 	id: text('id').primaryKey(),
 	organizationId: text('organization_id')
@@ -197,7 +191,6 @@ export const auditLogs = pgTable('audit_log', {
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-// Relations
 export const organizationRelations = relations(organization, ({ many }) => ({
 	members: many(member),
 	configurations: many(configurations),
@@ -289,7 +282,6 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
 	}),
 }));
 
-// Better Auth specific relations
 export const sessionRelations = relations(session, ({ one }) => ({
 	user: one(user, {
 		fields: [session.userId],
@@ -304,19 +296,16 @@ export const accountRelations = relations(account, ({ one }) => ({
 	}),
 }));
 
-export const memberRelations = relations(
-	member,
-	({ one }) => ({
-		user: one(user, {
-			fields: [member.userId],
-			references: [user.id],
-		}),
-		organization: one(organization, {
-			fields: [member.organizationId],
-			references: [organization.id],
-		}),
+export const memberRelations = relations(member, ({ one }) => ({
+	user: one(user, {
+		fields: [member.userId],
+		references: [user.id],
 	}),
-);
+	organization: one(organization, {
+		fields: [member.organizationId],
+		references: [organization.id],
+	}),
+}));
 
 export const invitationRelations = relations(invitation, ({ one }) => ({
 	inviter: one(user, {
