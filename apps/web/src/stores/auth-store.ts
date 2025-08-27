@@ -1,7 +1,5 @@
 import { create } from 'zustand';
 
-import { router } from '@/router';
-
 import { signIn, signOut, signUp, useSession } from '../lib/auth-client';
 import type { LoginFormData, RegisterFormData } from '../types';
 
@@ -53,9 +51,7 @@ export const useAuthStore = create<AuthStore>()((set) => ({
 			await signOut({
 				fetchOptions: {
 					onSuccess: () => {
-						router.navigate({
-							to: '/login',
-						});
+						window.location.href = '/login';
 					},
 				},
 			});

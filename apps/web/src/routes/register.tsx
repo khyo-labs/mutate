@@ -1,24 +1,31 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
+
 import { PublicLayout } from '../components/layout';
 import { signIn } from '../lib/auth-client';
 import { useAuthStore } from '../stores/auth-store';
 
-const loginSchema = z.object({
-	email: z.string().email('Invalid email address'),
-	password: z.string().min(1, 'Password is required'),
+export const Route = createFileRoute('/register')({
+	component: RegisterComponent,
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+const registerSchema = z.object({
+	email: z.string().email('Invalid email address'),
+	password: z.string().min(8, 'Password must be at least 8 characters'),
+	name: z.string().min(2, 'Name must be at least 2 characters'),
+});
 
-export function LoginPage() {
+type RegisterFormData = z.infer<typeof registerSchema>;
+
+export function RegisterComponent() {
 	const navigate = useNavigate();
-	const { login, isLoading } = useAuthStore();
+	const { register: registerUser, isLoading } = useAuthStore();
 	const [showPassword, setShowPassword] = useState(false);
 	const [apiError, setApiError] = useState<string | null>(null);
 
@@ -26,21 +33,26 @@ export function LoginPage() {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<LoginFormData>({
-		resolver: zodResolver(loginSchema),
+	} = useForm<RegisterFormData>({
+		resolver: zodResolver(registerSchema),
 	});
 
-	const onSubmit = async (data: LoginFormData) => {
+	async function onSubmit(data: RegisterFormData) {
 		try {
 			setApiError(null);
-			await login(data);
+			await registerUser({
+				...data,
+				role: 'admin',
+			});
 			navigate({ to: '/' });
 		} catch (error) {
-			setApiError(error instanceof Error ? error.message : 'Login failed');
+			setApiError(
+				error instanceof Error ? error.message : 'Registration failed',
+			);
 		}
-	};
+	}
 
-	const handleOAuthLogin = async (provider: 'github' | 'google') => {
+	async function handleOAuthLogin(provider: 'github' | 'google') {
 		try {
 			await signIn.social({
 				provider,
@@ -48,16 +60,16 @@ export function LoginPage() {
 			});
 		} catch (error) {
 			setApiError(
-				error instanceof Error ? error.message : 'OAuth login failed',
+				error instanceof Error ? error.message : 'OAuth signup failed',
 			);
 		}
-	};
+	}
 
 	return (
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 				<div className="card">
-					{/* OAuth Login Buttons */}
+					{/* OAuth Registration Buttons */}
 					<div className="mb-6 space-y-3">
 						<button
 							type="button"
@@ -75,7 +87,7 @@ export function LoginPage() {
 									clipRule="evenodd"
 								/>
 							</svg>
-							Continue with GitHub
+							Sign up with GitHub
 						</button>
 						<button
 							type="button"
@@ -100,7 +112,7 @@ export function LoginPage() {
 									d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
 								/>
 							</svg>
-							Continue with Google
+							Sign up with Google
 						</button>
 					</div>
 
@@ -110,7 +122,7 @@ export function LoginPage() {
 						</div>
 						<div className="relative flex justify-center text-sm">
 							<span className="bg-white px-2 text-gray-500">
-								Or continue with email
+								Or create account with email
 							</span>
 						</div>
 					</div>
@@ -141,6 +153,29 @@ export function LoginPage() {
 
 						<div>
 							<label
+								htmlFor="name"
+								className="block text-sm font-medium text-gray-700"
+							>
+								Name
+							</label>
+							<div className="mt-1">
+								<input
+									{...register('name')}
+									type="text"
+									autoComplete="name"
+									className="input"
+									placeholder="Enter your name"
+								/>
+								{errors.name && (
+									<p className="mt-1 text-sm text-red-600">
+										{errors.name.message}
+									</p>
+								)}
+							</div>
+						</div>
+
+						<div>
+							<label
 								htmlFor="password"
 								className="block text-sm font-medium text-gray-700"
 							>
@@ -150,7 +185,7 @@ export function LoginPage() {
 								<input
 									{...register('password')}
 									type={showPassword ? 'text' : 'password'}
-									autoComplete="current-password"
+									autoComplete="new-password"
 									className="input pr-10"
 									placeholder="Enter your password"
 								/>
@@ -171,6 +206,9 @@ export function LoginPage() {
 									</p>
 								)}
 							</div>
+							<p className="mt-1 text-sm text-gray-500">
+								Must be at least 8 characters long
+							</p>
 						</div>
 
 						{apiError && (
@@ -180,30 +218,26 @@ export function LoginPage() {
 						)}
 
 						<div>
-							<button
-								type="submit"
-								disabled={isLoading}
-								className="btn btn-primary w-full"
-							>
+							<Button type="submit" disabled={isLoading} className="w-full">
 								{isLoading ? (
 									<>
 										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Signing in...
+										Creating account...
 									</>
 								) : (
-									'Sign in'
+									'Create account'
 								)}
-							</button>
+							</Button>
 						</div>
 
 						<div className="text-center">
 							<span className="text-sm text-gray-600">
-								Don't have an account?{' '}
+								Already have an account?{' '}
 								<Link
-									to="/register"
+									to="/login"
 									className="text-primary-600 hover:text-primary-500 font-medium"
 								>
-									Sign up
+									Sign in
 								</Link>
 							</span>
 						</div>

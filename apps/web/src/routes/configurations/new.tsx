@@ -1,18 +1,24 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Save } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { CsvOutputPreview } from '../components/csv-output-preview';
-import { FileUpload, type UploadedFile } from '../components/file-upload';
-import { JsonConfigPanel } from '../components/json-config-panel';
-import { Layout } from '../components/layout';
-import { RuleBuilder } from '../components/rule-builder';
-import { SpreadsheetPreview } from '../components/spreadsheet-preview';
-import { useCreateConfiguration } from '../hooks/use-configurations';
-import type { Configuration, TransformationRule } from '../types';
+import { Button } from '@/components/ui/button';
+
+import { CsvOutputPreview } from '../../components/csv-output-preview';
+import { FileUpload, type UploadedFile } from '../../components/file-upload';
+import { JsonConfigPanel } from '../../components/json-config-panel';
+import { Layout } from '../../components/layout';
+import { RuleBuilder } from '../../components/rule-builder';
+import { SpreadsheetPreview } from '../../components/spreadsheet-preview';
+import { useCreateConfiguration } from '../../hooks/use-configurations';
+import type { Configuration, TransformationRule } from '../../types';
+
+export const Route = createFileRoute('/configurations/new')({
+	component: NewConfigurationComponent,
+});
 
 const configurationSchema = z.object({
 	name: z.string().min(1, 'Configuration name is required'),
@@ -21,7 +27,7 @@ const configurationSchema = z.object({
 
 type ConfigurationFormData = z.infer<typeof configurationSchema>;
 
-export function NewConfigurationPage() {
+export function NewConfigurationComponent() {
 	const navigate = useNavigate();
 	const createConfiguration = useCreateConfiguration();
 	const [rules, setRules] = useState<TransformationRule[]>([]);
@@ -207,14 +213,14 @@ export function NewConfigurationPage() {
 				{/* Actions */}
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<div className="mt-8 flex justify-end space-x-4">
-						<button
+						<Button
 							type="button"
 							onClick={handleCancel}
 							className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 						>
 							Cancel
-						</button>
-						<button
+						</Button>
+						<Button
 							type="submit"
 							disabled={createConfiguration.isPending || !formData.name?.trim()}
 							className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -223,7 +229,7 @@ export function NewConfigurationPage() {
 							{createConfiguration.isPending
 								? 'Creating...'
 								: 'Create Configuration'}
-						</button>
+						</Button>
 					</div>
 				</form>
 			</div>

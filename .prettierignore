@@ -1,0 +1,6 @@
+routeTree.gen.ts
+dist/
+node_modules/
+.claude/
+.turbo/
+.vscode/

@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import {
 	ArrowLeft,
 	Calendar,
@@ -12,11 +12,15 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Layout } from '../components/layout';
-import { useConfigurationStore } from '../stores/config-store';
+import { Layout } from '@/components/layout';
+import { useConfigurationStore } from '@/stores/config-store';
 
-export function ConfigurationDetailPage() {
-	const { configId } = useParams({ from: '/configurations/$configId' });
+export const Route = createFileRoute('/configurations/$configId/')({
+	component: ConfigurationDetailComponent,
+});
+
+export function ConfigurationDetailComponent() {
+	const { configId } = Route.useParams();
 	const navigate = useNavigate();
 	const { fetchConfiguration, currentConfiguration, isLoading, error } =
 		useConfigurationStore();
@@ -37,7 +41,7 @@ export function ConfigurationDetailPage() {
 			day: 'numeric',
 			hour: '2-digit',
 			minute: '2-digit',
-		});
+		})
 	}
 
 	function handleCopyJson() {
@@ -51,7 +55,7 @@ export function ConfigurationDetailPage() {
 				},
 				null,
 				2,
-			);
+			)
 			navigator.clipboard.writeText(configJson);
 		}
 	}
@@ -67,7 +71,7 @@ export function ConfigurationDetailPage() {
 				},
 				null,
 				2,
-			);
+			)
 			const blob = new Blob([configJson], { type: 'application/json' });
 			const url = URL.createObjectURL(blob);
 			const link = document.createElement('a');
@@ -95,7 +99,7 @@ export function ConfigurationDetailPage() {
 					</div>
 				</div>
 			</Layout>
-		);
+		)
 	}
 
 	if (error) {
@@ -105,7 +109,7 @@ export function ConfigurationDetailPage() {
 					<div className="text-sm text-red-700">{error}</div>
 				</div>
 			</Layout>
-		);
+		)
 	}
 
 	if (!config) {
@@ -120,13 +124,13 @@ export function ConfigurationDetailPage() {
 					</p>
 					<Link
 						to="/configurations"
-						className="btn btn-primary mt-4 inline-block"
+						className=" mt-4 inline-block"
 					>
 						Back to Configurations
 					</Link>
 				</div>
 			</Layout>
-		);
+		)
 	}
 
 	return (
@@ -178,7 +182,7 @@ export function ConfigurationDetailPage() {
 							<Link
 								to="/configurations/$configId/builder"
 								params={{ configId: config.id }}
-								className="btn btn-primary"
+								className=""
 							>
 								<Edit className="mr-2 h-4 w-4" />
 								Edit Configuration
@@ -205,7 +209,7 @@ export function ConfigurationDetailPage() {
 											<div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-600">
 												{index + 1}
 											</div>
-											<div className="min-w-0 flex-1">
+											<div className='min-w-0 flex-1'>
 												<h3 className="text-sm font-medium text-gray-900">
 													{getRuleTypeLabel(rule.type)}
 												</h3>
@@ -274,9 +278,9 @@ export function ConfigurationDetailPage() {
 										}`}
 									>
 										{showJson ? (
-											<Eye className="mr-1 h-3 w-3" />
+											<Eye className='mr-1 h-3 w-3' />
 										) : (
-											<Code className="mr-1 h-3 w-3" />
+											<Code className='mr-1 h-3 w-3' />
 										)}
 										{showJson ? 'Hide' : 'Show'} JSON
 									</button>
@@ -299,7 +303,7 @@ export function ConfigurationDetailPage() {
 						</div>
 
 						{showJson && (
-							<div className="p-4">
+							<div className='p-4'>
 								<pre className="max-h-96 overflow-auto whitespace-pre-wrap rounded bg-gray-50 p-3 font-mono text-xs text-gray-800">
 									{JSON.stringify(
 										{
@@ -318,5 +322,5 @@ export function ConfigurationDetailPage() {
 				</div>
 			</div>
 		</Layout>
-	);
+	)
 }

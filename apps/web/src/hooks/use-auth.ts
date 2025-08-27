@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { authApi } from '../api/auth';
-import type { LoginFormData, RegisterFormData, User } from '../types';
+import type { LoginFormData, RegisterFormData } from '../types';
 
 export const authKeys = {
 	all: ['auth'] as const,

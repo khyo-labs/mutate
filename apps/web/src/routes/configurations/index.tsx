@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router';
 import { Link } from '@tanstack/react-router';
 import {
 	Calendar,
@@ -13,14 +14,18 @@ import {
 } from 'lucide-react';
 import React, { useState } from 'react';
 
-import { Layout } from '../components/layout';
+import { Layout } from '@/components/layout';
 import {
 	useCloneConfiguration,
 	useConfigurations,
 	useDeleteConfiguration,
-} from '../hooks/use-configurations';
+} from '@/hooks/use-configurations';
 
-export function ConfigurationsPage() {
+export const Route = createFileRoute('/configurations/')({
+	component: ConfigurationsComponent,
+});
+
+export function ConfigurationsComponent() {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
@@ -99,7 +104,7 @@ export function ConfigurationsPage() {
 							{pagination && ` (${pagination.total} total)`}
 						</p>
 					</div>
-					<Link to="/configurations/new" className="btn btn-primary">
+					<Link to="/configurations/new" className="">
 						<Plus className="mr-2 h-4 w-4" />
 						New Configuration
 					</Link>
@@ -253,7 +258,7 @@ export function ConfigurationsPage() {
 							</p>
 							{!searchTerm && (
 								<div className="mt-6">
-									<Link to="/configurations/new" className="btn btn-primary">
+									<Link to="/configurations/new" className="">
 										<Plus className="mr-2 h-4 w-4" />
 										Create Configuration
 									</Link>

@@ -1,18 +1,22 @@
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Eye, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { CsvOutputPreview } from '../components/csv-output-preview';
-import { FileUpload, type UploadedFile } from '../components/file-upload';
-import { JsonConfigPanel } from '../components/json-config-panel';
-import { Layout } from '../components/layout';
-import { RuleBuilder } from '../components/rule-builder';
-import { SpreadsheetPreview } from '../components/spreadsheet-preview';
-import { useConfigurationStore } from '../stores/config-store';
-import type { Configuration, TransformationRule } from '../types';
+import { CsvOutputPreview } from '../../../components/csv-output-preview';
+import { FileUpload, type UploadedFile } from '../../../components/file-upload';
+import { JsonConfigPanel } from '../../../components/json-config-panel';
+import { Layout } from '../../../components/layout';
+import { RuleBuilder } from '../../../components/rule-builder';
+import { SpreadsheetPreview } from '../../../components/spreadsheet-preview';
+import { useConfigurationStore } from '../../../stores/config-store';
+import type { Configuration, TransformationRule } from '../../../types';
 
-export function ConfigurationBuilderPage() {
-	const { configId } = useParams({ from: '/configurations/$configId/builder' });
+export const Route = createFileRoute('/configurations/$configId/builder')({
+	component: ConfigurationBuilderComponent,
+});
+
+export function ConfigurationBuilderComponent() {
+	const { configId } = Route.useParams();
 	const navigate = useNavigate();
 	const {
 		fetchConfiguration,
@@ -124,7 +128,7 @@ export function ConfigurationBuilderPage() {
 					</p>
 					<button
 						onClick={() => navigate({ to: '/configurations' })}
-						className="btn btn-primary mt-4"
+						className=" mt-4"
 					>
 						Back to Configurations
 					</button>

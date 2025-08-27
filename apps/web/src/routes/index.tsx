@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router';
 import { Link } from '@tanstack/react-router';
 import {
 	Activity,
@@ -9,6 +10,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { configApi } from '../api/configurations';
 import { Layout } from '../components/layout';
 import { CreateOrganization } from '../components/organization/create-organization';
@@ -17,7 +20,11 @@ import { authClient } from '../lib/auth-client';
 import { useSession } from '../stores/auth-store';
 import { useConfigurationStore } from '../stores/config-store';
 
-export function DashboardPage() {
+export const Route = createFileRoute('/')({
+	component: RouteComponent,
+});
+
+export function RouteComponent() {
 	const { data: session } = useSession();
 	const { data: organizations } = authClient.useListOrganizations();
 	const { configurations, setConfigurations } = useConfigurationStore();
@@ -94,7 +101,7 @@ export function DashboardPage() {
 								Welcome back, {session?.user?.email}
 							</p>
 						</div>
-						<Link to="/configurations/new" className="btn btn-primary">
+						<Link to="/configurations/new" className="">
 							<Plus className="mr-2 h-4 w-4" />
 							New Configuration
 						</Link>
@@ -192,9 +199,11 @@ export function DashboardPage() {
 									configuration.
 								</p>
 								<div className="mt-4">
-									<Link to="/configurations/new" className="btn btn-primary">
-										<Plus className="mr-2 h-4 w-4" />
-										Create Configuration
+									<Link to="/configurations/new" className="">
+										<Button>
+											<Plus className="mr-2 h-4 w-4" />
+											Create Configuration
+										</Button>
 									</Link>
 								</div>
 							</div>
