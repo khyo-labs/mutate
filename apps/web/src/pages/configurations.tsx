@@ -11,55 +11,47 @@ import {
 	Search,
 	Trash2,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
-import { configurationsApi } from '../api/configurations';
 import { Layout } from '../components/layout';
-import { useConfigurationStore } from '../stores/config-store';
+import {
+	useCloneConfiguration,
+	useConfigurations,
+	useDeleteConfiguration,
+} from '../hooks/use-configurations';
 
 export function ConfigurationsPage() {
-	const {
-		configurations,
-		fetchConfigurations,
-		deleteConfiguration,
-		isLoading,
-		error,
-		pagination,
-	} = useConfigurationStore();
-
-	// Debug logging
-	console.log('ConfigurationsPage - configurations:', configurations);
-	console.log('ConfigurationsPage - isLoading:', isLoading);
-	console.log('ConfigurationsPage - error:', error);
-	console.log('ConfigurationsPage - pagination:', pagination);
-
 	const [searchTerm, setSearchTerm] = useState('');
+	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [configToDelete, setConfigToDelete] = useState<string | null>(null);
-	const currentPage = pagination?.page || 1;
 
-	const loadConfigurations = async (page: number = 1, search?: string) => {
-		await fetchConfigurations({
-			page,
-			limit: 10,
-			search,
-		});
-	};
+	const {
+		data: configurationsData,
+		isLoading,
+		error,
+	} = useConfigurations({
+		page: currentPage,
+		limit: 10,
+		search: searchTerm || undefined,
+	});
 
-	useEffect(() => {
-		loadConfigurations();
-	}, []);
+	const deleteConfiguration = useDeleteConfiguration();
+	const cloneConfiguration = useCloneConfiguration();
+
+	const configurations = configurationsData?.data || [];
+	const pagination = configurationsData?.pagination;
 
 	const handleSearch = (e: React.FormEvent) => {
 		e.preventDefault();
-		loadConfigurations(1, searchTerm);
+		setCurrentPage(1);
 	};
 
 	const handleClone = async (configId: string) => {
 		try {
-			await configurationsApi.clone(configId);
-			loadConfigurations(currentPage, searchTerm);
+			await cloneConfiguration.mutateAsync(configId);
+			setSelectedConfig(null);
 		} catch (error) {
 			console.error('Failed to clone configuration:', error);
 		}
@@ -67,8 +59,7 @@ export function ConfigurationsPage() {
 
 	const handleDelete = async (configId: string) => {
 		try {
-			await configurationsApi.delete(configId);
-			deleteConfiguration(configId);
+			await deleteConfiguration.mutateAsync(configId);
 			setShowDeleteModal(false);
 			setConfigToDelete(null);
 		} catch (error) {
@@ -84,17 +75,8 @@ export function ConfigurationsPage() {
 		});
 	};
 
-	const filteredConfigurations = configurations?.filter(
-		(config) =>
-			config.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			(config.description &&
-				config.description.toLowerCase().includes(searchTerm.toLowerCase())),
-	);
-
-	// Debug the filtering
-	console.log('Filtering - configurations:', configurations);
-	console.log('Filtering - searchTerm:', searchTerm);
-	console.log('Filtering - filteredConfigurations:', filteredConfigurations);
+	// Since search is handled server-side via query params, no need for client-side filtering
+	const filteredConfigurations = configurations;
 
 	return (
 		<Layout>
@@ -102,7 +84,9 @@ export function ConfigurationsPage() {
 				{/* Error Display */}
 				{error && (
 					<div className="rounded-md bg-red-50 p-4">
-						<div className="text-sm text-red-700">{error}</div>
+						<div className="text-sm text-red-700">
+							{error.message || 'An error occurred'}
+						</div>
 					</div>
 				)}
 
@@ -112,9 +96,7 @@ export function ConfigurationsPage() {
 						<h1 className="text-2xl font-bold text-gray-900">Configurations</h1>
 						<p className="text-gray-600">
 							Manage your transformation configurations
-							{/* Debug info */}
-							{configurations &&
-								` (${configurations?.length} total, ${filteredConfigurations?.length || 0} filtered)`}
+							{pagination && ` (${pagination.total} total)`}
 						</p>
 					</div>
 					<Link to="/configurations/new" className="btn btn-primary">
@@ -289,18 +271,14 @@ export function ConfigurationsPage() {
 						</div>
 						<div className="flex space-x-2">
 							<button
-								onClick={() =>
-									loadConfigurations(pagination.page - 1, searchTerm)
-								}
+								onClick={() => setCurrentPage(pagination.page - 1)}
 								disabled={pagination.page <= 1}
 								className="btn btn-outline disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								Previous
 							</button>
 							<button
-								onClick={() =>
-									loadConfigurations(pagination.page + 1, searchTerm)
-								}
+								onClick={() => setCurrentPage(pagination.page + 1)}
 								disabled={pagination.page >= pagination.totalPages}
 								className="btn btn-outline disabled:cursor-not-allowed disabled:opacity-50"
 							>

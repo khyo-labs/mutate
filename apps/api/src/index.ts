@@ -8,8 +8,9 @@ import { config } from './config.js';
 import { errorHandler } from './middleware/error-handler.js';
 import authPlugin from './plugins/auth.js';
 import { betterAuthRoutes } from './routes/better-auth.js';
-import { configurationRoutes } from './routes/configuration/index.js';
+import { configRoutes } from './routes/configuration.js';
 import { healthRoutes } from './routes/health.js';
+import { organizationRoutes } from './routes/organization.js';
 import { transformRoutes } from './routes/transform.js';
 import './types/fastify.js';
 
@@ -69,12 +70,12 @@ fastify.setErrorHandler(errorHandler);
 // Register routes
 await fastify.register(healthRoutes, { prefix: '/v1/health' });
 await fastify.register(betterAuthRoutes, { prefix: '/v1/auth' });
-await fastify.register(configurationRoutes, {
+await fastify.register(configRoutes, {
 	prefix: '/v1/configurations',
 });
+await fastify.register(organizationRoutes, { prefix: '/v1/organizations' });
 await fastify.register(transformRoutes, { prefix: '/v1/transform' });
 
-// Start server
 const start = async () => {
 	try {
 		const address = await fastify.listen({

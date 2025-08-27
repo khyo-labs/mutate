@@ -7,9 +7,10 @@ import { useAuthStore, useSession } from '../stores/auth-store';
 
 interface LayoutProps {
 	children: React.ReactNode;
+	hasOrganizations?: boolean;
 }
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children, hasOrganizations = false }: LayoutProps) {
 	const { logout } = useAuthStore();
 	const { data: session } = useSession();
 	const navigate = useNavigate();
@@ -22,7 +23,9 @@ export function Layout({ children }: LayoutProps) {
 
 	const navigationItems = [
 		{ name: 'Dashboard', href: '/', icon: Home },
-		{ name: 'Configurations', href: '/configurations', icon: FileText },
+		...(hasOrganizations
+			? [{ name: 'Configurations', href: '/configurations', icon: FileText }]
+			: []),
 	];
 
 	return (
@@ -33,9 +36,7 @@ export function Layout({ children }: LayoutProps) {
 					<div className="flex h-16 justify-between">
 						<div className="flex">
 							<div className="flex flex-shrink-0 items-center">
-								<h1 className="text-xl font-semibold text-gray-900">
-									mutate
-								</h1>
+								<h1 className="text-xl font-semibold text-gray-900">mutate</h1>
 							</div>
 							<div className="hidden sm:ml-6 sm:flex sm:space-x-8">
 								{navigationItems.map((item) => {

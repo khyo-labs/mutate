@@ -3,12 +3,11 @@ import axios from 'axios';
 import type { ApiResponse } from '../types';
 
 export const api = axios.create({
-	baseURL: `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/v1`,
-	timeout: 10000,
-	withCredentials: true, // This is crucial for sending cookies with requests
+	baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+	timeout: 10_000,
+	withCredentials: true,
 });
 
-// Generic API request wrapper
 export async function apiRequest<T>(
 	method: 'GET' | 'POST' | 'PUT' | 'DELETE',
 	url: string,

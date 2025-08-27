@@ -7,6 +7,7 @@ Mutate is a multi-tenant SaaS platform that enables users to create visual, reus
 ## Architecture
 
 ### Monorepo Structure
+
 ```
 mutate/
 ├── apps/
@@ -20,6 +21,7 @@ mutate/
 ### Technology Stack
 
 **Backend (`@mutate/api`)**
+
 - **Runtime**: Node.js with TypeScript
 - **Framework**: Fastify 5.x
 - **Authentication**: Better Auth (recently migrated from JWT)
@@ -29,6 +31,7 @@ mutate/
 - **Validation**: Zod schemas
 
 **Frontend (`@mutate/web`)**
+
 - **Framework**: React 18 with Vite
 - **Routing**: TanStack Router v1.73
 - **State Management**: Zustand
@@ -41,6 +44,7 @@ mutate/
 ## Key Features
 
 ### Current Implementation Status
+
 - ✅ User authentication with Better Auth (email/password, GitHub, Google)
 - ✅ Organization-based multi-tenancy
 - ✅ Configuration management (CRUD operations)
@@ -53,6 +57,7 @@ mutate/
 - 🚧 Async job processing
 
 ### Supported Transformation Rules
+
 1. **SELECT_WORKSHEET** - Select worksheet by name/index
 2. **VALIDATE_COLUMNS** - Validate expected column count
 3. **UNMERGE_AND_FILL** - Unmerge cells and fill values
@@ -64,24 +69,29 @@ mutate/
 ## Development Guidelines
 
 ### File Naming
+
 - Use kebab-case for file names (e.g., `user-service.ts`, `auth-middleware.ts`)
 
 ### Code Style
+
 - Prefer function declarations over arrow functions: `function myFunction() {}` instead of `const myFunction = () => {}`
 - Use TypeScript strict mode across all projects
 - Follow existing patterns in the codebase
 
 ### UI Components and Icons
+
 - Use custom components following existing patterns
 - Use Lucide React for all icons (already installed as `lucide-react`)
 - Follow Tailwind CSS v4 conventions for styling
 
 ### Database
+
 - Use Drizzle ORM with PostgreSQL
 - All migrations are version controlled in `apps/api/src/db/migrations/`
 - Database connection and schema defined in `apps/api/src/db/`
 
 ### Authentication
+
 - Better Auth handles authentication with organization plugin
 - Session-based auth with secure cookies
 - Support for email/password and social providers (GitHub, Google)
@@ -89,6 +99,7 @@ mutate/
 ## API Structure
 
 ### Key Endpoints
+
 - `GET /v1/auth/*` - Better Auth endpoints
 - `GET /v1/configurations` - List user configurations
 - `POST /v1/configurations` - Create new configuration
@@ -96,16 +107,20 @@ mutate/
 - `GET /v1/health` - Health check
 
 ### Response Format
+
 ```json
 {
-  "success": true,
-  "data": { /* response payload */ }
+	"success": true,
+	"data": {
+		/* response payload */
+	}
 }
 ```
 
 ## Commands
 
 ### Development
+
 ```bash
 pnpm dev          # Start both API and web in development
 pnpm build        # Build all apps
@@ -114,6 +129,7 @@ pnpm lint         # Run linting
 ```
 
 ### Database
+
 ```bash
 pnpm db:migrate   # Run database migrations
 pnpm db:generate  # Generate new migration
@@ -121,6 +137,7 @@ pnpm db:studio    # Open Drizzle Studio
 ```
 
 ### App-specific
+
 ```bash
 pnpm api dev      # Start API only
 pnpm web dev      # Start web only
@@ -129,7 +146,9 @@ pnpm web dev      # Start web only
 ## Environment Setup
 
 ### Required Environment Variables
+
 **API (.env in apps/api/)**
+
 ```
 DATABASE_URL=postgresql://...
 BETTER_AUTH_SECRET=your-32-char-secret
@@ -140,11 +159,13 @@ GOOGLE_CLIENT_SECRET=optional
 ```
 
 **Web (.env in apps/web/)**
+
 ```
 VITE_API_URL=http://localhost:3000
 ```
 
 ## Recent Changes
+
 - Migrated from JWT to Better Auth for improved authentication
 - Updated to Tailwind CSS v4
 - Added organization-based multi-tenancy
@@ -152,6 +173,7 @@ VITE_API_URL=http://localhost:3000
 - Added spreadsheet preview functionality
 
 ## Development Notes
+
 - The app uses a monorepo structure with pnpm workspaces
 - Turbo is used for build orchestration
 - All apps use TypeScript with strict mode

@@ -9,24 +9,24 @@ interface AuthResponse {
 
 export const authApi = {
 	register: async (data: RegisterFormData): Promise<AuthResponse> => {
-		return apiRequest<AuthResponse>('POST', '/auth/register', data);
+		return apiRequest<AuthResponse>('POST', '/v1/auth/register', data);
 	},
 
 	login: async (data: LoginFormData): Promise<AuthResponse> => {
-		return apiRequest<AuthResponse>('POST', '/auth/login', data);
+		return apiRequest<AuthResponse>('POST', '/v1/auth/login', data);
 	},
 
 	refresh: async (refreshToken: string): Promise<{ accessToken: string }> => {
-		return apiRequest<{ accessToken: string }>('POST', '/auth/refresh', {
+		return apiRequest<{ accessToken: string }>('POST', '/v1/auth/refresh', {
 			refreshToken,
 		});
 	},
 
 	me: async (): Promise<User> => {
-		return apiRequest<User>('GET', '/auth/me');
+		return apiRequest<User>('GET', '/v1/auth/me');
 	},
 
 	logout: async (): Promise<{ message: string }> => {
-		return apiRequest<{ message: string }>('POST', '/auth/logout');
+		return apiRequest<{ message: string }>('POST', '/v1/auth/logout');
 	},
 };

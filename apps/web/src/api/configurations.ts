@@ -11,7 +11,7 @@ interface ConfigurationQuery {
 	search?: string;
 }
 
-export const configurationsApi = {
+export const configApi = {
 	list: async (
 		params?: ConfigurationQuery,
 	): Promise<PaginatedResponse<Configuration>> => {
@@ -20,30 +20,30 @@ export const configurationsApi = {
 		if (params?.limit) searchParams.append('limit', params.limit.toString());
 		if (params?.search) searchParams.append('search', params.search);
 
-		const url = `/configurations${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+		const url = `/v1/configurations${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 		return apiRequest<PaginatedResponse<Configuration>>('GET', url);
 	},
 
 	get: async (id: string): Promise<Configuration> => {
-		return apiRequest<Configuration>('GET', `/configurations/${id}`);
+		return apiRequest<Configuration>('GET', `/v1/configurations/${id}`);
 	},
 
 	create: async (data: ConfigurationFormData): Promise<Configuration> => {
-		return apiRequest<Configuration>('POST', '/configurations', data);
+		return apiRequest<Configuration>('POST', '/v1/configurations', data);
 	},
 
 	update: async (
 		id: string,
 		data: Partial<ConfigurationFormData>,
 	): Promise<Configuration> => {
-		return apiRequest<Configuration>('PUT', `/configurations/${id}`, data);
+		return apiRequest<Configuration>('PUT', `/v1/configurations/${id}`, data);
 	},
 
 	delete: async (id: string): Promise<void> => {
-		return apiRequest<void>('DELETE', `/configurations/${id}`);
+		return apiRequest<void>('DELETE', `/v1/configurations/${id}`);
 	},
 
 	clone: async (id: string): Promise<Configuration> => {
-		return apiRequest<Configuration>('POST', `/configurations/${id}/clone`);
+		return apiRequest<Configuration>('POST', `/v1/configurations/${id}/clone`);
 	},
 };

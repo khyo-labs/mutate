@@ -6,13 +6,13 @@ import {
 } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
-import { ConfigurationBuilderPage } from './pages/configuration-builder-page';
-import { ConfigurationDetailPage } from './pages/configuration-detail-page';
-import { ConfigurationsPage } from './pages/configurations-page';
-import { DashboardPage } from './pages/dashboard-page';
-import { LoginPage } from './pages/login-page';
-import { NewConfigurationPage } from './pages/new-configuration-page';
-import { RegisterPage } from './pages/register-page';
+import { ConfigurationBuilderPage } from './pages/configuration-builder';
+import { ConfigurationDetailPage } from './pages/configuration-detail';
+import { ConfigurationsPage } from './pages/configurations';
+import { DashboardPage } from './pages/dashboard';
+import { LoginPage } from './pages/login';
+import { NewConfigurationPage } from './pages/new-configuration';
+import { RegisterPage } from './pages/register';
 
 // Removed auth-related imports as we'll handle auth at component level
 

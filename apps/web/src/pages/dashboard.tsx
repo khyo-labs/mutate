@@ -2,21 +2,24 @@ import { Link } from '@tanstack/react-router';
 import {
 	Activity,
 	ArrowUpRight,
+	Building,
 	Clock,
 	FileText,
 	Plus,
-	Users,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { configurationsApi } from '../api/configurations';
+import { configApi } from '../api/configurations';
 import { Layout } from '../components/layout';
+import { CreateOrganization } from '../components/organization/create-organization';
 import { ProtectedRoute } from '../components/protected-route';
+import { authClient } from '../lib/auth-client';
 import { useSession } from '../stores/auth-store';
 import { useConfigurationStore } from '../stores/config-store';
 
 export function DashboardPage() {
 	const { data: session } = useSession();
+	const { data: organizations } = authClient.useListOrganizations();
 	const { configurations, setConfigurations } = useConfigurationStore();
 	const [stats, setStats] = useState({
 		totalConfigurations: 0,
@@ -24,10 +27,14 @@ export function DashboardPage() {
 		recentActivity: 0,
 	});
 
+	const hasOrganizations = (organizations || []).length > 0;
+
 	useEffect(() => {
 		const loadConfigurations = async () => {
+			if (!hasOrganizations) return;
+
 			try {
-				const response = await configurationsApi.list({ limit: 5 });
+				const response = await configApi.list({ limit: 5 });
 				setConfigurations(response.data);
 				setStats({
 					totalConfigurations: response.pagination?.total,
@@ -45,7 +52,7 @@ export function DashboardPage() {
 		};
 
 		loadConfigurations();
-	}, [setConfigurations]);
+	}, [setConfigurations, hasOrganizations]);
 
 	const statCards = [
 		{
@@ -71,9 +78,13 @@ export function DashboardPage() {
 		},
 	];
 
+	if (!hasOrganizations) {
+		return <CreateOrganization />;
+	}
+
 	return (
 		<ProtectedRoute>
-			<Layout>
+			<Layout hasOrganizations={hasOrganizations}>
 				<div className="space-y-6">
 					{/* Header */}
 					<div className="flex items-start justify-between">
@@ -215,17 +226,25 @@ export function DashboardPage() {
 						</div>
 
 						<div className="card">
-							<h3 className="mb-3 text-lg font-semibold text-gray-900">Name</h3>
+							<h3 className="mb-3 text-lg font-semibold text-gray-900">
+								Organization
+							</h3>
 							<div className="space-y-3">
-								<div className="flex items-center text-sm">
-									<Users className="mr-3 h-5 w-5 text-gray-400" />
-									<span className="text-gray-700">Name</span>
-								</div>
-								<div className="flex items-center text-sm">
-									<span className="bg-primary-100 text-primary-800 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
-										member
-									</span>
-								</div>
+								{organizations && organizations[0] && (
+									<>
+										<div className="flex items-center text-sm">
+											<Building className="mr-3 h-5 w-5 text-gray-400" />
+											<span className="text-gray-700">
+												{organizations[0].name}
+											</span>
+										</div>
+										<div className="flex items-center text-sm">
+											<span className="bg-primary-100 text-primary-800 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
+												member
+											</span>
+										</div>
+									</>
+								)}
 							</div>
 						</div>
 					</div>

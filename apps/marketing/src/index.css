@@ -1,22 +1,22 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-  --primary: 234, 88%, 78%;
-  --primary-foreground: 0, 0%, 9%;
-  --background: 0, 0%, 100%;
-  --foreground: 240, 10%, 3.9%;
-  --muted: 240, 4.8%, 95.9%;
-  --muted-foreground: 240, 3.8%, 45%;
-  --border: 240, 5.9%, 90%;
-  --accent: 240, 4.8%, 95.9%;
-  --accent-foreground: 240, 5.9%, 10%;
+	--primary: 234, 88%, 78%;
+	--primary-foreground: 0, 0%, 9%;
+	--background: 0, 0%, 100%;
+	--foreground: 240, 10%, 3.9%;
+	--muted: 240, 4.8%, 95.9%;
+	--muted-foreground: 240, 3.8%, 45%;
+	--border: 240, 5.9%, 90%;
+	--accent: 240, 4.8%, 95.9%;
+	--accent-foreground: 240, 5.9%, 10%;
 }
 
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	margin: 0;
+	font-family:
+		-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+		'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }

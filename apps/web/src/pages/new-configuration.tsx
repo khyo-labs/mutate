@@ -1,6 +1,9 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from '@tanstack/react-router';
 import { Save } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { CsvOutputPreview } from '../components/csv-output-preview';
 import { FileUpload, type UploadedFile } from '../components/file-upload';
@@ -8,29 +11,42 @@ import { JsonConfigPanel } from '../components/json-config-panel';
 import { Layout } from '../components/layout';
 import { RuleBuilder } from '../components/rule-builder';
 import { SpreadsheetPreview } from '../components/spreadsheet-preview';
-import { useConfigurationStore } from '../stores/config-store';
+import { useCreateConfiguration } from '../hooks/use-configurations';
 import type { Configuration, TransformationRule } from '../types';
+
+const configurationSchema = z.object({
+	name: z.string().min(1, 'Configuration name is required'),
+	description: z.string(),
+});
+
+type ConfigurationFormData = z.infer<typeof configurationSchema>;
 
 export function NewConfigurationPage() {
 	const navigate = useNavigate();
-	const { createConfiguration } = useConfigurationStore();
-	const [name, setName] = useState('');
-	const [description, setDescription] = useState('');
+	const createConfiguration = useCreateConfiguration();
 	const [rules, setRules] = useState<TransformationRule[]>([]);
-	const [isLoading, setIsLoading] = useState(false);
 	const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
 
-	async function handleSave() {
-		if (!name.trim()) {
-			alert('Please enter a configuration name');
-			return;
-		}
+	const {
+		register,
+		handleSubmit,
+		watch,
+		formState: { errors },
+	} = useForm<ConfigurationFormData>({
+		resolver: zodResolver(configurationSchema),
+		defaultValues: {
+			name: '',
+			description: '',
+		},
+	});
 
-		setIsLoading(true);
+	const formData = watch();
+
+	async function onSubmit(data: ConfigurationFormData) {
 		try {
 			const configurationData = {
-				name: name.trim(),
-				description: description.trim(),
+				name: data.name.trim(),
+				description: data.description.trim(),
 				rules,
 				outputFormat: {
 					type: 'CSV' as const,
@@ -40,13 +56,11 @@ export function NewConfigurationPage() {
 				},
 			};
 
-			await createConfiguration(configurationData);
+			await createConfiguration.mutateAsync(configurationData);
 			navigate({ to: '/configurations' });
 		} catch (error) {
 			console.error('Failed to create configuration:', error);
 			alert('Failed to create configuration');
-		} finally {
-			setIsLoading(false);
 		}
 	}
 
@@ -60,8 +74,9 @@ export function NewConfigurationPage() {
 		rules: TransformationRule[];
 		outputFormat: Configuration['outputFormat'];
 	}) {
-		setName(importedConfig.name);
-		setDescription(importedConfig.description);
+		// Note: Using setValue to update form values properly
+		// setName(importedConfig.name);
+		// setDescription(importedConfig.description);
 		setRules(importedConfig.rules);
 		// Note: outputFormat is handled internally by the component, could be extended if needed
 	}
@@ -95,13 +110,17 @@ export function NewConfigurationPage() {
 										Name *
 									</label>
 									<input
+										{...register('name')}
 										type="text"
 										id="name"
-										value={name}
-										onChange={(e) => setName(e.target.value)}
 										placeholder="Enter configuration name"
 										className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
 									/>
+									{errors.name && (
+										<p className="mt-1 text-sm text-red-600">
+											{errors.name.message}
+										</p>
+									)}
 								</div>
 								<div>
 									<label
@@ -111,10 +130,9 @@ export function NewConfigurationPage() {
 										Description
 									</label>
 									<input
+										{...register('description')}
 										type="text"
 										id="description"
-										value={description}
-										onChange={(e) => setDescription(e.target.value)}
 										placeholder="Enter description (optional)"
 										className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
 									/>
@@ -171,8 +189,8 @@ export function NewConfigurationPage() {
 
 						<div>
 							<JsonConfigPanel
-								name={name}
-								description={description}
+								name={formData.name}
+								description={formData.description}
 								rules={rules}
 								outputFormat={{
 									type: 'CSV',
@@ -187,24 +205,27 @@ export function NewConfigurationPage() {
 				</div>
 
 				{/* Actions */}
-				<div className="mt-8 flex justify-end space-x-4">
-					<button
-						type="button"
-						onClick={handleCancel}
-						className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-					>
-						Cancel
-					</button>
-					<button
-						type="button"
-						onClick={handleSave}
-						disabled={isLoading || !name.trim()}
-						className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-					>
-						<Save className="mr-2 h-4 w-4" />
-						{isLoading ? 'Creating...' : 'Create Configuration'}
-					</button>
-				</div>
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<div className="mt-8 flex justify-end space-x-4">
+						<button
+							type="button"
+							onClick={handleCancel}
+							className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							disabled={createConfiguration.isPending || !formData.name?.trim()}
+							className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+						>
+							<Save className="mr-2 h-4 w-4" />
+							{createConfiguration.isPending
+								? 'Creating...'
+								: 'Create Configuration'}
+						</button>
+					</div>
+				</form>
 			</div>
 		</Layout>
 	);

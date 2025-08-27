@@ -24,10 +24,7 @@ export async function authenticateSession(
 
 		let session = await auth.api.getSession(req);
 
-		console.log('session', session);
-
 		if (!session) {
-			// Try alternative session retrieval method
 			console.log('Trying alternative session method...');
 			const altSession = await auth.api.getSession({
 				headers: req.headers,
