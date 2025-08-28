@@ -50,7 +50,10 @@ export const apiKeysApi = {
 	},
 
 	update: async (id: string, data: UpdateApiKeyRequest): Promise<ApiKey> => {
-		const response = await api.put<ApiResponse<ApiKey>>(`/v1/api-keys/${id}`, data);
+		const response = await api.put<ApiResponse<ApiKey>>(
+			`/v1/api-keys/${id}`,
+			data,
+		);
 
 		if (response.success) {
 			toast.success('API key updated successfully');
@@ -62,7 +65,7 @@ export const apiKeysApi = {
 	},
 
 	delete: async (id: string): Promise<void> => {
-		const response = await api.delete<void>(`/v1/api-keys/${id}`);
+		await api.delete<void>(`/v1/api-keys/${id}`);
 		toast.success('API key deleted successfully');
 	},
 };

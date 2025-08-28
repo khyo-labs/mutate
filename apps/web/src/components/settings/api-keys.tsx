@@ -1,12 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Copy, Eye, EyeOff, Key, MoreHorizontal, Plus, Trash2 } from 'lucide-react';
+import { Copy, Eye, EyeOff, Key, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { apiKeysApi, type ApiKey, type CreateApiKeyRequest } from '@/api/api-keys';
+import { type CreateApiKeyRequest, apiKeysApi } from '@/api/api-keys';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 
 interface CreateApiKeyForm {
 	name: string;
@@ -26,7 +32,12 @@ export function ApiKeysSettings() {
 	});
 
 	// Form for creating API keys
-	const { control, handleSubmit, formState: { errors }, reset } = useForm<CreateApiKeyForm>({
+	const {
+		control,
+		handleSubmit,
+		formState: { errors },
+		reset,
+	} = useForm<CreateApiKeyForm>({
 		defaultValues: {
 			name: '',
 			expiresAt: '',
@@ -103,7 +114,7 @@ export function ApiKeysSettings() {
 							Manage API keys for programmatic access to the transformation API
 						</CardDescription>
 					</div>
-					<Button 
+					<Button
 						onClick={() => setShowCreateForm(true)}
 						className="flex items-center gap-2"
 					>
@@ -115,11 +126,11 @@ export function ApiKeysSettings() {
 			<CardContent>
 				{/* Show created API key */}
 				{createdApiKey && (
-					<div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+					<div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4">
 						<div className="flex items-center justify-between">
 							<div>
 								<h3 className="font-medium text-green-800">API Key Created</h3>
-								<p className="text-sm text-green-600 mt-1">
+								<p className="mt-1 text-sm text-green-600">
 									Save this key now - you won't be able to see it again!
 								</p>
 							</div>
@@ -132,7 +143,7 @@ export function ApiKeysSettings() {
 								×
 							</Button>
 						</div>
-						<div className="flex items-center gap-2 mt-3 p-3 bg-white rounded border font-mono text-sm">
+						<div className="mt-3 flex items-center gap-2 rounded border bg-white p-3 font-mono text-sm">
 							<code className="flex-1">{createdApiKey}</code>
 							<Button
 								variant="ghost"
@@ -147,13 +158,11 @@ export function ApiKeysSettings() {
 
 				{/* Create form */}
 				{showCreateForm && (
-					<div className="mb-6 p-4 border rounded-lg bg-muted/50">
-						<h3 className="font-medium mb-4">Create New API Key</h3>
+					<div className="bg-muted/50 mb-6 rounded-lg border p-4">
+						<h3 className="mb-4 font-medium">Create New API Key</h3>
 						<form onSubmit={handleSubmit(onCreateSubmit)} className="space-y-4">
 							<div>
-								<label className="block text-sm font-medium mb-1">
-									Name *
-								</label>
+								<label className="mb-1 block text-sm font-medium">Name *</label>
 								<Controller
 									name="name"
 									control={control}
@@ -162,19 +171,19 @@ export function ApiKeysSettings() {
 										<input
 											{...field}
 											placeholder="e.g., Production API, Development"
-											className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+											className="focus:ring-primary w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
 										/>
 									)}
 								/>
 								{errors.name && (
-									<p className="text-sm text-destructive mt-1">
+									<p className="text-destructive mt-1 text-sm">
 										{errors.name.message}
 									</p>
 								)}
 							</div>
 
 							<div>
-								<label className="block text-sm font-medium mb-1">
+								<label className="mb-1 block text-sm font-medium">
 									Expires At (Optional)
 								</label>
 								<Controller
@@ -184,17 +193,14 @@ export function ApiKeysSettings() {
 										<input
 											{...field}
 											type="date"
-											className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+											className="focus:ring-primary w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
 										/>
 									)}
 								/>
 							</div>
 
 							<div className="flex gap-2">
-								<Button 
-									type="submit"
-									disabled={createMutation.isPending}
-								>
+								<Button type="submit" disabled={createMutation.isPending}>
 									{createMutation.isPending ? 'Creating...' : 'Create API Key'}
 								</Button>
 								<Button
@@ -211,17 +217,19 @@ export function ApiKeysSettings() {
 
 				{/* API Keys list */}
 				{isLoading ? (
-					<div className="text-center py-8">
-						<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-						<p className="mt-2 text-muted-foreground">Loading API keys...</p>
+					<div className="py-8 text-center">
+						<div className="border-primary mx-auto h-8 w-8 animate-spin rounded-full border-b-2"></div>
+						<p className="text-muted-foreground mt-2">Loading API keys...</p>
 					</div>
 				) : apiKeys && apiKeys.length > 0 ? (
 					<div className="space-y-4">
 						{apiKeys.map((key) => (
 							<div
 								key={key.id}
-								className={`p-4 border rounded-lg ${
-									isExpired(key.expiresAt) ? 'border-destructive/50 bg-destructive/5' : ''
+								className={`rounded-lg border p-4 ${
+									isExpired(key.expiresAt)
+										? 'border-destructive/50 bg-destructive/5'
+										: ''
 								}`}
 							>
 								<div className="flex items-start justify-between">
@@ -229,12 +237,12 @@ export function ApiKeysSettings() {
 										<div className="flex items-center gap-2">
 											<h3 className="font-medium">{key.name}</h3>
 											{isExpired(key.expiresAt) && (
-												<span className="px-2 py-1 text-xs bg-destructive/10 text-destructive rounded">
+												<span className="bg-destructive/10 text-destructive rounded px-2 py-1 text-xs">
 													Expired
 												</span>
 											)}
 										</div>
-										<div className="text-sm text-muted-foreground mt-1 space-y-1">
+										<div className="text-muted-foreground mt-1 space-y-1 text-sm">
 											<div>Created: {formatDate(key.createdAt)}</div>
 											<div>Last used: {formatDate(key.lastUsedAt)}</div>
 											{key.expiresAt && (
@@ -242,14 +250,13 @@ export function ApiKeysSettings() {
 											)}
 											<div>Permissions: {key.permissions.join(', ')}</div>
 										</div>
-										
+
 										{/* Masked key display */}
-										<div className="flex items-center gap-2 mt-3">
-											<code className="text-sm bg-muted p-2 rounded font-mono">
-												{visibleKeys.has(key.id) 
+										<div className="mt-3 flex items-center gap-2">
+											<code className="bg-muted rounded p-2 font-mono text-sm">
+												{visibleKeys.has(key.id)
 													? `mt_${'*'.repeat(32)}`
-													: `mt_${'*'.repeat(32)}`
-												}
+													: `mt_${'*'.repeat(32)}`}
 											</code>
 											<Button
 												variant="ghost"
@@ -288,14 +295,15 @@ export function ApiKeysSettings() {
 						))}
 					</div>
 				) : (
-					<div className="text-center py-8">
-						<Key className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-						<h3 className="font-medium mb-2">No API Keys</h3>
+					<div className="py-8 text-center">
+						<Key className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+						<h3 className="mb-2 font-medium">No API Keys</h3>
 						<p className="text-muted-foreground mb-4">
-							Create your first API key to start using the transformation API programmatically.
+							Create your first API key to start using the transformation API
+							programmatically.
 						</p>
 						<Button onClick={() => setShowCreateForm(true)}>
-							<Plus className="h-4 w-4 mr-2" />
+							<Plus className="mr-2 h-4 w-4" />
 							Create API Key
 						</Button>
 					</div>

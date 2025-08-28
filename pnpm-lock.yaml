@@ -71,9 +71,6 @@ importers:
       ioredis:
         specifier: ^5.7.0
         version: 5.7.0
-      nanoid:
-        specifier: ^5.1.5
-        version: 5.1.5
       pino:
         specifier: ^9.9.0
         version: 9.9.0
