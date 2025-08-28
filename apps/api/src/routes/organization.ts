@@ -2,8 +2,8 @@ import { FastifyInstance } from 'fastify';
 
 import { auth } from '../lib/auth.js';
 import { authenticateSession } from '../middleware/auth.js';
-import { createOrganizationSchema } from '../schemas/organization';
-import { getErrorMessage } from '../utils/error';
+import { createOrganizationSchema } from '../schemas/organization.js';
+import { getErrorMessage } from '../utils/error.js';
 
 export async function organizationRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', authenticateSession);
