@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @mutate/web build && cp -r apps/web/dist ./dist",
+  "buildCommand": "pnpm --filter @mutate/web build && ls -la apps/web/ && mkdir -p dist && cp -r apps/web/dist/* ./dist/ && ls -la dist/",
   "outputDirectory": "dist",
   "rewrites": [
     {
