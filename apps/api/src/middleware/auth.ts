@@ -98,6 +98,7 @@ export async function authenticateAPIKey(
 				keyHash: apiKeys.keyHash,
 				permissions: apiKeys.permissions,
 				expiresAt: apiKeys.expiresAt,
+				createdBy: apiKeys.createdBy,
 			})
 			.from(apiKeys);
 
@@ -138,7 +139,7 @@ export async function authenticateAPIKey(
 			.where(eq(apiKeys.id, validKey.id));
 
 		request.currentUser = {
-			id: 'api-key',
+			id: validKey.createdBy, // Use the actual user ID who created the API key
 			organizationId: validKey.organizationId,
 			role: 'api',
 		};

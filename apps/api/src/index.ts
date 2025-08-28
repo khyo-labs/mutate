@@ -78,6 +78,10 @@ await fastify.register(configRoutes, {
 await fastify.register(organizationRoutes, { prefix: '/v1/organizations' });
 await fastify.register(transformRoutes, { prefix: '/v1/transform' });
 
+// Import and register API key routes
+const { apiKeyRoutes } = await import('./routes/api-keys.js');
+await fastify.register(apiKeyRoutes, { prefix: '/v1/api-keys' });
+
 const start = async () => {
 	try {
 		const address = await fastify.listen({

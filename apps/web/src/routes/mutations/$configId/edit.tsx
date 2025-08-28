@@ -4,7 +4,6 @@ import { ArrowLeft, Eye, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-import { api } from '@/api/client';
 import { mutApi } from '@/api/mutations';
 import { CsvOutputPreview } from '@/components/csv-output-preview';
 import { FileUpload, type UploadedFile } from '@/components/file-upload';
@@ -14,7 +13,7 @@ import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
 import { RuleBuilder } from '@/components/rule-builder';
 import { SpreadsheetPreview } from '@/components/spreadsheet-preview';
 import { Button } from '@/components/ui/button';
-import type { ApiResponse, Configuration, TransformationRule } from '@/types';
+import type { Configuration, TransformationRule } from '@/types';
 
 export const Route = createFileRoute('/mutations/$configId/edit')({
 	component: ConfigurationEditComponent,
@@ -32,6 +31,7 @@ export function ConfigurationEditComponent() {
 	const queryClient = useQueryClient();
 
 	const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+	const [activeTab, setActiveTab] = useState<'preview' | 'data'>('preview');
 
 	// Fetch configuration data
 	const {
@@ -199,25 +199,25 @@ export function ConfigurationEditComponent() {
 
 	return (
 		<Layout>
-			<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-				{/* Header */}
-				<div className="mb-8">
+			<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+				{/* Header Section */}
+				<div className="mb-8 border-b border-gray-200 pb-6">
 					<div className="mb-4 flex items-center space-x-4">
 						<button
 							onClick={handleCancel}
-							className="text-muted-foreground hover:text-foreground flex items-center transition-colors"
+							className="flex items-center text-gray-600 transition-colors hover:text-gray-900"
 						>
-							<ArrowLeft className="mr-1 h-4 w-4" />
+							<ArrowLeft className="mr-2 h-4 w-4" />
 							Back to Mutation
 						</button>
 					</div>
 
 					<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
 						<div>
-							<h1 className="text-foreground text-2xl font-bold">
+							<h1 className="text-3xl font-bold text-gray-900">
 								Edit Mutation
 							</h1>
-							<p className="text-muted-foreground mt-2">
+							<p className="mt-2 text-lg text-gray-600">
 								Modify your data transformation mutation
 							</p>
 						</div>
@@ -231,6 +231,7 @@ export function ConfigurationEditComponent() {
 										params: { configId },
 									})
 								}
+								className="px-4 py-2"
 							>
 								<Eye className="mr-2 h-4 w-4" />
 								Preview
@@ -240,21 +241,138 @@ export function ConfigurationEditComponent() {
 				</div>
 
 				<form onSubmit={handleSubmit(onSubmit)}>
-					<div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-						{/* Left Column */}
-						<div className="space-y-6 xl:col-span-1">
-							{/* Configuration Details */}
-							<div className="bg-card rounded-lg border p-6">
-								<h2 className="text-card-foreground mb-4 text-lg font-medium">
-									Mutation Details *
-								</h2>
-								<div className="space-y-4">
+					{/* Main Content Grid */}
+					<div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
+						{/* Left Column - Main Content Area */}
+						<div className="space-y-8 xl:col-span-8">
+							{/* Transformation Rules Card - Larger Space */}
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+								<div className="border-b border-gray-200 px-6 py-5">
+									<h2 className="text-xl font-semibold text-gray-900">
+										Transformation Rules
+									</h2>
+									<p className="mt-1 text-sm text-gray-600">
+										Build your data transformation pipeline step by step
+									</p>
+								</div>
+								<div className="p-6">
+									<Controller
+										name="rules"
+										control={control}
+										render={({ field: { onChange, value } }) => (
+											<RuleBuilder rules={value} onChange={onChange} />
+										)}
+									/>
+								</div>
+							</div>
+
+							{/* Data Preview Tabs */}
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+								<div className="border-b border-gray-200 px-6 py-5">
+									<div className="flex items-center justify-between">
+										<div>
+											<h2 className="text-xl font-semibold text-gray-900">
+												Data Preview
+											</h2>
+											<p className="mt-1 text-sm text-gray-600">
+												See how your transformations affect the data
+											</p>
+										</div>
+										{/* Tab Navigation */}
+										<div className="flex space-x-1 rounded-lg bg-gray-100 p-1">
+											<button
+												onClick={() => setActiveTab('preview')}
+												className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+													activeTab === 'preview'
+														? 'bg-white text-gray-900 shadow-sm'
+														: 'text-gray-600 hover:text-gray-900'
+												}`}
+											>
+												Live Preview
+											</button>
+											<button
+												onClick={() => setActiveTab('data')}
+												className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+													activeTab === 'data'
+														? 'bg-white text-gray-900 shadow-sm'
+														: 'text-gray-600 hover:text-gray-900'
+												}`}
+											>
+												Sample Data
+											</button>
+										</div>
+									</div>
+								</div>
+								<div className="p-6">
+									{activeTab === 'preview' ? (
+										<div>
+											<h3 className="mb-4 text-lg font-medium text-gray-900">
+												Live Preview
+											</h3>
+											<SpreadsheetPreview
+												file={uploadedFile}
+												rules={watchedRules}
+											/>
+										</div>
+									) : (
+										<div>
+											<h3 className="mb-4 text-lg font-medium text-gray-900">
+												Sample Data
+											</h3>
+											<FileUpload
+												onFileUploaded={setUploadedFile}
+												currentFile={uploadedFile}
+											/>
+										</div>
+									)}
+								</div>
+							</div>
+
+							{/* Output Preview Card */}
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+								<div className="border-b border-gray-200 px-6 py-5">
+									<h2 className="text-xl font-semibold text-gray-900">
+										Output Preview
+									</h2>
+									<p className="mt-1 text-sm text-gray-600">
+										Preview the final CSV output with your transformations
+										applied
+									</p>
+								</div>
+								<div className="p-6">
+									<CsvOutputPreview
+										file={uploadedFile}
+										rules={watchedRules}
+										outputFormat={{
+											type: 'CSV',
+											delimiter: ',',
+											encoding: 'UTF-8',
+											includeHeaders: true,
+										}}
+									/>
+								</div>
+							</div>
+						</div>
+
+						{/* Right Column - Configuration Sidebar */}
+						<div className="space-y-8 xl:col-span-4">
+							{/* Configuration Details Card */}
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+								<div className="border-b border-gray-200 px-6 py-5">
+									<h2 className="text-xl font-semibold text-gray-900">
+										Configuration
+									</h2>
+									<p className="mt-1 text-sm text-gray-600">
+										Basic settings for your transformation
+									</p>
+								</div>
+								<div className="space-y-5 p-6">
 									<div>
 										<label
 											htmlFor="name"
-											className="text-card-foreground block text-sm font-medium"
+											className="mb-2 block text-sm font-medium text-gray-700"
 										>
-											Name
+											Name <span className="text-red-500">*</span>
 										</label>
 										<Controller
 											name="name"
@@ -266,12 +384,12 @@ export function ConfigurationEditComponent() {
 													type="text"
 													id="name"
 													placeholder="Enter mutation name"
-													className="border-input bg-background text-foreground focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1"
+													className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
 												/>
 											)}
 										/>
 										{errors.name && (
-											<p className="text-destructive mt-1 text-sm">
+											<p className="mt-2 text-sm text-red-600">
 												{errors.name.message}
 											</p>
 										)}
@@ -279,7 +397,7 @@ export function ConfigurationEditComponent() {
 									<div>
 										<label
 											htmlFor="description"
-											className="text-card-foreground block text-sm font-medium"
+											className="mb-2 block text-sm font-medium text-gray-700"
 										>
 											Description
 										</label>
@@ -292,7 +410,7 @@ export function ConfigurationEditComponent() {
 													type="text"
 													id="description"
 													placeholder="Enter description (optional)"
-													className="border-input bg-background text-foreground focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-1"
+													className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
 												/>
 											)}
 										/>
@@ -300,98 +418,94 @@ export function ConfigurationEditComponent() {
 								</div>
 							</div>
 
-							{/* File Upload */}
-							<div className="space-y-4">
-								<h2 className="text-foreground text-lg font-medium">
-									Sample Data
-								</h2>
-								<p className="text-muted-foreground text-sm">
-									Upload a sample Excel file to preview how your mutation will
-									affect the data
-								</p>
-								<FileUpload
-									onFileUploaded={setUploadedFile}
-									currentFile={uploadedFile}
-								/>
+							{/* JSON Configuration Card */}
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+								<div className="border-b border-gray-200 px-6 py-5">
+									<h2 className="text-xl font-semibold text-gray-900">
+										JSON Configuration
+									</h2>
+									<p className="mt-1 text-sm text-gray-600">
+										Import/export configuration as JSON
+									</p>
+								</div>
+								<div className="p-6">
+									<JsonConfigPanel
+										name={watchedName}
+										description={watchedDescription}
+										rules={watchedRules}
+										outputFormat={{
+											type: 'CSV',
+											delimiter: ',',
+											encoding: 'UTF-8',
+											includeHeaders: true,
+										}}
+										onImport={handleImportConfig}
+									/>
+								</div>
 							</div>
 
-							{/* Rule Builder */}
-							<div className="bg-card rounded-lg border p-6">
-								<h2 className="text-card-foreground mb-4 text-lg font-medium">
-									Mutation Steps
-								</h2>
-								<Controller
-									name="rules"
-									control={control}
-									render={({ field: { onChange, value } }) => (
-										<RuleBuilder rules={value} onChange={onChange} />
-									)}
-								/>
+							{/* API Usage Sidebar */}
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+								<div className="border-b border-gray-200 px-6 py-5">
+									<h2 className="text-xl font-semibold text-gray-900">
+										API Usage
+									</h2>
+									<p className="mt-1 text-sm text-gray-600">
+										Integration details and usage
+									</p>
+								</div>
+								<div className="p-6">
+									<MutationSidebar config={config} />
+								</div>
 							</div>
-						</div>
-
-						{/* Middle Column - Preview */}
-						<div className="space-y-6 xl:col-span-1">
-							<div>
-								<h2 className="text-foreground text-lg font-medium">
-									Live Preview
-								</h2>
-								<p className="text-muted-foreground mb-4 text-sm">
-									See how your mutation steps will affect the uploaded
-									data
-								</p>
-								<SpreadsheetPreview file={uploadedFile} rules={watchedRules} />
-							</div>
-
-							<div>
-								<CsvOutputPreview
-									file={uploadedFile}
-									rules={watchedRules}
-									outputFormat={{
-										type: 'CSV',
-										delimiter: ',',
-										encoding: 'UTF-8',
-										includeHeaders: true,
-									}}
-								/>
-							</div>
-
-							<div>
-								<JsonConfigPanel
-									name={watchedName}
-									description={watchedDescription}
-									rules={watchedRules}
-									outputFormat={{
-										type: 'CSV',
-										delimiter: ',',
-										encoding: 'UTF-8',
-										includeHeaders: true,
-									}}
-									onImport={handleImportConfig}
-								/>
-							</div>
-						</div>
-
-						{/* Right Column - API Usage */}
-						<div className="xl:col-span-1">
-							<MutationSidebar config={config} />
 						</div>
 					</div>
 
-					{/* Actions */}
-					<div className="mt-8 flex justify-end space-x-4">
-						<Button type="button" variant="outline" onClick={handleCancel}>
-							Cancel
-						</Button>
-						<Button
-							type="submit"
-							disabled={isSubmitting || updateConfigurationMutation.isPending}
-						>
-							<Save className="mr-2 h-4 w-4" />
-							{isSubmitting || updateConfigurationMutation.isPending
-								? 'Saving...'
-								: 'Save Changes'}
-						</Button>
+					{/* Action Bar */}
+					<div className="mt-12 border-t border-gray-200 pt-6">
+						<div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
+							<div className="text-sm text-gray-600">
+								{uploadedFile ? (
+									<span className="flex items-center">
+										<span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
+										File uploaded: {uploadedFile.name}
+									</span>
+								) : (
+									<span className="flex items-center">
+										<span className="mr-2 h-2 w-2 rounded-full bg-gray-400"></span>
+										No file uploaded
+									</span>
+								)}
+								{/* Rules count */}
+								<span className="ml-4 text-gray-500">
+									{watchedRules.length} transformation rule
+									{watchedRules.length !== 1 ? 's' : ''} configured
+								</span>
+							</div>
+
+							<div className="flex space-x-3">
+								<Button
+									type="button"
+									variant="outline"
+									onClick={handleCancel}
+									className="px-6 py-2.5"
+								>
+									Cancel
+								</Button>
+								<Button
+									type="submit"
+									disabled={
+										isSubmitting || updateConfigurationMutation.isPending
+									}
+									className="bg-blue-600 px-6 py-2.5 hover:bg-blue-700 focus:ring-blue-500"
+								>
+									<Save className="mr-2 h-4 w-4" />
+									{isSubmitting || updateConfigurationMutation.isPending
+										? 'Saving...'
+										: 'Save Changes'}
+								</Button>
+							</div>
+						</div>
 					</div>
 				</form>
 			</div>

@@ -15,8 +15,8 @@ export async function errorHandler(
 			error: {
 				code: 'VALIDATION_ERROR',
 				message: 'Invalid request data',
-				details: error.errors.reduce(
-					(acc, err) => {
+				details: (error as any).errors.reduce(
+					(acc: Record<string, string>, err: any) => {
 						const field = err.path.join('.');
 						acc[field] = err.message;
 						return acc;

@@ -356,7 +356,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 	fastify.delete(
 		'/:id',
 		{
-			preHandler: [requireRole('member')],
+			preHandler: [requireRole('owner')],
 		},
 		async (request, reply) => {
 			const { id } = request.params as { id: string };
@@ -408,7 +408,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 	fastify.post(
 		'/:id/clone',
 		{
-			preHandler: [requireRole('member')],
+			preHandler: [requireRole('owner')],
 		},
 		async (request, reply) => {
 			const { id } = request.params as { id: string };

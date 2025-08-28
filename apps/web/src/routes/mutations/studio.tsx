@@ -30,6 +30,7 @@ type ConfigurationFormData = z.infer<typeof configurationSchema>;
 export function NewConfigurationComponent() {
 	const navigate = useNavigate();
 	const [rules, setRules] = useState<TransformationRule[]>([]);
+	const [activeTab, setActiveTab] = useState<'preview' | 'data'>('preview');
 	const createConfiguration = useMutation({
 		mutationFn: (data: ConfigurationFormData) =>
 			mutApi.create({
@@ -110,37 +111,133 @@ export function NewConfigurationComponent() {
 
 	return (
 		<Layout>
-			<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-				<div className="mb-8">
-					<h1 className="text-2xl font-bold text-gray-900">Mutation Studio</h1>
-					<p className="mt-2 text-gray-600">Create a new data transformation</p>
+			<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+				{/* Header Section */}
+				<div className="mb-8 border-b border-gray-200 pb-6">
+					<h1 className="text-3xl font-bold text-gray-900">Mutation Studio</h1>
+					<p className="mt-2 text-lg text-gray-600">Create a new data transformation</p>
 				</div>
 
-				<div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-					{/* Left Column */}
-					<div className="space-y-6">
-						{/* Configuration Details */}
-						<div className="rounded-lg border border-gray-200 bg-white p-6">
-							<h2 className="mb-4 text-lg font-medium text-gray-900">
-								Mutation Details
-							</h2>
-							<div className="space-y-4">
+				{/* Main Content Grid */}
+				<div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
+					{/* Left Column - Main Content Area */}
+					<div className="xl:col-span-8 space-y-8">
+						{/* Transformation Rules Card - Larger Space */}
+						<div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+							<div className="px-6 py-5 border-b border-gray-200">
+								<h2 className="text-xl font-semibold text-gray-900">Transformation Rules</h2>
+								<p className="mt-1 text-sm text-gray-600">
+									Build your data transformation pipeline step by step
+								</p>
+							</div>
+							<div className="p-6">
+								<RuleBuilder rules={rules} onChange={setRules} />
+							</div>
+						</div>
+
+						{/* Data Preview Tabs */}
+						<div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+							<div className="px-6 py-5 border-b border-gray-200">
+								<div className="flex items-center justify-between">
+									<div>
+										<h2 className="text-xl font-semibold text-gray-900">Data Preview</h2>
+										<p className="mt-1 text-sm text-gray-600">
+											See how your transformations affect the data
+										</p>
+									</div>
+									{/* Tab Navigation */}
+									<div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+										<button
+											onClick={() => setActiveTab('preview')}
+											className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+												activeTab === 'preview'
+													? 'bg-white text-gray-900 shadow-sm'
+													: 'text-gray-600 hover:text-gray-900'
+											}`}
+										>
+											Live Preview
+										</button>
+										<button
+											onClick={() => setActiveTab('data')}
+											className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+												activeTab === 'data'
+													? 'bg-white text-gray-900 shadow-sm'
+													: 'text-gray-600 hover:text-gray-900'
+											}`}
+										>
+											Sample Data
+										</button>
+									</div>
+								</div>
+							</div>
+							<div className="p-6">
+								{activeTab === 'preview' ? (
+									<div>
+										<h3 className="text-lg font-medium text-gray-900 mb-4">Live Preview</h3>
+										<SpreadsheetPreview file={uploadedFile} rules={rules} />
+									</div>
+								) : (
+									<div>
+										<h3 className="text-lg font-medium text-gray-900 mb-4">Sample Data</h3>
+										<FileUpload
+											onFileUploaded={setUploadedFile}
+											currentFile={uploadedFile}
+										/>
+									</div>
+								)}
+							</div>
+						</div>
+
+						{/* Output Preview Card */}
+						<div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+							<div className="px-6 py-5 border-b border-gray-200">
+								<h2 className="text-xl font-semibold text-gray-900">Output Preview</h2>
+								<p className="mt-1 text-sm text-gray-600">
+									Preview the final CSV output with your transformations applied
+								</p>
+							</div>
+							<div className="p-6">
+								<CsvOutputPreview
+									file={uploadedFile}
+									rules={rules}
+									outputFormat={{
+										type: 'CSV',
+										delimiter: ',',
+										encoding: 'UTF-8',
+										includeHeaders: true,
+									}}
+								/>
+							</div>
+						</div>
+					</div>
+
+					{/* Right Column - Configuration Sidebar */}
+					<div className="xl:col-span-4 space-y-8">
+						{/* Configuration Details Card */}
+						<div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+							<div className="px-6 py-5 border-b border-gray-200">
+								<h2 className="text-xl font-semibold text-gray-900">Configuration</h2>
+								<p className="mt-1 text-sm text-gray-600">
+									Basic settings for your transformation
+								</p>
+							</div>
+							<div className="p-6 space-y-5">
 								<div>
 									<label
 										htmlFor='name'
-										className="block text-sm font-medium text-gray-700"
+										className="block text-sm font-medium text-gray-700 mb-2"
 									>
-										Name *
+										Name <span className="text-red-500">*</span>
 									</label>
 									<input
 										{...register('name')}
 										type='text'
 										id='name'
 										placeholder="Enter configuration name"
-										className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+										className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
 									/>
 									{errors.name && (
-										<p className="mt-1 text-sm text-red-600">
+										<p className="mt-2 text-sm text-red-600">
 											{errors.name.message}
 										</p>
 									)}
@@ -148,7 +245,7 @@ export function NewConfigurationComponent() {
 								<div>
 									<label
 										htmlFor='description'
-										className="block text-sm font-medium text-gray-700"
+										className="block text-sm font-medium text-gray-700 mb-2"
 									>
 										Description
 									</label>
@@ -157,98 +254,82 @@ export function NewConfigurationComponent() {
 										type='text'
 										id='description'
 										placeholder="Enter description (optional)"
-										className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+										className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
 									/>
 								</div>
 							</div>
 						</div>
 
-						{/* File Upload */}
-						<div className="space-y-4">
-							<h2 className="text-lg font-medium text-gray-900">Sample Data</h2>
-							<p className="text-sm text-gray-600">
-								Upload a sample Excel file to preview how your transformations
-								will affect the data
-							</p>
-							<FileUpload
-								onFileUploaded={setUploadedFile}
-								currentFile={uploadedFile}
-							/>
-						</div>
-
-						{/* Rule Builder */}
-						<div className="rounded-lg border border-gray-200 bg-white p-6">
-							<h2 className="mb-4 text-lg font-medium text-gray-900">
-								Operations
-							</h2>
-							<RuleBuilder rules={rules} onChange={setRules} />
-						</div>
-					</div>
-
-					{/* Right Column - Preview */}
-					<div className="space-y-6">
-						<div>
-							<h2 className="text-lg font-medium text-gray-900">
-								Live Preview
-							</h2>
-							<p className="mb-4 text-sm text-gray-600">
-								See how your transformation rules will affect the uploaded data
-							</p>
-							<SpreadsheetPreview file={uploadedFile} rules={rules} />
-						</div>
-
-						<div>
-							<CsvOutputPreview
-								file={uploadedFile}
-								rules={rules}
-								outputFormat={{
-									type: 'CSV',
-									delimiter: ',',
-									encoding: 'UTF-8',
-									includeHeaders: true,
-								}}
-							/>
-						</div>
-
-						<div>
-							<JsonConfigPanel
-								name={formData.name}
-								description={formData.description}
-								rules={rules}
-								outputFormat={{
-									type: 'CSV',
-									delimiter: ',',
-									encoding: 'UTF-8',
-									includeHeaders: true,
-								}}
-								onImport={handleImportConfig}
-							/>
+						{/* JSON Configuration Card */}
+						<div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+							<div className="px-6 py-5 border-b border-gray-200">
+								<h2 className="text-xl font-semibold text-gray-900">JSON Configuration</h2>
+								<p className="mt-1 text-sm text-gray-600">
+									Import/export configuration as JSON
+								</p>
+							</div>
+							<div className="p-6">
+								<JsonConfigPanel
+									name={formData.name}
+									description={formData.description}
+									rules={rules}
+									outputFormat={{
+										type: 'CSV',
+										delimiter: ',',
+										encoding: 'UTF-8',
+										includeHeaders: true,
+									}}
+									onImport={handleImportConfig}
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
 
-				{/* Actions */}
-				<form onSubmit={handleSubmit(onSubmit)}>
-					<div className="mt-8 flex justify-end space-x-4">
-						<Button
-							type='button'
-							onClick={handleCancel}
-							className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-						>
-							Cancel
-						</Button>
-						<Button
-							type='submit'
-							disabled={createConfiguration.isPending || !formData.name?.trim()}
-							className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-						>
-							<Save className="mr-2 h-4 w-4" />
-							{createConfiguration.isPending
-								? 'Creating...'
-								: 'Create Configuration'}
-						</Button>
+				{/* Action Bar */}
+				<div className="mt-12 border-t border-gray-200 pt-6">
+					<div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+						<div className="text-sm text-gray-600">
+							{uploadedFile ? (
+								<span className="flex items-center">
+									<span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+									File uploaded: {uploadedFile.name}
+								</span>
+							) : (
+								<span className="flex items-center">
+									<span className="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+									No file uploaded
+								</span>
+							)}
+							{/* Rules count */}
+							<span className="ml-4 text-gray-500">
+								{rules.length} transformation rule{rules.length !== 1 ? 's' : ''} configured
+							</span>
+						</div>
+
+						<div className="flex space-x-3">
+							<Button
+								type='button'
+								onClick={handleCancel}
+								variant="outline"
+								className="px-6 py-2.5"
+							>
+								Cancel
+							</Button>
+							<Button
+								type='submit'
+								onClick={handleSubmit(onSubmit)}
+								disabled={createConfiguration.isPending || !formData.name?.trim()}
+								className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+							>
+								<Save className="mr-2 h-4 w-4" />
+								{createConfiguration.isPending
+									? 'Creating...'
+									: 'Create Configuration'}
+							</Button>
+						</div>
 					</div>
-				</form>
+				</div>
 			</div>
 		</Layout>
 	)

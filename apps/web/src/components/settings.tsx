@@ -1,5 +1,6 @@
 import { Settings as SettingsIcon } from 'lucide-react';
 
+import { ApiKeysSettings } from './settings/api-keys';
 import { ThemeSettings } from './settings/theme-settings';
 
 export function Settings() {
@@ -10,7 +11,8 @@ export function Settings() {
 				<h1 className="text-2xl font-bold">Settings</h1>
 			</div>
 
-			<div className="max-w-2xl">
+			<div className="max-w-4xl space-y-6">
+				<ApiKeysSettings />
 				<ThemeSettings />
 			</div>
 		</div>

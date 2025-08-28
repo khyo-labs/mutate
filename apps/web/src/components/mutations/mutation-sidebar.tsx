@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import { Code, Copy, Key } from 'lucide-react';
 import { useState } from 'react';
 
@@ -76,8 +77,10 @@ result = response.json()`;
 				<p className="text-muted-foreground mb-3 text-sm">
 					You'll need an API key to use the transformation endpoint.
 				</p>
-				<Button variant="outline" size="sm" className="w-full">
-					Manage API Keys
+				<Button variant="outline" size="sm" className="w-full" asChild>
+					<Link to="/settings">
+						Manage API Keys
+					</Link>
 				</Button>
 			</div>
 
