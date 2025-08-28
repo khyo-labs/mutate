@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 
-import { auth } from '../lib/auth';
+import { auth } from '../lib/auth.js';
 import { authenticateSession } from '../middleware/auth';
 import { createOrganizationSchema } from '../schemas/organization';
 import { getErrorMessage } from '../utils/error';
