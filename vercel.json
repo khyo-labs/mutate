@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "cd apps/web && pnpm run build",
+  "buildCommand": "pnpm --filter @mutate/web build",
   "outputDirectory": "apps/web/dist",
   "rewrites": [
     {
