@@ -1,22 +1,22 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { Save } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { mutApi } from '@/api/mutations';
+import { CsvOutputPreview } from '@/components/csv-output-preview';
+import { FileUpload, type UploadedFile } from '@/components/file-upload';
+import { JsonConfigPanel } from '@/components/json-config-panel';
+import { Layout } from '@/components/layout';
+import { RuleBuilder } from '@/components/rule-builder';
+import { SpreadsheetPreview } from '@/components/spreadsheet-preview';
 import { Button } from '@/components/ui/button';
+import type { Configuration, TransformationRule } from '@/types';
 
-import { CsvOutputPreview } from '../../components/csv-output-preview';
-import { FileUpload, type UploadedFile } from '../../components/file-upload';
-import { JsonConfigPanel } from '../../components/json-config-panel';
-import { Layout } from '../../components/layout';
-import { RuleBuilder } from '../../components/rule-builder';
-import { SpreadsheetPreview } from '../../components/spreadsheet-preview';
-import { useCreateConfiguration } from '../../hooks/use-configurations';
-import type { Configuration, TransformationRule } from '../../types';
-
-export const Route = createFileRoute('/configurations/new')({
+export const Route = createFileRoute('/mutations/studio')({
 	component: NewConfigurationComponent,
 });
 
@@ -29,8 +29,29 @@ type ConfigurationFormData = z.infer<typeof configurationSchema>;
 
 export function NewConfigurationComponent() {
 	const navigate = useNavigate();
-	const createConfiguration = useCreateConfiguration();
 	const [rules, setRules] = useState<TransformationRule[]>([]);
+	const createConfiguration = useMutation({
+		mutationFn: (data: ConfigurationFormData) =>
+			mutApi.create({
+				...data,
+				rules,
+				outputFormat: {
+					type: 'CSV' as const,
+					delimiter: ',',
+					encoding: 'UTF-8' as const,
+					includeHeaders: true,
+				},
+			}),
+		onSuccess: () => {
+			navigate({ to: '/mutations' });
+		},
+		onError: (error) => {
+			console.error('Failed to create configuration:', error);
+		},
+		onSettled: () => {
+			navigate({ to: '/mutations' });
+		},
+	})
 	const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
 
 	const {
@@ -44,7 +65,7 @@ export function NewConfigurationComponent() {
 			name: '',
 			description: '',
 		},
-	});
+	})
 
 	const formData = watch();
 
@@ -60,10 +81,10 @@ export function NewConfigurationComponent() {
 					encoding: 'UTF-8' as const,
 					includeHeaders: true,
 				},
-			};
+			}
 
 			await createConfiguration.mutateAsync(configurationData);
-			navigate({ to: '/configurations' });
+			navigate({ to: '/mutations' });
 		} catch (error) {
 			console.error('Failed to create configuration:', error);
 			alert('Failed to create configuration');
@@ -71,7 +92,7 @@ export function NewConfigurationComponent() {
 	}
 
 	function handleCancel() {
-		navigate({ to: '/configurations' });
+		navigate({ to: '/mutations' });
 	}
 
 	function handleImportConfig(importedConfig: {
@@ -91,12 +112,8 @@ export function NewConfigurationComponent() {
 		<Layout>
 			<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 				<div className="mb-8">
-					<h1 className="text-2xl font-bold text-gray-900">
-						New Configuration
-					</h1>
-					<p className="mt-2 text-gray-600">
-						Create a new data transformation configuration
-					</p>
+					<h1 className="text-2xl font-bold text-gray-900">Mutation Studio</h1>
+					<p className="mt-2 text-gray-600">Create a new data transformation</p>
 				</div>
 
 				<div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -105,20 +122,20 @@ export function NewConfigurationComponent() {
 						{/* Configuration Details */}
 						<div className="rounded-lg border border-gray-200 bg-white p-6">
 							<h2 className="mb-4 text-lg font-medium text-gray-900">
-								Configuration Details
+								Mutation Details
 							</h2>
 							<div className="space-y-4">
 								<div>
 									<label
-										htmlFor="name"
+										htmlFor='name'
 										className="block text-sm font-medium text-gray-700"
 									>
 										Name *
 									</label>
 									<input
 										{...register('name')}
-										type="text"
-										id="name"
+										type='text'
+										id='name'
 										placeholder="Enter configuration name"
 										className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
 									/>
@@ -130,15 +147,15 @@ export function NewConfigurationComponent() {
 								</div>
 								<div>
 									<label
-										htmlFor="description"
+										htmlFor='description'
 										className="block text-sm font-medium text-gray-700"
 									>
 										Description
 									</label>
 									<input
 										{...register('description')}
-										type="text"
-										id="description"
+										type='text'
+										id='description'
 										placeholder="Enter description (optional)"
 										className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
 									/>
@@ -162,7 +179,7 @@ export function NewConfigurationComponent() {
 						{/* Rule Builder */}
 						<div className="rounded-lg border border-gray-200 bg-white p-6">
 							<h2 className="mb-4 text-lg font-medium text-gray-900">
-								Transformation Rules
+								Operations
 							</h2>
 							<RuleBuilder rules={rules} onChange={setRules} />
 						</div>
@@ -214,14 +231,14 @@ export function NewConfigurationComponent() {
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<div className="mt-8 flex justify-end space-x-4">
 						<Button
-							type="button"
+							type='button'
 							onClick={handleCancel}
 							className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 						>
 							Cancel
 						</Button>
 						<Button
-							type="submit"
+							type='submit'
 							disabled={createConfiguration.isPending || !formData.name?.trim()}
 							className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 						>
@@ -234,5 +251,5 @@ export function NewConfigurationComponent() {
 				</form>
 			</div>
 		</Layout>
-	);
+	)
 }

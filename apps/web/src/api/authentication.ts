@@ -1,5 +1,5 @@
 import type { LoginFormData, RegisterFormData, User } from '../types';
-import { apiRequest } from './client';
+import { api } from './client';
 
 interface AuthResponse {
 	user: User;
@@ -9,24 +9,24 @@ interface AuthResponse {
 
 export const authApi = {
 	register: async (data: RegisterFormData): Promise<AuthResponse> => {
-		return apiRequest<AuthResponse>('POST', '/v1/auth/register', data);
+		return api.post<AuthResponse>('/v1/auth/register', data);
 	},
 
 	login: async (data: LoginFormData): Promise<AuthResponse> => {
-		return apiRequest<AuthResponse>('POST', '/v1/auth/login', data);
+		return api.post<AuthResponse>('/v1/auth/login', data);
 	},
 
 	refresh: async (refreshToken: string): Promise<{ accessToken: string }> => {
-		return apiRequest<{ accessToken: string }>('POST', '/v1/auth/refresh', {
+		return api.post<{ accessToken: string }>('/v1/auth/refresh', {
 			refreshToken,
 		});
 	},
 
 	me: async (): Promise<User> => {
-		return apiRequest<User>('GET', '/v1/auth/me');
+		return api.get<User>('/v1/auth/me');
 	},
 
 	logout: async (): Promise<{ message: string }> => {
-		return apiRequest<{ message: string }>('POST', '/v1/auth/logout');
+		return api.post<{ message: string }>('/v1/auth/logout');
 	},
 };

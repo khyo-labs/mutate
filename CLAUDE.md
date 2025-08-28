@@ -101,8 +101,8 @@ mutate/
 ### Key Endpoints
 
 - `GET /v1/auth/*` - Better Auth endpoints
-- `GET /v1/configurations` - List user configurations
-- `POST /v1/configurations` - Create new configuration
+- `GET /v1/mutations` - List user configurations
+- `POST /v1/mutations` - Create new configuration
 - `POST /v1/transform` - Execute file transformation
 - `GET /v1/health` - Health check
 

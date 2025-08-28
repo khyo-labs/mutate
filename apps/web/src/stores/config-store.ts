@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
-import { configApi } from '../api/configurations';
+import { mutApi } from '@/api/mutations';
+
 import type {
 	Configuration,
 	ConfigurationFormData,
@@ -120,7 +121,7 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 		console.log('fetchConfigurations: Starting...', params);
 		set({ isLoading: true, error: null });
 		try {
-			const response = await configApi.list(params);
+			const response = await mutApi.list(params);
 			console.log('fetchConfigurations: Success', response);
 			console.log('fetchConfigurations: typeof response', typeof response);
 			console.log(
@@ -171,7 +172,7 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 		console.log('createConfiguration: Starting...', data);
 		set({ isLoading: true, error: null });
 		try {
-			const newConfig = await configApi.create(data);
+			const newConfig = await mutApi.create(data);
 			console.log('createConfiguration: Success', newConfig);
 			set((state) => ({
 				configurations: [newConfig, ...state.configurations],
@@ -194,7 +195,7 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 	) => {
 		set({ isLoading: true, error: null });
 		try {
-			const updatedConfig = await configApi.update(id, data);
+			const updatedConfig = await mutApi.update(id, data);
 			set((state) => ({
 				configurations: state.configurations.map((config) =>
 					config.id === id ? updatedConfig : config,
@@ -218,7 +219,7 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 	deleteConfiguration: async (id: string) => {
 		set({ isLoading: true, error: null });
 		try {
-			await configApi.delete(id);
+			await mutApi.delete(id);
 			set((state) => ({
 				configurations: state.configurations.filter(
 					(config) => config.id !== id,
@@ -241,7 +242,7 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 	fetchConfiguration: async (id: string) => {
 		set({ isLoading: true, error: null });
 		try {
-			const config = await configApi.get(id);
+			const config = await mutApi.get(id);
 			set({ currentConfiguration: config, isLoading: false });
 			return config;
 		} catch (error: any) {

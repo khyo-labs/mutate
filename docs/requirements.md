@@ -90,12 +90,12 @@ users
 #### API Endpoints
 
 ```
-POST   /v1/configurations
-GET    /v1/configurations (paginated)
-GET    /v1/configurations/{id}
-PUT    /v1/configurations/{id}
-DELETE /v1/configurations/{id}
-POST   /v1/configurations/{id}/clone
+POST   /v1/mutations
+GET    /v1/mutations (paginated)
+GET    /v1/mutations/{id}
+PUT    /v1/mutations/{id}
+DELETE /v1/mutations/{id}
+POST   /v1/mutations/{id}/clone
 ```
 
 #### Database Schema

@@ -18,7 +18,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 	fastify.post(
 		'/',
 		{
-			preHandler: [requireRole('member')],
+			preHandler: [requireRole('owner')],
 		},
 		async (request, reply) => {
 			const validationResult = createSchema.safeParse(request.body);
@@ -28,8 +28,8 @@ export async function configRoutes(fastify: FastifyInstance) {
 					error: {
 						code: 'VALIDATION_ERROR',
 						message: 'Invalid request data',
-						details: validationResult.error.errors.reduce(
-							(acc, err) => {
+						details: validationResult.error.issues.reduce(
+							(acc: Record<string, string>, err: any) => {
 								const field = err.path.join('.');
 								acc[field] = err.message;
 								return acc;
@@ -102,8 +102,8 @@ export async function configRoutes(fastify: FastifyInstance) {
 				error: {
 					code: 'VALIDATION_ERROR',
 					message: 'Invalid query parameters',
-					details: validationResult.error.errors.reduce(
-						(acc, err) => {
+					details: validationResult.error.issues.reduce(
+						(acc: Record<string, string>, err: any) => {
 							const field = err.path.join('.');
 							acc[field] = err.message;
 							return acc;
@@ -256,7 +256,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 	fastify.put(
 		'/:id',
 		{
-			preHandler: [requireRole('member')],
+			preHandler: [requireRole('owner')],
 		},
 		async (request, reply) => {
 			const { id } = request.params as { id: string };
@@ -269,8 +269,8 @@ export async function configRoutes(fastify: FastifyInstance) {
 					error: {
 						code: 'VALIDATION_ERROR',
 						message: 'Invalid request data',
-						details: validationResult.error.errors.reduce(
-							(acc, err) => {
+						details: validationResult.error.issues.reduce(
+							(acc: Record<string, string>, err: any) => {
 								const field = err.path.join('.');
 								acc[field] = err.message;
 								return acc;

@@ -70,12 +70,12 @@ The API will be available at `http://localhost:3000`
 
 ### Configuration Endpoints (JWT Auth Required)
 
-- `POST /v1/configurations` - Create configuration
-- `GET /v1/configurations` - List configurations
-- `GET /v1/configurations/:id` - Get configuration
-- `PUT /v1/configurations/:id` - Update configuration
-- `DELETE /v1/configurations/:id` - Delete configuration
-- `POST /v1/configurations/:id/clone` - Clone configuration
+- `POST /v1/mutations` - Create configuration
+- `GET /v1/mutations` - List configurations
+- `GET /v1/mutations/:id` - Get configuration
+- `PUT /v1/mutations/:id` - Update configuration
+- `DELETE /v1/mutations/:id` - Delete configuration
+- `POST /v1/mutations/:id/clone` - Clone configuration
 
 ### Transformation Endpoints (API Key Auth Required)
 

@@ -1,12 +1,15 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { type CreateOrganizationRequest, orgApi } from '../api/organizations';
+import {
+	type CreateOrganizationRequest,
+	workspaceApi,
+} from '../api/workspaces';
 
-export function useCreateOrganization() {
+export function useCreateWorkspace() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (data: CreateOrganizationRequest) => orgApi.create(data),
+		mutationFn: (data: CreateOrganizationRequest) => workspaceApi.create(data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: ['organizations'],
@@ -15,8 +18,16 @@ export function useCreateOrganization() {
 	});
 }
 
+export function useListWorkspace() {
+	return useQuery({
+		queryKey: ['organizations'],
+		queryFn: () => workspaceApi.list(),
+		initialData: [],
+	});
+}
+
 export function useCheckSlugExists() {
 	return useMutation({
-		mutationFn: (slug: string) => orgApi.isSlugAvailable(slug),
+		mutationFn: (slug: string) => workspaceApi.isSlugAvailable(slug),
 	});
 }

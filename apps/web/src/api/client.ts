@@ -1,42 +1,85 @@
-import axios from 'axios';
+import axios, {
+	type AxiosInstance,
+	type AxiosRequestConfig,
+	type AxiosResponse,
+	type InternalAxiosRequestConfig,
+} from 'axios';
+import { toast } from 'sonner';
 
-import type { ApiResponse } from '../types';
+type RequestOptions = {
+	endpoint: string;
+	method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+	data?: Record<string, any>;
+};
 
-export const api = axios.create({
-	baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
-	timeout: 10_000,
-	withCredentials: true,
-});
+class ApiClient {
+	private readonly axios: AxiosInstance;
 
-export async function apiRequest<T>(
-	method: 'GET' | 'POST' | 'PUT' | 'DELETE',
-	url: string,
-	data?: any,
-	config?: any,
-): Promise<T> {
-	try {
-		const response = await api.request({
-			method,
-			url,
-			data,
-			...config,
+	constructor() {
+		this.axios = axios.create({
+			baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+			timeout: 10_000,
+			withCredentials: true,
 		});
 
-		const result: ApiResponse<T> = response.data;
+		this.setupInterceptors();
+	}
 
-		if (result.success) {
-			return result.data;
-		} else {
-			throw new Error(result.error.message);
-		}
-	} catch (error) {
-		if (axios.isAxiosError(error)) {
-			const apiError = error.response?.data as ApiResponse;
-			if (apiError && !apiError.success) {
-				throw new Error(apiError.error.message);
-			}
-			throw new Error(error.message);
-		}
-		throw error;
+	private setupInterceptors() {
+		this.axios.interceptors.request.use(
+			(config: InternalAxiosRequestConfig) => config,
+			(error) => {
+				console.log("Error's request interceptor", error);
+				return Promise.reject(error);
+			},
+		);
+
+		this.axios.interceptors.response.use(
+			(response: AxiosResponse) => response,
+			(error) => {
+				console.error('Response error:', error.response?.data || error);
+				const errorMessage =
+					error.response?.data?.message || 'An unexpected error occurred';
+				toast.error(errorMessage);
+				return Promise.reject(error);
+			},
+		);
+	}
+
+	private async makeRequest<T>({
+		endpoint,
+		method,
+		data,
+	}: RequestOptions): Promise<T> {
+		const config: AxiosRequestConfig = {
+			url: endpoint,
+			method,
+			data,
+		};
+		const response: AxiosResponse<T> = await this.axios(config);
+		console.log('response', response);
+		return response.data;
+	}
+
+	get<T>(endpoint: string): Promise<T> {
+		return this.makeRequest({ endpoint, method: 'GET' });
+	}
+
+	post<T>(endpoint: string, data: Record<string, any> = {}): Promise<T> {
+		return this.makeRequest({ endpoint, method: 'POST', data });
+	}
+
+	put<T>(endpoint: string, data: Record<string, any>): Promise<T> {
+		return this.makeRequest({ endpoint, method: 'PUT', data });
+	}
+
+	patch<T>(endpoint: string, data: Record<string, any>): Promise<T> {
+		return this.makeRequest({ endpoint, method: 'PATCH', data });
+	}
+
+	delete<T>(endpoint: string): Promise<T> {
+		return this.makeRequest({ endpoint, method: 'DELETE' });
 	}
 }
+
+export const api = new ApiClient();

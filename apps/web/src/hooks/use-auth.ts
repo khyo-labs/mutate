@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { authApi } from '../api/auth';
+import { authApi } from '../api/authentication';
 import type { LoginFormData, RegisterFormData } from '../types';
 
 export const authKeys = {
@@ -22,7 +22,7 @@ export function useLogin() {
 
 	return useMutation({
 		mutationFn: (data: LoginFormData) => authApi.login(data),
-		onSuccess: (response) => {
+		onSuccess: (response: any) => {
 			// Set user data in cache
 			queryClient.setQueryData(authKeys.user(), response.user);
 		},
@@ -34,7 +34,7 @@ export function useRegister() {
 
 	return useMutation({
 		mutationFn: (data: RegisterFormData) => authApi.register(data),
-		onSuccess: (response) => {
+		onSuccess: (response: any) => {
 			// Set user data in cache
 			queryClient.setQueryData(authKeys.user(), response.user);
 		},

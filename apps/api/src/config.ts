@@ -16,7 +16,7 @@ const configSchema = z.object({
 	CORS_ORIGINS: z
 		.string()
 		.transform((val) => val.split(',').map((s) => s.trim()))
-		.default('http://localhost:5173'),
+		.default(['http://localhost:5173']),
 
 	// Database
 	DATABASE_URL: z.string().url(),

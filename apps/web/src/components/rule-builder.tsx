@@ -182,7 +182,7 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 			{/* Available Rules */}
 			<div className="col-span-4">
 				<h3 className="mb-4 text-lg font-medium text-gray-900">
-					Available Rules
+					Available Operations
 				</h3>
 				<div className="space-y-2">
 					{availableRules.map((rule) => {
@@ -216,7 +216,7 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 			<div className="col-span-8">
 				<div className="mb-4 flex items-center justify-between">
 					<h3 className="text-lg font-medium text-gray-900">
-						Transformation Pipeline
+						Mutation Pipeline
 					</h3>
 					<span className="text-sm text-gray-500">
 						{rules.length} rule{rules.length !== 1 ? 's' : ''}

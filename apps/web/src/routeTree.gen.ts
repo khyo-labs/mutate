@@ -9,14 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root';
+import { Route as SettingsRouteImport } from './routes/settings';
 import { Route as RegisterRouteImport } from './routes/register';
 import { Route as LoginRouteImport } from './routes/login';
 import { Route as IndexRouteImport } from './routes/index';
-import { Route as ConfigurationsIndexRouteImport } from './routes/configurations/index';
-import { Route as ConfigurationsNewRouteImport } from './routes/configurations/new';
-import { Route as ConfigurationsConfigIdIndexRouteImport } from './routes/configurations/$configId/index';
-import { Route as ConfigurationsConfigIdBuilderRouteImport } from './routes/configurations/$configId/builder';
+import { Route as MutationsIndexRouteImport } from './routes/mutations/index';
+import { Route as MutationsStudioRouteImport } from './routes/mutations/studio';
+import { Route as MutationsConfigIdIndexRouteImport } from './routes/mutations/$configId/index';
+import { Route as MutationsConfigIdEditRouteImport } from './routes/mutations/$configId/edit';
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any);
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -32,56 +38,57 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any);
-const ConfigurationsIndexRoute = ConfigurationsIndexRouteImport.update({
-  id: '/configurations/',
-  path: '/configurations/',
+const MutationsIndexRoute = MutationsIndexRouteImport.update({
+  id: '/mutations/',
+  path: '/mutations/',
   getParentRoute: () => rootRouteImport,
 } as any);
-const ConfigurationsNewRoute = ConfigurationsNewRouteImport.update({
-  id: '/configurations/new',
-  path: '/configurations/new',
+const MutationsStudioRoute = MutationsStudioRouteImport.update({
+  id: '/mutations/studio',
+  path: '/mutations/studio',
   getParentRoute: () => rootRouteImport,
 } as any);
-const ConfigurationsConfigIdIndexRoute =
-  ConfigurationsConfigIdIndexRouteImport.update({
-    id: '/configurations/$configId/',
-    path: '/configurations/$configId/',
-    getParentRoute: () => rootRouteImport,
-  } as any);
-const ConfigurationsConfigIdBuilderRoute =
-  ConfigurationsConfigIdBuilderRouteImport.update({
-    id: '/configurations/$configId/builder',
-    path: '/configurations/$configId/builder',
-    getParentRoute: () => rootRouteImport,
-  } as any);
+const MutationsConfigIdIndexRoute = MutationsConfigIdIndexRouteImport.update({
+  id: '/mutations/$configId/',
+  path: '/mutations/$configId/',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const MutationsConfigIdEditRoute = MutationsConfigIdEditRouteImport.update({
+  id: '/mutations/$configId/edit',
+  path: '/mutations/$configId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any);
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
-  '/configurations/new': typeof ConfigurationsNewRoute;
-  '/configurations': typeof ConfigurationsIndexRoute;
-  '/configurations/$configId/builder': typeof ConfigurationsConfigIdBuilderRoute;
-  '/configurations/$configId': typeof ConfigurationsConfigIdIndexRoute;
+  '/settings': typeof SettingsRoute;
+  '/mutations/studio': typeof MutationsStudioRoute;
+  '/mutations': typeof MutationsIndexRoute;
+  '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
+  '/mutations/$configId': typeof MutationsConfigIdIndexRoute;
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
-  '/configurations/new': typeof ConfigurationsNewRoute;
-  '/configurations': typeof ConfigurationsIndexRoute;
-  '/configurations/$configId/builder': typeof ConfigurationsConfigIdBuilderRoute;
-  '/configurations/$configId': typeof ConfigurationsConfigIdIndexRoute;
+  '/settings': typeof SettingsRoute;
+  '/mutations/studio': typeof MutationsStudioRoute;
+  '/mutations': typeof MutationsIndexRoute;
+  '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
+  '/mutations/$configId': typeof MutationsConfigIdIndexRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/': typeof IndexRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
-  '/configurations/new': typeof ConfigurationsNewRoute;
-  '/configurations/': typeof ConfigurationsIndexRoute;
-  '/configurations/$configId/builder': typeof ConfigurationsConfigIdBuilderRoute;
-  '/configurations/$configId/': typeof ConfigurationsConfigIdIndexRoute;
+  '/settings': typeof SettingsRoute;
+  '/mutations/studio': typeof MutationsStudioRoute;
+  '/mutations/': typeof MutationsIndexRoute;
+  '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
+  '/mutations/$configId/': typeof MutationsConfigIdIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
@@ -89,42 +96,53 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
-    | '/configurations/new'
-    | '/configurations'
-    | '/configurations/$configId/builder'
-    | '/configurations/$configId';
+    | '/settings'
+    | '/mutations/studio'
+    | '/mutations'
+    | '/mutations/$configId/edit'
+    | '/mutations/$configId';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
     | '/login'
     | '/register'
-    | '/configurations/new'
-    | '/configurations'
-    | '/configurations/$configId/builder'
-    | '/configurations/$configId';
+    | '/settings'
+    | '/mutations/studio'
+    | '/mutations'
+    | '/mutations/$configId/edit'
+    | '/mutations/$configId';
   id:
     | '__root__'
     | '/'
     | '/login'
     | '/register'
-    | '/configurations/new'
-    | '/configurations/'
-    | '/configurations/$configId/builder'
-    | '/configurations/$configId/';
+    | '/settings'
+    | '/mutations/studio'
+    | '/mutations/'
+    | '/mutations/$configId/edit'
+    | '/mutations/$configId/';
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
   LoginRoute: typeof LoginRoute;
   RegisterRoute: typeof RegisterRoute;
-  ConfigurationsNewRoute: typeof ConfigurationsNewRoute;
-  ConfigurationsIndexRoute: typeof ConfigurationsIndexRoute;
-  ConfigurationsConfigIdBuilderRoute: typeof ConfigurationsConfigIdBuilderRoute;
-  ConfigurationsConfigIdIndexRoute: typeof ConfigurationsConfigIdIndexRoute;
+  SettingsRoute: typeof SettingsRoute;
+  MutationsStudioRoute: typeof MutationsStudioRoute;
+  MutationsIndexRoute: typeof MutationsIndexRoute;
+  MutationsConfigIdEditRoute: typeof MutationsConfigIdEditRoute;
+  MutationsConfigIdIndexRoute: typeof MutationsConfigIdIndexRoute;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings';
+      path: '/settings';
+      fullPath: '/settings';
+      preLoaderRoute: typeof SettingsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/register': {
       id: '/register';
       path: '/register';
@@ -146,32 +164,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/configurations/': {
-      id: '/configurations/';
-      path: '/configurations';
-      fullPath: '/configurations';
-      preLoaderRoute: typeof ConfigurationsIndexRouteImport;
+    '/mutations/': {
+      id: '/mutations/';
+      path: '/mutations';
+      fullPath: '/mutations';
+      preLoaderRoute: typeof MutationsIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/configurations/new': {
-      id: '/configurations/new';
-      path: '/configurations/new';
-      fullPath: '/configurations/new';
-      preLoaderRoute: typeof ConfigurationsNewRouteImport;
+    '/mutations/studio': {
+      id: '/mutations/studio';
+      path: '/mutations/studio';
+      fullPath: '/mutations/studio';
+      preLoaderRoute: typeof MutationsStudioRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/configurations/$configId/': {
-      id: '/configurations/$configId/';
-      path: '/configurations/$configId';
-      fullPath: '/configurations/$configId';
-      preLoaderRoute: typeof ConfigurationsConfigIdIndexRouteImport;
+    '/mutations/$configId/': {
+      id: '/mutations/$configId/';
+      path: '/mutations/$configId';
+      fullPath: '/mutations/$configId';
+      preLoaderRoute: typeof MutationsConfigIdIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/configurations/$configId/builder': {
-      id: '/configurations/$configId/builder';
-      path: '/configurations/$configId/builder';
-      fullPath: '/configurations/$configId/builder';
-      preLoaderRoute: typeof ConfigurationsConfigIdBuilderRouteImport;
+    '/mutations/$configId/edit': {
+      id: '/mutations/$configId/edit';
+      path: '/mutations/$configId/edit';
+      fullPath: '/mutations/$configId/edit';
+      preLoaderRoute: typeof MutationsConfigIdEditRouteImport;
       parentRoute: typeof rootRouteImport;
     };
   }
@@ -181,10 +199,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
-  ConfigurationsNewRoute: ConfigurationsNewRoute,
-  ConfigurationsIndexRoute: ConfigurationsIndexRoute,
-  ConfigurationsConfigIdBuilderRoute: ConfigurationsConfigIdBuilderRoute,
-  ConfigurationsConfigIdIndexRoute: ConfigurationsConfigIdIndexRoute,
+  SettingsRoute: SettingsRoute,
+  MutationsStudioRoute: MutationsStudioRoute,
+  MutationsIndexRoute: MutationsIndexRoute,
+  MutationsConfigIdEditRoute: MutationsConfigIdEditRoute,
+  MutationsConfigIdIndexRoute: MutationsConfigIdIndexRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

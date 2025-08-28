@@ -126,7 +126,7 @@ export interface ApiErrorResponse {
 }
 
 export interface PaginatedResponse<T> {
-	success: true;
+	success: boolean;
 	data: T[];
 	pagination: {
 		page: number;

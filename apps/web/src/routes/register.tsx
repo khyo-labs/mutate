@@ -68,7 +68,7 @@ export function RegisterComponent() {
 	return (
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-				<div className="card">
+				<div className="rounded-lg border bg-card p-6 shadow-sm">
 					{/* OAuth Registration Buttons */}
 					<div className="mb-6 space-y-3">
 						<button

@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import {
 	useCheckSlugExists,
-	useCreateOrganization,
+	useCreateWorkspace,
 } from '../../hooks/use-organizations';
 import { useAuthStore, useSession } from '../../stores/auth-store';
 import { ProtectedRoute } from '../protected-route';
@@ -49,7 +49,7 @@ type FormData = z.infer<typeof formSchema>;
 export function CreateOrganization() {
 	const { logout } = useAuthStore();
 	const { data: session } = useSession();
-	const createOrganization = useCreateOrganization();
+	const createOrganization = useCreateWorkspace();
 	const checkSlugExists = useCheckSlugExists();
 
 	const form = useForm<FormData>({
