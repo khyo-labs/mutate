@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+
 import type { Configuration, TransformationRule } from '../types/index.js';
 
 export interface TransformationOptions {
@@ -24,15 +25,19 @@ export class TransformationService {
 	async transformFile(
 		fileBuffer: Buffer,
 		configuration: Configuration,
-		options: TransformationOptions = {}
+		options: TransformationOptions = {},
 	): Promise<TransformationResult> {
 		this.log = [];
-		this.addLog(`Starting transformation with configuration: ${configuration.name}`);
+		this.addLog(
+			`Starting transformation with configuration: ${configuration.name}`,
+		);
 
 		try {
 			// Read Excel file
 			const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-			this.addLog(`Loaded workbook with ${workbook.SheetNames.length} sheets: ${workbook.SheetNames.join(', ')}`);
+			this.addLog(
+				`Loaded workbook with ${workbook.SheetNames.length} sheets: ${workbook.SheetNames.join(', ')}`,
+			);
 
 			// Start with all sheets
 			let currentWorkbook = workbook;
@@ -41,9 +46,15 @@ export class TransformationService {
 			// Apply transformation rules in sequence
 			for (let i = 0; i < configuration.rules.length; i++) {
 				const rule = configuration.rules[i];
-				this.addLog(`Applying rule ${i + 1}/${configuration.rules.length}: ${rule.type}`);
+				this.addLog(
+					`Applying rule ${i + 1}/${configuration.rules.length}: ${rule.type}`,
+				);
 
-				const result = await this.applyRule(currentWorkbook, rule, selectedSheet);
+				const result = await this.applyRule(
+					currentWorkbook,
+					rule,
+					selectedSheet,
+				);
 
 				if (!result.success) {
 					this.addLog(`Rule failed: ${result.error}`);
@@ -75,22 +86,24 @@ export class TransformationService {
 			const csvData = XLSX.utils.sheet_to_csv(
 				currentWorkbook.Sheets[sheetName],
 				{
-					header: configuration.outputFormat.includeHeaders ? 1 : 0,
+					// header: configuration.outputFormat.includeHeaders ? 1 : 0,
 					blankrows: false,
 					FS: configuration.outputFormat.delimiter,
-				}
+				},
 			);
 
-			this.addLog(`Transformation completed successfully. Output size: ${csvData.length} characters`);
+			this.addLog(
+				`Transformation completed successfully. Output size: ${csvData.length} characters`,
+			);
 
 			return {
 				success: true,
 				csvData,
 				executionLog: this.log,
 			};
-
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			const errorMessage =
+				error instanceof Error ? error.message : 'Unknown error';
 			this.addLog(`Transformation failed: ${errorMessage}`);
 			return {
 				success: false,
@@ -103,7 +116,7 @@ export class TransformationService {
 	private async applyRule(
 		workbook: XLSX.WorkBook,
 		rule: TransformationRule,
-		currentSheet: string | null
+		currentSheet: string | null,
 	): Promise<{
 		success: boolean;
 		workbook?: XLSX.WorkBook;
@@ -142,16 +155,36 @@ export class TransformationService {
 		} catch (error) {
 			return {
 				success: false,
-				error: error instanceof Error ? error.message : 'Unknown error applying rule',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Unknown error applying rule',
 			};
 		}
 	}
 
 	private applySelectWorksheet(
 		workbook: XLSX.WorkBook,
-		rule: TransformationRule
-	): { success: boolean; workbook: XLSX.WorkBook; selectedSheet?: string; error?: string } {
-		const params = rule.params;
+		rule: TransformationRule,
+	): {
+		success: boolean;
+		workbook: XLSX.WorkBook;
+		selectedSheet?: string;
+		error?: string;
+	} {
+		if (rule.type !== 'SELECT_WORKSHEET') {
+			return {
+				success: false,
+				workbook,
+				error: `Invalid rule type for SELECT_WORKSHEET: ${rule.type}`,
+			};
+		}
+
+		const params = rule.params as {
+			type: 'name' | 'pattern' | 'index';
+			value: string;
+		};
+
 		let targetSheet: string | null = null;
 
 		switch (params.type) {
@@ -170,7 +203,8 @@ export class TransformationService {
 
 			case 'pattern':
 				const regex = new RegExp(params.value, 'i');
-				targetSheet = workbook.SheetNames.find(name => regex.test(name)) || null;
+				targetSheet =
+					workbook.SheetNames.find((name) => regex.test(name)) || null;
 				break;
 		}
 
@@ -193,9 +227,12 @@ export class TransformationService {
 	private applyValidateColumns(
 		workbook: XLSX.WorkBook,
 		rule: TransformationRule,
-		currentSheet: string | null
+		currentSheet: string | null,
 	): { success: boolean; workbook: XLSX.WorkBook; error?: string } {
-		const params = rule.params;
+		const params = rule.params as {
+			numOfColumns: number;
+			onFailure: 'stop' | 'notify' | 'continue';
+		};
 		const sheetName = currentSheet || workbook.SheetNames[0];
 		const worksheet = workbook.Sheets[sheetName];
 
@@ -211,7 +248,9 @@ export class TransformationService {
 		const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
 		const actualColumns = range.e.c + 1; // +1 because columns are 0-indexed
 
-		this.addLog(`Validating columns. Expected: ${params.numOfColumns}, Actual: ${actualColumns}`);
+		this.addLog(
+			`Validating columns. Expected: ${params.numOfColumns}, Actual: ${actualColumns}`,
+		);
 
 		if (actualColumns !== params.numOfColumns) {
 			const message = `Column count mismatch. Expected ${params.numOfColumns}, found ${actualColumns}`;
@@ -240,9 +279,12 @@ export class TransformationService {
 	private applyUnmergeAndFill(
 		workbook: XLSX.WorkBook,
 		rule: TransformationRule,
-		currentSheet: string | null
+		currentSheet: string | null,
 	): { success: boolean; workbook: XLSX.WorkBook; error?: string } {
-		const params = rule.params;
+		const params = rule.params as {
+			columns: string[];
+			fillDirection: 'down' | 'up';
+		};
 		const sheetName = currentSheet || workbook.SheetNames[0];
 		const worksheet = workbook.Sheets[sheetName];
 
@@ -284,7 +326,10 @@ export class TransformationService {
 				if (params.fillDirection === 'up') {
 					let nextValue = '';
 					for (let rowIndex = range.e.r; rowIndex >= range.s.r; rowIndex--) {
-						const cellAddr = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex });
+						const cellAddr = XLSX.utils.encode_cell({
+							c: colIndex,
+							r: rowIndex,
+						});
 						const cell = worksheet[cellAddr];
 
 						if (cell && cell.v) {
@@ -312,9 +357,16 @@ export class TransformationService {
 	private applyDeleteRows(
 		workbook: XLSX.WorkBook,
 		rule: TransformationRule,
-		currentSheet: string | null
+		currentSheet: string | null,
 	): { success: boolean; workbook: XLSX.WorkBook; error?: string } {
-		const params = rule.params;
+		const params = rule.params as {
+			method: 'condition' | 'rows';
+			condition?: {
+				type: 'value' | 'formula';
+				value: string;
+			};
+			rows?: number[];
+		};
 		const sheetName = currentSheet || workbook.SheetNames[0];
 		const worksheet = workbook.Sheets[sheetName];
 
@@ -341,9 +393,11 @@ export class TransformationService {
 	private applyDeleteColumns(
 		workbook: XLSX.WorkBook,
 		rule: TransformationRule,
-		currentSheet: string | null
+		currentSheet: string | null,
 	): { success: boolean; workbook: XLSX.WorkBook; error?: string } {
-		const params = rule.params;
+		const params = rule.params as {
+			columns: string[];
+		};
 		const sheetName = currentSheet || workbook.SheetNames[0];
 		const worksheet = workbook.Sheets[sheetName];
 
@@ -363,9 +417,17 @@ export class TransformationService {
 
 	private applyCombineWorksheets(
 		workbook: XLSX.WorkBook,
-		rule: TransformationRule
-	): { success: boolean; workbook: XLSX.WorkBook; selectedSheet?: string; error?: string } {
-		const params = rule.params;
+		rule: TransformationRule,
+	): {
+		success: boolean;
+		workbook: XLSX.WorkBook;
+		selectedSheet?: string;
+		error?: string;
+	} {
+		const params = rule.params as {
+			sourceSheets: string[];
+			operation: 'merge' | 'combine';
+		};
 
 		this.addLog(`Combining worksheets: ${params.sourceSheets.join(', ')}`);
 		this.addLog(`Operation: ${params.operation}`);
@@ -393,7 +455,7 @@ export class TransformationService {
 	private applyEvaluateFormulas(
 		workbook: XLSX.WorkBook,
 		rule: TransformationRule,
-		currentSheet: string | null
+		currentSheet: string | null,
 	): { success: boolean; workbook: XLSX.WorkBook; error?: string } {
 		if (rule.type !== 'EVALUATE_FORMULAS') {
 			return {
