@@ -9,20 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root';
-import { Route as SettingsRouteImport } from './routes/settings';
 import { Route as RegisterRouteImport } from './routes/register';
 import { Route as LoginRouteImport } from './routes/login';
+import { Route as SettingsRouteRouteImport } from './routes/settings/route';
 import { Route as IndexRouteImport } from './routes/index';
+import { Route as SettingsIndexRouteImport } from './routes/settings/index';
 import { Route as MutationsIndexRouteImport } from './routes/mutations/index';
 import { Route as MutationsStudioRouteImport } from './routes/mutations/studio';
-import { Route as MutationsConfigIdIndexRouteImport } from './routes/mutations/$configId/index';
-import { Route as MutationsConfigIdEditRouteImport } from './routes/mutations/$configId/edit';
+import { Route as MutationsConfigIdRouteImport } from './routes/mutations/$configId';
+import { Route as SettingsTeamsRouteRouteImport } from './routes/settings/teams/route';
+import { Route as SettingsAccountRouteRouteImport } from './routes/settings/account/route';
+import { Route as SettingsTeamsIndexRouteImport } from './routes/settings/teams/index';
+import { Route as SettingsAccountIndexRouteImport } from './routes/settings/account/index';
+import { Route as SettingsTeamsWebhooksRouteImport } from './routes/settings/teams/webhooks';
+import { Route as SettingsTeamsApiKeysRouteImport } from './routes/settings/teams/api-keys';
+import { Route as SettingsAccountProfileRouteImport } from './routes/settings/account/profile';
+import { Route as SettingsAccountAppearanceRouteImport } from './routes/settings/account/appearance';
+import { Route as MutationsConfigIdEditRouteImport } from './routes/mutations/$configId.edit';
 
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any);
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -33,10 +37,20 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any);
+const SettingsRouteRoute = SettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any);
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any);
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SettingsRouteRoute,
 } as any);
 const MutationsIndexRoute = MutationsIndexRouteImport.update({
   id: '/mutations/',
@@ -48,101 +62,182 @@ const MutationsStudioRoute = MutationsStudioRouteImport.update({
   path: '/mutations/studio',
   getParentRoute: () => rootRouteImport,
 } as any);
-const MutationsConfigIdIndexRoute = MutationsConfigIdIndexRouteImport.update({
-  id: '/mutations/$configId/',
-  path: '/mutations/$configId/',
+const MutationsConfigIdRoute = MutationsConfigIdRouteImport.update({
+  id: '/mutations/$configId',
+  path: '/mutations/$configId',
   getParentRoute: () => rootRouteImport,
 } as any);
+const SettingsTeamsRouteRoute = SettingsTeamsRouteRouteImport.update({
+  id: '/teams',
+  path: '/teams',
+  getParentRoute: () => SettingsRouteRoute,
+} as any);
+const SettingsAccountRouteRoute = SettingsAccountRouteRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => SettingsRouteRoute,
+} as any);
+const SettingsTeamsIndexRoute = SettingsTeamsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SettingsTeamsRouteRoute,
+} as any);
+const SettingsAccountIndexRoute = SettingsAccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SettingsAccountRouteRoute,
+} as any);
+const SettingsTeamsWebhooksRoute = SettingsTeamsWebhooksRouteImport.update({
+  id: '/webhooks',
+  path: '/webhooks',
+  getParentRoute: () => SettingsTeamsRouteRoute,
+} as any);
+const SettingsTeamsApiKeysRoute = SettingsTeamsApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => SettingsTeamsRouteRoute,
+} as any);
+const SettingsAccountProfileRoute = SettingsAccountProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => SettingsAccountRouteRoute,
+} as any);
+const SettingsAccountAppearanceRoute =
+  SettingsAccountAppearanceRouteImport.update({
+    id: '/appearance',
+    path: '/appearance',
+    getParentRoute: () => SettingsAccountRouteRoute,
+  } as any);
 const MutationsConfigIdEditRoute = MutationsConfigIdEditRouteImport.update({
-  id: '/mutations/$configId/edit',
-  path: '/mutations/$configId/edit',
-  getParentRoute: () => rootRouteImport,
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => MutationsConfigIdRoute,
 } as any);
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
+  '/settings': typeof SettingsRouteRouteWithChildren;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
-  '/settings': typeof SettingsRoute;
+  '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
+  '/settings/teams': typeof SettingsTeamsRouteRouteWithChildren;
+  '/mutations/$configId': typeof MutationsConfigIdRouteWithChildren;
   '/mutations/studio': typeof MutationsStudioRoute;
   '/mutations': typeof MutationsIndexRoute;
+  '/settings/': typeof SettingsIndexRoute;
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
-  '/mutations/$configId': typeof MutationsConfigIdIndexRoute;
+  '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
+  '/settings/account/profile': typeof SettingsAccountProfileRoute;
+  '/settings/teams/api-keys': typeof SettingsTeamsApiKeysRoute;
+  '/settings/teams/webhooks': typeof SettingsTeamsWebhooksRoute;
+  '/settings/account/': typeof SettingsAccountIndexRoute;
+  '/settings/teams/': typeof SettingsTeamsIndexRoute;
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
-  '/settings': typeof SettingsRoute;
+  '/mutations/$configId': typeof MutationsConfigIdRouteWithChildren;
   '/mutations/studio': typeof MutationsStudioRoute;
   '/mutations': typeof MutationsIndexRoute;
+  '/settings': typeof SettingsIndexRoute;
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
-  '/mutations/$configId': typeof MutationsConfigIdIndexRoute;
+  '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
+  '/settings/account/profile': typeof SettingsAccountProfileRoute;
+  '/settings/teams/api-keys': typeof SettingsTeamsApiKeysRoute;
+  '/settings/teams/webhooks': typeof SettingsTeamsWebhooksRoute;
+  '/settings/account': typeof SettingsAccountIndexRoute;
+  '/settings/teams': typeof SettingsTeamsIndexRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/': typeof IndexRoute;
+  '/settings': typeof SettingsRouteRouteWithChildren;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
-  '/settings': typeof SettingsRoute;
+  '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
+  '/settings/teams': typeof SettingsTeamsRouteRouteWithChildren;
+  '/mutations/$configId': typeof MutationsConfigIdRouteWithChildren;
   '/mutations/studio': typeof MutationsStudioRoute;
   '/mutations/': typeof MutationsIndexRoute;
+  '/settings/': typeof SettingsIndexRoute;
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
-  '/mutations/$configId/': typeof MutationsConfigIdIndexRoute;
+  '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
+  '/settings/account/profile': typeof SettingsAccountProfileRoute;
+  '/settings/teams/api-keys': typeof SettingsTeamsApiKeysRoute;
+  '/settings/teams/webhooks': typeof SettingsTeamsWebhooksRoute;
+  '/settings/account/': typeof SettingsAccountIndexRoute;
+  '/settings/teams/': typeof SettingsTeamsIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
+    | '/settings'
     | '/login'
     | '/register'
-    | '/settings'
+    | '/settings/account'
+    | '/settings/teams'
+    | '/mutations/$configId'
     | '/mutations/studio'
     | '/mutations'
+    | '/settings/'
     | '/mutations/$configId/edit'
-    | '/mutations/$configId';
+    | '/settings/account/appearance'
+    | '/settings/account/profile'
+    | '/settings/teams/api-keys'
+    | '/settings/teams/webhooks'
+    | '/settings/account/'
+    | '/settings/teams/';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
     | '/login'
     | '/register'
-    | '/settings'
+    | '/mutations/$configId'
     | '/mutations/studio'
     | '/mutations'
+    | '/settings'
     | '/mutations/$configId/edit'
-    | '/mutations/$configId';
+    | '/settings/account/appearance'
+    | '/settings/account/profile'
+    | '/settings/teams/api-keys'
+    | '/settings/teams/webhooks'
+    | '/settings/account'
+    | '/settings/teams';
   id:
     | '__root__'
     | '/'
+    | '/settings'
     | '/login'
     | '/register'
-    | '/settings'
+    | '/settings/account'
+    | '/settings/teams'
+    | '/mutations/$configId'
     | '/mutations/studio'
     | '/mutations/'
+    | '/settings/'
     | '/mutations/$configId/edit'
-    | '/mutations/$configId/';
+    | '/settings/account/appearance'
+    | '/settings/account/profile'
+    | '/settings/teams/api-keys'
+    | '/settings/teams/webhooks'
+    | '/settings/account/'
+    | '/settings/teams/';
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  SettingsRouteRoute: typeof SettingsRouteRouteWithChildren;
   LoginRoute: typeof LoginRoute;
   RegisterRoute: typeof RegisterRoute;
-  SettingsRoute: typeof SettingsRoute;
+  MutationsConfigIdRoute: typeof MutationsConfigIdRouteWithChildren;
   MutationsStudioRoute: typeof MutationsStudioRoute;
   MutationsIndexRoute: typeof MutationsIndexRoute;
-  MutationsConfigIdEditRoute: typeof MutationsConfigIdEditRoute;
-  MutationsConfigIdIndexRoute: typeof MutationsConfigIdIndexRoute;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/settings': {
-      id: '/settings';
-      path: '/settings';
-      fullPath: '/settings';
-      preLoaderRoute: typeof SettingsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
     '/register': {
       id: '/register';
       path: '/register';
@@ -157,12 +252,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    '/settings': {
+      id: '/settings';
+      path: '/settings';
+      fullPath: '/settings';
+      preLoaderRoute: typeof SettingsRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/': {
       id: '/';
       path: '/';
       fullPath: '/';
       preLoaderRoute: typeof IndexRouteImport;
       parentRoute: typeof rootRouteImport;
+    };
+    '/settings/': {
+      id: '/settings/';
+      path: '/';
+      fullPath: '/settings/';
+      preLoaderRoute: typeof SettingsIndexRouteImport;
+      parentRoute: typeof SettingsRouteRoute;
     };
     '/mutations/': {
       id: '/mutations/';
@@ -178,32 +287,144 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MutationsStudioRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/mutations/$configId/': {
-      id: '/mutations/$configId/';
+    '/mutations/$configId': {
+      id: '/mutations/$configId';
       path: '/mutations/$configId';
       fullPath: '/mutations/$configId';
-      preLoaderRoute: typeof MutationsConfigIdIndexRouteImport;
+      preLoaderRoute: typeof MutationsConfigIdRouteImport;
       parentRoute: typeof rootRouteImport;
+    };
+    '/settings/teams': {
+      id: '/settings/teams';
+      path: '/teams';
+      fullPath: '/settings/teams';
+      preLoaderRoute: typeof SettingsTeamsRouteRouteImport;
+      parentRoute: typeof SettingsRouteRoute;
+    };
+    '/settings/account': {
+      id: '/settings/account';
+      path: '/account';
+      fullPath: '/settings/account';
+      preLoaderRoute: typeof SettingsAccountRouteRouteImport;
+      parentRoute: typeof SettingsRouteRoute;
+    };
+    '/settings/teams/': {
+      id: '/settings/teams/';
+      path: '/';
+      fullPath: '/settings/teams/';
+      preLoaderRoute: typeof SettingsTeamsIndexRouteImport;
+      parentRoute: typeof SettingsTeamsRouteRoute;
+    };
+    '/settings/account/': {
+      id: '/settings/account/';
+      path: '/';
+      fullPath: '/settings/account/';
+      preLoaderRoute: typeof SettingsAccountIndexRouteImport;
+      parentRoute: typeof SettingsAccountRouteRoute;
+    };
+    '/settings/teams/webhooks': {
+      id: '/settings/teams/webhooks';
+      path: '/webhooks';
+      fullPath: '/settings/teams/webhooks';
+      preLoaderRoute: typeof SettingsTeamsWebhooksRouteImport;
+      parentRoute: typeof SettingsTeamsRouteRoute;
+    };
+    '/settings/teams/api-keys': {
+      id: '/settings/teams/api-keys';
+      path: '/api-keys';
+      fullPath: '/settings/teams/api-keys';
+      preLoaderRoute: typeof SettingsTeamsApiKeysRouteImport;
+      parentRoute: typeof SettingsTeamsRouteRoute;
+    };
+    '/settings/account/profile': {
+      id: '/settings/account/profile';
+      path: '/profile';
+      fullPath: '/settings/account/profile';
+      preLoaderRoute: typeof SettingsAccountProfileRouteImport;
+      parentRoute: typeof SettingsAccountRouteRoute;
+    };
+    '/settings/account/appearance': {
+      id: '/settings/account/appearance';
+      path: '/appearance';
+      fullPath: '/settings/account/appearance';
+      preLoaderRoute: typeof SettingsAccountAppearanceRouteImport;
+      parentRoute: typeof SettingsAccountRouteRoute;
     };
     '/mutations/$configId/edit': {
       id: '/mutations/$configId/edit';
-      path: '/mutations/$configId/edit';
+      path: '/edit';
       fullPath: '/mutations/$configId/edit';
       preLoaderRoute: typeof MutationsConfigIdEditRouteImport;
-      parentRoute: typeof rootRouteImport;
+      parentRoute: typeof MutationsConfigIdRoute;
     };
   }
 }
 
+interface SettingsAccountRouteRouteChildren {
+  SettingsAccountAppearanceRoute: typeof SettingsAccountAppearanceRoute;
+  SettingsAccountProfileRoute: typeof SettingsAccountProfileRoute;
+  SettingsAccountIndexRoute: typeof SettingsAccountIndexRoute;
+}
+
+const SettingsAccountRouteRouteChildren: SettingsAccountRouteRouteChildren = {
+  SettingsAccountAppearanceRoute: SettingsAccountAppearanceRoute,
+  SettingsAccountProfileRoute: SettingsAccountProfileRoute,
+  SettingsAccountIndexRoute: SettingsAccountIndexRoute,
+};
+
+const SettingsAccountRouteRouteWithChildren =
+  SettingsAccountRouteRoute._addFileChildren(SettingsAccountRouteRouteChildren);
+
+interface SettingsTeamsRouteRouteChildren {
+  SettingsTeamsApiKeysRoute: typeof SettingsTeamsApiKeysRoute;
+  SettingsTeamsWebhooksRoute: typeof SettingsTeamsWebhooksRoute;
+  SettingsTeamsIndexRoute: typeof SettingsTeamsIndexRoute;
+}
+
+const SettingsTeamsRouteRouteChildren: SettingsTeamsRouteRouteChildren = {
+  SettingsTeamsApiKeysRoute: SettingsTeamsApiKeysRoute,
+  SettingsTeamsWebhooksRoute: SettingsTeamsWebhooksRoute,
+  SettingsTeamsIndexRoute: SettingsTeamsIndexRoute,
+};
+
+const SettingsTeamsRouteRouteWithChildren =
+  SettingsTeamsRouteRoute._addFileChildren(SettingsTeamsRouteRouteChildren);
+
+interface SettingsRouteRouteChildren {
+  SettingsAccountRouteRoute: typeof SettingsAccountRouteRouteWithChildren;
+  SettingsTeamsRouteRoute: typeof SettingsTeamsRouteRouteWithChildren;
+  SettingsIndexRoute: typeof SettingsIndexRoute;
+}
+
+const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
+  SettingsAccountRouteRoute: SettingsAccountRouteRouteWithChildren,
+  SettingsTeamsRouteRoute: SettingsTeamsRouteRouteWithChildren,
+  SettingsIndexRoute: SettingsIndexRoute,
+};
+
+const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
+  SettingsRouteRouteChildren,
+);
+
+interface MutationsConfigIdRouteChildren {
+  MutationsConfigIdEditRoute: typeof MutationsConfigIdEditRoute;
+}
+
+const MutationsConfigIdRouteChildren: MutationsConfigIdRouteChildren = {
+  MutationsConfigIdEditRoute: MutationsConfigIdEditRoute,
+};
+
+const MutationsConfigIdRouteWithChildren =
+  MutationsConfigIdRoute._addFileChildren(MutationsConfigIdRouteChildren);
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SettingsRouteRoute: SettingsRouteRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
-  SettingsRoute: SettingsRoute,
+  MutationsConfigIdRoute: MutationsConfigIdRouteWithChildren,
   MutationsStudioRoute: MutationsStudioRoute,
   MutationsIndexRoute: MutationsIndexRoute,
-  MutationsConfigIdEditRoute: MutationsConfigIdEditRoute,
-  MutationsConfigIdIndexRoute: MutationsConfigIdIndexRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

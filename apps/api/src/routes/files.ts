@@ -30,7 +30,7 @@ export async function fileRoutes(fastify: FastifyInstance) {
 
 			// Decode the file path
 			const decodedPath = decodeURIComponent(filePath);
-			
+
 			// Security check: prevent directory traversal
 			if (decodedPath.includes('..') || decodedPath.startsWith('/')) {
 				return reply.code(403).send({
@@ -60,7 +60,7 @@ export async function fileRoutes(fastify: FastifyInstance) {
 
 			// Read and serve the file
 			const fileBuffer = await readFile(fullPath);
-			
+
 			// Determine content type based on file extension
 			const extension = decodedPath.split('.').pop()?.toLowerCase();
 			const contentType = getContentType(extension || '');
@@ -73,7 +73,6 @@ export async function fileRoutes(fastify: FastifyInstance) {
 				.header('Content-Disposition', `attachment; filename="${fileName}"`)
 				.header('Content-Length', fileBuffer.length)
 				.send(fileBuffer);
-
 		} catch (error) {
 			logError(fastify.log, 'File serve error:', error);
 			return reply.code(500).send({
@@ -89,12 +88,12 @@ export async function fileRoutes(fastify: FastifyInstance) {
 
 function getContentType(extension: string): string {
 	const contentTypeMap: Record<string, string> = {
-		'csv': 'text/csv',
-		'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-		'xls': 'application/vnd.ms-excel',
-		'json': 'application/json',
-		'txt': 'text/plain',
-		'pdf': 'application/pdf',
+		csv: 'text/csv',
+		xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+		xls: 'application/vnd.ms-excel',
+		json: 'application/json',
+		txt: 'text/plain',
+		pdf: 'application/pdf',
 	};
 
 	return contentTypeMap[extension] || 'application/octet-stream';

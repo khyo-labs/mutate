@@ -36,17 +36,18 @@ class TransformationWorker {
 		// Convert base64 file data back to Buffer
 		const queueData = job.data;
 		const fileBuffer = Buffer.from(queueData.fileData, 'base64');
-		
+
 		const jobData: TransformationJobData = {
 			jobId: queueData.jobId,
 			organizationId: queueData.organizationId,
 			configurationId: queueData.configurationId,
 			fileBuffer: fileBuffer,
 			fileName: queueData.fileName,
-			webhookUrl: queueData.webhookUrl,
+			callbackUrl: queueData.callbackUrl,
+			uid: queueData.uid,
 			options: queueData.options,
 		};
-		
+
 		const jobId = jobData.jobId;
 
 		console.log(`Processing transformation job: ${jobId}`, {
@@ -54,9 +55,11 @@ class TransformationWorker {
 			configurationId: jobData.configurationId,
 			fileName: jobData.fileName,
 		});
-		
+
 		// Debug: Log file buffer info in worker
-		console.log(`Worker file buffer info: size=${jobData.fileBuffer.length}, first 50 bytes=${jobData.fileBuffer.slice(0, 50).toString('hex')}`);
+		console.log(
+			`Worker file buffer info: size=${jobData.fileBuffer.length}, first 50 bytes=${jobData.fileBuffer.slice(0, 50).toString('hex')}`,
+		);
 
 		try {
 			// Update job status to processing
@@ -234,25 +237,6 @@ class TransformationWorker {
 		executionLog?: string[],
 		error?: string,
 	): Promise<void> {
-		// Determine webhook URL (job-specific or configuration default)
-		let webhookUrl = jobData.webhookUrl;
-
-		if (!webhookUrl) {
-			// Check if configuration has a default webhook URL
-			const [configuration] = await db
-				.select({ webhookUrl: configurations.webhookUrl })
-				.from(configurations)
-				.where(eq(configurations.id, jobData.configurationId))
-				.limit(1);
-
-			webhookUrl = configuration?.webhookUrl || undefined;
-		}
-
-		if (!webhookUrl) {
-			console.log(`No webhook URL configured for job ${jobData.jobId}`);
-			return;
-		}
-
 		try {
 			// Update webhook attempt tracking
 			await db
@@ -269,6 +253,7 @@ class TransformationWorker {
 					configurationId: jobData.configurationId,
 					organizationId: jobData.organizationId,
 					status: error ? 'failed' : 'completed',
+					uid: jobData.uid,
 					downloadUrl,
 					executionLog,
 					error,
@@ -277,9 +262,15 @@ class TransformationWorker {
 				downloadUrl ? new Date(Date.now() + config.FILE_TTL * 1000) : undefined,
 			);
 
-			const delivery = await webhookService.sendWebhook(webhookUrl, payload);
+			// Send webhook using new priority system
+			const delivery = await webhookService.sendWebhookWithPriority(
+				jobData.organizationId,
+				jobData.configurationId,
+				payload,
+				jobData.callbackUrl, // Transform request callback URL (highest priority)
+			);
 
-			if (delivery.status === 'success') {
+			if (delivery?.status === 'success') {
 				// Mark webhook as delivered
 				await db
 					.update(transformationJobs)
@@ -287,10 +278,14 @@ class TransformationWorker {
 					.where(eq(transformationJobs.id, jobData.jobId));
 
 				console.log(`Webhook delivered successfully for job ${jobData.jobId}`);
-			} else {
+			} else if (delivery) {
 				console.error(
 					`Webhook delivery failed for job ${jobData.jobId}:`,
 					delivery.error,
+				);
+			} else {
+				console.log(
+					`No webhook configured for organization ${jobData.organizationId}, job ${jobData.jobId}`,
 				);
 			}
 		} catch (error) {

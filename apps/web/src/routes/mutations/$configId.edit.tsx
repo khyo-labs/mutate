@@ -8,7 +8,7 @@ import { mutApi } from '@/api/mutations';
 import { CsvOutputPreview } from '@/components/csv-output-preview';
 import { FileUpload, type UploadedFile } from '@/components/file-upload';
 import { JsonConfigPanel } from '@/components/json-config-panel';
-import { Layout } from '@/components/layout';
+import { Layout } from '@/components/layouts';
 import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
 import { RuleBuilder } from '@/components/rule-builder';
 import { SpreadsheetPreview } from '@/components/spreadsheet-preview';
@@ -23,6 +23,7 @@ interface FormData {
 	name: string;
 	description: string;
 	rules: TransformationRule[];
+	webhookUrlId?: string;
 }
 
 export function ConfigurationEditComponent() {
@@ -44,12 +45,26 @@ export function ConfigurationEditComponent() {
 		enabled: !!configId,
 	});
 
+	// Fetch organization webhooks for the selector
+	const { data: webhooks = [] } = useQuery({
+		queryKey: ['organization', 'webhooks'],
+		queryFn: async () => {
+			const response = await fetch('/api/v1/organization/webhooks', {
+				credentials: 'include',
+			});
+			if (!response.ok) throw new Error('Failed to fetch webhooks');
+			const data = await response.json();
+			return data.data || [];
+		},
+	});
+
 	// Form setup with react-hook-form
 	const form = useForm<FormData>({
 		defaultValues: {
 			name: '',
 			description: '',
 			rules: [],
+			webhookUrlId: undefined,
 		},
 	});
 
@@ -74,6 +89,7 @@ export function ConfigurationEditComponent() {
 				name: config.name,
 				description: config.description || '',
 				rules: config.rules,
+				webhookUrlId: undefined,
 			});
 		}
 	}, [config, reset]);
@@ -95,6 +111,13 @@ export function ConfigurationEditComponent() {
 			// Only send rules if we have at least one rule
 			if (data.rules && data.rules.length > 0) {
 				configurationData.rules = data.rules;
+			}
+
+			// Include webhook URL ID if selected
+			if (data.webhookUrlId) {
+				configurationData.webhookUrlId = data.webhookUrlId;
+			} else {
+				configurationData.webhookUrlId = null; // Explicitly set to null to clear
 			}
 
 			// Always include outputFormat
@@ -414,6 +437,37 @@ export function ConfigurationEditComponent() {
 												/>
 											)}
 										/>
+									</div>
+									<div>
+										<label
+											htmlFor="webhookUrlId"
+											className="mb-2 block text-sm font-medium text-gray-700"
+										>
+											Webhook URL
+										</label>
+										<Controller
+											name="webhookUrlId"
+											control={control}
+											render={({ field }) => (
+												<select
+													{...field}
+													id="webhookUrlId"
+													className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+												>
+													<option value="">Use organization default</option>
+													{webhooks.map((webhook: any) => (
+														<option key={webhook.id} value={webhook.id}>
+															{webhook.name}{' '}
+															{webhook.isDefault ? '(Default)' : ''}
+														</option>
+													))}
+												</select>
+											)}
+										/>
+										<p className="mt-1 text-xs text-gray-500">
+											Select a specific webhook URL for this configuration, or
+											leave blank to use the organization default.
+										</p>
 									</div>
 								</div>
 							</div>

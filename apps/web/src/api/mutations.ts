@@ -64,22 +64,28 @@ export const mutApi = {
 	): Promise<Configuration> => {
 		try {
 			console.log('mutApi.update - Sending data:', data);
-			const response = await api.put<ApiResponse<Configuration>>(`/v1/configurations/${id}`, data);
+			const response = await api.put<ApiResponse<Configuration>>(
+				`/v1/configurations/${id}`,
+				data,
+			);
 			console.log('mutApi.update - Received response:', response);
-			
+
 			if (response.success) {
 				return response.data;
 			}
-			
+
 			console.error('mutApi.update - Response not successful:', response);
 			toast.error('Failed to update mutation');
 			throw new Error('Failed to update mutation');
 		} catch (error: any) {
 			console.error('mutApi.update - Error caught:', error);
 			console.error('mutApi.update - Error response:', error.response?.data);
-			
+
 			// Show more specific error message
-			const errorMessage = error.response?.data?.error?.message || error.message || 'Failed to update mutation';
+			const errorMessage =
+				error.response?.data?.error?.message ||
+				error.message ||
+				'Failed to update mutation';
 			toast.error(errorMessage);
 			throw new Error(errorMessage);
 		}

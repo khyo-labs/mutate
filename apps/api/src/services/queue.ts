@@ -10,7 +10,8 @@ export interface TransformationJobData {
 	configurationId: string;
 	fileBuffer: Buffer;
 	fileName: string;
-	webhookUrl?: string;
+	callbackUrl?: string;
+	uid?: string;
 	options?: {
 		debug?: boolean;
 	};
@@ -23,7 +24,8 @@ interface QueueJobData {
 	configurationId: string;
 	fileData: string; // Base64 encoded file data
 	fileName: string;
-	webhookUrl?: string;
+	callbackUrl?: string;
+	uid?: string;
 	options?: {
 		debug?: boolean;
 	};
@@ -43,32 +45,35 @@ const redis = new IORedis(config.REDIS_URL, {
 });
 
 // Create transformation queue
-export const transformationQueue = new Queue<QueueJobData>('file-transformation', {
-	redis: {
-		port: redis.options.port || 6379,
-		host: redis.options.host || 'localhost',
-		password: redis.options.password,
-		db: redis.options.db || 0,
-	},
-	defaultJobOptions: {
-		removeOnComplete: 100, // Keep last 100 completed jobs
-		removeOnFail: 50, // Keep last 50 failed jobs
-		attempts: 3,
-		backoff: {
-			type: 'exponential',
-			delay: 5000,
+export const transformationQueue = new Queue<QueueJobData>(
+	'file-transformation',
+	{
+		redis: {
+			port: redis.options.port || 6379,
+			host: redis.options.host || 'localhost',
+			password: redis.options.password,
+			db: redis.options.db || 0,
+		},
+		defaultJobOptions: {
+			removeOnComplete: 100, // Keep last 100 completed jobs
+			removeOnFail: 50, // Keep last 50 failed jobs
+			attempts: 3,
+			backoff: {
+				type: 'exponential',
+				delay: 5000,
+			},
+		},
+		settings: {
+			stalledInterval: 30 * 1000, // 30 seconds
+			retryProcessDelay: 5 * 1000, // 5 seconds
 		},
 	},
-	settings: {
-		stalledInterval: 30 * 1000, // 30 seconds
-		retryProcessDelay: 5 * 1000, // 5 seconds
-	},
-});
+);
 
 export class QueueService {
 	static async addTransformationJob(
 		data: TransformationJobData,
-		priority: 'low' | 'normal' | 'high' = 'normal'
+		priority: 'low' | 'normal' | 'high' = 'normal',
 	): Promise<Queue.Job<QueueJobData>> {
 		const priorityMap = {
 			low: 10,
@@ -83,7 +88,8 @@ export class QueueService {
 			configurationId: data.configurationId,
 			fileData: data.fileBuffer.toString('base64'),
 			fileName: data.fileName,
-			webhookUrl: data.webhookUrl,
+			callbackUrl: data.callbackUrl,
+			uid: data.uid,
 			options: data.options,
 		};
 
@@ -104,7 +110,7 @@ export class QueueService {
 		error?: string;
 	} | null> {
 		const job = await transformationQueue.getJob(jobId);
-		
+
 		if (!job) {
 			return null;
 		}
@@ -173,7 +179,7 @@ export class QueueService {
 
 	static async cleanQueue(
 		grace: number = 24 * 60 * 60 * 1000, // 24 hours
-		type: 'completed' | 'failed' | 'active' = 'completed'
+		type: 'completed' | 'failed' | 'active' = 'completed',
 	): Promise<void> {
 		await transformationQueue.clean(grace, type);
 	}

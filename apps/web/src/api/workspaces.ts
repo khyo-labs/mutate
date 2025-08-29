@@ -38,12 +38,9 @@ export const workspaceApi = {
 	},
 
 	isSlugAvailable: async function (slug: string): Promise<boolean> {
-		const response = await api.post<SlugStatus>(
-			'/v1/organizations/exists',
-			{
-				slug,
-			},
-		);
+		const response = await api.post<SlugStatus>('/v1/organizations/exists', {
+			slug,
+		});
 		return response.status;
 	},
 };

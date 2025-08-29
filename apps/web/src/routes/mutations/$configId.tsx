@@ -3,12 +3,12 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Calendar, Edit, FileText, User } from 'lucide-react';
 
 import { api } from '@/api/client';
-import { Layout } from '@/components/layout';
+import { Layout } from '@/components/layouts';
 import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
 import { formatDate } from '@/lib/utils';
 import type { ApiResponse, Configuration } from '@/types';
 
-export const Route = createFileRoute('/mutations/$configId/')({
+export const Route = createFileRoute('/mutations/$configId')({
 	component: ConfigurationDetailComponent,
 });
 

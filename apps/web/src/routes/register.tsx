@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 
-import { PublicLayout } from '../components/layout';
+import { PublicLayout } from '../components/layouts';
 import { signIn } from '../lib/auth-client';
 import { useAuthStore } from '../stores/auth-store';
 
@@ -68,7 +68,7 @@ export function RegisterComponent() {
 	return (
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-				<div className="rounded-lg border bg-card p-6 shadow-sm">
+				<div className="bg-card rounded-lg border p-6 shadow-sm">
 					{/* OAuth Registration Buttons */}
 					<div className="mb-6 space-y-3">
 						<button

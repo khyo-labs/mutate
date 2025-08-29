@@ -1,4 +1,8 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import {
+	GetObjectCommand,
+	PutObjectCommand,
+	S3Client,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ulid } from 'ulid';
 
@@ -25,7 +29,7 @@ class S3StorageProvider implements StorageProvider {
 		secretAccessKey: string,
 		region: string,
 		bucket: string,
-		endpoint?: string
+		endpoint?: string,
 	) {
 		this.client = new S3Client({
 			region,
@@ -39,7 +43,11 @@ class S3StorageProvider implements StorageProvider {
 		this.bucket = bucket;
 	}
 
-	async uploadFile(key: string, buffer: Buffer, contentType: string): Promise<string> {
+	async uploadFile(
+		key: string,
+		buffer: Buffer,
+		contentType: string,
+	): Promise<string> {
 		const command = new PutObjectCommand({
 			Bucket: this.bucket,
 			Key: key,
@@ -55,13 +63,18 @@ class S3StorageProvider implements StorageProvider {
 		return key;
 	}
 
-	async generatePresignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
+	async generatePresignedUrl(
+		key: string,
+		expiresIn: number = 3600,
+	): Promise<string> {
 		const command = new GetObjectCommand({
 			Bucket: this.bucket,
 			Key: key,
 		});
 
-		const presignedUrl = await getSignedUrl(this.client, command, { expiresIn });
+		const presignedUrl = await getSignedUrl(this.client, command, {
+			expiresIn,
+		});
 		return presignedUrl;
 	}
 
@@ -88,23 +101,30 @@ class LocalStorageProvider implements StorageProvider {
 		this.storagePath = storagePath;
 	}
 
-	async uploadFile(key: string, buffer: Buffer, contentType: string): Promise<string> {
+	async uploadFile(
+		key: string,
+		buffer: Buffer,
+		contentType: string,
+	): Promise<string> {
 		const fs = await import('fs/promises');
 		const path = await import('path');
-		
+
 		const filePath = path.join(this.storagePath, key);
 		const directory = path.dirname(filePath);
-		
+
 		// Ensure directory exists
 		await fs.mkdir(directory, { recursive: true });
-		
+
 		// Write file
 		await fs.writeFile(filePath, buffer);
-		
+
 		return key;
 	}
 
-	async generatePresignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
+	async generatePresignedUrl(
+		key: string,
+		expiresIn: number = 3600,
+	): Promise<string> {
 		// For local storage, return a direct URL (in production, you'd want a proper signed URL system)
 		// This is just for development/testing
 		const encodedKey = encodeURIComponent(key);
@@ -135,14 +155,17 @@ export class StorageService {
 	private createProvider(): StorageProvider {
 		switch (config.STORAGE_TYPE) {
 			case 's3':
-				if (config.CLOUDFLARE_R2_ACCESS_KEY_ID && config.CLOUDFLARE_R2_SECRET_ACCESS_KEY) {
+				if (
+					config.CLOUDFLARE_R2_ACCESS_KEY_ID &&
+					config.CLOUDFLARE_R2_SECRET_ACCESS_KEY
+				) {
 					// Use Cloudflare R2
 					return new S3StorageProvider(
 						config.CLOUDFLARE_R2_ACCESS_KEY_ID,
 						config.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
 						config.CLOUDFLARE_R2_REGION || 'auto',
 						config.CLOUDFLARE_R2_BUCKET!,
-						config.CLOUDFLARE_R2_ENDPOINT
+						config.CLOUDFLARE_R2_ENDPOINT,
 					);
 				} else if (config.AWS_ACCESS_KEY_ID && config.AWS_SECRET_ACCESS_KEY) {
 					// Use AWS S3
@@ -150,12 +173,14 @@ export class StorageService {
 						config.AWS_ACCESS_KEY_ID,
 						config.AWS_SECRET_ACCESS_KEY,
 						config.AWS_REGION!,
-						config.AWS_S3_BUCKET!
+						config.AWS_S3_BUCKET!,
 					);
 				} else {
-					throw new Error('S3 storage type selected but no credentials provided');
+					throw new Error(
+						'S3 storage type selected but no credentials provided',
+					);
 				}
-			
+
 			case 'local':
 			default:
 				return new LocalStorageProvider(config.STORAGE_PATH);
@@ -166,22 +191,22 @@ export class StorageService {
 		buffer: Buffer,
 		originalFileName: string,
 		organizationId: string,
-		jobId: string
+		jobId: string,
 	): Promise<UploadResult> {
 		const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 		const fileId = ulid();
 		const extension = this.getFileExtension(originalFileName);
-		
+
 		// Create a structured key for organization
 		const key = `transformed/${organizationId}/${timestamp}/${jobId}/${fileId}.${extension}`;
-		
+
 		const contentType = this.getContentType(extension);
-		
+
 		await this.provider.uploadFile(key, buffer, contentType);
-		
+
 		// Generate an initial presigned URL (valid for configured FILE_TTL)
 		const url = await this.provider.generatePresignedUrl(key, config.FILE_TTL);
-		
+
 		return {
 			key,
 			url,
@@ -193,18 +218,18 @@ export class StorageService {
 		buffer: Buffer,
 		fileName: string,
 		organizationId: string,
-		jobId: string
+		jobId: string,
 	): Promise<UploadResult> {
 		const timestamp = new Date().toISOString().slice(0, 10);
 		const fileId = ulid();
 		const extension = this.getFileExtension(fileName);
-		
+
 		const key = `input/${organizationId}/${timestamp}/${jobId}/${fileId}.${extension}`;
 		const contentType = this.getContentType(extension);
-		
+
 		await this.provider.uploadFile(key, buffer, contentType);
 		const url = await this.provider.generatePresignedUrl(key, config.FILE_TTL);
-		
+
 		return {
 			key,
 			url,
@@ -213,8 +238,8 @@ export class StorageService {
 	}
 
 	async generateFreshPresignedUrl(
-		key: string, 
-		expiresIn: number = config.FILE_TTL
+		key: string,
+		expiresIn: number = config.FILE_TTL,
 	): Promise<string> {
 		return await this.provider.generatePresignedUrl(key, expiresIn);
 	}
@@ -230,12 +255,12 @@ export class StorageService {
 
 	private getContentType(extension: string): string {
 		const contentTypeMap: Record<string, string> = {
-			'csv': 'text/csv',
-			'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-			'xls': 'application/vnd.ms-excel',
-			'json': 'application/json',
-			'txt': 'text/plain',
-			'pdf': 'application/pdf',
+			csv: 'text/csv',
+			xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+			xls: 'application/vnd.ms-excel',
+			json: 'application/json',
+			txt: 'text/plain',
+			pdf: 'application/pdf',
 		};
 
 		return contentTypeMap[extension] || 'application/octet-stream';
@@ -247,12 +272,12 @@ export class StorageService {
 			const urlObj = new URL(url);
 			// For presigned URLs, the key is typically in the pathname
 			let pathname = urlObj.pathname;
-			
+
 			// Remove leading slash and decode
 			if (pathname.startsWith('/')) {
 				pathname = pathname.slice(1);
 			}
-			
+
 			return decodeURIComponent(pathname);
 		} catch (error) {
 			console.error('Failed to extract key from URL:', error);

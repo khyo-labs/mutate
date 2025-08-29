@@ -13,11 +13,10 @@ import { fileRoutes } from './routes/files.js';
 import { healthRoutes } from './routes/health.js';
 import { organizationRoutes } from './routes/organization.js';
 import { transformRoutes } from './routes/transform.js';
+import { transformationQueue } from './services/queue.js';
 import './types/fastify.js';
-
 // Initialize queue and worker
 import './workers/transformation-worker.js';
-import { transformationQueue } from './services/queue.js';
 
 const fastify = Fastify({
 	logger: {
@@ -46,7 +45,13 @@ await fastify.register(cors, {
 	origin: config.CORS_ORIGINS,
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-	allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+	allowedHeaders: [
+		'Content-Type',
+		'Authorization',
+		'X-Requested-With',
+		'Accept',
+		'Origin',
+	],
 });
 
 await fastify.register(multipart, {

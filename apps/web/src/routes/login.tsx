@@ -5,10 +5,11 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
 
-import { PublicLayout } from '../components/layout';
+import { Button } from '@/components/ui/button';
+
+import { PublicLayout } from '../components/layouts';
 import { signIn } from '../lib/auth-client';
 import { useAuthStore } from '../stores/auth-store';
-import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/login')({
 	component: LoginComponent,
@@ -61,7 +62,7 @@ export function LoginComponent() {
 	return (
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-				<div className="rounded-lg border bg-card p-6 shadow-sm">
+				<div className="bg-card rounded-lg border p-6 shadow-sm">
 					{/* OAuth Login Buttons */}
 					<div className="mb-6 space-y-3">
 						<button
@@ -185,11 +186,7 @@ export function LoginComponent() {
 						)}
 
 						<div>
-							<Button
-								type="submit"
-								disabled={isLoading}
-								className="w-full"
-							>
+							<Button type="submit" disabled={isLoading} className="w-full">
 								{isLoading ? (
 									<>
 										<Loader2 className="mr-2 h-4 w-4 animate-spin" />

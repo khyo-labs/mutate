@@ -1,21 +1,35 @@
 import React from 'react';
 
+import { ProtectedRoute } from './protected-route';
 import { Sidebar } from './sidebar';
 
-interface LayoutProps {
+type LayoutProps = {
 	children: React.ReactNode;
-	hasOrganizations?: boolean;
-}
+};
 
 export function Layout({ children }: LayoutProps) {
 	return (
-		<div className="bg-background flex h-screen overflow-hidden">
-			<Sidebar />
+		<ProtectedRoute>
+			<div className="bg-background flex h-screen overflow-hidden">
+				<Sidebar />
 
-			<main className="flex-1 overflow-auto">
-				<div className="container mx-auto px-6 py-8 lg:px-8">{children}</div>
-			</main>
-		</div>
+				<main className="flex-1 overflow-auto">
+					<div className="container mx-auto px-6 py-8 lg:px-8">{children}</div>
+				</main>
+			</div>
+		</ProtectedRoute>
+	);
+}
+
+export function SettingsLayout({ children }: LayoutProps) {
+	return (
+		<ProtectedRoute>
+			<div className="flex h-screen overflow-hidden bg-slate-50">
+				<Sidebar />
+
+				<div className="mx-auto h-full flex-1 overflow-auto">{children}</div>
+			</div>
+		</ProtectedRoute>
 	);
 }
 

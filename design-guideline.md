@@ -79,7 +79,6 @@
 - Overly playful or colorful designs (like Notion)
 - Enterprise heavy (like Salesforce)
 
-
 ### Use
 
 - shadcn/ui

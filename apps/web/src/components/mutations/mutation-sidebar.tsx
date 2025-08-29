@@ -78,9 +78,7 @@ result = response.json()`;
 					You'll need an API key to use the transformation endpoint.
 				</p>
 				<Button variant="outline" size="sm" className="w-full" asChild>
-					<Link to="/settings">
-						Manage API Keys
-					</Link>
+					<Link to="/settings">Manage API Keys</Link>
 				</Button>
 			</div>
 

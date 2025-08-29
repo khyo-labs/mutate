@@ -1,0 +1,23 @@
+{
+	"name": "@mutate/webhook-test",
+	"version": "1.0.0",
+	"description": "Simple webhook receiver for testing Mutate callbacks",
+	"type": "module",
+	"main": "src/server.js",
+	"scripts": {
+		"start": "node src/server.js",
+		"dev": "node --watch src/server.js"
+	},
+	"dependencies": {
+		"@fastify/cors": "^10.0.1",
+		"fastify": "^5.1.0",
+		"pino-pretty": "^13.1.1"
+	},
+	"keywords": [
+		"webhook",
+		"testing",
+		"mutate"
+	],
+	"author": "Mutate Team",
+	"license": "MIT"
+}

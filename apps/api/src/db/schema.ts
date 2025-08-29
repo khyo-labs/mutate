@@ -80,6 +80,19 @@ export const organization = pgTable('organization', {
 	metadata: text('metadata'),
 });
 
+export const organizationWebhooks = pgTable('organization_webhook', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id, { onDelete: 'cascade' })
+		.notNull(),
+	name: varchar('name', { length: 255 }).notNull(),
+	url: text('url').notNull(),
+	secret: text('secret'),
+	isDefault: boolean('is_default').default(false).notNull(),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export const member = pgTable('member', {
 	id: text('id').primaryKey(),
 	organizationId: text('organization_id')
@@ -117,7 +130,10 @@ export const configurations = pgTable('configuration', {
 	outputFormat: jsonb('output_format').notNull(),
 	version: integer('version').default(1).notNull(),
 	isActive: boolean('is_active').default(true).notNull(),
-	webhookUrl: text('webhook_url'), // Default webhook URL for this configuration
+	callbackUrl: text('callback_url'), // Default callback URL for this configuration
+	webhookUrlId: text('webhook_url_id').references(
+		() => organizationWebhooks.id,
+	), // Reference to org webhook URL
 	createdBy: text('created_by')
 		.references(() => user.id)
 		.notNull(),
@@ -156,7 +172,8 @@ export const transformationJobs = pgTable('transformation_job', {
 	fileSize: integer('file_size'), // Size in bytes
 	errorMessage: text('error_message'),
 	executionLog: jsonb('execution_log'),
-	webhookUrl: text('webhook_url'), // Specific webhook URL for this job
+	callbackUrl: text('callback_url'), // Specific callback URL for this job
+	uid: text('uid'), // User-provided identifier for tracking this job
 	webhookDelivered: boolean('webhook_delivered').default(false), // Has webhook been successfully delivered
 	webhookAttempts: integer('webhook_attempts').default(0), // Number of webhook delivery attempts
 	webhookLastAttempt: timestamp('webhook_last_attempt'), // Last webhook attempt timestamp
@@ -207,6 +224,7 @@ export const organizationRelations = relations(organization, ({ many }) => ({
 	apiKeys: many(apiKeys),
 	auditLogs: many(auditLogs),
 	invitations: many(invitation),
+	webhooks: many(organizationWebhooks),
 }));
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -221,6 +239,17 @@ export const userRelations = relations(user, ({ many }) => ({
 	configurationVersions: many(configurationVersions),
 }));
 
+export const organizationWebhooksRelations = relations(
+	organizationWebhooks,
+	({ one, many }) => ({
+		organization: one(organization, {
+			fields: [organizationWebhooks.organizationId],
+			references: [organization.id],
+		}),
+		configurations: many(configurations),
+	}),
+);
+
 export const configurationsRelations = relations(
 	configurations,
 	({ one, many }) => ({
@@ -231,6 +260,10 @@ export const configurationsRelations = relations(
 		createdBy: one(user, {
 			fields: [configurations.createdBy],
 			references: [user.id],
+		}),
+		webhookUrl: one(organizationWebhooks, {
+			fields: [configurations.webhookUrlId],
+			references: [organizationWebhooks.id],
 		}),
 		transformationJobs: many(transformationJobs),
 		versions: many(configurationVersions),

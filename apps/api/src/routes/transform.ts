@@ -2,16 +2,20 @@ import { and, eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 import { ulid } from 'ulid';
 
+import { config } from '../config.js';
 import { db } from '../db/connection.js';
 import { configurations, transformationJobs } from '../db/schema.js';
 import { authenticateAPIKey } from '../middleware/auth.js';
-import '../types/fastify.js';
-import { logError } from '../utils/logger.js';
 import { QueueService } from '../services/queue.js';
 import { storageService } from '../services/storage.js';
 import { WebhookService } from '../services/webhook.js';
-import { config } from '../config.js';
-import type { Configuration, TransformationRule, OutputFormat } from '../types/index.js';
+import '../types/fastify.js';
+import type {
+	Configuration,
+	OutputFormat,
+	TransformationRule,
+} from '../types/index.js';
+import { logError } from '../utils/logger.js';
 
 export async function transformRoutes(fastify: FastifyInstance) {
 	// Add API key authentication to all routes
@@ -36,7 +40,8 @@ export async function transformRoutes(fastify: FastifyInstance) {
 			// Get form fields
 			const fields = data.fields as any;
 			const configId = fields?.configId?.value;
-			const webhookUrl = fields?.webhookUrl?.value;
+			const callbackUrl = fields?.callbackUrl?.value;
+			const uid = fields?.uid?.value;
 			const options = fields?.options ? JSON.parse(fields.options.value) : {};
 
 			if (!configId) {
@@ -49,14 +54,14 @@ export async function transformRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			// Validate webhook URL if provided
-			if (webhookUrl) {
-				const validation = WebhookService.validateWebhookUrl(webhookUrl);
+			// Validate callback URL if provided
+			if (callbackUrl) {
+				const validation = WebhookService.validateWebhookUrl(callbackUrl);
 				if (!validation.valid) {
 					return reply.code(400).send({
 						success: false,
 						error: {
-							code: 'INVALID_WEBHOOK_URL',
+							code: 'INVALID_CALLBACK_URL',
 							message: validation.error,
 						},
 					});
@@ -95,9 +100,11 @@ export async function transformRoutes(fastify: FastifyInstance) {
 				chunks.push(chunk);
 			}
 			const fileBuffer = Buffer.concat(chunks);
-			
+
 			// Debug: Log file buffer info
-			console.log(`File buffer info: size=${fileBuffer.length}, first 50 bytes=${fileBuffer.slice(0, 50).toString('hex')}`);
+			console.log(
+				`File buffer info: size=${fileBuffer.length}, first 50 bytes=${fileBuffer.slice(0, 50).toString('hex')}`,
+			);
 
 			// Check file size constraints
 			if (fileBuffer.length > config.MAX_FILE_SIZE) {
@@ -111,7 +118,8 @@ export async function transformRoutes(fastify: FastifyInstance) {
 			}
 
 			// Determine if processing should be async
-			const isAsync = options.async !== false && fileBuffer.length >= config.ASYNC_THRESHOLD;
+			const isAsync =
+				options.async !== false && fileBuffer.length >= config.ASYNC_THRESHOLD;
 
 			// Create transformation job
 			const jobId = ulid();
@@ -124,7 +132,8 @@ export async function transformRoutes(fastify: FastifyInstance) {
 					status: 'pending',
 					originalFileName: data.filename || 'upload.xlsx',
 					fileSize: fileBuffer.length,
-					webhookUrl: webhookUrl || configuration.webhookUrl, // Use job-specific or config default
+					callbackUrl: callbackUrl || configuration.callbackUrl, // Use job-specific or config default
+					uid: uid, // User-provided identifier for tracking
 					createdBy: request.currentUser!.id,
 				})
 				.returning();
@@ -137,7 +146,8 @@ export async function transformRoutes(fastify: FastifyInstance) {
 					configurationId: configId,
 					fileBuffer,
 					fileName: data.filename || 'upload.xlsx',
-					webhookUrl: webhookUrl || configuration.webhookUrl,
+					callbackUrl: callbackUrl || configuration.callbackUrl,
+					uid: uid,
 					options,
 				});
 
@@ -147,20 +157,25 @@ export async function transformRoutes(fastify: FastifyInstance) {
 						jobId: job.id,
 						status: 'queued',
 						statusUrl: `/v1/transform/jobs/${job.id}`,
-						message: 'File queued for processing. Use the status URL to check progress.',
+						message:
+							'File queued for processing. Use the status URL to check progress.',
 					},
 				});
 			} else {
 				// For small files, still use the queue but with higher priority for faster processing
-				await QueueService.addTransformationJob({
-					jobId: job.id,
-					organizationId: request.currentUser!.organizationId,
-					configurationId: configId,
-					fileBuffer,
-					fileName: data.filename || 'upload.xlsx',
-					webhookUrl: webhookUrl || configuration.webhookUrl,
-					options,
-				}, 'high');
+				await QueueService.addTransformationJob(
+					{
+						jobId: job.id,
+						organizationId: request.currentUser!.organizationId,
+						configurationId: configId,
+						fileBuffer,
+						fileName: data.filename || 'upload.xlsx',
+						callbackUrl: callbackUrl || configuration.callbackUrl,
+						uid: uid,
+						options,
+					},
+					'high',
+				);
 
 				return reply.code(202).send({
 					success: true,
@@ -222,10 +237,15 @@ export async function transformRoutes(fastify: FastifyInstance) {
 				console.log(`Queue job ${jobId} not found, using database status`);
 			}
 
-			const progress = queueStatus?.progress || 
-				(job.status === 'completed' ? 100 :
-				 job.status === 'processing' ? 50 :
-				 job.status === 'failed' ? 0 : 0);
+			const progress =
+				queueStatus?.progress ||
+				(job.status === 'completed'
+					? 100
+					: job.status === 'processing'
+						? 50
+						: job.status === 'failed'
+							? 0
+							: 0);
 
 			return {
 				success: true,
@@ -236,6 +256,7 @@ export async function transformRoutes(fastify: FastifyInstance) {
 					downloadUrl: job.outputFileUrl,
 					originalFileName: job.originalFileName,
 					fileSize: job.fileSize,
+					uid: job.uid,
 					error: job.errorMessage,
 					executionLog: job.executionLog,
 					webhookDelivered: job.webhookDelivered,
@@ -299,14 +320,16 @@ export async function transformRoutes(fastify: FastifyInstance) {
 			// Generate fresh presigned URL
 			const downloadUrl = await storageService.generateFreshPresignedUrl(
 				job.outputFileKey,
-				config.FILE_TTL
+				config.FILE_TTL,
 			);
 
 			return {
 				success: true,
 				data: {
 					downloadUrl,
-					expiresAt: new Date(Date.now() + config.FILE_TTL * 1000).toISOString(),
+					expiresAt: new Date(
+						Date.now() + config.FILE_TTL * 1000,
+					).toISOString(),
 					originalFileName: job.originalFileName,
 					fileSize: job.fileSize,
 				},
@@ -327,7 +350,7 @@ export async function transformRoutes(fastify: FastifyInstance) {
 	fastify.get('/queue/stats', async (request, reply) => {
 		try {
 			const stats = await QueueService.getQueueStats();
-			
+
 			return {
 				success: true,
 				data: {

@@ -1,11 +1,12 @@
 import { Link, useRouter } from '@tanstack/react-router';
 import {
+	Building2,
 	ChevronLeft,
 	FileText,
 	Home,
 	LogOut,
 	Menu,
-	Settings,
+	User,
 	X,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -39,7 +40,8 @@ export function Sidebar() {
 	];
 
 	const bottomNavigationItems: NavigationItem[] = [
-		{ name: 'Settings', href: '/settings', icon: Settings },
+		{ name: 'Settings', href: '/settings/account', icon: User },
+		{ name: 'Team Settings', href: '/settings/teams', icon: Building2 },
 	];
 
 	const isActiveRoute = (href: string) => {

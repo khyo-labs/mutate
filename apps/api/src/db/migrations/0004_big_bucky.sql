@@ -1,0 +1,1 @@
+ALTER TABLE "transformation_job" ADD COLUMN "uid" text;

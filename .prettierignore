@@ -4,3 +4,8 @@ node_modules/
 .claude/
 .turbo/
 .vscode/
+.env
+
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

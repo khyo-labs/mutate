@@ -44,7 +44,7 @@ export function RecentMutations() {
 							{config.isActive ? 'Active' : 'Inactive'}
 						</Badge>
 						<Link
-							to="/mutations/$configId"
+							to="/mutations/$configId/edit"
 							params={{ configId: config.id }}
 						>
 							<Button variant="outline" size="sm">

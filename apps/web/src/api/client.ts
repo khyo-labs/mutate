@@ -57,7 +57,6 @@ class ApiClient {
 			data,
 		};
 		const response: AxiosResponse<T> = await this.axios(config);
-		console.log('response', response);
 		return response.data;
 	}
 

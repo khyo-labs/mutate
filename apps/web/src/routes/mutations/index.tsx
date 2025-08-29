@@ -15,7 +15,7 @@ import {
 import React, { useState } from 'react';
 
 import { mutApi } from '@/api/mutations';
-import { Layout } from '@/components/layout';
+import { Layout } from '@/components/layouts';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

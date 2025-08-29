@@ -1,16 +1,19 @@
 # Implementation Plan: Conversion Queue + Cloud Storage + Webhooks
 
 ## Overview
+
 Adding asynchronous file processing queue with cloud storage and webhook notifications for the Mutate platform.
 
 ## Phase 1: Queue Infrastructure Setup
 
 ### 1. Create queue service (`apps/api/src/services/queue.ts`)
+
 - Initialize Bull queue with Redis connection
 - Define job types and processors for file transformation
 - Add job status tracking and error handling
 
 ### 2. Create background worker (`apps/api/src/workers/transformation-worker.ts`)
+
 - Process queued transformation jobs
 - Handle job lifecycle (pending → processing → completed/failed)
 - Update database job records with status
@@ -19,11 +22,13 @@ Adding asynchronous file processing queue with cloud storage and webhook notific
 ## Phase 2: Cloud Storage Integration
 
 ### 3. Create storage service (`apps/api/src/services/storage.ts`)
+
 - Support both AWS S3 and Cloudflare R2 (S3-compatible API)
 - Handle file uploads and presigned URL generation
 - Abstract storage interface to support multiple providers
 
 ### 4. Add cloud storage configuration
+
 - Extend existing config.ts with R2/additional S3 options
 - Add environment variables for Cloudflare R2 credentials
 - Add presigned URL expiration settings
@@ -31,12 +36,14 @@ Adding asynchronous file processing queue with cloud storage and webhook notific
 ## Phase 3: Webhook System
 
 ### 5. Create webhook service (`apps/api/src/services/webhook.ts`)
+
 - Send HTTP POST notifications to configured webhook URLs
 - Include job status, download URLs, and execution logs
 - Handle webhook retry logic for failed deliveries
 - Add webhook signature verification for security
 
 ### 6. Update database schema
+
 - Add `webhookUrl` field to `transformationJobs` table
 - Add `webhookUrl` field to `configurations` table (default webhook)
 - Add webhook delivery tracking fields (attempts, last_attempt, etc.)
@@ -44,31 +51,37 @@ Adding asynchronous file processing queue with cloud storage and webhook notific
 ## Phase 4: Integration & API Updates
 
 ### 7. Update transformation route (`apps/api/src/routes/transform.ts`)
+
 - Accept optional `webhookUrl` parameter in transform requests
 - Queue large files instead of processing synchronously
 - Store webhook URL with job record
 - Return job ID for status tracking
 
 ### 8. Update configuration routes (`apps/api/src/routes/configuration.ts`)
+
 - Add `webhookUrl` field to configuration create/update schemas
 - Allow users to set default webhook URLs per configuration
 
 ### 9. Update transformation service (`apps/api/src/services/transform.ts`)
+
 - Save output files to cloud storage instead of returning inline data
 - Generate presigned download URLs with expiration
 - Update job records with storage URLs
 
 ### 10. Add download endpoint
+
 - Create endpoint for generating fresh presigned URLs
 - Add access control and expiration handling
 
 ## Phase 5: Database & Infrastructure
 
 ### 11. Database migration
+
 - Add webhook-related columns to existing tables
 - Add indexes for job status and webhook queries
 
 ### 12. Add queue monitoring
+
 - Create endpoints for queue health/stats
 - Add job retry logic and dead letter handling
 
@@ -99,6 +112,7 @@ Adding asynchronous file processing queue with cloud storage and webhook notific
 ## Files to Create/Modify
 
 ### New Files
+
 - `apps/api/src/services/queue.ts`
 - `apps/api/src/services/storage.ts`
 - `apps/api/src/services/webhook.ts`
@@ -106,6 +120,7 @@ Adding asynchronous file processing queue with cloud storage and webhook notific
 - Database migration for webhook columns
 
 ### Existing Files to Update
+
 - `apps/api/src/config.ts` (extend with cloud storage and webhook config)
 - `apps/api/src/routes/transform.ts` (add webhook URL support, queue integration)
 - `apps/api/src/routes/configuration.ts` (add default webhook URL support)
@@ -126,6 +141,7 @@ Adding asynchronous file processing queue with cloud storage and webhook notific
 ## Configuration Requirements
 
 ### Environment Variables to Add
+
 ```bash
 # Cloudflare R2 (optional, can use AWS S3 instead)
 CLOUDFLARE_R2_ACCESS_KEY_ID=
