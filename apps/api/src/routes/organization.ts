@@ -73,6 +73,7 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 	fastify.get('/webhooks', async (request, reply) => {
 		try {
 			const currentOrganizationId = request.currentUser?.organizationId;
+			const { includeSecrets } = request.query as { includeSecrets?: string };
 
 			if (!currentOrganizationId) {
 				return reply.status(400).send({
@@ -99,7 +100,7 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 				data: webhooks.map((webhook) => ({
 					...webhook,
 					hasSecret: Boolean(webhook.secret),
-					secret: undefined, // Remove secret from response
+					secret: includeSecrets === 'true' ? webhook.secret : undefined,
 				})),
 			});
 		} catch (error) {

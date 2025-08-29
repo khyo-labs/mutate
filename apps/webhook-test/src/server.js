@@ -1,11 +1,17 @@
 import cors from '@fastify/cors';
 import { createHmac } from 'crypto';
+import dotenv from 'dotenv';
 import Fastify from 'fastify';
 
-// Configuration
+dotenv.config();
+
 const PORT = process.env.PORT || 8085;
-const HOST = process.env.HOST || '0.0.0.0';
-const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'test-secret-123';
+const HOST = process.env.HOST || 'localhost';
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+
+if (!WEBHOOK_SECRET) {
+	throw new Error('WEBHOOK_SECRET is not set');
+}
 
 // Create Fastify instance
 const fastify = Fastify({
@@ -70,7 +76,6 @@ fastify.post('/webhook', async (request, reply) => {
 	const signature = headers['x-mutate-signature'];
 	const event = headers['x-webhook-event'];
 
-	// Log incoming webhook
 	fastify.log.info(
 		{
 			event: 'webhook_received',
@@ -85,8 +90,8 @@ fastify.post('/webhook', async (request, reply) => {
 		'Webhook received',
 	);
 
-	// Verify signature if provided
 	let signatureValid = true;
+
 	if (signature) {
 		const rawBody = JSON.stringify(body);
 		signatureValid = verifySignature(rawBody, signature, WEBHOOK_SECRET);

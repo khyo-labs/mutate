@@ -1,8 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Edit2, Globe, Key, Plus, Star, Trash2, Webhook } from 'lucide-react';
+import {
+	Edit2,
+	Eye,
+	EyeOff,
+	Globe,
+	Key,
+	Plus,
+	Star,
+	Trash2,
+	Webhook,
+} from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { api } from '@/api/client';
+import type { ApiSuccessResponse } from '@/types';
 
 interface WebhookUrl {
 	id: string;
@@ -10,6 +22,7 @@ interface WebhookUrl {
 	url: string;
 	isDefault: boolean;
 	hasSecret: boolean;
+	secret?: string;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -24,39 +37,45 @@ interface WebhookFormData {
 export function WebhookSettings() {
 	const [isCreating, setIsCreating] = useState(false);
 	const [editingWebhook, setEditingWebhook] = useState<WebhookUrl | null>(null);
-	const [formData, setFormData] = useState<WebhookFormData>({
-		name: '',
-		url: '',
-		secret: '',
-		isDefault: false,
-	});
+	const [showSecret, setShowSecret] = useState<Record<string, boolean>>({});
+	const [showFormSecret, setShowFormSecret] = useState(false);
 
 	const queryClient = useQueryClient();
+
+	const form = useForm<WebhookFormData>({
+		defaultValues: {
+			name: '',
+			url: '',
+			secret: '',
+			isDefault: false,
+		},
+	});
 
 	// Get all webhooks
 	const { data: webhooks = [], isLoading } = useQuery<WebhookUrl[]>({
 		queryKey: ['organization', 'webhooks'],
 		queryFn: async () => {
-			const response = (await api.get('/v1/organizations/webhooks')) as {
-				data: { data: WebhookUrl[] };
-			};
-			console.log('response', response);
-			return response.data.data;
+			const response = await api.get<ApiSuccessResponse<WebhookUrl[]>>(
+				'/v1/organizations/webhooks?includeSecrets=true',
+			);
+			return response.data;
 		},
 	});
 
 	// Create webhook mutation
 	const createWebhook = useMutation({
 		mutationFn: async (data: WebhookFormData) => {
-			const response = (await api.post('/v1/organizations/webhooks', data)) as {
-				data: any;
-			};
+			const response = await api.post<ApiSuccessResponse<WebhookUrl>>(
+				'/v1/organizations/webhooks',
+				data,
+			);
 			return response.data;
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['organization', 'webhooks'] });
 			setIsCreating(false);
-			resetForm();
+			form.reset();
+			setShowFormSecret(false);
 		},
 	});
 
@@ -78,14 +97,17 @@ export function WebhookSettings() {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['organization', 'webhooks'] });
 			setEditingWebhook(null);
-			resetForm();
+			form.reset();
+			setShowFormSecret(false);
 		},
 	});
 
 	// Delete webhook mutation
 	const deleteWebhook = useMutation({
 		mutationFn: async (id: string) => {
-			const response = (await api.delete(`/v1/organizations/webhooks/${id}`)) as {
+			const response = (await api.delete(
+				`/v1/organizations/webhooks/${id}`,
+			)) as {
 				data: any;
 			};
 			return response.data;
@@ -108,35 +130,38 @@ export function WebhookSettings() {
 		},
 	});
 
-	const resetForm = () => {
-		setFormData({ name: '', url: '', secret: '', isDefault: false });
-	};
-
-	function handleSubmit(e: React.FormEvent) {
-		e.preventDefault();
-
+	function handleSubmit(data: WebhookFormData) {
 		if (editingWebhook) {
-			updateWebhook.mutate({ id: editingWebhook.id, data: formData });
+			updateWebhook.mutate({ id: editingWebhook.id, data });
 		} else {
-			createWebhook.mutate(formData);
+			createWebhook.mutate(data);
 		}
 	}
 
 	function startEditing(webhook: WebhookUrl) {
 		setEditingWebhook(webhook);
-		setFormData({
+		form.reset({
 			name: webhook.name,
 			url: webhook.url,
 			secret: '',
 			isDefault: webhook.isDefault,
 		});
 		setIsCreating(true);
+		setShowFormSecret(false);
 	}
 
 	function cancelEditing() {
 		setIsCreating(false);
 		setEditingWebhook(null);
-		resetForm();
+		form.reset();
+		setShowFormSecret(false);
+	}
+
+	function toggleSecretVisibility(webhookId: string) {
+		setShowSecret((prev) => ({
+			...prev,
+			[webhookId]: !prev[webhookId],
+		}));
 	}
 
 	return (
@@ -162,21 +187,25 @@ export function WebhookSettings() {
 						{editingWebhook ? 'Edit Webhook' : 'Create New Webhook'}
 					</h3>
 
-					<form onSubmit={handleSubmit} className="space-y-4">
+					<form
+						onSubmit={form.handleSubmit(handleSubmit)}
+						className="space-y-4"
+					>
 						<div>
 							<label className="mb-1 block text-sm font-medium text-gray-700">
 								Name
 							</label>
 							<input
+								{...form.register('name', { required: 'Name is required' })}
 								type="text"
-								value={formData.name}
-								onChange={(e) =>
-									setFormData({ ...formData, name: e.target.value })
-								}
 								placeholder="e.g., Production Webhook"
 								className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-								required
 							/>
+							{form.formState.errors.name && (
+								<p className="mt-1 text-sm text-red-600">
+									{form.formState.errors.name.message}
+								</p>
+							)}
 						</div>
 
 						<div>
@@ -184,45 +213,53 @@ export function WebhookSettings() {
 								URL
 							</label>
 							<input
+								{...form.register('url', { required: 'URL is required' })}
 								type="url"
-								value={formData.url}
-								onChange={(e) =>
-									setFormData({ ...formData, url: e.target.value })
-								}
 								placeholder="https://your-api.com/webhook"
 								className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-								required
 							/>
+							{form.formState.errors.url && (
+								<p className="mt-1 text-sm text-red-600">
+									{form.formState.errors.url.message}
+								</p>
+							)}
 						</div>
 
 						<div>
 							<label className="mb-1 block text-sm font-medium text-gray-700">
 								Secret (Optional)
 							</label>
-							<input
-								type="password"
-								value={formData.secret}
-								onChange={(e) =>
-									setFormData({ ...formData, secret: e.target.value })
-								}
-								placeholder={
-									editingWebhook
-										? 'Leave blank to keep existing secret'
-										: 'Webhook signing secret'
-								}
-								className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-							/>
+							<div className="relative">
+								<input
+									{...form.register('secret')}
+									type={showFormSecret ? 'text' : 'password'}
+									placeholder={
+										editingWebhook
+											? 'Leave blank to keep existing secret'
+											: 'Webhook signing secret'
+									}
+									className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+								/>
+								<button
+									type="button"
+									onClick={() => setShowFormSecret(!showFormSecret)}
+									className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+								>
+									{showFormSecret ? (
+										<EyeOff className="h-4 w-4" />
+									) : (
+										<Eye className="h-4 w-4" />
+									)}
+								</button>
+							</div>
 						</div>
 
 						{!editingWebhook && (
 							<div className="flex items-center">
 								<input
+									{...form.register('isDefault')}
 									type="checkbox"
 									id="isDefault"
-									checked={formData.isDefault}
-									onChange={(e) =>
-										setFormData({ ...formData, isDefault: e.target.checked })
-									}
 									className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 								/>
 								<label
@@ -283,7 +320,34 @@ export function WebhookSettings() {
 										<Globe className="h-4 w-4" />
 										<span className="max-w-xs truncate">{webhook.url}</span>
 									</div>
-									{webhook.hasSecret && (
+									{webhook.hasSecret && webhook.secret && (
+										<div className="flex items-center gap-2">
+											<Key className="h-4 w-4" />
+											<div className="flex items-center gap-1">
+												<span className="max-w-xs truncate font-mono text-xs">
+													{showSecret[webhook.id]
+														? webhook.secret
+														: '•'.repeat(12)}
+												</span>
+												<button
+													onClick={() => toggleSecretVisibility(webhook.id)}
+													className="text-gray-400 hover:text-gray-600"
+													title={
+														showSecret[webhook.id]
+															? 'Hide secret'
+															: 'Show secret'
+													}
+												>
+													{showSecret[webhook.id] ? (
+														<EyeOff className="h-3 w-3" />
+													) : (
+														<Eye className="h-3 w-3" />
+													)}
+												</button>
+											</div>
+										</div>
+									)}
+									{webhook.hasSecret && !webhook.secret && (
 										<div className="flex items-center gap-1">
 											<Key className="h-4 w-4" />
 											<span>Secured</span>

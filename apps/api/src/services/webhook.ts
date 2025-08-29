@@ -135,11 +135,11 @@ class WebhookService {
 			'X-Webhook-Event': 'transformation.completed',
 		};
 
-		// Add HMAC signature if secret is provided (org-specific) or configured globally
-		const webhookSecret = secret || this.secret;
-		if (webhookSecret) {
-			const signature = this.generateSignature(body, webhookSecret);
-			headers['X-Mutate-Signature'] = `sha256=${signature}`;
+		console.log('secret', secret);
+
+		if (secret) {
+			const signature = this.generateSignature(body, secret);
+			headers['x-mutate-signature'] = `sha256=${signature}`;
 		}
 
 		const controller = new AbortController();
@@ -210,23 +210,7 @@ class WebhookService {
 		transformCallbackUrl?: string,
 	): Promise<WebhookDelivery | null> {
 		try {
-			// Priority 1: Use transform request callback URL if provided
-			if (transformCallbackUrl) {
-				console.log(`Using transform callback URL for job ${payload.jobId}`);
-				const validation =
-					WebhookService.validateWebhookUrl(transformCallbackUrl);
-				if (validation.valid) {
-					return await this.sendWebhook(
-						transformCallbackUrl,
-						payload,
-						this.secret,
-					);
-				} else {
-					console.error(`Invalid transform callback URL: ${validation.error}`);
-				}
-			}
-
-			// Priority 2: Check configuration for selected org webhook URL
+			// Get configuration and its selected webhook (if any)
 			const configuration = await db.query.configurations.findFirst({
 				where: eq(configurations.id, configurationId),
 				columns: {
@@ -245,6 +229,40 @@ class WebhookService {
 				},
 			});
 
+			// Get organization default webhook
+			const defaultWebhook = await db.query.organizationWebhooks.findFirst({
+				where: and(
+					eq(organizationWebhooks.organizationId, organizationId),
+					eq(organizationWebhooks.isDefault, true),
+				),
+				columns: {
+					id: true,
+					name: true,
+					url: true,
+					secret: true,
+				},
+			});
+
+			// Determine which webhook secret to use for external callbacks
+			// Priority: configuration-selected webhook secret > organization default webhook secret
+			const secret =
+				configuration?.webhookUrl?.secret ||
+				defaultWebhook?.secret ||
+				undefined;
+
+			// Priority 1: Use transform request callback URL if provided
+			if (transformCallbackUrl) {
+				console.log(`Using transform callback URL for job ${payload.jobId}`);
+				const validation =
+					WebhookService.validateWebhookUrl(transformCallbackUrl);
+				if (validation.valid) {
+					return await this.sendWebhook(transformCallbackUrl, payload, secret);
+				} else {
+					console.error(`Invalid transform callback URL: ${validation.error}`);
+				}
+			}
+
+			// Priority 2: Check configuration for selected org webhook URL
 			if (configuration?.webhookUrl) {
 				console.log(
 					`Using configuration-selected webhook ${configuration.webhookUrl.name} for job ${payload.jobId}`,
@@ -277,7 +295,7 @@ class WebhookService {
 					return await this.sendWebhook(
 						configuration.callbackUrl,
 						payload,
-						this.secret,
+						secret,
 					);
 				} else {
 					console.error(
@@ -287,19 +305,6 @@ class WebhookService {
 			}
 
 			// Priority 3: Use organization default webhook URL
-			const defaultWebhook = await db.query.organizationWebhooks.findFirst({
-				where: and(
-					eq(organizationWebhooks.organizationId, organizationId),
-					eq(organizationWebhooks.isDefault, true),
-				),
-				columns: {
-					id: true,
-					name: true,
-					url: true,
-					secret: true,
-				},
-			});
-
 			if (defaultWebhook) {
 				console.log(
 					`Using organization default webhook ${defaultWebhook.name} for job ${payload.jobId}`,
