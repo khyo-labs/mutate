@@ -13,7 +13,11 @@ type Props = {
 	titleIcon: React.ComponentType<{ className?: string }>;
 };
 
-export function SettingsNavigationView({ navigationItems, title, titleIcon: TitleIcon }: Props) {
+export function SettingsNavigationView({
+	navigationItems,
+	title,
+	titleIcon: TitleIcon,
+}: Props) {
 	return (
 		<div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12 xl:hidden">
 			<div className="mb-6 flex items-center gap-3">

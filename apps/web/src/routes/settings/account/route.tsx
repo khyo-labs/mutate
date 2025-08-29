@@ -1,5 +1,5 @@
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router';
-import { ChevronLeft, User, Palette } from 'lucide-react';
+import { ChevronLeft, Palette, User } from 'lucide-react';
 
 import { SettingsSidebar } from '@/components/settings/settings-sidebar';
 

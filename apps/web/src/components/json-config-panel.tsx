@@ -161,9 +161,6 @@ export function JsonConfigPanel({
 					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
 				>
 					<div>
-						<h3 className="text-lg font-medium text-gray-900">
-							JSON Configuration
-						</h3>
 						<p className="text-sm text-gray-500">
 							Preview or import configuration as JSON
 						</p>
@@ -252,11 +249,8 @@ export function JsonConfigPanel({
 	return (
 		<div className="rounded-lg border border-gray-200 bg-white">
 			<div className="border-b border-gray-200 p-4">
-				<div className="flex items-center justify-between">
+				<div className="flex flex-col items-center justify-between space-y-2">
 					<div>
-						<h3 className="text-lg font-medium text-gray-900">
-							JSON Configuration
-						</h3>
 						<p className="text-sm text-gray-500">
 							{rules.length} rule{rules.length !== 1 ? 's' : ''} •{' '}
 							{configJson.split('\n').length} lines

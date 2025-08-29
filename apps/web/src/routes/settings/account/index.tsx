@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { User, Palette } from 'lucide-react';
+import { Palette, User } from 'lucide-react';
 
 import { SettingsNavigationView } from '@/components/settings/settings-navigation-view';
 import { useRedirectOnLargeScreen } from '@/hooks/use-redirect-on-large-screen';

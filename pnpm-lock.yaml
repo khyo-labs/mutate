@@ -302,6 +302,9 @@ importers:
       '@fastify/cors':
         specifier: ^10.0.1
         version: 10.1.0
+      dotenv:
+        specifier: ^17.2.1
+        version: 17.2.1
       fastify:
         specifier: ^5.1.0
         version: 5.5.0
