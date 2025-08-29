@@ -43,20 +43,20 @@ export function ConfigurationEditComponent() {
 		queryKey: ['configurations', configId],
 		queryFn: async () => mutApi.get(configId),
 		enabled: !!configId,
-	});
+	})
 
 	// Fetch organization webhooks for the selector
 	const { data: webhooks = [] } = useQuery({
 		queryKey: ['organization', 'webhooks'],
 		queryFn: async () => {
-			const response = await fetch('/api/v1/organization/webhooks', {
+			const response = await fetch('/api/v1/organizations/webhooks', {
 				credentials: 'include',
-			});
+			})
 			if (!response.ok) throw new Error('Failed to fetch webhooks');
 			const data = await response.json();
 			return data.data || [];
 		},
-	});
+	})
 
 	// Form setup with react-hook-form
 	const form = useForm<FormData>({
@@ -66,7 +66,7 @@ export function ConfigurationEditComponent() {
 			rules: [],
 			webhookUrlId: undefined,
 		},
-	});
+	})
 
 	const {
 		control,
@@ -90,7 +90,7 @@ export function ConfigurationEditComponent() {
 				description: config.description || '',
 				rules: config.rules,
 				webhookUrlId: undefined,
-			});
+			})
 		}
 	}, [config, reset]);
 
@@ -126,7 +126,7 @@ export function ConfigurationEditComponent() {
 				delimiter: ',',
 				encoding: 'UTF-8' as const,
 				includeHeaders: true,
-			};
+			}
 
 			console.log('Sending update request:', configurationData);
 
@@ -146,17 +146,17 @@ export function ConfigurationEditComponent() {
 			console.error('Error details:', error);
 			alert(`Failed to update configuration: ${error.message}`);
 		},
-	});
+	})
 
 	const onSubmit = (data: FormData) => {
 		// Validate that we have at least one rule
 		if (!data.rules || data.rules.length === 0) {
 			alert('Please add at least one transformation rule before saving.');
-			return;
+			return
 		}
 
 		updateConfigurationMutation.mutate(data);
-	};
+	}
 
 	function handleCancel() {
 		navigate({ to: '/mutations/$configId', params: { configId } });
@@ -185,7 +185,7 @@ export function ConfigurationEditComponent() {
 					</div>
 				</div>
 			</Layout>
-		);
+		)
 	}
 
 	if (error) {
@@ -195,7 +195,7 @@ export function ConfigurationEditComponent() {
 					<div className="text-destructive text-sm">{error.message}</div>
 				</div>
 			</Layout>
-		);
+		)
 	}
 
 	if (!config) {
@@ -209,15 +209,15 @@ export function ConfigurationEditComponent() {
 						The configuration you're looking for doesn't exist.
 					</p>
 					<Button
-						variant="outline"
+						variant='outline'
 						onClick={() => navigate({ to: '/mutations' })}
-						className="mt-4"
+						className='mt-4'
 					>
 						Back to mutations
 					</Button>
 				</div>
 			</Layout>
-		);
+		)
 	}
 
 	return (
@@ -247,14 +247,14 @@ export function ConfigurationEditComponent() {
 
 						<div className="mt-4 flex space-x-3 sm:mt-0">
 							<Button
-								variant="outline"
+								variant='outline'
 								onClick={() =>
 									navigate({
 										to: '/mutations/$configId',
 										params: { configId },
 									})
 								}
-								className="px-4 py-2"
+								className='px-4 py-2'
 							>
 								<Eye className="mr-2 h-4 w-4" />
 								Preview
@@ -278,9 +278,9 @@ export function ConfigurationEditComponent() {
 										Build your data transformation pipeline step by step
 									</p>
 								</div>
-								<div className="p-6">
+								<div className='p-6'>
 									<Controller
-										name="rules"
+										name='rules'
 										control={control}
 										render={({ field: { onChange, value } }) => (
 											<RuleBuilder rules={value} onChange={onChange} />
@@ -326,7 +326,7 @@ export function ConfigurationEditComponent() {
 										</div>
 									</div>
 								</div>
-								<div className="p-6">
+								<div className='p-6'>
 									{activeTab === 'preview' ? (
 										<div>
 											<h3 className="mb-4 text-lg font-medium text-gray-900">
@@ -362,7 +362,7 @@ export function ConfigurationEditComponent() {
 										applied
 									</p>
 								</div>
-								<div className="p-6">
+								<div className='p-6'>
 									<CsvOutputPreview
 										file={uploadedFile}
 										rules={watchedRules}
@@ -392,21 +392,21 @@ export function ConfigurationEditComponent() {
 								<div className="space-y-5 p-6">
 									<div>
 										<label
-											htmlFor="name"
+											htmlFor='name'
 											className="mb-2 block text-sm font-medium text-gray-700"
 										>
 											Name <span className="text-red-500">*</span>
 										</label>
 										<Controller
-											name="name"
+											name='name'
 											control={control}
 											rules={{ required: 'Mutation name is required' }}
 											render={({ field }) => (
 												<input
 													{...field}
-													type="text"
-													id="name"
-													placeholder="Enter mutation name"
+													type='text'
+													id='name'
+													placeholder='Enter mutation name'
 													className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
 												/>
 											)}
@@ -419,19 +419,19 @@ export function ConfigurationEditComponent() {
 									</div>
 									<div>
 										<label
-											htmlFor="description"
+											htmlFor='description'
 											className="mb-2 block text-sm font-medium text-gray-700"
 										>
 											Description
 										</label>
 										<Controller
-											name="description"
+											name='description'
 											control={control}
 											render={({ field }) => (
 												<input
 													{...field}
-													type="text"
-													id="description"
+													type='text'
+													id='description'
 													placeholder="Enter description (optional)"
 													className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
 												/>
@@ -440,18 +440,18 @@ export function ConfigurationEditComponent() {
 									</div>
 									<div>
 										<label
-											htmlFor="webhookUrlId"
+											htmlFor='webhookUrlId'
 											className="mb-2 block text-sm font-medium text-gray-700"
 										>
 											Webhook URL
 										</label>
 										<Controller
-											name="webhookUrlId"
+											name='webhookUrlId'
 											control={control}
 											render={({ field }) => (
 												<select
 													{...field}
-													id="webhookUrlId"
+													id='webhookUrlId'
 													className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
 												>
 													<option value="">Use organization default</option>
@@ -482,7 +482,7 @@ export function ConfigurationEditComponent() {
 										Import/export configuration as JSON
 									</p>
 								</div>
-								<div className="p-6">
+								<div className='p-6'>
 									<JsonConfigPanel
 										name={watchedName}
 										description={watchedDescription}
@@ -508,7 +508,7 @@ export function ConfigurationEditComponent() {
 										Integration details and usage
 									</p>
 								</div>
-								<div className="p-6">
+								<div className='p-6'>
 									<MutationSidebar config={config} />
 								</div>
 							</div>
@@ -539,15 +539,15 @@ export function ConfigurationEditComponent() {
 
 							<div className="flex space-x-3">
 								<Button
-									type="button"
-									variant="outline"
+									type='button'
+									variant='outline'
 									onClick={handleCancel}
-									className="px-6 py-2.5"
+									className='px-6 py-2.5'
 								>
 									Cancel
 								</Button>
 								<Button
-									type="submit"
+									type='submit'
 									disabled={
 										isSubmitting || updateConfigurationMutation.isPending
 									}
@@ -564,5 +564,5 @@ export function ConfigurationEditComponent() {
 				</form>
 			</div>
 		</Layout>
-	);
+	)
 }

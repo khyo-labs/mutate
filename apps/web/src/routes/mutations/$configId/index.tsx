@@ -8,7 +8,7 @@ import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
 import { formatDate } from '@/lib/utils';
 import type { ApiResponse, Configuration } from '@/types';
 
-export const Route = createFileRoute('/mutations/$configId')({
+export const Route = createFileRoute('/mutations/$configId/')({
 	component: ConfigurationDetailComponent,
 });
 
@@ -24,14 +24,14 @@ export function ConfigurationDetailComponent() {
 		queryFn: async () => {
 			const response = await api.get<ApiResponse<Configuration>>(
 				`/v1/configurations/${configId}`,
-			);
+			)
 			if (!response.success) {
 				throw new Error(response.error.message);
 			}
 			return response.data;
 		},
 		enabled: !!configId,
-	});
+	})
 
 	function getRuleTypeLabel(ruleType: string) {
 		return ruleType
@@ -50,7 +50,7 @@ export function ConfigurationDetailComponent() {
 					</div>
 				</div>
 			</Layout>
-		);
+		)
 	}
 
 	if (error) {
@@ -60,7 +60,7 @@ export function ConfigurationDetailComponent() {
 					<div className="text-destructive text-sm">{error.message}</div>
 				</div>
 			</Layout>
-		);
+		)
 	}
 
 	if (!config) {
@@ -74,14 +74,14 @@ export function ConfigurationDetailComponent() {
 						The mutation you're looking for doesn't exist.
 					</p>
 					<Link
-						to="/mutations"
+						to='/mutations'
 						className="text-primary mt-4 inline-block hover:underline"
 					>
 						Back to Mutations
 					</Link>
 				</div>
 			</Layout>
-		);
+		)
 	}
 
 	return (
@@ -160,7 +160,7 @@ export function ConfigurationDetailComponent() {
 											<div className="bg-primary/10 text-primary flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold">
 												{index + 1}
 											</div>
-											<div className="min-w-0 flex-1">
+											<div className='min-w-0 flex-1'>
 												<h3 className="text-card-foreground text-sm font-medium">
 													{getRuleTypeLabel(rule.type)}
 												</h3>
@@ -221,5 +221,5 @@ export function ConfigurationDetailComponent() {
 				</div>
 			</div>
 		</Layout>
-	);
+	)
 }

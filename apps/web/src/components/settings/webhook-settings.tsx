@@ -37,7 +37,7 @@ export function WebhookSettings() {
 	const { data: webhooks = [], isLoading } = useQuery<WebhookUrl[]>({
 		queryKey: ['organization', 'webhooks'],
 		queryFn: async () => {
-			const response = (await api.get('/organization/webhooks')) as {
+			const response = (await api.get('/v1/organizations/webhooks')) as {
 				data: { data: WebhookUrl[] };
 			};
 			console.log('response', response);
@@ -48,7 +48,7 @@ export function WebhookSettings() {
 	// Create webhook mutation
 	const createWebhook = useMutation({
 		mutationFn: async (data: WebhookFormData) => {
-			const response = (await api.post('/organization/webhooks', data)) as {
+			const response = (await api.post('/v1/organizations/webhooks', data)) as {
 				data: any;
 			};
 			return response.data;
@@ -70,7 +70,7 @@ export function WebhookSettings() {
 			data: Partial<WebhookFormData>;
 		}) => {
 			const response = (await api.patch(
-				`/organization/webhooks/${id}`,
+				`/v1/organizations/webhooks/${id}`,
 				data,
 			)) as { data: any };
 			return response.data;
@@ -85,7 +85,7 @@ export function WebhookSettings() {
 	// Delete webhook mutation
 	const deleteWebhook = useMutation({
 		mutationFn: async (id: string) => {
-			const response = (await api.delete(`/organization/webhooks/${id}`)) as {
+			const response = (await api.delete(`/v1/organizations/webhooks/${id}`)) as {
 				data: any;
 			};
 			return response.data;
@@ -99,7 +99,7 @@ export function WebhookSettings() {
 	const setDefaultWebhook = useMutation({
 		mutationFn: async (id: string) => {
 			const response = (await api.post(
-				`/organization/webhooks/${id}/set-default`,
+				`/v1/organizations/webhooks/${id}/set-default`,
 			)) as { data: any };
 			return response.data;
 		},

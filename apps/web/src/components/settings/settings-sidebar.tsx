@@ -1,4 +1,4 @@
-import { Link, useRouter } from '@tanstack/react-router';
+import { Link, useLocation } from '@tanstack/react-router';
 
 import { cn } from '@/lib/utils';
 
@@ -11,16 +11,10 @@ type NavigationItem = {
 
 type Props = {
 	navigationItems: NavigationItem[];
-	className?: string;
 };
 
-export function SettingsSidebar({ navigationItems, className }: Props) {
-	const router = useRouter();
-
-	function isActiveRoute(href: string) {
-		const currentPath = router.state.location.pathname;
-		return currentPath === href;
-	}
+export function SettingsSidebar({ navigationItems }: Props) {
+	const location = useLocation();
 
 	return (
 		<nav
@@ -32,7 +26,7 @@ export function SettingsSidebar({ navigationItems, className }: Props) {
 			</div>
 			<div className="min-h-0 flex-1 overflow-y-auto">
 				{navigationItems.map((item) => {
-					const isCurrent = isActiveRoute(item.href);
+					const isCurrent = location.pathname === item.href;
 
 					return (
 						<Link
