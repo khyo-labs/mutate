@@ -9,10 +9,15 @@ import { errorHandler } from './middleware/error-handler.js';
 import authPlugin from './plugins/auth.js';
 import { betterAuthRoutes } from './routes/better-auth.js';
 import { configRoutes } from './routes/configuration.js';
+import { fileRoutes } from './routes/files.js';
 import { healthRoutes } from './routes/health.js';
 import { organizationRoutes } from './routes/organization.js';
 import { transformRoutes } from './routes/transform.js';
 import './types/fastify.js';
+
+// Initialize queue and worker
+import './workers/transformation-worker.js';
+import { transformationQueue } from './services/queue.js';
 
 const fastify = Fastify({
 	logger: {
@@ -77,6 +82,7 @@ await fastify.register(configRoutes, {
 });
 await fastify.register(organizationRoutes, { prefix: '/v1/organizations' });
 await fastify.register(transformRoutes, { prefix: '/v1/transform' });
+await fastify.register(fileRoutes, { prefix: '/v1/files' });
 
 // Import and register API key routes
 const { apiKeyRoutes } = await import('./routes/api-keys.js');
@@ -99,6 +105,9 @@ const start = async () => {
 const gracefulShutdown = async (signal: string) => {
 	fastify.log.info(`Received ${signal}, shutting down gracefully`);
 	try {
+		// Close queue first to stop accepting new jobs
+		await transformationQueue.close(); // Graceful shutdown
+		// Then close the server
 		await fastify.close();
 		process.exit(0);
 	} catch (err) {

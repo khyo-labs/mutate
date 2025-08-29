@@ -90,6 +90,7 @@ export const createSchema = z.object({
 		.array(transformationRuleSchema)
 		.min(1, 'At least one rule is required'),
 	outputFormat: outputFormatSchema,
+	webhookUrl: z.string().url('Invalid webhook URL').optional(),
 });
 
 export const updateSchema = z.object({
@@ -104,6 +105,7 @@ export const updateSchema = z.object({
 		.min(1, 'At least one rule is required')
 		.optional(),
 	outputFormat: outputFormatSchema.optional(),
+	webhookUrl: z.string().url('Invalid webhook URL').optional(),
 });
 
 export const configurationQuerySchema = z.object({

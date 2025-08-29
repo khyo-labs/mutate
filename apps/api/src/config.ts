@@ -35,9 +35,25 @@ const configSchema = z.object({
 	AWS_REGION: z.string().optional(),
 	AWS_S3_BUCKET: z.string().optional(),
 
+	// Cloudflare R2 (S3-compatible)
+	CLOUDFLARE_R2_ACCESS_KEY_ID: z.string().optional(),
+	CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string().optional(),
+	CLOUDFLARE_R2_BUCKET: z.string().optional(),
+	CLOUDFLARE_R2_REGION: z.string().default('auto'),
+	CLOUDFLARE_R2_ENDPOINT: z.string().optional(),
+
 	// File Processing
 	MAX_FILE_SIZE: z.coerce.number().default(52428800), // 50MB
 	FILE_TTL: z.coerce.number().default(86400), // 24 hours in seconds
+	ASYNC_THRESHOLD: z.coerce.number().default(10485760), // 10MB - files larger than this go to queue
+
+	// API Configuration
+	API_BASE_URL: z.string().optional(),
+
+	// Webhooks
+	WEBHOOK_SECRET: z.string().optional(),
+	WEBHOOK_TIMEOUT: z.coerce.number().default(30000), // 30 seconds
+	WEBHOOK_MAX_RETRIES: z.coerce.number().default(5),
 
 	// Rate Limiting
 	RATE_LIMIT_MAX: z.coerce.number().default(1000),
@@ -63,8 +79,18 @@ const env = {
 	AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
 	AWS_REGION: process.env.AWS_REGION,
 	AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
+	CLOUDFLARE_R2_ACCESS_KEY_ID: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID,
+	CLOUDFLARE_R2_SECRET_ACCESS_KEY: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+	CLOUDFLARE_R2_BUCKET: process.env.CLOUDFLARE_R2_BUCKET,
+	CLOUDFLARE_R2_REGION: process.env.CLOUDFLARE_R2_REGION,
+	CLOUDFLARE_R2_ENDPOINT: process.env.CLOUDFLARE_R2_ENDPOINT,
 	MAX_FILE_SIZE: process.env.MAX_FILE_SIZE,
 	FILE_TTL: process.env.FILE_TTL,
+	ASYNC_THRESHOLD: process.env.ASYNC_THRESHOLD,
+	API_BASE_URL: process.env.API_BASE_URL,
+	WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
+	WEBHOOK_TIMEOUT: process.env.WEBHOOK_TIMEOUT,
+	WEBHOOK_MAX_RETRIES: process.env.WEBHOOK_MAX_RETRIES,
 	RATE_LIMIT_MAX: process.env.RATE_LIMIT_MAX,
 	RATE_LIMIT_WINDOW: process.env.RATE_LIMIT_WINDOW,
 	LOG_LEVEL: process.env.LOG_LEVEL,

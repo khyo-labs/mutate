@@ -117,6 +117,7 @@ export const configurations = pgTable('configuration', {
 	outputFormat: jsonb('output_format').notNull(),
 	version: integer('version').default(1).notNull(),
 	isActive: boolean('is_active').default(true).notNull(),
+	webhookUrl: text('webhook_url'), // Default webhook URL for this configuration
 	createdBy: text('created_by')
 		.references(() => user.id)
 		.notNull(),
@@ -148,9 +149,17 @@ export const transformationJobs = pgTable('transformation_job', {
 		.notNull(),
 	status: varchar('status', { length: 50 }).default('pending').notNull(),
 	inputFileUrl: text('input_file_url'),
+	inputFileKey: text('input_file_key'), // Storage key for the input file
 	outputFileUrl: text('output_file_url'),
+	outputFileKey: text('output_file_key'), // Storage key for the output file
+	originalFileName: varchar('original_file_name', { length: 255 }),
+	fileSize: integer('file_size'), // Size in bytes
 	errorMessage: text('error_message'),
 	executionLog: jsonb('execution_log'),
+	webhookUrl: text('webhook_url'), // Specific webhook URL for this job
+	webhookDelivered: boolean('webhook_delivered').default(false), // Has webhook been successfully delivered
+	webhookAttempts: integer('webhook_attempts').default(0), // Number of webhook delivery attempts
+	webhookLastAttempt: timestamp('webhook_last_attempt'), // Last webhook attempt timestamp
 	startedAt: timestamp('started_at'),
 	completedAt: timestamp('completed_at'),
 	createdBy: text('created_by')

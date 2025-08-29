@@ -33,11 +33,30 @@ export class TransformationService {
 		);
 
 		try {
-			// Read Excel file
-			const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+			// Read Excel file with additional options for better compatibility
+			const workbook = XLSX.read(fileBuffer, { 
+				type: 'buffer',
+				cellDates: true,
+				cellNF: false,
+				cellText: false
+			});
 			this.addLog(
 				`Loaded workbook with ${workbook.SheetNames.length} sheets: ${workbook.SheetNames.join(', ')}`,
 			);
+			
+			// Debug: Log detailed workbook info
+			this.addLog(`Workbook info: ${JSON.stringify({
+				SheetNames: workbook.SheetNames,
+				Props: workbook.Props,
+				bookType: (workbook as any).bookType
+			}, null, 2)}`);
+			
+			// Debug: Log first few rows of each sheet to understand the structure
+			workbook.SheetNames.forEach(sheetName => {
+				const sheet = workbook.Sheets[sheetName];
+				const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:A1');
+				this.addLog(`Sheet "${sheetName}" range: ${sheet['!ref']}, rows: ${range.e.r + 1}, cols: ${range.e.c + 1}`);
+			});
 
 			// Start with all sheets
 			let currentWorkbook = workbook;
@@ -209,11 +228,10 @@ export class TransformationService {
 		}
 
 		if (!targetSheet) {
-			return {
-				success: false,
-				workbook,
-				error: `No worksheet found matching ${params.type}: "${params.value}"`,
-			};
+			// If configured worksheet not found, fall back to first sheet with a warning
+			this.addLog(`WARNING: No worksheet found matching ${params.type}: "${params.value}". Available worksheets: ${workbook.SheetNames.join(', ')}`);
+			this.addLog(`Falling back to first available worksheet: "${workbook.SheetNames[0]}"`);
+			targetSheet = workbook.SheetNames[0];
 		}
 
 		this.addLog(`Selected worksheet: "${targetSheet}"`);
@@ -362,8 +380,9 @@ export class TransformationService {
 		const params = rule.params as {
 			method: 'condition' | 'rows';
 			condition?: {
-				type: 'value' | 'formula';
-				value: string;
+				type: 'contains' | 'empty' | 'pattern';
+				column?: string;
+				value?: string;
 			};
 			rows?: number[];
 		};
@@ -378,16 +397,138 @@ export class TransformationService {
 			};
 		}
 
-		if (params.method === 'rows' && params.rows) {
-			this.addLog(`Deleting specific rows: ${params.rows.join(', ')}`);
-			// Implementation for deleting specific rows
-		} else if (params.method === 'condition' && params.condition) {
-			this.addLog(`Deleting rows matching condition: ${params.condition.type}`);
-			// Implementation for condition-based deletion
-		}
+		try {
+			const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+			const rowsToDelete: number[] = [];
 
-		// Simplified implementation - in production, you'd modify the worksheet structure
-		return { success: true, workbook };
+			if (params.method === 'rows' && params.rows) {
+				this.addLog(`Deleting specific rows: ${params.rows.join(', ')}`);
+				// Convert 1-based row numbers to 0-based and add to deletion list
+				rowsToDelete.push(...params.rows.map(row => row - 1));
+			} else if (params.method === 'condition' && params.condition) {
+				this.addLog(`Deleting rows matching condition: ${params.condition.type} in column ${params.condition.column || 'ALL'}`);
+				
+				// Find rows that match the condition
+				for (let rowIndex = range.s.r; rowIndex <= range.e.r; rowIndex++) {
+					let shouldDelete = false;
+
+					if (params.condition.type === 'empty') {
+						if (params.condition.column) {
+							// Check specific column
+							const colIndex = XLSX.utils.decode_col(params.condition.column);
+							const cellAddr = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex });
+							const cell = worksheet[cellAddr];
+							shouldDelete = !cell || !cell.v || String(cell.v).trim() === '';
+						} else {
+							// Check if entire row is empty
+							let hasContent = false;
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
+								const cellAddr = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex });
+								const cell = worksheet[cellAddr];
+								if (cell && cell.v && String(cell.v).trim() !== '') {
+									hasContent = true;
+									break;
+								}
+							}
+							shouldDelete = !hasContent;
+						}
+					} else if (params.condition.type === 'contains' && params.condition.value) {
+						if (params.condition.column) {
+							// Check specific column
+							const colIndex = XLSX.utils.decode_col(params.condition.column);
+							const cellAddr = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex });
+							const cell = worksheet[cellAddr];
+							const cellValue = cell && cell.v ? String(cell.v) : '';
+							shouldDelete = cellValue.toLowerCase().includes(params.condition.value.toLowerCase());
+						} else {
+							// Check any column in the row
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
+								const cellAddr = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex });
+								const cell = worksheet[cellAddr];
+								const cellValue = cell && cell.v ? String(cell.v) : '';
+								if (cellValue.toLowerCase().includes(params.condition.value.toLowerCase())) {
+									shouldDelete = true;
+									break;
+								}
+							}
+						}
+					} else if (params.condition.type === 'pattern' && params.condition.value) {
+						const regex = new RegExp(params.condition.value, 'i');
+						if (params.condition.column) {
+							// Check specific column
+							const colIndex = XLSX.utils.decode_col(params.condition.column);
+							const cellAddr = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex });
+							const cell = worksheet[cellAddr];
+							const cellValue = cell && cell.v ? String(cell.v) : '';
+							shouldDelete = regex.test(cellValue);
+						} else {
+							// Check any column in the row
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
+								const cellAddr = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex });
+								const cell = worksheet[cellAddr];
+								const cellValue = cell && cell.v ? String(cell.v) : '';
+								if (regex.test(cellValue)) {
+									shouldDelete = true;
+									break;
+								}
+							}
+						}
+					}
+
+					if (shouldDelete) {
+						rowsToDelete.push(rowIndex);
+					}
+				}
+			}
+
+			// Sort rows in descending order to delete from bottom to top
+			rowsToDelete.sort((a, b) => b - a);
+			
+			this.addLog(`Found ${rowsToDelete.length} rows to delete: ${rowsToDelete.map(r => r + 1).join(', ')}`);
+
+			// Delete the rows by removing cells and adjusting the range
+			for (const rowIndex of rowsToDelete) {
+				// Remove all cells in this row
+				for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
+					const cellAddr = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex });
+					delete worksheet[cellAddr];
+				}
+
+				// Shift all rows below up by one
+				for (let r = rowIndex + 1; r <= range.e.r; r++) {
+					for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
+						const oldAddr = XLSX.utils.encode_cell({ c: colIndex, r: r });
+						const newAddr = XLSX.utils.encode_cell({ c: colIndex, r: r - 1 });
+						
+						if (worksheet[oldAddr]) {
+							worksheet[newAddr] = worksheet[oldAddr];
+							delete worksheet[oldAddr];
+						}
+					}
+				}
+
+				// Update the range
+				range.e.r--;
+			}
+
+			// Update the worksheet range
+			if (range.e.r >= range.s.r) {
+				worksheet['!ref'] = XLSX.utils.encode_range(range);
+			} else {
+				// If all rows were deleted, set minimal range
+				worksheet['!ref'] = 'A1:A1';
+			}
+
+			this.addLog(`Successfully deleted ${rowsToDelete.length} rows`);
+			return { success: true, workbook };
+
+		} catch (error) {
+			return {
+				success: false,
+				workbook,
+				error: `Failed to delete rows: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			};
+		}
 	}
 
 	private applyDeleteColumns(

@@ -40,7 +40,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			const { name, description, rules, outputFormat } = validationResult.data;
+			const { name, description, rules, outputFormat, webhookUrl } = validationResult.data;
 
 			try {
 				const [configuration] = await db
@@ -52,6 +52,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 						description,
 						rules,
 						outputFormat,
+						webhookUrl,
 						version: 1,
 						createdBy: request.currentUser!.id,
 					})

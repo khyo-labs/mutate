@@ -1,0 +1,228 @@
+import Queue from 'bull';
+import IORedis from 'ioredis';
+
+import { config } from '../config.js';
+
+// Job data interfaces
+export interface TransformationJobData {
+	jobId: string;
+	organizationId: string;
+	configurationId: string;
+	fileBuffer: Buffer;
+	fileName: string;
+	webhookUrl?: string;
+	options?: {
+		debug?: boolean;
+	};
+}
+
+// Internal queue data (Buffer converted to string for serialization)
+interface QueueJobData {
+	jobId: string;
+	organizationId: string;
+	configurationId: string;
+	fileData: string; // Base64 encoded file data
+	fileName: string;
+	webhookUrl?: string;
+	options?: {
+		debug?: boolean;
+	};
+}
+
+export interface JobResult {
+	success: boolean;
+	downloadUrl?: string;
+	error?: string;
+	executionLog?: string[];
+	fileSize?: number;
+}
+
+// Create Redis connection
+const redis = new IORedis(config.REDIS_URL, {
+	maxRetriesPerRequest: 3,
+});
+
+// Create transformation queue
+export const transformationQueue = new Queue<QueueJobData>('file-transformation', {
+	redis: {
+		port: redis.options.port || 6379,
+		host: redis.options.host || 'localhost',
+		password: redis.options.password,
+		db: redis.options.db || 0,
+	},
+	defaultJobOptions: {
+		removeOnComplete: 100, // Keep last 100 completed jobs
+		removeOnFail: 50, // Keep last 50 failed jobs
+		attempts: 3,
+		backoff: {
+			type: 'exponential',
+			delay: 5000,
+		},
+	},
+	settings: {
+		stalledInterval: 30 * 1000, // 30 seconds
+		retryProcessDelay: 5 * 1000, // 5 seconds
+	},
+});
+
+export class QueueService {
+	static async addTransformationJob(
+		data: TransformationJobData,
+		priority: 'low' | 'normal' | 'high' = 'normal'
+	): Promise<Queue.Job<QueueJobData>> {
+		const priorityMap = {
+			low: 10,
+			normal: 5,
+			high: 1,
+		};
+
+		// Convert Buffer to base64 string for queue serialization
+		const queueData: QueueJobData = {
+			jobId: data.jobId,
+			organizationId: data.organizationId,
+			configurationId: data.configurationId,
+			fileData: data.fileBuffer.toString('base64'),
+			fileName: data.fileName,
+			webhookUrl: data.webhookUrl,
+			options: data.options,
+		};
+
+		const job = await transformationQueue.add('transform-file', queueData, {
+			priority: priorityMap[priority],
+			delay: 0,
+			// Add job-specific options based on file size
+			attempts: data.fileBuffer.length > 50 * 1024 * 1024 ? 5 : 3, // More attempts for larger files
+		});
+
+		return job;
+	}
+
+	static async getJobStatus(jobId: string): Promise<{
+		status: string;
+		progress: number;
+		result?: JobResult;
+		error?: string;
+	} | null> {
+		const job = await transformationQueue.getJob(jobId);
+		
+		if (!job) {
+			return null;
+		}
+
+		const progress = job.progress();
+		let status = 'pending';
+
+		if (await job.isCompleted()) {
+			status = 'completed';
+		} else if (await job.isFailed()) {
+			status = 'failed';
+		} else if (await job.isActive()) {
+			status = 'processing';
+		} else if (await job.isWaiting()) {
+			status = 'pending';
+		}
+
+		return {
+			status,
+			progress: typeof progress === 'number' ? progress : 0,
+			result: job.returnvalue,
+			error: job.failedReason,
+		};
+	}
+
+	static async removeJob(jobId: string): Promise<boolean> {
+		const job = await transformationQueue.getJob(jobId);
+		if (job) {
+			await job.remove();
+			return true;
+		}
+		return false;
+	}
+
+	static async getQueueStats(): Promise<{
+		waiting: number;
+		active: number;
+		completed: number;
+		failed: number;
+		delayed: number;
+		paused: number;
+	}> {
+		const waiting = await transformationQueue.getWaiting();
+		const active = await transformationQueue.getActive();
+		const completed = await transformationQueue.getCompleted();
+		const failed = await transformationQueue.getFailed();
+		const delayed = await transformationQueue.getDelayed();
+
+		return {
+			waiting: waiting.length,
+			active: active.length,
+			completed: completed.length,
+			failed: failed.length,
+			delayed: delayed.length,
+			paused: 0, // Paused count not available in this Bull version
+		};
+	}
+
+	static async pauseQueue(): Promise<void> {
+		await transformationQueue.pause();
+	}
+
+	static async resumeQueue(): Promise<void> {
+		await transformationQueue.resume();
+	}
+
+	static async cleanQueue(
+		grace: number = 24 * 60 * 60 * 1000, // 24 hours
+		type: 'completed' | 'failed' | 'active' = 'completed'
+	): Promise<void> {
+		await transformationQueue.clean(grace, type);
+	}
+}
+
+// Event handlers for queue monitoring
+transformationQueue.on('completed', (job, result) => {
+	console.log(`Job ${job.id} completed successfully:`, {
+		jobId: job.id,
+		duration: Date.now() - job.processedOn!,
+		result: result?.success,
+	});
+});
+
+transformationQueue.on('failed', (job, err) => {
+	console.error(`Job ${job.id} failed:`, {
+		jobId: job.id,
+		error: err.message,
+		attempts: job.attemptsMade,
+		data: job.data.fileName,
+	});
+});
+
+transformationQueue.on('active', (job) => {
+	console.log(`Job ${job.id} started processing:`, {
+		jobId: job.id,
+		fileName: job.data.fileName,
+		organizationId: job.data.organizationId,
+	});
+});
+
+transformationQueue.on('stalled', (job) => {
+	console.warn(`Job ${job.id} stalled:`, {
+		jobId: job.id,
+		fileName: job.data.fileName,
+	});
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+	console.log('Gracefully shutting down transformation queue...');
+	await transformationQueue.close();
+	await redis.disconnect();
+});
+
+process.on('SIGINT', async () => {
+	console.log('Gracefully shutting down transformation queue...');
+	await transformationQueue.close();
+	await redis.disconnect();
+});
+
+export { redis };

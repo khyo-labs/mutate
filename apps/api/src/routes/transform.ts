@@ -7,6 +7,10 @@ import { configurations, transformationJobs } from '../db/schema.js';
 import { authenticateAPIKey } from '../middleware/auth.js';
 import '../types/fastify.js';
 import { logError } from '../utils/logger.js';
+import { QueueService } from '../services/queue.js';
+import { storageService } from '../services/storage.js';
+import { WebhookService } from '../services/webhook.js';
+import { config } from '../config.js';
 import type { Configuration, TransformationRule, OutputFormat } from '../types/index.js';
 
 export async function transformRoutes(fastify: FastifyInstance) {
@@ -32,6 +36,7 @@ export async function transformRoutes(fastify: FastifyInstance) {
 			// Get form fields
 			const fields = data.fields as any;
 			const configId = fields?.configId?.value;
+			const webhookUrl = fields?.webhookUrl?.value;
 			const options = fields?.options ? JSON.parse(fields.options.value) : {};
 
 			if (!configId) {
@@ -42,6 +47,20 @@ export async function transformRoutes(fastify: FastifyInstance) {
 						message: 'Configuration ID is required',
 					},
 				});
+			}
+
+			// Validate webhook URL if provided
+			if (webhookUrl) {
+				const validation = WebhookService.validateWebhookUrl(webhookUrl);
+				if (!validation.valid) {
+					return reply.code(400).send({
+						success: false,
+						error: {
+							code: 'INVALID_WEBHOOK_URL',
+							message: validation.error,
+						},
+					});
+				}
 			}
 
 			// Validate configuration exists and user has access
@@ -70,108 +89,88 @@ export async function transformRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			// Check file size for sync/async processing
-			const fileSize = data.file.bytesRead || 0;
-			const isAsync = options.async || fileSize >= 10 * 1024 * 1024; // 10MB threshold
+			// Collect file data from the stream
+			const chunks: Buffer[] = [];
+			for await (const chunk of data.file) {
+				chunks.push(chunk);
+			}
+			const fileBuffer = Buffer.concat(chunks);
+			
+			// Debug: Log file buffer info
+			console.log(`File buffer info: size=${fileBuffer.length}, first 50 bytes=${fileBuffer.slice(0, 50).toString('hex')}`);
+
+			// Check file size constraints
+			if (fileBuffer.length > config.MAX_FILE_SIZE) {
+				return reply.code(400).send({
+					success: false,
+					error: {
+						code: 'FILE_TOO_LARGE',
+						message: `File size exceeds maximum allowed size of ${config.MAX_FILE_SIZE} bytes`,
+					},
+				});
+			}
+
+			// Determine if processing should be async
+			const isAsync = options.async !== false && fileBuffer.length >= config.ASYNC_THRESHOLD;
 
 			// Create transformation job
+			const jobId = ulid();
 			const [job] = await db
 				.insert(transformationJobs)
 				.values({
-					id: ulid(),
+					id: jobId,
 					organizationId: request.currentUser!.organizationId,
 					configurationId: configId,
-					status: isAsync ? 'pending' : 'processing',
+					status: 'pending',
+					originalFileName: data.filename || 'upload.xlsx',
+					fileSize: fileBuffer.length,
+					webhookUrl: webhookUrl || configuration.webhookUrl, // Use job-specific or config default
 					createdBy: request.currentUser!.id,
-					startedAt: isAsync ? undefined : new Date(),
 				})
 				.returning();
 
 			if (isAsync) {
 				// Queue for async processing
+				await QueueService.addTransformationJob({
+					jobId: job.id,
+					organizationId: request.currentUser!.organizationId,
+					configurationId: configId,
+					fileBuffer,
+					fileName: data.filename || 'upload.xlsx',
+					webhookUrl: webhookUrl || configuration.webhookUrl,
+					options,
+				});
+
 				return reply.code(202).send({
 					success: true,
 					data: {
 						jobId: job.id,
-						status: 'processing',
-						statusUrl: `/v1/jobs/${job.id}`,
+						status: 'queued',
+						statusUrl: `/v1/transform/jobs/${job.id}`,
+						message: 'File queued for processing. Use the status URL to check progress.',
 					},
 				});
 			} else {
-				// Process synchronously
-				// Collect file data from the stream
-				const chunks: Buffer[] = [];
-				for await (const chunk of data.file) {
-					chunks.push(chunk);
-				}
-				const fileBuffer = Buffer.concat(chunks);
+				// For small files, still use the queue but with higher priority for faster processing
+				await QueueService.addTransformationJob({
+					jobId: job.id,
+					organizationId: request.currentUser!.organizationId,
+					configurationId: configId,
+					fileBuffer,
+					fileName: data.filename || 'upload.xlsx',
+					webhookUrl: webhookUrl || configuration.webhookUrl,
+					options,
+				}, 'high');
 
-				// Import and use TransformationService
-				const { TransformationService } = await import('../services/transform.js');
-				const transformService = new TransformationService();
-
-				// Convert database configuration to service configuration type
-				const serviceConfig: Configuration = {
-					id: configuration.id,
-					organizationId: configuration.organizationId,
-					name: configuration.name,
-					description: configuration.description || undefined,
-					rules: configuration.rules as TransformationRule[],
-					outputFormat: configuration.outputFormat as OutputFormat,
-					version: configuration.version,
-					isActive: configuration.isActive,
-					createdBy: configuration.createdBy,
-					createdAt: configuration.createdAt,
-					updatedAt: configuration.updatedAt,
-				};
-
-				const result = await transformService.transformFile(fileBuffer, serviceConfig, options);
-
-				if (!result.success) {
-					// Update job with error
-					await db
-						.update(transformationJobs)
-						.set({
-							status: 'failed',
-							errorMessage: result.error,
-							completedAt: new Date(),
-						})
-						.where(eq(transformationJobs.id, job.id));
-
-					return reply.code(400).send({
-						success: false,
-						error: {
-							code: 'TRANSFORMATION_FAILED',
-							message: result.error,
-							executionLog: result.executionLog,
-						},
-					});
-				}
-
-				// For now, we'll return the CSV data directly in the response
-				// In production, you'd want to save it to cloud storage and return a URL
-				const [completedJob] = await db
-					.update(transformationJobs)
-					.set({
-						status: 'completed',
-						completedAt: new Date(),
-						// In production, replace with actual file storage URL
-						outputFileUrl: `data:text/csv;base64,${Buffer.from(result.csvData!).toString('base64')}`,
-					})
-					.where(eq(transformationJobs.id, job.id))
-					.returning();
-
-				return {
+				return reply.code(202).send({
 					success: true,
 					data: {
-						jobId: completedJob.id,
-						status: 'completed',
-						csvData: result.csvData,
-						executionLog: result.executionLog,
-						downloadUrl: completedJob.outputFileUrl,
-						expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+						jobId: job.id,
+						status: 'queued',
+						statusUrl: `/v1/transform/jobs/${job.id}`,
+						message: 'File queued for processing with high priority.',
 					},
-				};
+				});
 			}
 		} catch (error) {
 			logError(request.log, 'Transform error:', error);
@@ -214,21 +213,35 @@ export async function transformRoutes(fastify: FastifyInstance) {
 				});
 			}
 
+			// Get queue job status for more accurate progress
+			let queueStatus;
+			try {
+				queueStatus = await QueueService.getJobStatus(jobId);
+			} catch (error) {
+				// Queue job might not exist anymore if completed/failed
+				console.log(`Queue job ${jobId} not found, using database status`);
+			}
+
+			const progress = queueStatus?.progress || 
+				(job.status === 'completed' ? 100 :
+				 job.status === 'processing' ? 50 :
+				 job.status === 'failed' ? 0 : 0);
+
 			return {
 				success: true,
 				data: {
 					jobId: job.id,
-					status: job.status,
-					progress:
-						job.status === 'completed'
-							? 100
-							: job.status === 'processing'
-								? 50
-								: 0,
+					status: queueStatus?.status || job.status,
+					progress,
 					downloadUrl: job.outputFileUrl,
+					originalFileName: job.originalFileName,
+					fileSize: job.fileSize,
 					error: job.errorMessage,
+					executionLog: job.executionLog,
+					webhookDelivered: job.webhookDelivered,
 					startedAt: job.startedAt,
 					completedAt: job.completedAt,
+					createdAt: job.createdAt,
 				},
 			};
 		} catch (error) {
@@ -238,6 +251,97 @@ export async function transformRoutes(fastify: FastifyInstance) {
 				error: {
 					code: 'JOB_STATUS_FAILED',
 					message: 'Failed to get job status',
+				},
+			});
+		}
+	});
+
+	// Generate fresh download URL
+	fastify.post('/jobs/:jobId/download', async (request, reply) => {
+		const { jobId } = request.params as { jobId: string };
+
+		try {
+			const [job] = await db
+				.select()
+				.from(transformationJobs)
+				.where(
+					and(
+						eq(transformationJobs.id, jobId),
+						eq(
+							transformationJobs.organizationId,
+							request.currentUser!.organizationId,
+						),
+						eq(transformationJobs.status, 'completed'),
+					),
+				)
+				.limit(1);
+
+			if (!job) {
+				return reply.code(404).send({
+					success: false,
+					error: {
+						code: 'JOB_NOT_FOUND',
+						message: 'Completed job not found',
+					},
+				});
+			}
+
+			if (!job.outputFileKey) {
+				return reply.code(404).send({
+					success: false,
+					error: {
+						code: 'FILE_NOT_FOUND',
+						message: 'Output file not found in storage',
+					},
+				});
+			}
+
+			// Generate fresh presigned URL
+			const downloadUrl = await storageService.generateFreshPresignedUrl(
+				job.outputFileKey,
+				config.FILE_TTL
+			);
+
+			return {
+				success: true,
+				data: {
+					downloadUrl,
+					expiresAt: new Date(Date.now() + config.FILE_TTL * 1000).toISOString(),
+					originalFileName: job.originalFileName,
+					fileSize: job.fileSize,
+				},
+			};
+		} catch (error) {
+			logError(request.log, 'Generate download URL error:', error);
+			return reply.code(500).send({
+				success: false,
+				error: {
+					code: 'DOWNLOAD_URL_FAILED',
+					message: 'Failed to generate download URL',
+				},
+			});
+		}
+	});
+
+	// Queue health and statistics
+	fastify.get('/queue/stats', async (request, reply) => {
+		try {
+			const stats = await QueueService.getQueueStats();
+			
+			return {
+				success: true,
+				data: {
+					queue: stats,
+					timestamp: new Date().toISOString(),
+				},
+			};
+		} catch (error) {
+			logError(request.log, 'Queue stats error:', error);
+			return reply.code(500).send({
+				success: false,
+				error: {
+					code: 'QUEUE_STATS_FAILED',
+					message: 'Failed to get queue statistics',
 				},
 			});
 		}
