@@ -304,14 +304,31 @@ function simulateTransformations(
 	rules.forEach((rule) => {
 		switch (rule.type) {
 			case 'SELECT_WORKSHEET':
-				const targetWorksheet = rule.params.value;
-				if (file.worksheets.includes(targetWorksheet)) {
+				let targetWorksheet: string | null = null;
+
+				switch (rule.params.type) {
+					case 'name':
+						targetWorksheet = rule.params.value;
+						break;
+					case 'index':
+						targetWorksheet =
+							file.worksheets[Number.parseInt(rule.params.value)];
+						break;
+					case 'pattern':
+						targetWorksheet =
+							file.worksheets.find((worksheet) =>
+								worksheet.match(rule.params.value),
+							) || null;
+						break;
+				}
+
+				if (targetWorksheet && file.worksheets.includes(targetWorksheet)) {
 					activeWorksheet = targetWorksheet;
 					worksheet = file.workbook.Sheets[activeWorksheet];
 					range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
 
-					// Re-extract data from selected worksheet
 					data = [];
+
 					for (let row = range.s.r; row <= range.e.r; row++) {
 						const rowData: (string | number | null)[] = [];
 						for (let col = range.s.c; col <= range.e.c; col++) {

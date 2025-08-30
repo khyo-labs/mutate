@@ -17,7 +17,8 @@
       "Bash(pnpm db:generate:*)",
       "Bash(tsx:*)",
       "Bash(pnpm tsx:*)",
-      "Bash(pnpm --filter @mutate/api typecheck)"
+      "Bash(pnpm --filter @mutate/api typecheck)",
+      "Bash(pnpm web add:*)"
     ],
     "deny": [],
     "ask": []
