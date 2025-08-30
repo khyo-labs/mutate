@@ -11,12 +11,11 @@ import { betterAuthRoutes } from './routes/better-auth.js';
 import { configRoutes } from './routes/configuration.js';
 import { fileRoutes } from './routes/files.js';
 import { healthRoutes } from './routes/health.js';
+import { mutateRoutes } from './routes/mutate.js';
 import { organizationRoutes } from './routes/organization.js';
-import { transformRoutes } from './routes/transform.js';
 import { transformationQueue } from './services/queue.js';
 import './types/fastify.js';
-// Initialize queue and worker
-import './workers/transformation-worker.js';
+import './workers/mutation-worker.js';
 
 const fastify = Fastify({
 	logger: {
@@ -36,7 +35,6 @@ const fastify = Fastify({
 	requestTimeout: 30_000, // 30 seconds
 });
 
-// Register plugins
 await fastify.register(helmet, {
 	contentSecurityPolicy: false,
 });
@@ -73,23 +71,19 @@ await fastify.register(rateLimit, {
 	},
 });
 
-// Register auth plugin
 await fastify.register(authPlugin);
 
-// Register error handler
 fastify.setErrorHandler(errorHandler);
 
-// Register routes
 await fastify.register(healthRoutes, { prefix: '/v1/health' });
 await fastify.register(betterAuthRoutes, { prefix: '/v1/auth' });
 await fastify.register(configRoutes, {
 	prefix: '/v1/configurations',
 });
 await fastify.register(organizationRoutes, { prefix: '/v1/organizations' });
-await fastify.register(transformRoutes, { prefix: '/v1/transform' });
+await fastify.register(mutateRoutes, { prefix: '/v1/mutate' });
 await fastify.register(fileRoutes, { prefix: '/v1/files' });
 
-// Import and register API key routes
 const { apiKeyRoutes } = await import('./routes/api-keys.js');
 await fastify.register(apiKeyRoutes, { prefix: '/v1/api-keys' });
 
@@ -106,13 +100,10 @@ const start = async () => {
 	}
 };
 
-// Handle graceful shutdown
 const gracefulShutdown = async (signal: string) => {
 	fastify.log.info(`Received ${signal}, shutting down gracefully`);
 	try {
-		// Close queue first to stop accepting new jobs
-		await transformationQueue.close(); // Graceful shutdown
-		// Then close the server
+		await transformationQueue.close();
 		await fastify.close();
 		process.exit(0);
 	} catch (err) {

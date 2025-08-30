@@ -10,18 +10,11 @@ import { QueueService } from '../services/queue.js';
 import { storageService } from '../services/storage.js';
 import { WebhookService } from '../services/webhook.js';
 import '../types/fastify.js';
-import type {
-	Configuration,
-	OutputFormat,
-	TransformationRule,
-} from '../types/index.js';
 import { logError } from '../utils/logger.js';
 
-export async function transformRoutes(fastify: FastifyInstance) {
-	// Add API key authentication to all routes
+export async function mutateRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', authenticateAPIKey);
 
-	// Transform file
 	fastify.post('/', async (request, reply) => {
 		try {
 			// Parse multipart form data
@@ -37,7 +30,6 @@ export async function transformRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			// Get form fields
 			const fields = data.fields as any;
 			const configId = fields?.configId?.value;
 			const callbackUrl = fields?.callbackUrl?.value;
@@ -156,7 +148,7 @@ export async function transformRoutes(fastify: FastifyInstance) {
 					data: {
 						jobId: job.id,
 						status: 'queued',
-						statusUrl: `/v1/transform/jobs/${job.id}`,
+						statusUrl: `/v1/mutate/jobs/${job.id}`,
 						message:
 							'File queued for processing. Use the status URL to check progress.',
 					},
@@ -182,7 +174,7 @@ export async function transformRoutes(fastify: FastifyInstance) {
 					data: {
 						jobId: job.id,
 						status: 'queued',
-						statusUrl: `/v1/transform/jobs/${job.id}`,
+						statusUrl: `/v1/mutate/jobs/${job.id}`,
 						message: 'File queued for processing with high priority.',
 					},
 				});

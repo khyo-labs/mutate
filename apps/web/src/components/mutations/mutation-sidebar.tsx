@@ -29,7 +29,7 @@ export function MutationSidebar({ config }: MutationSidebarProps) {
 		2,
 	);
 
-	const curlExample = `curl -X POST ${window.location.origin}/api/v1/transform \\
+	const curlExample = `curl -X POST ${window.location.origin}/api/v1/mutate \\
   -H "Content-Type: multipart/form-data" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -F "file=@your-file.xlsx" \\
@@ -39,7 +39,7 @@ export function MutationSidebar({ config }: MutationSidebarProps) {
 formData.append('file', fileInput.files[0]);
 formData.append('configId', '${config.id}');
 
-const response = await fetch('/api/v1/transform', {
+const response = await fetch('/api/v1/mutate', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY'
@@ -56,7 +56,7 @@ data = {'configId': '${config.id}'}
 headers = {'Authorization': 'Bearer YOUR_API_KEY'}
 
 response = requests.post(
-    '${window.location.origin}/api/v1/transform',
+    '${window.location.origin}/api/v1/mutate',
     files=files,
     data=data,
     headers=headers

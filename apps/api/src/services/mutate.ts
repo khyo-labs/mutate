@@ -2,19 +2,19 @@ import * as XLSX from 'xlsx';
 
 import type { Configuration, TransformationRule } from '../types/index.js';
 
-export interface TransformationOptions {
+export interface MutationOptions {
 	async?: boolean;
 	debug?: boolean;
 }
 
-export interface TransformationResult {
+export interface MutationResult {
 	success: boolean;
 	csvData?: string;
 	error?: string;
 	executionLog?: string[];
 }
 
-export class TransformationService {
+export class MutationService {
 	private log: string[] = [];
 
 	private addLog(message: string) {
@@ -25,15 +25,14 @@ export class TransformationService {
 	async transformFile(
 		fileBuffer: Buffer,
 		configuration: Configuration,
-		options: TransformationOptions = {},
-	): Promise<TransformationResult> {
+		options: MutationOptions = {},
+	): Promise<MutationResult> {
 		this.log = [];
 		this.addLog(
 			`Starting transformation with configuration: ${configuration.name}`,
 		);
 
 		try {
-			// Read Excel file with additional options for better compatibility
 			const workbook = XLSX.read(fileBuffer, {
 				type: 'buffer',
 				cellDates: true,
@@ -44,7 +43,6 @@ export class TransformationService {
 				`Loaded workbook with ${workbook.SheetNames.length} sheets: ${workbook.SheetNames.join(', ')}`,
 			);
 
-			// Debug: Log detailed workbook info
 			this.addLog(
 				`Workbook info: ${JSON.stringify(
 					{
@@ -57,7 +55,6 @@ export class TransformationService {
 				)}`,
 			);
 
-			// Debug: Log first few rows of each sheet to understand the structure
 			workbook.SheetNames.forEach((sheetName) => {
 				const sheet = workbook.Sheets[sheetName];
 				const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:A1');
@@ -66,11 +63,9 @@ export class TransformationService {
 				);
 			});
 
-			// Start with all sheets
 			let currentWorkbook = workbook;
 			let selectedSheet: string | null = null;
 
-			// Apply transformation rules in sequence
 			for (let i = 0; i < configuration.rules.length; i++) {
 				const rule = configuration.rules[i];
 				this.addLog(
@@ -100,7 +95,6 @@ export class TransformationService {
 				this.addLog(`Rule completed successfully`);
 			}
 
-			// Determine which sheet to convert to CSV
 			const sheetName = selectedSheet || currentWorkbook.SheetNames[0];
 
 			if (!currentWorkbook.Sheets[sheetName]) {
@@ -109,11 +103,9 @@ export class TransformationService {
 
 			this.addLog(`Converting sheet "${sheetName}" to CSV`);
 
-			// Convert to CSV
 			const csvData = XLSX.utils.sheet_to_csv(
 				currentWorkbook.Sheets[sheetName],
 				{
-					// header: configuration.outputFormat.includeHeaders ? 1 : 0,
 					blankrows: false,
 					FS: configuration.outputFormat.delimiter,
 				},

@@ -93,7 +93,7 @@ export class QueueService {
 			options: data.options,
 		};
 
-		const job = await transformationQueue.add('transform-file', queueData, {
+		const job = await transformationQueue.add('mutate-file', queueData, {
 			priority: priorityMap[priority],
 			delay: 0,
 			// Add job-specific options based on file size

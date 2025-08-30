@@ -24,15 +24,17 @@ mutate/
 
 - **Runtime**: Node.js with TypeScript
 - **Framework**: Fastify 5.x
-- **Authentication**: Better Auth (recently migrated from JWT)
+- **Authentication**: Better Auth (session-based with organization support)
 - **Database**: PostgreSQL with Drizzle ORM
 - **File Processing**: ExcelJS for XLSX handling
 - **Queue System**: Bull (Redis-based) for async processing
+- **File Storage**: AWS S3 & Cloudflare R2 support with presigned URLs
+- **Webhooks**: Retry mechanism with exponential backoff and signature verification
 - **Validation**: Zod schemas
 
 **Frontend (`@mutate/web`)**
 
-- **Framework**: React 18 with Vite
+- **Framework**: React 19 with Vite
 - **Routing**: TanStack Router v1.73
 - **State Management**: Zustand
 - **Styling**: Tailwind CSS v4.1
@@ -52,9 +54,13 @@ mutate/
 - ✅ File upload and processing
 - ✅ Spreadsheet preview functionality
 - ✅ Database schema with migrations
-- 🚧 Rule processing engine (in development)
-- 🚧 API key management
-- 🚧 Async job processing
+- ✅ Rule processing engine (implemented)
+- ✅ API key management (full CRUD)
+- ✅ Async job processing with Bull/Redis
+- ✅ Webhook system with retry logic
+- ✅ File storage (AWS S3 & Cloudflare R2 support)
+- ✅ Settings UI (theme, webhooks, API keys)
+- 🚧 Rule processing improvements (ongoing)
 
 ### Supported Transformation Rules
 
@@ -103,7 +109,11 @@ mutate/
 - `GET /v1/auth/*` - Better Auth endpoints
 - `GET /v1/mutations` - List user configurations
 - `POST /v1/mutations` - Create new configuration
-- `POST /v1/transform` - Execute file transformation
+- `POST /v1/mutate` - Execute file transformation (async & sync support)
+- `GET /v1/jobs/:jobId` - Check transformation job status
+- `GET /v1/api-keys` - API key management
+- `GET /v1/organization/webhooks` - Webhook management
+- `GET /v1/files/:key` - Download transformed files
 - `GET /v1/health` - Health check
 
 ### Response Format
@@ -126,6 +136,7 @@ pnpm dev          # Start both API and web in development
 pnpm build        # Build all apps
 pnpm typecheck    # Run TypeScript checks
 pnpm lint         # Run linting
+pnpm format       # Format code with Prettier
 ```
 
 ### Database
@@ -152,6 +163,27 @@ pnpm web dev      # Start web only
 ```
 DATABASE_URL=postgresql://...
 BETTER_AUTH_SECRET=your-32-char-secret
+REDIS_URL=redis://localhost:6379
+
+# Storage Configuration
+STORAGE_TYPE=local|s3
+AWS_ACCESS_KEY_ID=optional
+AWS_SECRET_ACCESS_KEY=optional
+AWS_S3_BUCKET=optional
+AWS_REGION=optional
+
+# Cloudflare R2 Support
+CLOUDFLARE_R2_ACCESS_KEY_ID=optional
+CLOUDFLARE_R2_SECRET_ACCESS_KEY=optional
+CLOUDFLARE_R2_BUCKET=optional
+CLOUDFLARE_R2_ENDPOINT=optional
+
+# Webhook Configuration
+WEBHOOK_SECRET=optional
+WEBHOOK_TIMEOUT=30000
+WEBHOOK_MAX_RETRIES=5
+
+# OAuth Providers
 GITHUB_CLIENT_ID=optional
 GITHUB_CLIENT_SECRET=optional
 GOOGLE_CLIENT_ID=optional
@@ -166,11 +198,14 @@ VITE_API_URL=http://localhost:3000
 
 ## Recent Changes
 
-- Migrated from JWT to Better Auth for improved authentication
-- Updated to Tailwind CSS v4
-- Added organization-based multi-tenancy
-- Implemented visual configuration builder
-- Added spreadsheet preview functionality
+- ✅ Implemented async job processing with Bull/Redis queue system
+- ✅ Added webhook system with signature verification and retry logic
+- ✅ Integrated file storage support (AWS S3 & Cloudflare R2)
+- ✅ Built comprehensive settings UI (API keys, webhooks, themes)
+- ✅ Enhanced transformation engine with better error handling
+- ✅ Added presigned URL generation for secure file downloads
+- ✅ Implemented organization webhook management
+- ✅ Added job status tracking and monitoring
 
 ## Development Notes
 
@@ -179,3 +214,4 @@ VITE_API_URL=http://localhost:3000
 - All apps use TypeScript with strict mode
 - Database migrations are handled by Drizzle
 - The frontend uses TanStack Router for type-safe routing
+- Do not add one line comments unless absolutely needed

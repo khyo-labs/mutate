@@ -3,13 +3,13 @@ import { eq } from 'drizzle-orm';
 import { config } from '../config.js';
 import { db } from '../db/connection.js';
 import { configurations, transformationJobs } from '../db/schema.js';
+import { MutationService } from '../services/mutate.js';
 import {
 	type JobResult,
-	type TransformationJobData,
+	type TransformationJobData as MutationJobData,
 	transformationQueue,
 } from '../services/queue.js';
 import { storageService } from '../services/storage.js';
-import { TransformationService } from '../services/transform.js';
 import { WebhookService, webhookService } from '../services/webhook.js';
 import type {
 	Configuration,
@@ -17,27 +17,24 @@ import type {
 	TransformationRule,
 } from '../types/index.js';
 
-class TransformationWorker {
+class MutationWorker {
 	private isShuttingDown = false;
 
 	constructor() {
-		// Process transformation jobs
 		transformationQueue.process(
-			'transform-file',
-			this.processTransformationJob.bind(this),
+			'mutate-file',
+			this.processMutationJob.bind(this),
 		);
 
-		// Graceful shutdown handling
 		process.on('SIGTERM', this.shutdown.bind(this));
 		process.on('SIGINT', this.shutdown.bind(this));
 	}
 
-	private async processTransformationJob(job: any): Promise<JobResult> {
-		// Convert base64 file data back to Buffer
+	private async processMutationJob(job: any): Promise<JobResult> {
 		const queueData = job.data;
 		const fileBuffer = Buffer.from(queueData.fileData, 'base64');
 
-		const jobData: TransformationJobData = {
+		const jobData: MutationJobData = {
 			jobId: queueData.jobId,
 			organizationId: queueData.organizationId,
 			configurationId: queueData.configurationId,
@@ -56,21 +53,17 @@ class TransformationWorker {
 			fileName: jobData.fileName,
 		});
 
-		// Debug: Log file buffer info in worker
 		console.log(
 			`Worker file buffer info: size=${jobData.fileBuffer.length}, first 50 bytes=${jobData.fileBuffer.slice(0, 50).toString('hex')}`,
 		);
 
 		try {
-			// Update job status to processing
 			await this.updateJobStatus(jobId, 'processing', {
 				startedAt: new Date(),
 			});
 
-			// Update progress
 			await job.progress(10);
 
-			// Get configuration from database
 			const [configuration] = await db
 				.select()
 				.from(configurations)
@@ -83,7 +76,6 @@ class TransformationWorker {
 
 			await job.progress(20);
 
-			// Upload input file to storage if not already uploaded
 			let inputFileResult;
 			if (config.STORAGE_TYPE !== 'local') {
 				inputFileResult = await storageService.uploadInputFile(
@@ -93,7 +85,6 @@ class TransformationWorker {
 					jobId,
 				);
 
-				// Update job with input file details
 				await this.updateJobStatus(jobId, 'processing', {
 					inputFileUrl: inputFileResult.url,
 					inputFileKey: inputFileResult.key,
@@ -104,7 +95,6 @@ class TransformationWorker {
 
 			await job.progress(30);
 
-			// Convert database configuration to service configuration type
 			const serviceConfig: Configuration = {
 				id: configuration.id,
 				organizationId: configuration.organizationId,
@@ -119,8 +109,7 @@ class TransformationWorker {
 				updatedAt: configuration.updatedAt,
 			};
 
-			// Process the transformation
-			const transformService = new TransformationService();
+			const transformService = new MutationService();
 			const result = await transformService.transformFile(
 				jobData.fileBuffer,
 				serviceConfig,
@@ -133,7 +122,6 @@ class TransformationWorker {
 				throw new Error(result.error || 'Transformation failed');
 			}
 
-			// Upload transformed file to storage
 			const outputBuffer = Buffer.from(result.csvData!, 'utf-8');
 			const outputFileName = this.generateOutputFileName(
 				jobData.fileName,
@@ -149,7 +137,6 @@ class TransformationWorker {
 
 			await job.progress(90);
 
-			// Update job as completed
 			const updateData: any = {
 				status: 'completed' as const,
 				outputFileUrl: outputFileResult.url,
@@ -159,14 +146,12 @@ class TransformationWorker {
 			};
 
 			if (!inputFileResult) {
-				// If we didn't upload input file (local storage), add file details now
 				updateData.originalFileName = jobData.fileName;
 				updateData.fileSize = jobData.fileBuffer.length;
 			}
 
 			await this.updateJobStatus(jobId, 'completed', updateData);
 
-			// Send webhook notification
 			await this.sendWebhookNotification(
 				jobData,
 				outputFileResult.url,
@@ -195,13 +180,11 @@ class TransformationWorker {
 				fileName: jobData.fileName,
 			});
 
-			// Update job as failed
 			await this.updateJobStatus(jobId, 'failed', {
 				errorMessage,
 				completedAt: new Date(),
 			});
 
-			// Send webhook notification for failure
 			await this.sendWebhookNotification(
 				jobData,
 				undefined,
@@ -232,13 +215,12 @@ class TransformationWorker {
 	}
 
 	private async sendWebhookNotification(
-		jobData: TransformationJobData,
+		jobData: MutationJobData,
 		downloadUrl?: string,
 		executionLog?: string[],
 		error?: string,
 	): Promise<void> {
 		try {
-			// Update webhook attempt tracking
 			await db
 				.update(transformationJobs)
 				.set({
@@ -262,7 +244,6 @@ class TransformationWorker {
 				downloadUrl ? new Date(Date.now() + config.FILE_TTL * 1000) : undefined,
 			);
 
-			// Send webhook using new priority system
 			const delivery = await webhookService.sendWebhookWithPriority(
 				jobData.organizationId,
 				jobData.configurationId,
@@ -271,7 +252,6 @@ class TransformationWorker {
 			);
 
 			if (delivery?.status === 'success') {
-				// Mark webhook as delivered
 				await db
 					.update(transformationJobs)
 					.set({ webhookDelivered: true })
@@ -297,7 +277,7 @@ class TransformationWorker {
 		originalFileName: string,
 		outputFormat: OutputFormat,
 	): string {
-		const baseName = originalFileName.replace(/\.[^/.]+$/, ''); // Remove extension
+		const baseName = originalFileName.replace(/\.[^/.]+$/, '');
 		const delimiter = outputFormat.delimiter === ',' ? 'csv' : 'tsv';
 		return `${baseName}_transformed.${delimiter}`;
 	}
@@ -342,8 +322,6 @@ class TransformationWorker {
 	}
 }
 
-// Create and export worker instance
-export const transformationWorker = new TransformationWorker();
+export const mutationWorker = new MutationWorker();
 
-// Export the class for testing
-export { TransformationWorker };
+export { MutationWorker };

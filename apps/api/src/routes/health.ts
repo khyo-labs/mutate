@@ -3,7 +3,6 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/connection.js';
 
 export async function healthRoutes(fastify: FastifyInstance) {
-	// Basic health check
 	fastify.get('/', async (request, reply) => {
 		return {
 			success: true,
@@ -15,10 +14,8 @@ export async function healthRoutes(fastify: FastifyInstance) {
 		};
 	});
 
-	// Database health check
 	fastify.get('/db', async (request, reply) => {
 		try {
-			// Simple database query to check connection
 			await db.select();
 
 			return {

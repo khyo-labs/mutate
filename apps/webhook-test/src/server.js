@@ -13,7 +13,6 @@ if (!WEBHOOK_SECRET) {
 	throw new Error('WEBHOOK_SECRET is not set');
 }
 
-// Create Fastify instance
 const fastify = Fastify({
 	logger: {
 		level: 'info',
@@ -28,16 +27,13 @@ const fastify = Fastify({
 	},
 });
 
-// Register CORS plugin
 await fastify.register(cors, {
 	origin: true,
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 });
 
-// Store webhook history in memory (for testing only)
 const webhookHistory = [];
 
-// Utility function to verify webhook signature
 function verifySignature(payload, signature, secret) {
 	if (!signature) return false;
 
@@ -59,7 +55,6 @@ function verifySignature(payload, signature, secret) {
 	return result === 0;
 }
 
-// Health check endpoint
 fastify.get('/health', async (request, reply) => {
 	return {
 		status: 'ok',
@@ -68,7 +63,6 @@ fastify.get('/health', async (request, reply) => {
 	};
 });
 
-// Main webhook endpoint
 fastify.post('/webhook', async (request, reply) => {
 	const startTime = Date.now();
 	const headers = request.headers;
@@ -111,7 +105,6 @@ fastify.post('/webhook', async (request, reply) => {
 		}
 	}
 
-	// Process the webhook payload
 	try {
 		const webhookData = {
 			id: `wh_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -122,13 +115,11 @@ fastify.post('/webhook', async (request, reply) => {
 			processingTime: Date.now() - startTime,
 		};
 
-		// Store in history (limit to last 100)
 		webhookHistory.push(webhookData);
 		if (webhookHistory.length > 100) {
 			webhookHistory.shift();
 		}
 
-		// Log detailed webhook info
 		if (body && body.jobId) {
 			fastify.log.info(
 				{
@@ -156,7 +147,6 @@ fastify.post('/webhook', async (request, reply) => {
 			);
 		}
 
-		// Return success response
 		return reply.code(200).send({
 			received: true,
 			id: webhookData.id,
@@ -178,13 +168,12 @@ fastify.post('/webhook', async (request, reply) => {
 	}
 });
 
-// Endpoint to view webhook history
 fastify.get('/webhooks', async (request, reply) => {
 	const { limit = 10, offset = 0 } = request.query;
 
 	const paginatedHistory = webhookHistory
 		.slice()
-		.reverse() // Most recent first
+		.reverse()
 		.slice(offset, offset + limit);
 
 	return {
@@ -195,7 +184,6 @@ fastify.get('/webhooks', async (request, reply) => {
 	};
 });
 
-// Endpoint to get specific webhook by ID
 fastify.get('/webhooks/:id', async (request, reply) => {
 	const { id } = request.params;
 	const webhook = webhookHistory.find((w) => w.id === id);
@@ -209,7 +197,6 @@ fastify.get('/webhooks/:id', async (request, reply) => {
 	return webhook;
 });
 
-// Clear webhook history
 fastify.delete('/webhooks', async (request, reply) => {
 	const count = webhookHistory.length;
 	webhookHistory.length = 0;
@@ -228,7 +215,6 @@ fastify.delete('/webhooks', async (request, reply) => {
 	};
 });
 
-// Endpoint to simulate webhook failures (for testing retry logic)
 fastify.post('/webhook/fail', async (request, reply) => {
 	const { statusCode = 500, delay = 0 } = request.body || {};
 
@@ -252,7 +238,6 @@ fastify.post('/webhook/fail', async (request, reply) => {
 	});
 });
 
-// Start server
 async function start() {
 	try {
 		await fastify.listen({
@@ -273,7 +258,6 @@ async function start() {
 	}
 }
 
-// Handle shutdown gracefully
 process.on('SIGTERM', async () => {
 	console.log('\n🛑 Received SIGTERM, shutting down gracefully...');
 	await fastify.close();

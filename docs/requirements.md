@@ -175,7 +175,7 @@ configurations
 #### API Endpoints
 
 ```
-POST   /v1/transform
+POST   /v1/mutate
   Body: multipart/form-data
     - configId (string)
     - file (binary)

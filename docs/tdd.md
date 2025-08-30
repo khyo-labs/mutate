@@ -355,7 +355,7 @@ Response: 200 OK
 
 ```yaml
 # Single Transformation
-POST /v1/transform
+POST /v1/mutate
 Headers:
   X-API-Key: {apiKey}
 Body (multipart/form-data):
@@ -381,7 +381,7 @@ Response (async): 202 Accepted
   }
 
 # Batch Transformation
-POST /v1/transform/batch
+POST /v1/mutate/batch
 Body:
   {
     "configId": "config-uuid",

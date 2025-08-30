@@ -77,10 +77,10 @@ The API will be available at `http://localhost:3000`
 - `DELETE /v1/mutations/:id` - Delete configuration
 - `POST /v1/mutations/:id/clone` - Clone configuration
 
-### Transformation Endpoints (API Key Auth Required)
+### Mutation Endpoints (API Key Auth Required)
 
-- `POST /v1/transform` - Transform file
-- `GET /v1/transform/jobs/:jobId` - Get job status
+- `POST /v1/mutate` - Transform file
+- `GET /v1/mutate/jobs/:jobId` - Get job status
 
 ## Environment Variables
 

@@ -1,65 +1,52 @@
 import { config as dotenvConfig } from 'dotenv';
 import { z } from 'zod';
 
-// Load environment variables from .env file
 dotenvConfig();
 
 const configSchema = z.object({
-	// Server
 	NODE_ENV: z
 		.enum(['development', 'production', 'test'])
 		.default('development'),
 	PORT: z.coerce.number().default(3000),
 	HOST: z.string().default('0.0.0.0'),
 
-	// CORS
 	CORS_ORIGINS: z
 		.string()
 		.transform((val) => val.split(',').map((s) => s.trim()))
 		.default(['http://localhost:5173']),
 
-	// Database
 	DATABASE_URL: z.string().url(),
 	DATABASE_MAX_CONNECTIONS: z.coerce.number().default(10),
 
-	// Redis
 	REDIS_URL: z.string().url().default('redis://localhost:6379'),
 
-	// File Storage
 	STORAGE_TYPE: z.enum(['local', 's3']).default('local'),
 	STORAGE_PATH: z.string().default('./uploads'),
 
-	// AWS S3 (if using S3)
 	AWS_ACCESS_KEY_ID: z.string().optional(),
 	AWS_SECRET_ACCESS_KEY: z.string().optional(),
 	AWS_REGION: z.string().optional(),
 	AWS_S3_BUCKET: z.string().optional(),
 
-	// Cloudflare R2 (S3-compatible)
 	CLOUDFLARE_R2_ACCESS_KEY_ID: z.string().optional(),
 	CLOUDFLARE_R2_SECRET_ACCESS_KEY: z.string().optional(),
 	CLOUDFLARE_R2_BUCKET: z.string().optional(),
 	CLOUDFLARE_R2_REGION: z.string().default('auto'),
 	CLOUDFLARE_R2_ENDPOINT: z.string().optional(),
 
-	// File Processing
-	MAX_FILE_SIZE: z.coerce.number().default(52428800), // 50MB
-	FILE_TTL: z.coerce.number().default(86400), // 24 hours in seconds
-	ASYNC_THRESHOLD: z.coerce.number().default(10485760), // 10MB - files larger than this go to queue
+	MAX_FILE_SIZE: z.coerce.number().default(52_428_800), // 50MB
+	FILE_TTL: z.coerce.number().default(86_400), // 24 hours in seconds
+	ASYNC_THRESHOLD: z.coerce.number().default(10_485_760), // 10MB - files larger than this go to queue
 
-	// API Configuration
 	API_BASE_URL: z.string().optional(),
 
-	// Webhooks
 	WEBHOOK_SECRET: z.string().optional(),
-	WEBHOOK_TIMEOUT: z.coerce.number().default(30000), // 30 seconds
+	WEBHOOK_TIMEOUT: z.coerce.number().default(30_000), // 30 seconds
 	WEBHOOK_MAX_RETRIES: z.coerce.number().default(5),
 
-	// Rate Limiting
-	RATE_LIMIT_MAX: z.coerce.number().default(1000),
+	RATE_LIMIT_MAX: z.coerce.number().default(1_000),
 	RATE_LIMIT_WINDOW: z.string().default('1 minute'),
 
-	// Logging
 	LOG_LEVEL: z
 		.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
 		.default('info'),

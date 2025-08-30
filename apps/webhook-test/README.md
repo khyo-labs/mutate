@@ -64,7 +64,7 @@ A simple Fastify-based webhook receiver for testing Mutate transformation callba
 When making transformation requests, use the webhook test server as your callback URL:
 
 ```bash
-curl -X POST http://localhost:3000/v1/transform \
+curl -X POST http://localhost:3000/v1/mutate \
   -H "Authorization: Bearer your-api-key" \
   -F "configId=your-config-id" \
   -F "callbackUrl=http://localhost:8080/webhook" \
