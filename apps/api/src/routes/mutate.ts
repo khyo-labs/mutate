@@ -6,47 +6,55 @@ import { config } from '../config.js';
 import { db } from '../db/connection.js';
 import { configurations, transformationJobs } from '../db/schema.js';
 import { authenticateAPIKey } from '../middleware/auth.js';
-import { QueueService } from '../services/queue.js';
-import { storageService } from '../services/storage.js';
-import type { ConversionType } from '../types/index.js';
-import { WebhookService } from '../services/webhook.js';
 import { trackConversionStart } from '../middleware/billing-middleware.js';
 import { QuotaEnforcementService } from '../services/billing/index.js';
+import { QueueService } from '../services/queue.js';
+import { storageService } from '../services/storage.js';
+import { WebhookService } from '../services/webhook.js';
 import '../types/fastify.js';
+import type { ConversionType } from '../types/index.js';
 import { logError } from '../utils/logger.js';
 
 // Helper function to validate file type against conversion type
-function validateFileType(conversionType: ConversionType, filename: string, fileBuffer: Buffer): { valid: boolean; error?: string } {
+function validateFileType(
+	conversionType: ConversionType,
+	filename: string,
+	fileBuffer: Buffer,
+): { valid: boolean; error?: string } {
 	const getFileExtension = (filename: string) => {
 		const parts = filename.split('.');
 		return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
 	};
 
-	const hasValidMagicNumber = (buffer: Buffer, conversionType: ConversionType): boolean => {
+	const hasValidMagicNumber = (
+		buffer: Buffer,
+		conversionType: ConversionType,
+	): boolean => {
 		const magicNumbers = {
-			'XLSX_TO_CSV': [
-				[0x50, 0x4B, 0x03, 0x04], // ZIP signature (XLSX are ZIP files)
-				[0x50, 0x4B, 0x07, 0x08], // ZIP signature variant
-				[0x50, 0x4B, 0x05, 0x06], // ZIP signature variant
+			XLSX_TO_CSV: [
+				[0x50, 0x4b, 0x03, 0x04], // ZIP signature (XLSX are ZIP files)
+				[0x50, 0x4b, 0x07, 0x08], // ZIP signature variant
+				[0x50, 0x4b, 0x05, 0x06], // ZIP signature variant
 			],
 		};
 
-		const signatures = magicNumbers[conversionType as keyof typeof magicNumbers];
+		const signatures =
+			magicNumbers[conversionType as keyof typeof magicNumbers];
 		if (!signatures) return true; // No validation for unsupported types
 
-		return signatures.some(signature => {
+		return signatures.some((signature) => {
 			if (buffer.length < signature.length) return false;
 			return signature.every((byte, index) => buffer[index] === byte);
 		});
 	};
 
 	const expectedExtensions = {
-		'XLSX_TO_CSV': ['xlsx', 'xls'],
-		'DOCX_TO_PDF': ['docx', 'doc'],
-		'HTML_TO_PDF': ['html', 'htm'],
-		'PDF_TO_CSV': ['pdf'],
-		'JSON_TO_CSV': ['json'],
-		'CSV_TO_JSON': ['csv'],
+		XLSX_TO_CSV: ['xlsx', 'xls'],
+		DOCX_TO_PDF: ['docx', 'doc'],
+		HTML_TO_PDF: ['html', 'htm'],
+		PDF_TO_CSV: ['pdf'],
+		JSON_TO_CSV: ['json'],
+		CSV_TO_JSON: ['csv'],
 	};
 
 	const extension = getFileExtension(filename);
@@ -60,7 +68,10 @@ function validateFileType(conversionType: ConversionType, filename: string, file
 	}
 
 	// Additional validation for supported conversion types with magic number check
-	if (conversionType === 'XLSX_TO_CSV' && !hasValidMagicNumber(fileBuffer, conversionType)) {
+	if (
+		conversionType === 'XLSX_TO_CSV' &&
+		!hasValidMagicNumber(fileBuffer, conversionType)
+	) {
 		return {
 			valid: false,
 			error: 'File does not appear to be a valid XLSX/XLS file',
@@ -155,7 +166,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 			const fileValidation = validateFileType(
 				configuration.conversionType as ConversionType,
 				data.filename || 'upload',
-				fileBuffer
+				fileBuffer,
 			);
 
 			if (!fileValidation.valid) {
@@ -189,7 +200,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 			const fileSizeMb = fileBuffer.length / (1024 * 1024);
 			const quotaValidation = await quotaService.validateConversionQuota(
 				request.currentUser!.organizationId,
-				fileSizeMb
+				fileSizeMb,
 			);
 
 			if (!quotaValidation.canProceed) {
@@ -230,7 +241,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				request.currentUser!.organizationId,
 				job.id,
 				configuration.conversionType as 'XLSX_TO_CSV' | 'DOCX_TO_PDF',
-				fileBuffer.length
+				fileBuffer.length,
 			);
 
 			if (isAsync) {
@@ -241,7 +252,9 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 					configurationId: configId,
 					fileBuffer,
 					fileName: data.filename || 'upload.xlsx',
-					conversionType: configuration.conversionType as 'XLSX_TO_CSV' | 'DOCX_TO_PDF',
+					conversionType: configuration.conversionType as
+						| 'XLSX_TO_CSV'
+						| 'DOCX_TO_PDF',
 					callbackUrl: callbackUrl || configuration.callbackUrl,
 					uid: uid,
 					options,
@@ -266,7 +279,9 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 						configurationId: configId,
 						fileBuffer,
 						fileName: data.filename || 'upload.xlsx',
-						conversionType: configuration.conversionType as 'XLSX_TO_CSV' | 'DOCX_TO_PDF',
+						conversionType: configuration.conversionType as
+							| 'XLSX_TO_CSV'
+							| 'DOCX_TO_PDF',
 						callbackUrl: callbackUrl || configuration.callbackUrl,
 						uid: uid,
 						options,

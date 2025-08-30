@@ -184,7 +184,10 @@ export function ConfigurationsComponent() {
 														{config.rules?.length} rules
 													</div>
 													<div className="flex items-center">
-														<span className="font-medium">{config.conversionType?.replace('_', ' → ') || 'XLSX → CSV'}</span>
+														<span className="font-medium">
+															{config.conversionType?.replace('_', ' → ') ||
+																'XLSX → CSV'}
+														</span>
 													</div>
 												</div>
 											</div>

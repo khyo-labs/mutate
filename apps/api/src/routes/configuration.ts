@@ -40,8 +40,15 @@ export async function configRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			const { name, description, conversionType, inputFormat, rules, outputFormat, callbackUrl } =
-				validationResult.data;
+			const {
+				name,
+				description,
+				conversionType,
+				inputFormat,
+				rules,
+				outputFormat,
+				callbackUrl,
+			} = validationResult.data;
 
 			try {
 				const [configuration] = await db

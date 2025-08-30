@@ -1,9 +1,10 @@
 import { FastifyInstance } from 'fastify';
+
 import { authenticateSession } from '../middleware/auth.js';
 import {
+	QuotaEnforcementService,
 	SubscriptionService,
 	UsageTrackingService,
-	QuotaEnforcementService,
 } from '../services/billing/index.js';
 import '../types/fastify.js';
 import { logError } from '../utils/logger.js';
@@ -47,13 +48,15 @@ export async function billingRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			const subscription = await subscriptionService.getOrganizationSubscription(organizationId);
+			const subscription =
+				await subscriptionService.getOrganizationSubscription(organizationId);
 
 			if (!subscription) {
 				// Auto-assign free plan if none exists
 				await subscriptionService.assignFreePlan(organizationId);
-				const newSubscription = await subscriptionService.getOrganizationSubscription(organizationId);
-				
+				const newSubscription =
+					await subscriptionService.getOrganizationSubscription(organizationId);
+
 				return {
 					success: true,
 					data: newSubscription,
@@ -100,7 +103,8 @@ export async function billingRoutes(fastify: FastifyInstance) {
 			}
 
 			await subscriptionService.upgradePlan(organizationId, planId);
-			const subscription = await subscriptionService.getOrganizationSubscription(organizationId);
+			const subscription =
+				await subscriptionService.getOrganizationSubscription(organizationId);
 
 			return {
 				success: true,
@@ -161,7 +165,7 @@ export async function billingRoutes(fastify: FastifyInstance) {
 			const { limit } = request.query as { limit?: string };
 			const usageHistory = await usageService.getUsageHistory(
 				organizationId,
-				limit ? parseInt(limit, 10) : 12
+				limit ? parseInt(limit, 10) : 12,
 			);
 
 			return {
@@ -181,41 +185,44 @@ export async function billingRoutes(fastify: FastifyInstance) {
 	});
 
 	// Platform Admin endpoint: Set organization overrides
-	fastify.post('/admin/organizations/:orgId/overrides', async (request, reply) => {
-		try {
-			// Check for platform admin access
-			if (!request.currentUser?.isPlatformAdmin) {
-				return reply.code(403).send({
+	fastify.post(
+		'/admin/organizations/:orgId/overrides',
+		async (request, reply) => {
+			try {
+				// Check for platform admin access
+				if (!request.currentUser?.isPlatformAdmin) {
+					return reply.code(403).send({
+						success: false,
+						error: 'Platform admin access required',
+					});
+				}
+
+				const { orgId } = request.params as { orgId: string };
+				const overrides = request.body as {
+					monthlyConversionLimit?: number | null;
+					concurrentConversionLimit?: number | null;
+					maxFileSizeMb?: number | null;
+					overagePriceCents?: number | null;
+				};
+
+				await subscriptionService.setOrganizationOverrides(orgId, overrides);
+
+				return {
+					success: true,
+					message: 'Organization overrides updated successfully',
+				};
+			} catch (error) {
+				logError(request.log, 'Set overrides error:', error);
+				return reply.code(500).send({
 					success: false,
-					error: 'Platform admin access required',
+					error: {
+						code: 'OVERRIDES_FAILED',
+						message: 'Failed to set organization overrides',
+					},
 				});
 			}
-
-			const { orgId } = request.params as { orgId: string };
-			const overrides = request.body as {
-				monthlyConversionLimit?: number | null;
-				concurrentConversionLimit?: number | null;
-				maxFileSizeMb?: number | null;
-				overagePriceCents?: number | null;
-			};
-
-			await subscriptionService.setOrganizationOverrides(orgId, overrides);
-
-			return {
-				success: true,
-				message: 'Organization overrides updated successfully',
-			};
-		} catch (error) {
-			logError(request.log, 'Set overrides error:', error);
-			return reply.code(500).send({
-				success: false,
-				error: {
-					code: 'OVERRIDES_FAILED',
-					message: 'Failed to set organization overrides',
-				},
-			});
-		}
-	});
+		},
+	);
 
 	// Platform Admin endpoint: Get all organizations with usage stats
 	fastify.get('/admin/organizations', async (request, reply) => {
@@ -228,7 +235,8 @@ export async function billingRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			const organizations = await subscriptionService.getAllOrganizationsWithUsage();
+			const organizations =
+				await subscriptionService.getAllOrganizationsWithUsage();
 
 			return {
 				success: true,
@@ -247,47 +255,51 @@ export async function billingRoutes(fastify: FastifyInstance) {
 	});
 
 	// Platform Admin endpoint: Update organization subscription
-	fastify.post('/admin/organizations/:orgId/subscription', async (request, reply) => {
-		try {
-			// Check for platform admin access
-			if (!request.currentUser?.isPlatformAdmin) {
-				return reply.code(403).send({
-					success: false,
-					error: 'Platform admin access required',
-				});
-			}
+	fastify.post(
+		'/admin/organizations/:orgId/subscription',
+		async (request, reply) => {
+			try {
+				// Check for platform admin access
+				if (!request.currentUser?.isPlatformAdmin) {
+					return reply.code(403).send({
+						success: false,
+						error: 'Platform admin access required',
+					});
+				}
 
-			const { orgId } = request.params as { orgId: string };
-			const { planId } = request.body as { planId: string };
+				const { orgId } = request.params as { orgId: string };
+				const { planId } = request.body as { planId: string };
 
-			if (!planId) {
-				return reply.code(400).send({
+				if (!planId) {
+					return reply.code(400).send({
+						success: false,
+						error: {
+							code: 'PLAN_ID_REQUIRED',
+							message: 'Plan ID is required',
+						},
+					});
+				}
+
+				await subscriptionService.upgradePlan(orgId, planId);
+				const subscription =
+					await subscriptionService.getOrganizationSubscription(orgId);
+
+				return {
+					success: true,
+					data: subscription,
+				};
+			} catch (error) {
+				logError(request.log, 'Update org subscription error:', error);
+				return reply.code(500).send({
 					success: false,
 					error: {
-						code: 'PLAN_ID_REQUIRED',
-						message: 'Plan ID is required',
+						code: 'SUBSCRIPTION_UPDATE_FAILED',
+						message: 'Failed to update organization subscription',
 					},
 				});
 			}
-
-			await subscriptionService.upgradePlan(orgId, planId);
-			const subscription = await subscriptionService.getOrganizationSubscription(orgId);
-
-			return {
-				success: true,
-				data: subscription,
-			};
-		} catch (error) {
-			logError(request.log, 'Update org subscription error:', error);
-			return reply.code(500).send({
-				success: false,
-				error: {
-					code: 'SUBSCRIPTION_UPDATE_FAILED',
-					message: 'Failed to update organization subscription',
-				},
-			});
-		}
-	});
+		},
+	);
 
 	// Platform Admin endpoint: Get organization limits and usage
 	fastify.get('/admin/organizations/:orgId', async (request, reply) => {

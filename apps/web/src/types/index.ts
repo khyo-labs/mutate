@@ -4,10 +4,10 @@ export type UserRole = 'admin' | 'member' | 'viewer';
 export type JobStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
 // Conversion types
-export type ConversionType = 
-	| 'XLSX_TO_CSV' 
-	| 'DOCX_TO_PDF' 
-	| 'HTML_TO_PDF' 
+export type ConversionType =
+	| 'XLSX_TO_CSV'
+	| 'DOCX_TO_PDF'
+	| 'HTML_TO_PDF'
 	| 'PDF_TO_CSV'
 	| 'JSON_TO_CSV'
 	| 'CSV_TO_JSON';
@@ -25,38 +25,35 @@ export type XlsxToCsvRuleType =
 	| 'COMBINE_WORKSHEETS'
 	| 'EVALUATE_FORMULAS';
 
-export type DocxToPdfRuleType = 
-	| 'SET_MARGINS'
-	| 'SET_ORIENTATION'
-	| 'SET_FONT';
+export type DocxToPdfRuleType = 'SET_MARGINS' | 'SET_ORIENTATION' | 'SET_FONT';
 
-export type HtmlToPdfRuleType = 
+export type HtmlToPdfRuleType =
 	| 'SET_PAGE_SIZE'
 	| 'SET_MARGINS'
 	| 'SET_HEADERS_FOOTERS';
 
-export type PdfToCsvRuleType = 
+export type PdfToCsvRuleType =
 	| 'EXTRACT_TABLES'
 	| 'SET_TABLE_DETECTION'
 	| 'VALIDATE_EXTRACTION';
 
-export type JsonToCsvRuleType = 
+export type JsonToCsvRuleType =
 	| 'FLATTEN_NESTED'
 	| 'SELECT_FIELDS'
 	| 'TRANSFORM_VALUES';
 
-export type CsvToJsonRuleType = 
+export type CsvToJsonRuleType =
 	| 'SET_SCHEMA'
 	| 'VALIDATE_DATA'
 	| 'TRANSFORM_TYPES';
 
 // Union type for all rule types
-export type RuleType = 
-	| XlsxToCsvRuleType 
-	| DocxToPdfRuleType 
-	| HtmlToPdfRuleType 
-	| PdfToCsvRuleType 
-	| JsonToCsvRuleType 
+export type RuleType =
+	| XlsxToCsvRuleType
+	| DocxToPdfRuleType
+	| HtmlToPdfRuleType
+	| PdfToCsvRuleType
+	| JsonToCsvRuleType
 	| CsvToJsonRuleType;
 
 // Base transformation rule
@@ -161,7 +158,10 @@ export interface JsonOutputFormat {
 	encoding: 'UTF-8' | 'UTF-16';
 }
 
-export type OutputFormatConfig = CsvOutputFormat | PdfOutputFormat | JsonOutputFormat;
+export type OutputFormatConfig =
+	| CsvOutputFormat
+	| PdfOutputFormat
+	| JsonOutputFormat;
 
 // Configuration
 export interface Configuration {

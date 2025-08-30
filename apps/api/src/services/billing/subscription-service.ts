@@ -1,22 +1,25 @@
-import { eq, and } from 'drizzle-orm';
-import { db } from '../../db/connection.js';
-import { 
-	subscriptionPlans, 
-	organizationSubscriptions, 
-	organization,
-	usageRecords 
-} from '../../db/schema.js';
-import type { ConversionLimits } from './types.js';
+import { and, eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 
+import { db } from '../../db/connection.js';
+import {
+	organization,
+	organizationSubscriptions,
+	subscriptionPlans,
+	usageRecords,
+} from '../../db/schema.js';
+import type { ConversionLimits } from './types.js';
+
 export class SubscriptionService {
-	async getOrganizationLimits(organizationId: string): Promise<ConversionLimits> {
+	async getOrganizationLimits(
+		organizationId: string,
+	): Promise<ConversionLimits> {
 		const subscription = await db
 			.select()
 			.from(organizationSubscriptions)
 			.innerJoin(
-				subscriptionPlans, 
-				eq(organizationSubscriptions.planId, subscriptionPlans.id)
+				subscriptionPlans,
+				eq(organizationSubscriptions.planId, subscriptionPlans.id),
 			)
 			.where(eq(organizationSubscriptions.organizationId, organizationId))
 			.limit(1);
@@ -26,13 +29,17 @@ export class SubscriptionService {
 			return this.getDefaultFreeLimits();
 		}
 
-		const { organization_subscription: orgSub, subscription_plan: plan } = subscription[0];
+		const { organization_subscription: orgSub, subscription_plan: plan } =
+			subscription[0];
 
 		return {
-			monthlyConversionLimit: orgSub.overrideMonthlyLimit ?? plan.monthlyConversionLimit,
-			concurrentConversionLimit: orgSub.overrideConcurrentLimit ?? plan.concurrentConversionLimit,
+			monthlyConversionLimit:
+				orgSub.overrideMonthlyLimit ?? plan.monthlyConversionLimit,
+			concurrentConversionLimit:
+				orgSub.overrideConcurrentLimit ?? plan.concurrentConversionLimit,
 			maxFileSizeMb: orgSub.overrideMaxFileSizeMb ?? plan.maxFileSizeMb,
-			overagePriceCents: orgSub.overrideOveragePriceCents ?? plan.overagePriceCents,
+			overagePriceCents:
+				orgSub.overrideOveragePriceCents ?? plan.overagePriceCents,
 		};
 	}
 
@@ -41,8 +48,8 @@ export class SubscriptionService {
 			.select()
 			.from(organizationSubscriptions)
 			.innerJoin(
-				subscriptionPlans, 
-				eq(organizationSubscriptions.planId, subscriptionPlans.id)
+				subscriptionPlans,
+				eq(organizationSubscriptions.planId, subscriptionPlans.id),
 			)
 			.where(eq(organizationSubscriptions.organizationId, organizationId))
 			.limit(1);
@@ -67,7 +74,7 @@ export class SubscriptionService {
 
 	async upgradePlan(organizationId: string, newPlanId: string) {
 		const subscription = await this.getOrganizationSubscription(organizationId);
-		
+
 		if (!subscription) {
 			const now = new Date();
 			const periodEnd = new Date(now);
@@ -90,8 +97,8 @@ export class SubscriptionService {
 	}
 
 	async setOrganizationOverrides(
-		organizationId: string, 
-		overrides: Partial<ConversionLimits>
+		organizationId: string,
+		overrides: Partial<ConversionLimits>,
 	) {
 		await db
 			.update(organizationSubscriptions)
@@ -111,7 +118,7 @@ export class SubscriptionService {
 			.where(eq(subscriptionPlans.active, true))
 			.orderBy(subscriptionPlans.priceCents);
 	}
-	
+
 	async getAllOrganizationsWithUsage() {
 		const orgs = await db
 			.select({
@@ -124,11 +131,11 @@ export class SubscriptionService {
 			.from(organization)
 			.leftJoin(
 				organizationSubscriptions,
-				eq(organization.id, organizationSubscriptions.organizationId)
+				eq(organization.id, organizationSubscriptions.organizationId),
 			)
 			.leftJoin(
 				subscriptionPlans,
-				eq(organizationSubscriptions.planId, subscriptionPlans.id)
+				eq(organizationSubscriptions.planId, subscriptionPlans.id),
 			);
 
 		// Get usage for each organization
@@ -138,11 +145,13 @@ export class SubscriptionService {
 				const usageRecord = await db
 					.select()
 					.from(usageRecords)
-					.where(and(
-						eq(usageRecords.organizationId, org.id),
-						eq(usageRecords.month, period.month),
-						eq(usageRecords.year, period.year)
-					))
+					.where(
+						and(
+							eq(usageRecords.organizationId, org.id),
+							eq(usageRecords.month, period.month),
+							eq(usageRecords.year, period.year),
+						),
+					)
 					.limit(1);
 
 				return {
@@ -150,12 +159,12 @@ export class SubscriptionService {
 					currentUsage: usageRecord[0]?.conversionCount || 0,
 					overageCount: usageRecord[0]?.overageCount || 0,
 				};
-			})
+			}),
 		);
 
 		return orgsWithUsage;
 	}
-	
+
 	private async getCurrentBillingPeriod() {
 		const now = new Date();
 		return {

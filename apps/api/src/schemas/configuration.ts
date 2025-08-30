@@ -87,12 +87,14 @@ const pdfOutputFormatSchema = z.object({
 	type: z.literal('PDF'),
 	pageSize: z.enum(['A4', 'Letter', 'Legal']).default('A4'),
 	orientation: z.enum(['portrait', 'landscape']).default('portrait'),
-	margins: z.object({
-		top: z.number().default(20),
-		bottom: z.number().default(20),
-		left: z.number().default(20),
-		right: z.number().default(20),
-	}).default({ top: 20, bottom: 20, left: 20, right: 20 }),
+	margins: z
+		.object({
+			top: z.number().default(20),
+			bottom: z.number().default(20),
+			left: z.number().default(20),
+			right: z.number().default(20),
+		})
+		.default({ top: 20, bottom: 20, left: 20, right: 20 }),
 });
 
 const jsonOutputFormatSchema = z.object({
@@ -110,8 +112,19 @@ const outputFormatSchema = z.discriminatedUnion('type', [
 export const createSchema = z.object({
 	name: z.string().min(1, 'Name is required').max(255, 'Name too long'),
 	description: z.string().max(1000, 'Description too long').optional(),
-	conversionType: z.enum(['XLSX_TO_CSV', 'DOCX_TO_PDF', 'HTML_TO_PDF', 'PDF_TO_CSV', 'JSON_TO_CSV', 'CSV_TO_JSON']).default('XLSX_TO_CSV'),
-	inputFormat: z.enum(['XLSX', 'DOCX', 'HTML', 'PDF', 'JSON', 'CSV']).default('XLSX'),
+	conversionType: z
+		.enum([
+			'XLSX_TO_CSV',
+			'DOCX_TO_PDF',
+			'HTML_TO_PDF',
+			'PDF_TO_CSV',
+			'JSON_TO_CSV',
+			'CSV_TO_JSON',
+		])
+		.default('XLSX_TO_CSV'),
+	inputFormat: z
+		.enum(['XLSX', 'DOCX', 'HTML', 'PDF', 'JSON', 'CSV'])
+		.default('XLSX'),
 	outputFormat: outputFormatSchema,
 	rules: z
 		.array(transformationRuleSchema)
@@ -127,8 +140,19 @@ export const updateSchema = z.object({
 		.max(255, 'Name too long')
 		.optional(),
 	description: z.string().max(1000, 'Description too long').optional(),
-	conversionType: z.enum(['XLSX_TO_CSV', 'DOCX_TO_PDF', 'HTML_TO_PDF', 'PDF_TO_CSV', 'JSON_TO_CSV', 'CSV_TO_JSON']).optional(),
-	inputFormat: z.enum(['XLSX', 'DOCX', 'HTML', 'PDF', 'JSON', 'CSV']).optional(),
+	conversionType: z
+		.enum([
+			'XLSX_TO_CSV',
+			'DOCX_TO_PDF',
+			'HTML_TO_PDF',
+			'PDF_TO_CSV',
+			'JSON_TO_CSV',
+			'CSV_TO_JSON',
+		])
+		.optional(),
+	inputFormat: z
+		.enum(['XLSX', 'DOCX', 'HTML', 'PDF', 'JSON', 'CSV'])
+		.optional(),
 	outputFormat: outputFormatSchema.optional(),
 	rules: z
 		.array(transformationRuleSchema)

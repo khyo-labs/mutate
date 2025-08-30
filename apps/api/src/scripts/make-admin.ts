@@ -1,7 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
+
 import { db } from '../db/connection.js';
-import { user, platformAdmins } from '../db/schema.js';
+import { platformAdmins, user } from '../db/schema.js';
 
 async function makeUserAdmin(email: string) {
 	try {
@@ -32,14 +33,12 @@ async function makeUserAdmin(email: string) {
 		}
 
 		// Make user a platform admin
-		await db
-			.insert(platformAdmins)
-			.values({
-				id: nanoid(),
-				userId: targetUser.id,
-				role: 'admin',
-				permissions: { all: true }, // Full permissions
-			});
+		await db.insert(platformAdmins).values({
+			id: nanoid(),
+			userId: targetUser.id,
+			role: 'admin',
+			permissions: { all: true }, // Full permissions
+		});
 
 		console.log(`✅ User ${email} is now a platform admin`);
 		console.log('User details:', {

@@ -194,7 +194,9 @@ export function ConfigurationDetailComponent() {
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">Delimiter:</span>
 										<span className="text-card-foreground font-mono">
-											{'delimiter' in config.outputFormat ? config.outputFormat.delimiter : ','}
+											{'delimiter' in config.outputFormat
+												? config.outputFormat.delimiter
+												: ','}
 										</span>
 									</div>
 								)}
@@ -202,7 +204,9 @@ export function ConfigurationDetailComponent() {
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">Encoding:</span>
 										<span className="text-card-foreground font-medium">
-											{'encoding' in config.outputFormat ? config.outputFormat.encoding : 'utf-8'}
+											{'encoding' in config.outputFormat
+												? config.outputFormat.encoding
+												: 'utf-8'}
 										</span>
 									</div>
 								)}
@@ -212,7 +216,11 @@ export function ConfigurationDetailComponent() {
 											Include Headers:
 										</span>
 										<span className="text-card-foreground font-medium">
-											{'includeHeaders' in config.outputFormat ? (config.outputFormat.includeHeaders ? 'Yes' : 'No') : 'Yes'}
+											{'includeHeaders' in config.outputFormat
+												? config.outputFormat.includeHeaders
+													? 'Yes'
+													: 'No'
+												: 'Yes'}
 										</span>
 									</div>
 								)}

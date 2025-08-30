@@ -2,7 +2,10 @@ import Queue from 'bull';
 import IORedis from 'ioredis';
 
 import { config } from '../config.js';
-import { trackConversionComplete, trackConversionFailure } from '../middleware/billing-middleware.js';
+import {
+	trackConversionComplete,
+	trackConversionFailure,
+} from '../middleware/billing-middleware.js';
 
 // Job data interfaces
 export interface TransformationJobData {
@@ -204,7 +207,7 @@ transformationQueue.on('completed', async (job, result) => {
 			job.data.organizationId,
 			job.data.jobId,
 			job.data.conversionType,
-			fileBuffer.length
+			fileBuffer.length,
 		);
 	} catch (error) {
 		console.error('Failed to track conversion completion for billing:', error);
@@ -221,10 +224,7 @@ transformationQueue.on('failed', async (job, err) => {
 
 	// Track billing for failed conversion (remove from active)
 	try {
-		await trackConversionFailure(
-			job.data.organizationId,
-			job.data.jobId
-		);
+		await trackConversionFailure(job.data.organizationId, job.data.jobId);
 	} catch (error) {
 		console.error('Failed to track conversion failure for billing:', error);
 	}

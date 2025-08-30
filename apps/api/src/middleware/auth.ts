@@ -56,7 +56,7 @@ export async function authenticateSession(
 			.limit(1);
 
 		const userOrgInfo = membership[0];
-		
+
 		// Check if user is platform admin
 		const platformAdmin = await db
 			.select({ role: platformAdmins.role })

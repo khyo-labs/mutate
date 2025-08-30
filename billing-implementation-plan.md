@@ -5,6 +5,7 @@
 **❌ No Usage Tracking**: The app currently has **no built-in conversion tracking or billing infrastructure**. Here's what I found:
 
 ### What Exists:
+
 - **Basic Rate Limiting**: 1,000 requests per minute per API key/IP (generic HTTP rate limiting)
 - **Transformation Jobs Table**: Records individual conversions but only for job management, not billing
 - **Organization Multi-tenancy**: Good foundation for per-org billing
@@ -12,9 +13,10 @@
 - **Audit Logs**: Basic action logging but not conversion-specific metrics
 
 ### What's Missing:
+
 - No conversion count tracking per organization/month
 - No subscription plans or billing tiers
-- No usage quotas or limits beyond rate limiting  
+- No usage quotas or limits beyond rate limiting
 - No concurrent conversion limits
 - No tier-based file size restrictions
 - No billing/subscription database tables
@@ -27,18 +29,21 @@
 ## Phase 1: Usage Tracking Infrastructure (Essential)
 
 ### 1.1 Database Schema Extensions
+
 - **Create `subscriptions` table**: Store org subscription plans, billing cycles, limits
-- **Create `usage_records` table**: Track monthly conversion counts per organization  
+- **Create `usage_records` table**: Track monthly conversion counts per organization
 - **Create `billing_events` table**: Store billing-related events (renewals, upgrades, etc.)
 - **Add usage tracking fields** to `organization` table: current plan, billing status
 
 ### 1.2 Usage Tracking Service
+
 - **Conversion Counter Service**: Increment usage when transformations complete
 - **Monthly Usage Aggregation**: Calculate usage per billing period
 - **Usage Quota Enforcement**: Block conversions when limits exceeded
 - **Usage Reset Service**: Reset monthly counters on billing cycle
 
 ### 1.3 Middleware & Validation
+
 - **Pre-transformation Usage Check**: Validate quota before processing
 - **Post-transformation Usage Recording**: Increment counters on completion
 - **Usage-based Rate Limiting**: Dynamic limits based on subscription tier
@@ -46,9 +51,10 @@
 ## Phase 2: Subscription Management (Core)
 
 ### 2.1 Subscription Plans System
-- **Plan Definitions**: 
+
+- **Plan Definitions**:
   - Free: 100 conversions/month, 1 concurrent, 10MB max file size
-  - Starter: 1,000 conversions/month, 2 concurrent, 25MB max file size  
+  - Starter: 1,000 conversions/month, 2 concurrent, 25MB max file size
   - Pro: 10,000 conversions/month, 5 concurrent, 50MB max file size
   - Enterprise: unlimited conversions, unlimited concurrent, unlimited file size
 - **Plan Management API**: CRUD operations for subscription plans
@@ -56,6 +62,7 @@
 - **Plan Upgrade/Downgrade Logic**: Handle plan changes mid-cycle
 
 ### 2.2 Usage Enforcement
+
 - **Quota Middleware**: Check usage before allowing conversions
 - **Graceful Degradation**: Soft limits with warnings vs hard blocks
 - **Concurrent Conversion Management**: Track and limit active conversions per organization
@@ -68,12 +75,14 @@
 ## Phase 3: Billing Integration (Business)
 
 ### 3.1 Payment Processing Setup
+
 - **Stripe Integration**: Subscription management and billing
 - **Webhook Handlers**: Process Stripe events (payments, failures, etc.)
 - **Invoice Generation**: Automated billing based on usage/subscriptions
 - **Payment Method Management**: Store and update customer payment info
 
 ### 3.2 Billing Dashboard & Analytics
+
 - **Usage Analytics**: Monthly usage trends, conversion type breakdown
 - **Billing Dashboard**: Current usage, plan details, billing history
 - **Usage Export**: CSV/API export of usage data
@@ -82,6 +91,7 @@
 ## Phase 4: Advanced Features (Enhancement)
 
 ### 4.1 Enhanced Billing & Limits
+
 - **Pay-per-conversion Model**: Alternative to subscription tiers
 - **Usage-based Overages**: Configurable per-conversion pricing beyond limits
 - **Dynamic Concurrent Limits**: Real-time tracking and enforcement
@@ -91,6 +101,7 @@
 - **Multi-currency Support**: Global billing capabilities
 
 ### 4.2 Advanced Analytics
+
 - **Conversion Analytics Dashboard**: Usage patterns, peak times, file sizes
 - **API Usage Metrics**: Endpoint usage, response times, error rates
 - **Organization Insights**: Team usage patterns, cost optimization
@@ -139,7 +150,7 @@ CREATE TABLE organization_subscriptions (
   current_period_end TIMESTAMP NOT NULL,
   -- Super admin overrides (NULL means use plan defaults)
   override_monthly_limit INTEGER,
-  override_concurrent_limit INTEGER, 
+  override_concurrent_limit INTEGER,
   override_max_file_size_mb INTEGER,
   override_overage_price_cents INTEGER,
   created_at TIMESTAMP DEFAULT NOW()
@@ -175,7 +186,7 @@ CREATE TABLE active_conversions (
 GET /v1/organizations/{id}/usage - Get current usage
 GET /v1/organizations/{id}/usage/history - Get usage history
 
-// Subscription management  
+// Subscription management
 GET /v1/organizations/{id}/subscription - Get current subscription
 POST /v1/organizations/{id}/subscription - Create/update subscription
 DELETE /v1/organizations/{id}/subscription - Cancel subscription

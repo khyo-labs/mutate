@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
+
 import { db } from '../db/connection.js';
-import { user, platformAdmins } from '../db/schema.js';
+import { platformAdmins, user } from '../db/schema.js';
 
 async function removeUserAdmin(email: string) {
 	try {

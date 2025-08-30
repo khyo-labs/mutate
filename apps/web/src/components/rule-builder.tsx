@@ -31,7 +31,7 @@ import { nanoid } from 'nanoid';
 import React from 'react';
 
 import { useConfigurationStore } from '../stores/config-store';
-import type { XlsxToCsvRuleType, TransformationRule } from '../types';
+import type { TransformationRule, XlsxToCsvRuleType } from '../types';
 import { RuleParameterForm } from './rule-parameter-form';
 
 interface RuleBuilderProps {

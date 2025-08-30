@@ -7,8 +7,8 @@ import {
 	pgTable,
 	text,
 	timestamp,
-	varchar,
 	unique,
+	varchar,
 } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
@@ -258,20 +258,28 @@ export const organizationSubscriptions = pgTable('organization_subscription', {
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-export const usageRecords = pgTable('usage_record', {
-	id: text('id').primaryKey(),
-	organizationId: text('organization_id')
-		.references(() => organization.id)
-		.notNull(),
-	month: integer('month').notNull(),
-	year: integer('year').notNull(),
-	conversionCount: integer('conversion_count').default(0).notNull(),
-	overageCount: integer('overage_count').default(0).notNull(),
-	conversionTypeBreakdown: jsonb('conversion_type_breakdown'),
-	updatedAt: timestamp('updated_at').defaultNow().notNull(),
-}, (table) => ({
-	uniqueOrgMonthYear: unique().on(table.organizationId, table.month, table.year),
-}));
+export const usageRecords = pgTable(
+	'usage_record',
+	{
+		id: text('id').primaryKey(),
+		organizationId: text('organization_id')
+			.references(() => organization.id)
+			.notNull(),
+		month: integer('month').notNull(),
+		year: integer('year').notNull(),
+		conversionCount: integer('conversion_count').default(0).notNull(),
+		overageCount: integer('overage_count').default(0).notNull(),
+		conversionTypeBreakdown: jsonb('conversion_type_breakdown'),
+		updatedAt: timestamp('updated_at').defaultNow().notNull(),
+	},
+	(table) => ({
+		uniqueOrgMonthYear: unique().on(
+			table.organizationId,
+			table.month,
+			table.year,
+		),
+	}),
+);
 
 export const activeConversions = pgTable('active_conversion', {
 	id: text('id').primaryKey(),
@@ -311,19 +319,22 @@ export const platformAdmins = pgTable('platform_admin', {
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export const organizationRelations = relations(organization, ({ many, one }) => ({
-	members: many(member),
-	configurations: many(configurations),
-	transformationJobs: many(transformationJobs),
-	apiKeys: many(apiKeys),
-	auditLogs: many(auditLogs),
-	invitations: many(invitation),
-	webhooks: many(organizationWebhooks),
-	subscription: one(organizationSubscriptions),
-	usageRecords: many(usageRecords),
-	activeConversions: many(activeConversions),
-	billingEvents: many(billingEvents),
-}));
+export const organizationRelations = relations(
+	organization,
+	({ many, one }) => ({
+		members: many(member),
+		configurations: many(configurations),
+		transformationJobs: many(transformationJobs),
+		apiKeys: many(apiKeys),
+		auditLogs: many(auditLogs),
+		invitations: many(invitation),
+		webhooks: many(organizationWebhooks),
+		subscription: one(organizationSubscriptions),
+		usageRecords: many(usageRecords),
+		activeConversions: many(activeConversions),
+		billingEvents: many(billingEvents),
+	}),
+);
 
 export const userRelations = relations(user, ({ many }) => ({
 	sessions: many(session),
@@ -458,9 +469,12 @@ export const invitationRelations = relations(invitation, ({ one }) => ({
 	}),
 }));
 
-export const subscriptionPlansRelations = relations(subscriptionPlans, ({ many }) => ({
-	subscriptions: many(organizationSubscriptions),
-}));
+export const subscriptionPlansRelations = relations(
+	subscriptionPlans,
+	({ many }) => ({
+		subscriptions: many(organizationSubscriptions),
+	}),
+);
 
 export const organizationSubscriptionsRelations = relations(
 	organizationSubscriptions,
@@ -483,16 +497,19 @@ export const usageRecordsRelations = relations(usageRecords, ({ one }) => ({
 	}),
 }));
 
-export const activeConversionsRelations = relations(activeConversions, ({ one }) => ({
-	organization: one(organization, {
-		fields: [activeConversions.organizationId],
-		references: [organization.id],
+export const activeConversionsRelations = relations(
+	activeConversions,
+	({ one }) => ({
+		organization: one(organization, {
+			fields: [activeConversions.organizationId],
+			references: [organization.id],
+		}),
+		job: one(transformationJobs, {
+			fields: [activeConversions.jobId],
+			references: [transformationJobs.id],
+		}),
 	}),
-	job: one(transformationJobs, {
-		fields: [activeConversions.jobId],
-		references: [transformationJobs.id],
-	}),
-}));
+);
 
 export const billingEventsRelations = relations(billingEvents, ({ one }) => ({
 	organization: one(organization, {

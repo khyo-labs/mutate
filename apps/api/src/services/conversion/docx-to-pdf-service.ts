@@ -1,5 +1,9 @@
 import type { Configuration, PdfOutputFormat } from '../../types/index.js';
-import { BaseConversionService, type ConversionOptions, type ConversionResult } from './base-conversion-service.js';
+import {
+	BaseConversionService,
+	type ConversionOptions,
+	type ConversionResult,
+} from './base-conversion-service.js';
 
 export class DocxToPdfService extends BaseConversionService {
 	async convert(
@@ -16,20 +20,21 @@ export class DocxToPdfService extends BaseConversionService {
 			this.validateConfiguration(configuration);
 
 			if (configuration.conversionType !== 'DOCX_TO_PDF') {
-				throw new Error(`Invalid conversion type for DocxToPdfService: ${configuration.conversionType}`);
+				throw new Error(
+					`Invalid conversion type for DocxToPdfService: ${configuration.conversionType}`,
+				);
 			}
 
 			// TODO: Implement DOCX to PDF conversion
 			// This would typically use a library like docx-pdf, puppeteer, or similar
-			
+
 			this.addLog('DOCX to PDF conversion not yet implemented');
-			
+
 			return {
 				success: false,
 				error: 'DOCX to PDF conversion not yet implemented',
 				executionLog: this.log,
 			};
-
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Unknown error';

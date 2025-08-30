@@ -1,5 +1,9 @@
-import type { ConversionLimits, QuotaValidationResult, UsageStats } from './types.js';
 import { SubscriptionService } from './subscription-service.js';
+import type {
+	ConversionLimits,
+	QuotaValidationResult,
+	UsageStats,
+} from './types.js';
 import { UsageTrackingService } from './usage-tracking-service.js';
 
 export class QuotaEnforcementService {
@@ -12,13 +16,14 @@ export class QuotaEnforcementService {
 	}
 
 	async validateConversionQuota(
-		organizationId: string, 
-		fileSizeMb: number
+		organizationId: string,
+		fileSizeMb: number,
 	): Promise<QuotaValidationResult> {
-		const limits = await this.subscriptionService.getOrganizationLimits(organizationId);
+		const limits =
+			await this.subscriptionService.getOrganizationLimits(organizationId);
 		const usage = await this.usageTrackingService.getUsageStats(
-			organizationId, 
-			limits.monthlyConversionLimit
+			organizationId,
+			limits.monthlyConversionLimit,
 		);
 
 		usage.maxFileSize = limits.maxFileSizeMb;
@@ -34,7 +39,10 @@ export class QuotaEnforcementService {
 		}
 
 		// Check concurrent conversion limit
-		if (limits.concurrentConversionLimit && usage.activeConversions >= limits.concurrentConversionLimit) {
+		if (
+			limits.concurrentConversionLimit &&
+			usage.activeConversions >= limits.concurrentConversionLimit
+		) {
 			return {
 				canProceed: false,
 				reason: `Concurrent conversion limit reached (${limits.concurrentConversionLimit})`,
@@ -44,7 +52,10 @@ export class QuotaEnforcementService {
 		}
 
 		// Check monthly conversion limit
-		if (limits.monthlyConversionLimit && usage.currentUsage >= limits.monthlyConversionLimit) {
+		if (
+			limits.monthlyConversionLimit &&
+			usage.currentUsage >= limits.monthlyConversionLimit
+		) {
 			// If overage pricing is available, allow conversion
 			if (limits.overagePriceCents) {
 				return {
@@ -72,11 +83,14 @@ export class QuotaEnforcementService {
 	}
 
 	async validateAndReserveSlot(
-		organizationId: string, 
-		fileSizeMb: number
+		organizationId: string,
+		fileSizeMb: number,
 	): Promise<QuotaValidationResult> {
-		const validation = await this.validateConversionQuota(organizationId, fileSizeMb);
-		
+		const validation = await this.validateConversionQuota(
+			organizationId,
+			fileSizeMb,
+		);
+
 		if (!validation.canProceed) {
 			return validation;
 		}
@@ -85,14 +99,15 @@ export class QuotaEnforcementService {
 	}
 
 	async isOverageConversion(organizationId: string): Promise<boolean> {
-		const limits = await this.subscriptionService.getOrganizationLimits(organizationId);
+		const limits =
+			await this.subscriptionService.getOrganizationLimits(organizationId);
 		const usage = await this.usageTrackingService.getUsageStats(
-			organizationId, 
-			limits.monthlyConversionLimit
+			organizationId,
+			limits.monthlyConversionLimit,
 		);
 
-		return limits.monthlyConversionLimit 
-			? usage.currentUsage >= limits.monthlyConversionLimit 
+		return limits.monthlyConversionLimit
+			? usage.currentUsage >= limits.monthlyConversionLimit
 			: false;
 	}
 
@@ -101,10 +116,11 @@ export class QuotaEnforcementService {
 		usage: UsageStats;
 		warnings: string[];
 	}> {
-		const limits = await this.subscriptionService.getOrganizationLimits(organizationId);
+		const limits =
+			await this.subscriptionService.getOrganizationLimits(organizationId);
 		const usage = await this.usageTrackingService.getUsageStats(
-			organizationId, 
-			limits.monthlyConversionLimit
+			organizationId,
+			limits.monthlyConversionLimit,
 		);
 
 		usage.maxFileSize = limits.maxFileSizeMb;
@@ -113,8 +129,9 @@ export class QuotaEnforcementService {
 
 		// Generate warnings based on usage thresholds
 		if (limits.monthlyConversionLimit && usage.remainingConversions !== null) {
-			const usagePercentage = (usage.currentUsage / limits.monthlyConversionLimit) * 100;
-			
+			const usagePercentage =
+				(usage.currentUsage / limits.monthlyConversionLimit) * 100;
+
 			if (usagePercentage >= 90) {
 				warnings.push('You have used 90% of your monthly conversions');
 			} else if (usagePercentage >= 80) {
@@ -122,7 +139,10 @@ export class QuotaEnforcementService {
 			}
 		}
 
-		if (limits.concurrentConversionLimit && usage.activeConversions >= limits.concurrentConversionLimit * 0.8) {
+		if (
+			limits.concurrentConversionLimit &&
+			usage.activeConversions >= limits.concurrentConversionLimit * 0.8
+		) {
 			warnings.push('Approaching concurrent conversion limit');
 		}
 

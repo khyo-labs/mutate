@@ -1,8 +1,8 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { organization } from 'better-auth/plugins';
-import { nanoid } from 'nanoid';
 import { eq } from 'drizzle-orm';
+import { nanoid } from 'nanoid';
 
 import { db } from '../db/connection.js';
 import { organizationSubscriptions } from '../db/schema.js';
@@ -17,7 +17,10 @@ async function setupDefaultResources(organizationId: string) {
 			.limit(1);
 
 		if (existingSubscription.length > 0) {
-			console.log('Subscription already exists for organization:', organizationId);
+			console.log(
+				'Subscription already exists for organization:',
+				organizationId,
+			);
 			return;
 		}
 
@@ -78,8 +81,8 @@ export const auth = betterAuth({
 				afterCreate: async ({ organization, member, user }) => {
 					console.log('Organization created:', organization);
 					await setupDefaultResources(organization.id);
-				}
-			}
+				},
+			},
 		}),
 	],
 	session: {

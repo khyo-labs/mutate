@@ -1,7 +1,15 @@
 import * as XLSX from 'xlsx';
 
-import type { Configuration, TransformationRule, CsvOutputFormat } from '../../types/index.js';
-import { BaseConversionService, type ConversionOptions, type ConversionResult } from './base-conversion-service.js';
+import type {
+	Configuration,
+	CsvOutputFormat,
+	TransformationRule,
+} from '../../types/index.js';
+import {
+	BaseConversionService,
+	type ConversionOptions,
+	type ConversionResult,
+} from './base-conversion-service.js';
 
 export class XlsxToCsvService extends BaseConversionService {
 	async convert(
@@ -18,7 +26,9 @@ export class XlsxToCsvService extends BaseConversionService {
 			this.validateConfiguration(configuration);
 
 			if (configuration.conversionType !== 'XLSX_TO_CSV') {
-				throw new Error(`Invalid conversion type for XlsxToCsvService: ${configuration.conversionType}`);
+				throw new Error(
+					`Invalid conversion type for XlsxToCsvService: ${configuration.conversionType}`,
+				);
 			}
 
 			const workbook = XLSX.read(fileBuffer, {
@@ -85,14 +95,21 @@ export class XlsxToCsvService extends BaseConversionService {
 			// Convert our encoding format to Node.js Buffer encoding
 			const getBufferEncoding = (encoding: string): BufferEncoding => {
 				switch (encoding) {
-					case 'UTF-8': return 'utf8';
-					case 'UTF-16': return 'utf16le';
-					case 'ASCII': return 'ascii';
-					default: return 'utf8';
+					case 'UTF-8':
+						return 'utf8';
+					case 'UTF-16':
+						return 'utf16le';
+					case 'ASCII':
+						return 'ascii';
+					default:
+						return 'utf8';
 				}
 			};
-			
-			const outputBuffer = Buffer.from(csvData, getBufferEncoding(outputFormat.encoding));
+
+			const outputBuffer = Buffer.from(
+				csvData,
+				getBufferEncoding(outputFormat.encoding),
+			);
 
 			this.addLog(
 				`Conversion completed successfully. Output size: ${outputBuffer.length} bytes`,
