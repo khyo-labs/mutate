@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { config } from '../config.js';
 import { db } from '../db/connection.js';
 import { configurations, transformationJobs } from '../db/schema.js';
-import { MutationService } from '../services/mutate.js';
+import { ConversionServiceFactory } from '../services/conversion/index.js';
 import {
 	type JobResult,
 	type TransformationJobData as MutationJobData,
@@ -13,7 +13,9 @@ import { storageService } from '../services/storage.js';
 import { WebhookService, webhookService } from '../services/webhook.js';
 import type {
 	Configuration,
-	OutputFormat,
+	ConversionType,
+	InputFormat,
+	OutputFormatConfig,
 	TransformationRule,
 } from '../types/index.js';
 
@@ -101,7 +103,9 @@ class MutationWorker {
 				name: configuration.name,
 				description: configuration.description || undefined,
 				rules: configuration.rules as TransformationRule[],
-				outputFormat: configuration.outputFormat as OutputFormat,
+				outputFormat: configuration.outputFormat as OutputFormatConfig,
+				conversionType: configuration.conversionType as ConversionType,
+				inputFormat: configuration.inputFormat as InputFormat,
 				version: configuration.version,
 				isActive: configuration.isActive,
 				createdBy: configuration.createdBy,
@@ -109,8 +113,7 @@ class MutationWorker {
 				updatedAt: configuration.updatedAt,
 			};
 
-			const transformService = new MutationService();
-			const result = await transformService.transformFile(
+			const result = await ConversionServiceFactory.convertFile(
 				jobData.fileBuffer,
 				serviceConfig,
 				jobData.options || {},
@@ -119,13 +122,17 @@ class MutationWorker {
 			await job.progress(70);
 
 			if (!result.success) {
-				throw new Error(result.error || 'Transformation failed');
+				throw new Error(result.error || 'Conversion failed');
 			}
 
-			const outputBuffer = Buffer.from(result.csvData!, 'utf-8');
+			if (!result.outputData) {
+				throw new Error('Conversion succeeded but no output data was produced');
+			}
+
+			const outputBuffer = result.outputData;
 			const outputFileName = this.generateOutputFileName(
 				jobData.fileName,
-				serviceConfig.outputFormat,
+				result.fileExtension || 'bin',
 			);
 
 			const outputFileResult = await storageService.uploadTransformedFile(
@@ -275,11 +282,10 @@ class MutationWorker {
 
 	private generateOutputFileName(
 		originalFileName: string,
-		outputFormat: OutputFormat,
+		extension: string,
 	): string {
 		const baseName = originalFileName.replace(/\.[^/.]+$/, '');
-		const delimiter = outputFormat.delimiter === ',' ? 'csv' : 'tsv';
-		return `${baseName}_transformed.${delimiter}`;
+		return `${baseName}_transformed.${extension}`;
 	}
 
 	private async shutdown(): Promise<void> {

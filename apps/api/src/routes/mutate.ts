@@ -8,9 +8,65 @@ import { configurations, transformationJobs } from '../db/schema.js';
 import { authenticateAPIKey } from '../middleware/auth.js';
 import { QueueService } from '../services/queue.js';
 import { storageService } from '../services/storage.js';
+import type { ConversionType } from '../types/index.js';
 import { WebhookService } from '../services/webhook.js';
 import '../types/fastify.js';
 import { logError } from '../utils/logger.js';
+
+// Helper function to validate file type against conversion type
+function validateFileType(conversionType: ConversionType, filename: string, fileBuffer: Buffer): { valid: boolean; error?: string } {
+	const getFileExtension = (filename: string) => {
+		const parts = filename.split('.');
+		return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
+	};
+
+	const hasValidMagicNumber = (buffer: Buffer, conversionType: ConversionType): boolean => {
+		const magicNumbers = {
+			'XLSX_TO_CSV': [
+				[0x50, 0x4B, 0x03, 0x04], // ZIP signature (XLSX are ZIP files)
+				[0x50, 0x4B, 0x07, 0x08], // ZIP signature variant
+				[0x50, 0x4B, 0x05, 0x06], // ZIP signature variant
+			],
+		};
+
+		const signatures = magicNumbers[conversionType as keyof typeof magicNumbers];
+		if (!signatures) return true; // No validation for unsupported types
+
+		return signatures.some(signature => {
+			if (buffer.length < signature.length) return false;
+			return signature.every((byte, index) => buffer[index] === byte);
+		});
+	};
+
+	const expectedExtensions = {
+		'XLSX_TO_CSV': ['xlsx', 'xls'],
+		'DOCX_TO_PDF': ['docx', 'doc'],
+		'HTML_TO_PDF': ['html', 'htm'],
+		'PDF_TO_CSV': ['pdf'],
+		'JSON_TO_CSV': ['json'],
+		'CSV_TO_JSON': ['csv'],
+	};
+
+	const extension = getFileExtension(filename);
+	const allowedExtensions = expectedExtensions[conversionType];
+
+	if (!allowedExtensions.includes(extension)) {
+		return {
+			valid: false,
+			error: `Invalid file type. Expected ${allowedExtensions.join(' or ')} file for ${conversionType} conversion, got ${extension || 'unknown'}`,
+		};
+	}
+
+	// Additional validation for supported conversion types with magic number check
+	if (conversionType === 'XLSX_TO_CSV' && !hasValidMagicNumber(fileBuffer, conversionType)) {
+		return {
+			valid: false,
+			error: 'File does not appear to be a valid XLSX/XLS file',
+		};
+	}
+
+	return { valid: true };
+}
 
 export async function mutateRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', authenticateAPIKey);
@@ -92,6 +148,23 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				chunks.push(chunk);
 			}
 			const fileBuffer = Buffer.concat(chunks);
+
+			// Validate file type against conversion type
+			const fileValidation = validateFileType(
+				configuration.conversionType as ConversionType,
+				data.filename || 'upload',
+				fileBuffer
+			);
+
+			if (!fileValidation.valid) {
+				return reply.code(400).send({
+					success: false,
+					error: {
+						code: 'INVALID_FILE_TYPE',
+						message: fileValidation.error,
+					},
+				});
+			}
 
 			// Debug: Log file buffer info
 			console.log(

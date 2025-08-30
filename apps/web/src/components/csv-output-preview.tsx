@@ -60,11 +60,12 @@ export function CsvOutputPreview({
 
 		// Add data rows
 		processedData.data.forEach((row) => {
+			const delimiter = 'delimiter' in outputFormat ? outputFormat.delimiter : ',';
 			const csvRow = row
 				.map((cell) =>
-					escapeCsvValue(cell?.toString() || '', outputFormat.delimiter),
+					escapeCsvValue(cell?.toString() || '', delimiter),
 				)
-				.join(outputFormat.delimiter);
+				.join(delimiter);
 			lines.push(csvRow);
 		});
 

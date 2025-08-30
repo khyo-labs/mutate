@@ -15,7 +15,7 @@ import { Route as SettingsRouteRouteImport } from './routes/settings/route';
 import { Route as IndexRouteImport } from './routes/index';
 import { Route as SettingsIndexRouteImport } from './routes/settings/index';
 import { Route as MutationsIndexRouteImport } from './routes/mutations/index';
-import { Route as MutationsStudioRouteImport } from './routes/mutations/studio';
+import { Route as MutationsNewRouteImport } from './routes/mutations/new';
 import { Route as SettingsTeamsRouteRouteImport } from './routes/settings/teams/route';
 import { Route as SettingsAccountRouteRouteImport } from './routes/settings/account/route';
 import { Route as SettingsTeamsIndexRouteImport } from './routes/settings/teams/index';
@@ -57,9 +57,9 @@ const MutationsIndexRoute = MutationsIndexRouteImport.update({
   path: '/mutations/',
   getParentRoute: () => rootRouteImport,
 } as any);
-const MutationsStudioRoute = MutationsStudioRouteImport.update({
-  id: '/mutations/studio',
-  path: '/mutations/studio',
+const MutationsNewRoute = MutationsNewRouteImport.update({
+  id: '/mutations/new',
+  path: '/mutations/new',
   getParentRoute: () => rootRouteImport,
 } as any);
 const SettingsTeamsRouteRoute = SettingsTeamsRouteRouteImport.update({
@@ -121,7 +121,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute;
   '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
   '/settings/teams': typeof SettingsTeamsRouteRouteWithChildren;
-  '/mutations/studio': typeof MutationsStudioRoute;
+  '/mutations/new': typeof MutationsNewRoute;
   '/mutations': typeof MutationsIndexRoute;
   '/settings/': typeof SettingsIndexRoute;
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
@@ -137,7 +137,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
-  '/mutations/studio': typeof MutationsStudioRoute;
+  '/mutations/new': typeof MutationsNewRoute;
   '/mutations': typeof MutationsIndexRoute;
   '/settings': typeof SettingsIndexRoute;
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
@@ -157,7 +157,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute;
   '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
   '/settings/teams': typeof SettingsTeamsRouteRouteWithChildren;
-  '/mutations/studio': typeof MutationsStudioRoute;
+  '/mutations/new': typeof MutationsNewRoute;
   '/mutations/': typeof MutationsIndexRoute;
   '/settings/': typeof SettingsIndexRoute;
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
@@ -178,7 +178,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/settings/account'
     | '/settings/teams'
-    | '/mutations/studio'
+    | '/mutations/new'
     | '/mutations'
     | '/settings/'
     | '/mutations/$configId/edit'
@@ -194,7 +194,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
-    | '/mutations/studio'
+    | '/mutations/new'
     | '/mutations'
     | '/settings'
     | '/mutations/$configId/edit'
@@ -213,7 +213,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/settings/account'
     | '/settings/teams'
-    | '/mutations/studio'
+    | '/mutations/new'
     | '/mutations/'
     | '/settings/'
     | '/mutations/$configId/edit'
@@ -231,7 +231,7 @@ export interface RootRouteChildren {
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren;
   LoginRoute: typeof LoginRoute;
   RegisterRoute: typeof RegisterRoute;
-  MutationsStudioRoute: typeof MutationsStudioRoute;
+  MutationsNewRoute: typeof MutationsNewRoute;
   MutationsIndexRoute: typeof MutationsIndexRoute;
   MutationsConfigIdEditRoute: typeof MutationsConfigIdEditRoute;
   MutationsConfigIdIndexRoute: typeof MutationsConfigIdIndexRoute;
@@ -281,11 +281,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MutationsIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/mutations/studio': {
-      id: '/mutations/studio';
-      path: '/mutations/studio';
-      fullPath: '/mutations/studio';
-      preLoaderRoute: typeof MutationsStudioRouteImport;
+    '/mutations/new': {
+      id: '/mutations/new';
+      path: '/mutations/new';
+      fullPath: '/mutations/new';
+      preLoaderRoute: typeof MutationsNewRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/settings/teams': {
@@ -412,7 +412,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
-  MutationsStudioRoute: MutationsStudioRoute,
+  MutationsNewRoute: MutationsNewRoute,
   MutationsIndexRoute: MutationsIndexRoute,
   MutationsConfigIdEditRoute: MutationsConfigIdEditRoute,
   MutationsConfigIdIndexRoute: MutationsConfigIdIndexRoute,

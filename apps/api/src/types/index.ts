@@ -6,8 +6,21 @@ export type UserRole = 'admin' | 'member' | 'viewer';
 // Job status
 export type JobStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
-// Transformation rule types
-export type RuleType =
+// Conversion types
+export type ConversionType = 
+	| 'XLSX_TO_CSV' 
+	| 'DOCX_TO_PDF' 
+	| 'HTML_TO_PDF' 
+	| 'PDF_TO_CSV'
+	| 'JSON_TO_CSV'
+	| 'CSV_TO_JSON';
+
+// Input/Output formats
+export type InputFormat = 'XLSX' | 'DOCX' | 'HTML' | 'PDF' | 'JSON' | 'CSV';
+export type OutputFormat = 'CSV' | 'PDF' | 'JSON';
+
+// Conversion-specific rule types
+export type XlsxToCsvRuleType =
 	| 'SELECT_WORKSHEET'
 	| 'VALIDATE_COLUMNS'
 	| 'UNMERGE_AND_FILL'
@@ -15,6 +28,40 @@ export type RuleType =
 	| 'DELETE_COLUMNS'
 	| 'COMBINE_WORKSHEETS'
 	| 'EVALUATE_FORMULAS';
+
+export type DocxToPdfRuleType = 
+	| 'SET_MARGINS'
+	| 'SET_ORIENTATION'
+	| 'SET_FONT';
+
+export type HtmlToPdfRuleType = 
+	| 'SET_PAGE_SIZE'
+	| 'SET_MARGINS'
+	| 'SET_HEADERS_FOOTERS';
+
+export type PdfToCsvRuleType = 
+	| 'EXTRACT_TABLES'
+	| 'SET_TABLE_DETECTION'
+	| 'VALIDATE_EXTRACTION';
+
+export type JsonToCsvRuleType = 
+	| 'FLATTEN_NESTED'
+	| 'SELECT_FIELDS'
+	| 'TRANSFORM_VALUES';
+
+export type CsvToJsonRuleType = 
+	| 'SET_SCHEMA'
+	| 'VALIDATE_DATA'
+	| 'TRANSFORM_TYPES';
+
+// Union type for all rule types
+export type RuleType = 
+	| XlsxToCsvRuleType 
+	| DocxToPdfRuleType 
+	| HtmlToPdfRuleType 
+	| PdfToCsvRuleType 
+	| JsonToCsvRuleType 
+	| CsvToJsonRuleType;
 
 // Base transformation rule
 export interface BaseTransformationRule {
@@ -92,13 +139,33 @@ export type TransformationRule =
 	| CombineWorksheetsRule
 	| EvaluateFormulasRule;
 
-// Output format configuration
-export interface OutputFormat {
+// Output format configurations
+export interface CsvOutputFormat {
 	type: 'CSV';
 	delimiter: string;
 	encoding: 'UTF-8' | 'UTF-16' | 'ASCII';
 	includeHeaders: boolean;
 }
+
+export interface PdfOutputFormat {
+	type: 'PDF';
+	pageSize: 'A4' | 'Letter' | 'Legal';
+	orientation: 'portrait' | 'landscape';
+	margins: {
+		top: number;
+		bottom: number;
+		left: number;
+		right: number;
+	};
+}
+
+export interface JsonOutputFormat {
+	type: 'JSON';
+	prettyPrint: boolean;
+	encoding: 'UTF-8' | 'UTF-16';
+}
+
+export type OutputFormatConfig = CsvOutputFormat | PdfOutputFormat | JsonOutputFormat;
 
 // Configuration structure
 export interface Configuration {
@@ -106,8 +173,10 @@ export interface Configuration {
 	organizationId: string;
 	name: string;
 	description?: string;
+	conversionType: ConversionType;
+	inputFormat: InputFormat;
+	outputFormat: OutputFormatConfig;
 	rules: TransformationRule[];
-	outputFormat: OutputFormat;
 	version: number;
 	isActive: boolean;
 	createdBy: string;

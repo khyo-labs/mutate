@@ -190,26 +190,32 @@ export function ConfigurationDetailComponent() {
 										{config.outputFormat.type}
 									</span>
 								</div>
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">Delimiter:</span>
-									<span className="text-card-foreground font-mono">
-										{config.outputFormat.delimiter}
-									</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">Encoding:</span>
-									<span className="text-card-foreground font-medium">
-										{config.outputFormat.encoding}
-									</span>
-								</div>
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">
-										Include Headers:
-									</span>
-									<span className="text-card-foreground font-medium">
-										{config.outputFormat.includeHeaders ? 'Yes' : 'No'}
-									</span>
-								</div>
+								{config.outputFormat.type === 'CSV' && (
+									<div className="flex justify-between">
+										<span className="text-muted-foreground">Delimiter:</span>
+										<span className="text-card-foreground font-mono">
+											{'delimiter' in config.outputFormat ? config.outputFormat.delimiter : ','}
+										</span>
+									</div>
+								)}
+								{config.outputFormat.type === 'CSV' && (
+									<div className="flex justify-between">
+										<span className="text-muted-foreground">Encoding:</span>
+										<span className="text-card-foreground font-medium">
+											{'encoding' in config.outputFormat ? config.outputFormat.encoding : 'utf-8'}
+										</span>
+									</div>
+								)}
+								{config.outputFormat.type === 'CSV' && (
+									<div className="flex justify-between">
+										<span className="text-muted-foreground">
+											Include Headers:
+										</span>
+										<span className="text-card-foreground font-medium">
+											{'includeHeaders' in config.outputFormat ? (config.outputFormat.includeHeaders ? 'Yes' : 'No') : 'Yes'}
+										</span>
+									</div>
+								)}
 							</div>
 						</div>
 					</div>

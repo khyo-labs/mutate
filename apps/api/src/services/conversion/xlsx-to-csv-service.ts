@@ -1,71 +1,41 @@
 import * as XLSX from 'xlsx';
 
-import type { Configuration, TransformationRule } from '../types/index.js';
+import type { Configuration, TransformationRule, CsvOutputFormat } from '../../types/index.js';
+import { BaseConversionService, type ConversionOptions, type ConversionResult } from './base-conversion-service.js';
 
-export interface MutationOptions {
-	async?: boolean;
-	debug?: boolean;
-}
-
-export interface MutationResult {
-	success: boolean;
-	csvData?: string;
-	error?: string;
-	executionLog?: string[];
-}
-
-export class MutationService {
-	private log: string[] = [];
-
-	private addLog(message: string) {
-		this.log.push(`${new Date().toISOString()}: ${message}`);
-		console.log(message);
-	}
-
-	async transformFile(
+export class XlsxToCsvService extends BaseConversionService {
+	async convert(
 		fileBuffer: Buffer,
 		configuration: Configuration,
-		options: MutationOptions = {},
-	): Promise<MutationResult> {
-		this.log = [];
+		options: ConversionOptions = {},
+	): Promise<ConversionResult> {
+		this.clearLog();
 		this.addLog(
-			`Starting transformation with configuration: ${configuration.name}`,
+			`Starting XLSX to CSV conversion with configuration: ${configuration.name}`,
 		);
 
 		try {
+			this.validateConfiguration(configuration);
+
+			if (configuration.conversionType !== 'XLSX_TO_CSV') {
+				throw new Error(`Invalid conversion type for XlsxToCsvService: ${configuration.conversionType}`);
+			}
+
 			const workbook = XLSX.read(fileBuffer, {
 				type: 'buffer',
 				cellDates: true,
 				cellNF: false,
 				cellText: false,
 			});
+
 			this.addLog(
 				`Loaded workbook with ${workbook.SheetNames.length} sheets: ${workbook.SheetNames.join(', ')}`,
 			);
 
-			this.addLog(
-				`Workbook info: ${JSON.stringify(
-					{
-						SheetNames: workbook.SheetNames,
-						Props: workbook.Props,
-						bookType: (workbook as any).bookType,
-					},
-					null,
-					2,
-				)}`,
-			);
-
-			workbook.SheetNames.forEach((sheetName) => {
-				const sheet = workbook.Sheets[sheetName];
-				const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:A1');
-				this.addLog(
-					`Sheet "${sheetName}" range: ${sheet['!ref']}, rows: ${range.e.r + 1}, cols: ${range.e.c + 1}`,
-				);
-			});
-
 			let currentWorkbook = workbook;
 			let selectedSheet: string | null = null;
 
+			// Apply transformation rules
 			for (let i = 0; i < configuration.rules.length; i++) {
 				const rule = configuration.rules[i];
 				this.addLog(
@@ -103,30 +73,42 @@ export class MutationService {
 
 			this.addLog(`Converting sheet "${sheetName}" to CSV`);
 
+			const outputFormat = configuration.outputFormat as CsvOutputFormat;
 			const csvData = XLSX.utils.sheet_to_csv(
 				currentWorkbook.Sheets[sheetName],
 				{
 					blankrows: false,
-					FS:
-						configuration.outputFormat.type === 'CSV'
-							? configuration.outputFormat.delimiter
-							: ',',
+					FS: outputFormat.delimiter,
 				},
 			);
 
+			// Convert our encoding format to Node.js Buffer encoding
+			const getBufferEncoding = (encoding: string): BufferEncoding => {
+				switch (encoding) {
+					case 'UTF-8': return 'utf8';
+					case 'UTF-16': return 'utf16le';
+					case 'ASCII': return 'ascii';
+					default: return 'utf8';
+				}
+			};
+			
+			const outputBuffer = Buffer.from(csvData, getBufferEncoding(outputFormat.encoding));
+
 			this.addLog(
-				`Transformation completed successfully. Output size: ${csvData.length} characters`,
+				`Conversion completed successfully. Output size: ${outputBuffer.length} bytes`,
 			);
 
 			return {
 				success: true,
-				csvData,
+				outputData: outputBuffer,
 				executionLog: this.log,
+				mimeType: 'text/csv',
+				fileExtension: 'csv',
 			};
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Unknown error';
-			this.addLog(`Transformation failed: ${errorMessage}`);
+			this.addLog(`Conversion failed: ${errorMessage}`);
 			return {
 				success: false,
 				error: errorMessage,
@@ -185,6 +167,7 @@ export class MutationService {
 		}
 	}
 
+	// All the existing rule implementation methods remain the same
 	private applySelectWorksheet(
 		workbook: XLSX.WorkBook,
 		rule: TransformationRule,
@@ -231,7 +214,6 @@ export class MutationService {
 		}
 
 		if (!targetSheet) {
-			// If configured worksheet not found, fall back to first sheet with a warning
 			this.addLog(
 				`WARNING: No worksheet found matching ${params.type}: "${params.value}". Available worksheets: ${workbook.SheetNames.join(', ')}`,
 			);
@@ -269,9 +251,8 @@ export class MutationService {
 			};
 		}
 
-		// Get the range of the worksheet
 		const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
-		const actualColumns = range.e.c + 1; // +1 because columns are 0-indexed
+		const actualColumns = range.e.c + 1;
 
 		this.addLog(
 			`Validating columns. Expected: ${params.numOfColumns}, Actual: ${actualColumns}`,
@@ -300,6 +281,9 @@ export class MutationService {
 
 		return { success: true, workbook };
 	}
+
+	// For brevity, I'll include just a few key methods here
+	// The rest would be copied from the original MutationService
 
 	private applyUnmergeAndFill(
 		workbook: XLSX.WorkBook,
@@ -331,23 +315,19 @@ export class MutationService {
 				const colIndex = XLSX.utils.decode_col(columnLetter);
 				let lastValue = '';
 
-				// Process each row in the column
 				for (let rowIndex = range.s.r; rowIndex <= range.e.r; rowIndex++) {
 					const cellAddr = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex });
 					const cell = worksheet[cellAddr];
 
 					if (cell && cell.v) {
-						// Cell has value - update lastValue
 						lastValue = String(cell.v);
 					} else if (!cell || !cell.v) {
-						// Cell is empty or doesn't exist - fill with lastValue if available
 						if (lastValue && params.fillDirection === 'down') {
 							worksheet[cellAddr] = { t: 's', v: lastValue };
 						}
 					}
 				}
 
-				// For 'up' direction, process in reverse
 				if (params.fillDirection === 'up') {
 					let nextValue = '';
 					for (let rowIndex = range.e.r; rowIndex >= range.s.r; rowIndex--) {
@@ -410,20 +390,17 @@ export class MutationService {
 
 			if (params.method === 'rows' && params.rows) {
 				this.addLog(`Deleting specific rows: ${params.rows.join(', ')}`);
-				// Convert 1-based row numbers to 0-based and add to deletion list
 				rowsToDelete.push(...params.rows.map((row) => row - 1));
 			} else if (params.method === 'condition' && params.condition) {
 				this.addLog(
 					`Deleting rows matching condition: ${params.condition.type} in column ${params.condition.column || 'ALL'}`,
 				);
 
-				// Find rows that match the condition
 				for (let rowIndex = range.s.r; rowIndex <= range.e.r; rowIndex++) {
 					let shouldDelete = false;
 
 					if (params.condition.type === 'empty') {
 						if (params.condition.column) {
-							// Check specific column
 							const colIndex = XLSX.utils.decode_col(params.condition.column);
 							const cellAddr = XLSX.utils.encode_cell({
 								c: colIndex,
@@ -432,7 +409,6 @@ export class MutationService {
 							const cell = worksheet[cellAddr];
 							shouldDelete = !cell || !cell.v || String(cell.v).trim() === '';
 						} else {
-							// Check if entire row is empty
 							let hasContent = false;
 							for (
 								let colIndex = range.s.c;
@@ -456,7 +432,6 @@ export class MutationService {
 						params.condition.value
 					) {
 						if (params.condition.column) {
-							// Check specific column
 							const colIndex = XLSX.utils.decode_col(params.condition.column);
 							const cellAddr = XLSX.utils.encode_cell({
 								c: colIndex,
@@ -468,7 +443,6 @@ export class MutationService {
 								.toLowerCase()
 								.includes(params.condition.value.toLowerCase());
 						} else {
-							// Check any column in the row
 							for (
 								let colIndex = range.s.c;
 								colIndex <= range.e.c;
@@ -496,7 +470,6 @@ export class MutationService {
 					) {
 						const regex = new RegExp(params.condition.value, 'i');
 						if (params.condition.column) {
-							// Check specific column
 							const colIndex = XLSX.utils.decode_col(params.condition.column);
 							const cellAddr = XLSX.utils.encode_cell({
 								c: colIndex,
@@ -506,7 +479,6 @@ export class MutationService {
 							const cellValue = cell && cell.v ? String(cell.v) : '';
 							shouldDelete = regex.test(cellValue);
 						} else {
-							// Check any column in the row
 							for (
 								let colIndex = range.s.c;
 								colIndex <= range.e.c;
@@ -532,22 +504,18 @@ export class MutationService {
 				}
 			}
 
-			// Sort rows in descending order to delete from bottom to top
 			rowsToDelete.sort((a, b) => b - a);
 
 			this.addLog(
 				`Found ${rowsToDelete.length} rows to delete: ${rowsToDelete.map((r) => r + 1).join(', ')}`,
 			);
 
-			// Delete the rows by removing cells and adjusting the range
 			for (const rowIndex of rowsToDelete) {
-				// Remove all cells in this row
 				for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 					const cellAddr = XLSX.utils.encode_cell({ c: colIndex, r: rowIndex });
 					delete worksheet[cellAddr];
 				}
 
-				// Shift all rows below up by one
 				for (let r = rowIndex + 1; r <= range.e.r; r++) {
 					for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 						const oldAddr = XLSX.utils.encode_cell({ c: colIndex, r: r });
@@ -560,15 +528,12 @@ export class MutationService {
 					}
 				}
 
-				// Update the range
 				range.e.r--;
 			}
 
-			// Update the worksheet range
 			if (range.e.r >= range.s.r) {
 				worksheet['!ref'] = XLSX.utils.encode_range(range);
 			} else {
-				// If all rows were deleted, set minimal range
 				worksheet['!ref'] = 'A1:A1';
 			}
 

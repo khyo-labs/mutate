@@ -107,7 +107,7 @@ export function ConfigurationsComponent() {
 							{pagination && ` (${pagination.total} total)`}
 						</p>
 					</div>
-					<Link to="/mutations/studio">
+					<Link to="/mutations/new">
 						<Button>
 							<Plus className="mr-2 h-4 w-4" />
 							New Mutation
@@ -182,6 +182,9 @@ export function ConfigurationsComponent() {
 													<div className="flex items-center">
 														<FileText className="mr-1 h-3 w-3" />
 														{config.rules?.length} rules
+													</div>
+													<div className="flex items-center">
+														<span className="font-medium">{config.conversionType?.replace('_', ' → ') || 'XLSX → CSV'}</span>
 													</div>
 												</div>
 											</div>
@@ -266,7 +269,7 @@ export function ConfigurationsComponent() {
 							</p>
 							{!searchTerm && (
 								<div className="mt-4">
-									<Link to="/mutations/studio">
+									<Link to="/mutations/new">
 										<Button>
 											<Plus className="mr-2 h-4 w-4" />
 											Create Configuration

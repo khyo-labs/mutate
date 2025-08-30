@@ -76,20 +76,46 @@ const transformationRuleSchema = z.discriminatedUnion('type', [
 	evaluateFormulasRuleSchema,
 ]);
 
-const outputFormatSchema = z.object({
+const csvOutputFormatSchema = z.object({
 	type: z.literal('CSV'),
 	delimiter: z.string().default(','),
 	encoding: z.enum(['UTF-8', 'UTF-16', 'ASCII']).default('UTF-8'),
 	includeHeaders: z.boolean().default(true),
 });
 
+const pdfOutputFormatSchema = z.object({
+	type: z.literal('PDF'),
+	pageSize: z.enum(['A4', 'Letter', 'Legal']).default('A4'),
+	orientation: z.enum(['portrait', 'landscape']).default('portrait'),
+	margins: z.object({
+		top: z.number().default(20),
+		bottom: z.number().default(20),
+		left: z.number().default(20),
+		right: z.number().default(20),
+	}).default({ top: 20, bottom: 20, left: 20, right: 20 }),
+});
+
+const jsonOutputFormatSchema = z.object({
+	type: z.literal('JSON'),
+	prettyPrint: z.boolean().default(true),
+	encoding: z.enum(['UTF-8', 'UTF-16']).default('UTF-8'),
+});
+
+const outputFormatSchema = z.discriminatedUnion('type', [
+	csvOutputFormatSchema,
+	pdfOutputFormatSchema,
+	jsonOutputFormatSchema,
+]);
+
 export const createSchema = z.object({
 	name: z.string().min(1, 'Name is required').max(255, 'Name too long'),
 	description: z.string().max(1000, 'Description too long').optional(),
+	conversionType: z.enum(['XLSX_TO_CSV', 'DOCX_TO_PDF', 'HTML_TO_PDF', 'PDF_TO_CSV', 'JSON_TO_CSV', 'CSV_TO_JSON']).default('XLSX_TO_CSV'),
+	inputFormat: z.enum(['XLSX', 'DOCX', 'HTML', 'PDF', 'JSON', 'CSV']).default('XLSX'),
+	outputFormat: outputFormatSchema,
 	rules: z
 		.array(transformationRuleSchema)
 		.min(1, 'At least one rule is required'),
-	outputFormat: outputFormatSchema,
 	callbackUrl: z.string().url('Invalid callback URL').optional(),
 	webhookUrlId: z.string().optional(),
 });
@@ -101,11 +127,13 @@ export const updateSchema = z.object({
 		.max(255, 'Name too long')
 		.optional(),
 	description: z.string().max(1000, 'Description too long').optional(),
+	conversionType: z.enum(['XLSX_TO_CSV', 'DOCX_TO_PDF', 'HTML_TO_PDF', 'PDF_TO_CSV', 'JSON_TO_CSV', 'CSV_TO_JSON']).optional(),
+	inputFormat: z.enum(['XLSX', 'DOCX', 'HTML', 'PDF', 'JSON', 'CSV']).optional(),
+	outputFormat: outputFormatSchema.optional(),
 	rules: z
 		.array(transformationRuleSchema)
 		.min(1, 'At least one rule is required')
 		.optional(),
-	outputFormat: outputFormatSchema.optional(),
 	callbackUrl: z.string().url('Invalid callback URL').optional(),
 	webhookUrlId: z.string().optional(),
 });

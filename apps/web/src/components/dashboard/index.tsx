@@ -22,7 +22,7 @@ export function Dashboard() {
 						Welcome back, {session?.user?.email || session?.user?.name}
 					</p>
 				</div>
-				<Link to="/mutations/studio">
+				<Link to="/mutations/new">
 					<Button>
 						<Plus className="mr-2 h-4 w-4" />
 						New Mutation
@@ -55,7 +55,7 @@ export function Dashboard() {
 					</CardHeader>
 					<CardContent className="space-y-2">
 						<Link
-							to="/mutations/studio"
+							to="/mutations/new"
 							className="hover:bg-accent flex items-center rounded-lg p-3 text-sm font-medium transition-colors"
 						>
 							<Plus className="text-muted-foreground mr-3 h-4 w-4" />

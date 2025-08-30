@@ -31,7 +31,7 @@ import { nanoid } from 'nanoid';
 import React from 'react';
 
 import { useConfigurationStore } from '../stores/config-store';
-import type { RuleType, TransformationRule } from '../types';
+import type { XlsxToCsvRuleType, TransformationRule } from '../types';
 import { RuleParameterForm } from './rule-parameter-form';
 
 interface RuleBuilderProps {
@@ -39,7 +39,7 @@ interface RuleBuilderProps {
 	onChange: (rules: TransformationRule[]) => void;
 }
 
-const ruleIcons: Record<RuleType, React.ComponentType<any>> = {
+const ruleIcons: Record<XlsxToCsvRuleType, React.ComponentType<any>> = {
 	SELECT_WORKSHEET: FileText,
 	VALIDATE_COLUMNS: CheckCircle,
 	UNMERGE_AND_FILL: Merge,
@@ -49,7 +49,7 @@ const ruleIcons: Record<RuleType, React.ComponentType<any>> = {
 	EVALUATE_FORMULAS: Calculator,
 };
 
-const ruleDescriptions: Record<RuleType, string> = {
+const ruleDescriptions: Record<XlsxToCsvRuleType, string> = {
 	SELECT_WORKSHEET: 'Select a specific worksheet to work with',
 	VALIDATE_COLUMNS: 'Validate the expected number of columns',
 	UNMERGE_AND_FILL: 'Unmerge cells and fill values down or up',

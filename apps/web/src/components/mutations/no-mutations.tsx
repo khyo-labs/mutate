@@ -14,7 +14,7 @@ export function NoMutations() {
 				Get started by creating your first mutation.
 			</p>
 			<div className="mt-4">
-				<Link to="/mutations/studio">
+				<Link to="/mutations/new">
 					<Button>
 						<Plus className="mr-2 h-4 w-4" />
 						Create Mutation

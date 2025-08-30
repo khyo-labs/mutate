@@ -1,0 +1,2 @@
+ALTER TABLE "configuration" ADD COLUMN "conversion_type" varchar(50) DEFAULT 'XLSX_TO_CSV' NOT NULL;--> statement-breakpoint
+ALTER TABLE "configuration" ADD COLUMN "input_format" varchar(20) DEFAULT 'XLSX' NOT NULL;

@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { mutApi } from '@/api/mutations';
+import { ConversionTypeSelector } from '@/components/conversion-type-selector';
 import { CsvOutputPreview } from '@/components/csv-output-preview';
 import { FileUpload, type UploadedFile } from '@/components/file-upload';
 import { JsonConfigPanel } from '@/components/json-config-panel';
@@ -14,9 +15,13 @@ import { Layout } from '@/components/layouts';
 import { RuleBuilder } from '@/components/rule-builder';
 import { SpreadsheetPreview } from '@/components/spreadsheet-preview';
 import { Button } from '@/components/ui/button';
-import type { Configuration, TransformationRule } from '@/types';
+import type {
+	Configuration,
+	ConversionType,
+	TransformationRule,
+} from '@/types';
 
-export const Route = createFileRoute('/mutations/studio')({
+export const Route = createFileRoute('/mutations/new')({
 	component: NewConfigurationComponent,
 });
 
@@ -27,21 +32,55 @@ const configurationSchema = z.object({
 
 type ConfigurationFormData = z.infer<typeof configurationSchema>;
 
+function getDefaultOutputFormat(conversionType: ConversionType) {
+	switch (conversionType) {
+		case 'XLSX_TO_CSV':
+		case 'PDF_TO_CSV':
+		case 'JSON_TO_CSV':
+			return {
+				type: 'CSV' as const,
+				delimiter: ',',
+				encoding: 'UTF-8' as const,
+				includeHeaders: true,
+			};
+		case 'DOCX_TO_PDF':
+		case 'HTML_TO_PDF':
+			return {
+				type: 'PDF' as const,
+				pageSize: 'A4' as const,
+				orientation: 'portrait' as const,
+				margins: { top: 20, bottom: 20, left: 20, right: 20 },
+			};
+		case 'CSV_TO_JSON':
+			return {
+				type: 'JSON' as const,
+				prettyPrint: true,
+				encoding: 'UTF-8' as const,
+			};
+		default:
+			return {
+				type: 'CSV' as const,
+				delimiter: ',',
+				encoding: 'UTF-8' as const,
+				includeHeaders: true,
+			};
+	}
+}
+
 export function NewConfigurationComponent() {
 	const navigate = useNavigate();
+	const [conversionType, setConversionType] =
+		useState<ConversionType>('XLSX_TO_CSV');
 	const [rules, setRules] = useState<TransformationRule[]>([]);
 	const [activeTab, setActiveTab] = useState<'preview' | 'data'>('preview');
 	const createConfiguration = useMutation({
 		mutationFn: (data: ConfigurationFormData) =>
 			mutApi.create({
 				...data,
+				conversionType,
+				inputFormat: conversionType.split('_TO_')[0] as any,
 				rules,
-				outputFormat: {
-					type: 'CSV' as const,
-					delimiter: ',',
-					encoding: 'UTF-8' as const,
-					includeHeaders: true,
-				},
+				outputFormat: getDefaultOutputFormat(conversionType),
 			}),
 		onSuccess: () => {
 			navigate({ to: '/mutations' });
@@ -75,13 +114,10 @@ export function NewConfigurationComponent() {
 			const configurationData = {
 				name: data.name.trim(),
 				description: data.description.trim(),
+				conversionType,
+				inputFormat: conversionType.split('_TO_')[0] as any,
+				outputFormat: getDefaultOutputFormat(conversionType),
 				rules,
-				outputFormat: {
-					type: 'CSV' as const,
-					delimiter: ',',
-					encoding: 'UTF-8' as const,
-					includeHeaders: true,
-				},
 			};
 
 			await createConfiguration.mutateAsync(configurationData);
@@ -118,6 +154,14 @@ export function NewConfigurationComponent() {
 					<p className="mt-2 text-lg text-gray-600">
 						Create a new data transformation
 					</p>
+				</div>
+
+				{/* Conversion Type Selection */}
+				<div className="mb-8">
+					<ConversionTypeSelector
+						selectedType={conversionType}
+						onTypeSelect={setConversionType}
+					/>
 				</div>
 
 				{/* Main Content Grid */}

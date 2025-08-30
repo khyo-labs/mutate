@@ -126,8 +126,14 @@ export const configurations = pgTable('configuration', {
 		.notNull(),
 	name: varchar('name', { length: 255 }).notNull(),
 	description: text('description'),
-	rules: jsonb('rules').notNull(),
+	conversionType: varchar('conversion_type', { length: 50 })
+		.default('XLSX_TO_CSV')
+		.notNull(),
+	inputFormat: varchar('input_format', { length: 20 })
+		.default('XLSX')
+		.notNull(),
 	outputFormat: jsonb('output_format').notNull(),
+	rules: jsonb('rules').notNull(),
 	version: integer('version').default(1).notNull(),
 	isActive: boolean('is_active').default(true).notNull(),
 	callbackUrl: text('callback_url'), // Default callback URL for this configuration

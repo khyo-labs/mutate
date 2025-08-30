@@ -40,7 +40,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			const { name, description, rules, outputFormat, callbackUrl } =
+			const { name, description, conversionType, inputFormat, rules, outputFormat, callbackUrl } =
 				validationResult.data;
 
 			try {
@@ -51,6 +51,8 @@ export async function configRoutes(fastify: FastifyInstance) {
 						organizationId: request.currentUser!.organizationId,
 						name,
 						description,
+						conversionType,
+						inputFormat,
 						rules,
 						outputFormat,
 						callbackUrl,
@@ -75,6 +77,8 @@ export async function configRoutes(fastify: FastifyInstance) {
 						id: configuration.id,
 						name: configuration.name,
 						description: configuration.description,
+						conversionType: configuration.conversionType,
+						inputFormat: configuration.inputFormat,
 						rules: configuration.rules,
 						outputFormat: configuration.outputFormat,
 						version: configuration.version,
