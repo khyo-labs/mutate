@@ -30,7 +30,7 @@ if (!rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
 	root.render(
 		<StrictMode>
-			<ThemeProvider>
+			<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
 				<QueryClientProvider client={queryClient}>
 					<RouterProvider router={router} />
 				</QueryClientProvider>
