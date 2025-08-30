@@ -10,6 +10,8 @@ import { QueueService } from '../services/queue.js';
 import { storageService } from '../services/storage.js';
 import type { ConversionType } from '../types/index.js';
 import { WebhookService } from '../services/webhook.js';
+import { trackConversionStart } from '../middleware/billing-middleware.js';
+import { QuotaEnforcementService } from '../services/billing/index.js';
 import '../types/fastify.js';
 import { logError } from '../utils/logger.js';
 
@@ -182,6 +184,26 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				});
 			}
 
+			// Billing quota validation
+			const quotaService = new QuotaEnforcementService();
+			const fileSizeMb = fileBuffer.length / (1024 * 1024);
+			const quotaValidation = await quotaService.validateConversionQuota(
+				request.currentUser!.organizationId,
+				fileSizeMb
+			);
+
+			if (!quotaValidation.canProceed) {
+				return reply.code(403).send({
+					success: false,
+					error: {
+						code: 'QUOTA_EXCEEDED',
+						message: quotaValidation.reason,
+					},
+					limits: quotaValidation.limits,
+					usage: quotaValidation.usage,
+				});
+			}
+
 			// Determine if processing should be async
 			const isAsync =
 				options.async !== false && fileBuffer.length >= config.ASYNC_THRESHOLD;
@@ -203,6 +225,14 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				})
 				.returning();
 
+			// Track conversion start for billing
+			await trackConversionStart(
+				request.currentUser!.organizationId,
+				job.id,
+				configuration.conversionType as 'XLSX_TO_CSV' | 'DOCX_TO_PDF',
+				fileBuffer.length
+			);
+
 			if (isAsync) {
 				// Queue for async processing
 				await QueueService.addTransformationJob({
@@ -211,6 +241,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 					configurationId: configId,
 					fileBuffer,
 					fileName: data.filename || 'upload.xlsx',
+					conversionType: configuration.conversionType as 'XLSX_TO_CSV' | 'DOCX_TO_PDF',
 					callbackUrl: callbackUrl || configuration.callbackUrl,
 					uid: uid,
 					options,
@@ -235,6 +266,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 						configurationId: configId,
 						fileBuffer,
 						fileName: data.filename || 'upload.xlsx',
+						conversionType: configuration.conversionType as 'XLSX_TO_CSV' | 'DOCX_TO_PDF',
 						callbackUrl: callbackUrl || configuration.callbackUrl,
 						uid: uid,
 						options,

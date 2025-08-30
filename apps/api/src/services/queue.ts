@@ -2,6 +2,7 @@ import Queue from 'bull';
 import IORedis from 'ioredis';
 
 import { config } from '../config.js';
+import { trackConversionComplete, trackConversionFailure } from '../middleware/billing-middleware.js';
 
 // Job data interfaces
 export interface TransformationJobData {
@@ -10,6 +11,7 @@ export interface TransformationJobData {
 	configurationId: string;
 	fileBuffer: Buffer;
 	fileName: string;
+	conversionType: 'XLSX_TO_CSV' | 'DOCX_TO_PDF';
 	callbackUrl?: string;
 	uid?: string;
 	options?: {
@@ -24,6 +26,7 @@ interface QueueJobData {
 	configurationId: string;
 	fileData: string; // Base64 encoded file data
 	fileName: string;
+	conversionType: 'XLSX_TO_CSV' | 'DOCX_TO_PDF';
 	callbackUrl?: string;
 	uid?: string;
 	options?: {
@@ -88,6 +91,7 @@ export class QueueService {
 			configurationId: data.configurationId,
 			fileData: data.fileBuffer.toString('base64'),
 			fileName: data.fileName,
+			conversionType: data.conversionType,
 			callbackUrl: data.callbackUrl,
 			uid: data.uid,
 			options: data.options,
@@ -186,21 +190,44 @@ export class QueueService {
 }
 
 // Event handlers for queue monitoring
-transformationQueue.on('completed', (job, result) => {
+transformationQueue.on('completed', async (job, result) => {
 	console.log(`Job ${job.id} completed successfully:`, {
 		jobId: job.id,
 		duration: Date.now() - job.processedOn!,
 		result: result?.success,
 	});
+
+	// Track billing for completed conversion
+	try {
+		const fileBuffer = Buffer.from(job.data.fileData, 'base64');
+		await trackConversionComplete(
+			job.data.organizationId,
+			job.data.jobId,
+			job.data.conversionType,
+			fileBuffer.length
+		);
+	} catch (error) {
+		console.error('Failed to track conversion completion for billing:', error);
+	}
 });
 
-transformationQueue.on('failed', (job, err) => {
+transformationQueue.on('failed', async (job, err) => {
 	console.error(`Job ${job.id} failed:`, {
 		jobId: job.id,
 		error: err.message,
 		attempts: job.attemptsMade,
 		data: job.data.fileName,
 	});
+
+	// Track billing for failed conversion (remove from active)
+	try {
+		await trackConversionFailure(
+			job.data.organizationId,
+			job.data.jobId
+		);
+	} catch (error) {
+		console.error('Failed to track conversion failure for billing:', error);
+	}
 });
 
 transformationQueue.on('active', (job) => {

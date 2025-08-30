@@ -13,6 +13,7 @@ declare module 'fastify' {
 			id: string;
 			organizationId: string;
 			role: string;
+			isPlatformAdmin: boolean;
 		};
 	}
 }

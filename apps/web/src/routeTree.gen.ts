@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root';
 import { Route as RegisterRouteImport } from './routes/register';
 import { Route as LoginRouteImport } from './routes/login';
+import { Route as AdminRouteImport } from './routes/admin';
 import { Route as SettingsRouteRouteImport } from './routes/settings/route';
 import { Route as IndexRouteImport } from './routes/index';
 import { Route as SettingsIndexRouteImport } from './routes/settings/index';
@@ -35,6 +36,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any);
 const SettingsRouteRoute = SettingsRouteRouteImport.update({
@@ -117,6 +123,7 @@ const MutationsConfigIdEditRoute = MutationsConfigIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
   '/settings': typeof SettingsRouteRouteWithChildren;
+  '/admin': typeof AdminRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
+  '/admin': typeof AdminRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/mutations/new': typeof MutationsNewRoute;
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/': typeof IndexRoute;
   '/settings': typeof SettingsRouteRouteWithChildren;
+  '/admin': typeof AdminRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/settings'
+    | '/admin'
     | '/login'
     | '/register'
     | '/settings/account'
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
+    | '/admin'
     | '/login'
     | '/register'
     | '/mutations/new'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/settings'
+    | '/admin'
     | '/login'
     | '/register'
     | '/settings/account'
@@ -229,6 +241,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren;
+  AdminRoute: typeof AdminRoute;
   LoginRoute: typeof LoginRoute;
   RegisterRoute: typeof RegisterRoute;
   MutationsNewRoute: typeof MutationsNewRoute;
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/login';
       fullPath: '/login';
       preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/admin': {
+      id: '/admin';
+      path: '/admin';
+      fullPath: '/admin';
+      preLoaderRoute: typeof AdminRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/settings': {
@@ -410,6 +430,7 @@ const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
+  AdminRoute: AdminRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   MutationsNewRoute: MutationsNewRoute,

@@ -8,6 +8,7 @@ import {
 	text,
 	timestamp,
 	varchar,
+	unique,
 } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
@@ -223,7 +224,94 @@ export const auditLogs = pgTable('audit_log', {
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-export const organizationRelations = relations(organization, ({ many }) => ({
+export const subscriptionPlans = pgTable('subscription_plan', {
+	id: text('id').primaryKey(),
+	name: varchar('name', { length: 100 }).notNull(),
+	monthlyConversionLimit: integer('monthly_conversion_limit'),
+	concurrentConversionLimit: integer('concurrent_conversion_limit'),
+	maxFileSizeMb: integer('max_file_size_mb'),
+	priceCents: integer('price_cents').notNull(),
+	billingInterval: varchar('billing_interval', { length: 20 }).notNull(),
+	overagePriceCents: integer('overage_price_cents'),
+	features: jsonb('features'),
+	active: boolean('active').default(true).notNull(),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const organizationSubscriptions = pgTable('organization_subscription', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id)
+		.notNull(),
+	planId: text('plan_id')
+		.references(() => subscriptionPlans.id)
+		.notNull(),
+	stripeSubscriptionId: text('stripe_subscription_id'),
+	status: varchar('status', { length: 50 }).notNull(),
+	currentPeriodStart: timestamp('current_period_start').notNull(),
+	currentPeriodEnd: timestamp('current_period_end').notNull(),
+	overrideMonthlyLimit: integer('override_monthly_limit'),
+	overrideConcurrentLimit: integer('override_concurrent_limit'),
+	overrideMaxFileSizeMb: integer('override_max_file_size_mb'),
+	overrideOveragePriceCents: integer('override_overage_price_cents'),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const usageRecords = pgTable('usage_record', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id)
+		.notNull(),
+	month: integer('month').notNull(),
+	year: integer('year').notNull(),
+	conversionCount: integer('conversion_count').default(0).notNull(),
+	overageCount: integer('overage_count').default(0).notNull(),
+	conversionTypeBreakdown: jsonb('conversion_type_breakdown'),
+	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+	uniqueOrgMonthYear: unique().on(table.organizationId, table.month, table.year),
+}));
+
+export const activeConversions = pgTable('active_conversion', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id)
+		.notNull(),
+	jobId: text('job_id')
+		.references(() => transformationJobs.id, { onDelete: 'cascade' })
+		.notNull()
+		.unique(),
+	startedAt: timestamp('started_at').defaultNow().notNull(),
+});
+
+export const billingEvents = pgTable('billing_event', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id)
+		.notNull(),
+	eventType: varchar('event_type', { length: 50 }).notNull(),
+	eventData: jsonb('event_data').notNull(),
+	stripeEventId: text('stripe_event_id'),
+	processed: boolean('processed').default(false).notNull(),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Platform admin table for app-level admin access
+export const platformAdmins = pgTable('platform_admin', {
+	id: text('id').primaryKey(),
+	userId: text('user_id')
+		.references(() => user.id, { onDelete: 'cascade' })
+		.notNull()
+		.unique(),
+	role: varchar('role', { length: 50 }).default('admin').notNull(), // admin, support, etc.
+	permissions: jsonb('permissions'), // Optional: granular permissions
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	createdBy: text('created_by').references(() => user.id),
+	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const organizationRelations = relations(organization, ({ many, one }) => ({
 	members: many(member),
 	configurations: many(configurations),
 	transformationJobs: many(transformationJobs),
@@ -231,6 +319,10 @@ export const organizationRelations = relations(organization, ({ many }) => ({
 	auditLogs: many(auditLogs),
 	invitations: many(invitation),
 	webhooks: many(organizationWebhooks),
+	subscription: one(organizationSubscriptions),
+	usageRecords: many(usageRecords),
+	activeConversions: many(activeConversions),
+	billingEvents: many(billingEvents),
 }));
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -363,5 +455,59 @@ export const invitationRelations = relations(invitation, ({ one }) => ({
 	organization: one(organization, {
 		fields: [invitation.organizationId],
 		references: [organization.id],
+	}),
+}));
+
+export const subscriptionPlansRelations = relations(subscriptionPlans, ({ many }) => ({
+	subscriptions: many(organizationSubscriptions),
+}));
+
+export const organizationSubscriptionsRelations = relations(
+	organizationSubscriptions,
+	({ one }) => ({
+		organization: one(organization, {
+			fields: [organizationSubscriptions.organizationId],
+			references: [organization.id],
+		}),
+		plan: one(subscriptionPlans, {
+			fields: [organizationSubscriptions.planId],
+			references: [subscriptionPlans.id],
+		}),
+	}),
+);
+
+export const usageRecordsRelations = relations(usageRecords, ({ one }) => ({
+	organization: one(organization, {
+		fields: [usageRecords.organizationId],
+		references: [organization.id],
+	}),
+}));
+
+export const activeConversionsRelations = relations(activeConversions, ({ one }) => ({
+	organization: one(organization, {
+		fields: [activeConversions.organizationId],
+		references: [organization.id],
+	}),
+	job: one(transformationJobs, {
+		fields: [activeConversions.jobId],
+		references: [transformationJobs.id],
+	}),
+}));
+
+export const billingEventsRelations = relations(billingEvents, ({ one }) => ({
+	organization: one(organization, {
+		fields: [billingEvents.organizationId],
+		references: [organization.id],
+	}),
+}));
+
+export const platformAdminsRelations = relations(platformAdmins, ({ one }) => ({
+	user: one(user, {
+		fields: [platformAdmins.userId],
+		references: [user.id],
+	}),
+	createdByUser: one(user, {
+		fields: [platformAdmins.createdBy],
+		references: [user.id],
 	}),
 }));

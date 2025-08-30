@@ -42,6 +42,7 @@ class MutationWorker {
 			configurationId: queueData.configurationId,
 			fileBuffer: fileBuffer,
 			fileName: queueData.fileName,
+			conversionType: queueData.conversionType,
 			callbackUrl: queueData.callbackUrl,
 			uid: queueData.uid,
 			options: queueData.options,

@@ -1,8 +1,47 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { organization } from 'better-auth/plugins';
+import { nanoid } from 'nanoid';
+import { eq } from 'drizzle-orm';
 
 import { db } from '../db/connection.js';
+import { organizationSubscriptions } from '../db/schema.js';
+
+async function setupDefaultResources(organizationId: string) {
+	try {
+		// Check if subscription already exists
+		const existingSubscription = await db
+			.select()
+			.from(organizationSubscriptions)
+			.where(eq(organizationSubscriptions.organizationId, organizationId))
+			.limit(1);
+
+		if (existingSubscription.length > 0) {
+			console.log('Subscription already exists for organization:', organizationId);
+			return;
+		}
+
+		// Assign free plan to the new organization
+		const now = new Date();
+		const periodEnd = new Date(now);
+		periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+		await db.insert(organizationSubscriptions).values({
+			id: nanoid(),
+			organizationId,
+			planId: 'plan_free', // Default free plan
+			status: 'active',
+			currentPeriodStart: now,
+			currentPeriodEnd: periodEnd,
+			createdAt: now,
+		});
+
+		console.log(`✅ Assigned free tier to organization: ${organizationId}`);
+	} catch (error) {
+		console.error('Failed to setup default resources for organization:', error);
+		// Don't throw - we don't want to fail organization creation if this fails
+	}
+}
 
 export const auth = betterAuth({
 	secret:
@@ -34,6 +73,13 @@ export const auth = betterAuth({
 		organization({
 			allowUserToCreateOrganization: true,
 			organizationLimit: 1,
+			organizationCreation: {
+				disabled: false,
+				afterCreate: async ({ organization, member, user }) => {
+					console.log('Organization created:', organization);
+					await setupDefaultResources(organization.id);
+				}
+			}
 		}),
 	],
 	session: {

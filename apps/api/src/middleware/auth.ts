@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { db } from '../db/connection.js';
-import { apiKeys, member, organization } from '../db/schema.js';
+import { apiKeys, member, organization, platformAdmins } from '../db/schema.js';
 import { auth } from '../lib/auth.js';
 import '../types/fastify.js';
 
@@ -56,11 +56,20 @@ export async function authenticateSession(
 			.limit(1);
 
 		const userOrgInfo = membership[0];
+		
+		// Check if user is platform admin
+		const platformAdmin = await db
+			.select({ role: platformAdmins.role })
+			.from(platformAdmins)
+			.where(eq(platformAdmins.userId, session.user.id))
+			.limit(1)
+			.then((rows) => rows[0]);
 
 		request.currentUser = {
 			id: session.user.id,
 			organizationId: userOrgInfo?.organizationId || '',
 			role: userOrgInfo?.role || 'member',
+			isPlatformAdmin: !!platformAdmin,
 		};
 	} catch (err) {
 		return reply.code(401).send({
@@ -142,6 +151,7 @@ export async function authenticateAPIKey(
 			id: validKey.createdBy, // Use the actual user ID who created the API key
 			organizationId: validKey.organizationId,
 			role: 'api',
+			isPlatformAdmin: false,
 		};
 	} catch (err) {
 		return reply.code(500).send({
@@ -186,4 +196,29 @@ export function requireRole(requiredRole: string) {
 			});
 		}
 	};
+}
+
+export async function requirePlatformAdmin(
+	request: FastifyRequest,
+	reply: FastifyReply,
+) {
+	if (!request.currentUser) {
+		return reply.code(401).send({
+			success: false,
+			error: {
+				code: 'NOT_AUTHENTICATED',
+				message: 'Authentication required',
+			},
+		});
+	}
+
+	if (!request.currentUser.isPlatformAdmin) {
+		return reply.code(403).send({
+			success: false,
+			error: {
+				code: 'PLATFORM_ADMIN_REQUIRED',
+				message: 'Platform admin access required',
+			},
+		});
+	}
 }

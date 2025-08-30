@@ -8,6 +8,7 @@ import { config } from './config.js';
 import { errorHandler } from './middleware/error-handler.js';
 import authPlugin from './plugins/auth.js';
 import { betterAuthRoutes } from './routes/better-auth.js';
+import { billingRoutes } from './routes/billing.js';
 import { configRoutes } from './routes/configuration.js';
 import { fileRoutes } from './routes/files.js';
 import { healthRoutes } from './routes/health.js';
@@ -83,6 +84,7 @@ await fastify.register(configRoutes, {
 await fastify.register(organizationRoutes, { prefix: '/v1/organizations' });
 await fastify.register(mutateRoutes, { prefix: '/v1/mutate' });
 await fastify.register(fileRoutes, { prefix: '/v1/files' });
+await fastify.register(billingRoutes, { prefix: '/v1/billing' });
 
 const { apiKeyRoutes } = await import('./routes/api-keys.js');
 await fastify.register(apiKeyRoutes, { prefix: '/v1/api-keys' });

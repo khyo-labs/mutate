@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(chmod:*)",
+      "Bash(pnpm create:*)",
+      "Bash(pnpm install:*)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(git commit:*)",
+      "Bash(pnpm build:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm api:*)",
+      "Bash(pnpm db:generate:*)",
+      "Bash(tsx:*)",
+      "Bash(pnpm tsx:*)",
+      "Bash(pnpm --filter @mutate/api typecheck)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
