@@ -13,9 +13,7 @@ export default defineConfig({
 			semicolons: true,
 		}),
 		react(),
-		tailwindcss({
-			config: path.resolve(__dirname, 'tailwind.config.js'),
-		}),
+		tailwindcss(),
 	],
 	resolve: {
 		alias: {

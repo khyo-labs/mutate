@@ -24,7 +24,7 @@ export function Layout({ children }: LayoutProps) {
 export function SettingsLayout({ children }: LayoutProps) {
 	return (
 		<ProtectedRoute>
-			<div className="bg-muted/40 flex h-screen overflow-hidden">
+			<div className="flex h-screen overflow-hidden bg-slate-50 dark:bg-gray-900">
 				<Sidebar />
 
 				<div className="mx-auto h-full flex-1 overflow-auto">{children}</div>
@@ -41,7 +41,9 @@ export function PublicLayout({ children }: LayoutProps) {
 					<div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-md text-lg font-bold">
 						M
 					</div>
-					<h2 className="text-3xl font-bold">mutate</h2>
+					<h2 className="text-foreground text-3xl font-bold dark:text-gray-100">
+						mutate
+					</h2>
 				</div>
 			</div>
 			{children}

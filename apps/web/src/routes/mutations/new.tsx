@@ -149,9 +149,11 @@ export function NewConfigurationComponent() {
 		<Layout>
 			<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 				{/* Header Section */}
-				<div className="mb-8 border-b pb-6">
-					<h1 className="text-3xl font-bold">Mutation Studio</h1>
-					<p className="text-muted-foreground mt-2 text-lg">
+				<div className="mb-8 border-b border-gray-200 dark:border-gray-700 pb-6">
+					<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+						Mutation Studio
+					</h1>
+					<p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
 						Create a new data transformation
 					</p>
 				</div>
@@ -169,10 +171,12 @@ export function NewConfigurationComponent() {
 					{/* Left Column - Main Content Area */}
 					<div className="space-y-8 xl:col-span-8">
 						{/* Transformation Rules Card - Larger Space */}
-						<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-							<div className="border-b px-6 py-5">
-								<h2 className="text-xl font-semibold">Transformation Rules</h2>
-								<p className="text-muted-foreground mt-1 text-sm">
+						<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
+								<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+									Transformation Rules
+								</h2>
+								<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
 									Build your data transformation pipeline step by step
 								</p>
 							</div>
@@ -182,23 +186,25 @@ export function NewConfigurationComponent() {
 						</div>
 
 						{/* Data Preview Tabs */}
-						<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-							<div className="border-b px-6 py-5">
+						<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
 								<div className="flex items-center justify-between">
 									<div>
-										<h2 className="text-xl font-semibold">Data Preview</h2>
-										<p className="text-muted-foreground mt-1 text-sm">
+										<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+											Data Preview
+										</h2>
+										<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
 											See how your transformations affect the data
 										</p>
 									</div>
 									{/* Tab Navigation */}
-									<div className="flex space-x-1 rounded-lg bg-muted p-1">
+									<div className="flex space-x-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-700">
 										<button
 											onClick={() => setActiveTab('preview')}
 											className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
 												activeTab === 'preview'
-													? 'bg-background text-foreground shadow-sm'
-													: 'text-muted-foreground hover:text-foreground'
+													? 'bg-white text-gray-900 shadow-sm dark:bg-gray-600 dark:text-gray-100'
+													: 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
 											}`}
 										>
 											Live Preview
@@ -207,8 +213,8 @@ export function NewConfigurationComponent() {
 											onClick={() => setActiveTab('data')}
 											className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
 												activeTab === 'data'
-													? 'bg-background text-foreground shadow-sm'
-													: 'text-muted-foreground hover:text-foreground'
+													? 'bg-white text-gray-900 shadow-sm dark:bg-gray-600 dark:text-gray-100'
+													: 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
 											}`}
 										>
 											Sample Data
@@ -219,12 +225,16 @@ export function NewConfigurationComponent() {
 							<div className="p-6">
 								{activeTab === 'preview' ? (
 									<div>
-										<h3 className="mb-4 text-lg font-medium">Live Preview</h3>
+										<h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100">
+											Live Preview
+										</h3>
 										<SpreadsheetPreview file={uploadedFile} rules={rules} />
 									</div>
 								) : (
 									<div>
-										<h3 className="mb-4 text-lg font-medium">Sample Data</h3>
+										<h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100">
+											Sample Data
+										</h3>
 										<FileUpload
 											onFileUploaded={setUploadedFile}
 											currentFile={uploadedFile}
@@ -235,10 +245,12 @@ export function NewConfigurationComponent() {
 						</div>
 
 						{/* Output Preview Card */}
-						<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-							<div className="border-b px-6 py-5">
-								<h2 className="text-xl font-semibold">Output Preview</h2>
-								<p className="text-muted-foreground mt-1 text-sm">
+						<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
+								<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+									Output Preview
+								</h2>
+								<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
 									Preview the final CSV output with your transformations applied
 								</p>
 							</div>
@@ -260,10 +272,12 @@ export function NewConfigurationComponent() {
 					{/* Right Column - Configuration Sidebar */}
 					<div className="space-y-8 xl:col-span-4">
 						{/* Configuration Details Card */}
-						<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-							<div className="border-b px-6 py-5">
-								<h2 className="text-xl font-semibold">Configuration</h2>
-								<p className="text-muted-foreground mt-1 text-sm">
+						<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
+								<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+									Configuration
+								</h2>
+								<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
 									Basic settings for your transformation
 								</p>
 							</div>
@@ -271,7 +285,7 @@ export function NewConfigurationComponent() {
 								<div>
 									<label
 										htmlFor="name"
-										className="mb-2 block text-sm font-medium"
+										className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
 									>
 										Name <span className="text-red-500">*</span>
 									</label>
@@ -280,7 +294,7 @@ export function NewConfigurationComponent() {
 										type="text"
 										id="name"
 										placeholder="Enter configuration name"
-										className="block w-full rounded-lg border bg-background px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+										className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-700"
 									/>
 									{errors.name && (
 										<p className="mt-2 text-sm text-red-600">
@@ -291,7 +305,7 @@ export function NewConfigurationComponent() {
 								<div>
 									<label
 										htmlFor="description"
-										className="mb-2 block text-sm font-medium"
+										className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
 									>
 										Description
 									</label>
@@ -300,17 +314,19 @@ export function NewConfigurationComponent() {
 										type="text"
 										id="description"
 										placeholder="Enter description (optional)"
-										className="block w-full rounded-lg border bg-background px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+										className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-700"
 									/>
 								</div>
 							</div>
 						</div>
 
 						{/* JSON Configuration Card */}
-						<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
-							<div className="border-b px-6 py-5">
-								<h2 className="text-xl font-semibold">JSON Configuration</h2>
-								<p className="text-muted-foreground mt-1 text-sm">
+						<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
+								<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+									JSON Configuration
+								</h2>
+								<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
 									Import/export configuration as JSON
 								</p>
 							</div>
@@ -333,9 +349,9 @@ export function NewConfigurationComponent() {
 				</div>
 
 				{/* Action Bar */}
-				<div className="mt-12 border-t pt-6">
+				<div className="mt-12 border-t border-gray-200 pt-6 dark:border-gray-700">
 					<div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
-						<div className="text-muted-foreground text-sm">
+						<div className="text-sm text-gray-600 dark:text-gray-400">
 							{uploadedFile ? (
 								<span className="flex items-center">
 									<span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
@@ -348,7 +364,7 @@ export function NewConfigurationComponent() {
 								</span>
 							)}
 							{/* Rules count */}
-							<span className="text-muted-foreground ml-4">
+							<span className="ml-4 text-gray-500 dark:text-gray-400">
 								{rules.length} transformation rule
 								{rules.length !== 1 ? 's' : ''} configured
 							</span>
