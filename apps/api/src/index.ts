@@ -13,7 +13,7 @@ import { configRoutes } from './routes/configuration.js';
 import { fileRoutes } from './routes/files.js';
 import { healthRoutes } from './routes/health.js';
 import { mutateRoutes } from './routes/mutate.js';
-import { organizationRoutes } from './routes/organization.js';
+import { workspaceRoutes } from './routes/workspace.js';
 import { transformationQueue } from './services/queue.js';
 import './types/fastify.js';
 import './workers/mutation-worker.js';
@@ -81,7 +81,7 @@ await fastify.register(betterAuthRoutes, { prefix: '/v1/auth' });
 await fastify.register(configRoutes, {
 	prefix: '/v1/configurations',
 });
-await fastify.register(organizationRoutes, { prefix: '/v1/organizations' });
+await fastify.register(workspaceRoutes, { prefix: '/v1/workspaces' });
 await fastify.register(mutateRoutes, { prefix: '/v1/mutate' });
 await fastify.register(fileRoutes, { prefix: '/v1/files' });
 await fastify.register(billingRoutes, { prefix: '/v1/billing' });

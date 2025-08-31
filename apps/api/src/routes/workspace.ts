@@ -6,20 +6,38 @@ import { organization, organizationWebhooks } from '../db/schema.js';
 import { auth } from '../lib/auth.js';
 import { authenticateSession } from '../middleware/auth.js';
 import {
-	createOrganizationSchema,
-	createOrganizationWebhookSchema,
-	setDefaultWebhookSchema,
-	updateOrganizationWebhookSchema,
-} from '../schemas/organization.js';
+	createWorkspaceSchema,
+	createWorkspaceWebhookSchema,
+	updateWorkspaceWebhookSchema,
+} from '../schemas/workspace.js';
 import { WebhookService } from '../services/webhook.js';
 import { getErrorMessage } from '../utils/error.js';
 
-export async function organizationRoutes(fastify: FastifyInstance) {
+export async function workspaceRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', authenticateSession);
+
+	fastify.get('/', async (request, reply) => {
+		try {
+			const result = await auth.api.listOrganizations({
+				headers: request.headers as any,
+			});
+
+			return reply.send({
+				success: true,
+				data: result,
+			});
+		} catch (error) {
+			fastify.log.error(error);
+			return reply.status(500).send({
+				success: false,
+				error: getErrorMessage(error, 'Failed to list workspaces'),
+			});
+		}
+	});
 
 	fastify.post('/create', async (request, reply) => {
 		try {
-			const body = createOrganizationSchema.parse(request.body);
+			const body = createWorkspaceSchema.parse(request.body);
 			const result = await auth.api.createOrganization({
 				body: {
 					name: body.name,
@@ -27,7 +45,7 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 					logo: body.logo,
 					userId: request.currentUser?.id,
 					metadata: body.metadata,
-					keepCurrentActiveOrganization: body.switchOrganization,
+					keepCurrentActiveOrganization: body.switchWorkspace,
 				},
 				headers: request.headers as any,
 			});
@@ -40,7 +58,7 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 			fastify.log.error(error);
 			return reply.status(400).send({
 				success: false,
-				error: getErrorMessage(error, 'Failed to create organization'),
+				error: getErrorMessage(error, 'Failed to create workspace'),
 			});
 		}
 	});
@@ -64,12 +82,12 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 			fastify.log.error(error);
 			return reply.status(400).send({
 				success: false,
-				error: getErrorMessage(error, 'Failed to check organization slug'),
+				error: getErrorMessage(error, 'Failed to check workspace slug'),
 			});
 		}
 	});
 
-	// Get all webhooks for current organization
+	// Get all webhooks for current workspace
 	fastify.get('/webhooks', async (request, reply) => {
 		try {
 			const currentOrganizationId = request.currentUser?.organizationId;
@@ -77,7 +95,7 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 			if (!currentOrganizationId) {
 				return reply.status(400).send({
 					success: false,
-					error: 'No active organization',
+					error: 'No active workspace',
 				});
 			}
 
@@ -87,7 +105,7 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 					id: true,
 					name: true,
 					url: true,
-					isDefault: true,
+					lastUsedAt: true,
 					createdAt: true,
 					updatedAt: true,
 					secret: true, // Include secret to check if it exists
@@ -110,7 +128,7 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 		}
 	});
 
-	// Create new webhook for current organization
+	// Create new webhook for current workspace
 	fastify.post('/webhooks', async (request, reply) => {
 		try {
 			const currentOrganizationId = request.currentUser?.organizationId;
@@ -118,11 +136,11 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 			if (!currentOrganizationId) {
 				return reply.status(400).send({
 					success: false,
-					error: 'No active organization',
+					error: 'No active workspace',
 				});
 			}
 
-			const body = createOrganizationWebhookSchema.parse(request.body);
+			const body = createWorkspaceWebhookSchema.parse(request.body);
 
 			// Validate webhook URL
 			const validation = WebhookService.validateWebhookUrl(body.url);
@@ -136,16 +154,6 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 			// Generate ID for webhook
 			const webhookId = `wh_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-			// If this is set as default, unset any existing default
-			if (body.isDefault) {
-				await db
-					.update(organizationWebhooks)
-					.set({ isDefault: false })
-					.where(
-						eq(organizationWebhooks.organizationId, currentOrganizationId),
-					);
-			}
-
 			// Create the webhook
 			await db.insert(organizationWebhooks).values({
 				id: webhookId,
@@ -153,7 +161,6 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 				name: body.name,
 				url: body.url,
 				secret: body.secret,
-				isDefault: body.isDefault,
 			});
 
 			return reply.send({
@@ -178,11 +185,11 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 			if (!currentOrganizationId) {
 				return reply.status(400).send({
 					success: false,
-					error: 'No active organization',
+					error: 'No active workspace',
 				});
 			}
 
-			const body = updateOrganizationWebhookSchema.parse(request.body);
+			const body = updateWorkspaceWebhookSchema.parse(request.body);
 
 			// Validate webhook URL if provided
 			if (body.url) {
@@ -195,7 +202,7 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 				}
 			}
 
-			// Check if webhook exists and belongs to organization
+			// Check if webhook exists and belongs to workspace
 			const existingWebhook = await db.query.organizationWebhooks.findFirst({
 				where: eq(organizationWebhooks.id, webhookId),
 			});
@@ -240,11 +247,11 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 			if (!currentOrganizationId) {
 				return reply.status(400).send({
 					success: false,
-					error: 'No active organization',
+					error: 'No active workspace',
 				});
 			}
 
-			// Check if webhook exists and belongs to organization
+			// Check if webhook exists and belongs to workspace
 			const existingWebhook = await db.query.organizationWebhooks.findFirst({
 				where: eq(organizationWebhooks.id, webhookId),
 			});
@@ -272,59 +279,6 @@ export async function organizationRoutes(fastify: FastifyInstance) {
 			return reply.status(500).send({
 				success: false,
 				error: getErrorMessage(error, 'Failed to delete webhook'),
-			});
-		}
-	});
-
-	// Set webhook as default
-	fastify.post('/webhooks/:id/set-default', async (request, reply) => {
-		try {
-			const currentOrganizationId = request.currentUser?.organizationId;
-			const { id: webhookId } = request.params as { id: string };
-
-			if (!currentOrganizationId) {
-				return reply.status(400).send({
-					success: false,
-					error: 'No active organization',
-				});
-			}
-
-			// Check if webhook exists and belongs to organization
-			const existingWebhook = await db.query.organizationWebhooks.findFirst({
-				where: eq(organizationWebhooks.id, webhookId),
-			});
-
-			if (
-				!existingWebhook ||
-				existingWebhook.organizationId !== currentOrganizationId
-			) {
-				return reply.status(404).send({
-					success: false,
-					error: 'Webhook not found',
-				});
-			}
-
-			// Unset all defaults for this organization
-			await db
-				.update(organizationWebhooks)
-				.set({ isDefault: false })
-				.where(eq(organizationWebhooks.organizationId, currentOrganizationId));
-
-			// Set this webhook as default
-			await db
-				.update(organizationWebhooks)
-				.set({ isDefault: true })
-				.where(eq(organizationWebhooks.id, webhookId));
-
-			return reply.send({
-				success: true,
-				data: { message: 'Webhook set as default successfully' },
-			});
-		} catch (error) {
-			fastify.log.error(error);
-			return reply.status(500).send({
-				success: false,
-				error: getErrorMessage(error, 'Failed to set default webhook'),
 			});
 		}
 	});

@@ -10,10 +10,10 @@ type LayoutProps = {
 export function Layout({ children }: LayoutProps) {
 	return (
 		<ProtectedRoute>
-			<div className="bg-background flex h-screen overflow-hidden">
+			<div className="bg-background flex h-screen overflow-hidden pt-10 lg:pt-0">
 				<Sidebar />
 				<main className="flex-1 overflow-auto">
-					<div className="container mx-auto px-6 py-8 lg:px-8">{children}</div>
+					<div className="container mx-auto px-6 py-8">{children}</div>
 				</main>
 			</div>
 		</ProtectedRoute>

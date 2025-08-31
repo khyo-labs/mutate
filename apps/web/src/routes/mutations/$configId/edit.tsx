@@ -47,9 +47,9 @@ export function ConfigurationEditComponent() {
 
 	// Fetch organization webhooks for the selector
 	const { data: webhooks = [] } = useQuery({
-		queryKey: ['organization', 'webhooks'],
+		queryKey: ['workspace', 'webhooks'],
 		queryFn: async () => {
-			const response = await fetch('/api/v1/organizations/webhooks', {
+			const response = await fetch('/api/v1/workspaces/webhooks', {
 				credentials: 'include',
 			});
 			if (!response.ok) throw new Error('Failed to fetch webhooks');
@@ -224,7 +224,7 @@ export function ConfigurationEditComponent() {
 		<Layout>
 			<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 				{/* Header Section */}
-				<div className="mb-8 border-b border-gray-200 dark:border-gray-700 pb-6">
+				<div className="mb-8 border-b border-gray-200 pb-6 dark:border-gray-700">
 					<div className="mb-4 flex items-center space-x-4">
 						<button
 							onClick={handleCancel}
@@ -269,7 +269,7 @@ export function ConfigurationEditComponent() {
 						{/* Left Column - Main Content Area */}
 						<div className="space-y-8 xl:col-span-8">
 							{/* Transformation Rules Card - Larger Space */}
-							<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
 								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 									<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
 										Transformation Rules
@@ -290,7 +290,7 @@ export function ConfigurationEditComponent() {
 							</div>
 
 							{/* Data Preview Tabs */}
-							<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
 								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 									<div className="flex items-center justify-between">
 										<div>
@@ -352,7 +352,7 @@ export function ConfigurationEditComponent() {
 							</div>
 
 							{/* Output Preview Card */}
-							<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
 								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 									<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
 										Output Preview
@@ -380,7 +380,7 @@ export function ConfigurationEditComponent() {
 						{/* Right Column - Configuration Sidebar */}
 						<div className="space-y-8 xl:col-span-4">
 							{/* Configuration Details Card */}
-							<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
 								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 									<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
 										Configuration
@@ -473,7 +473,7 @@ export function ConfigurationEditComponent() {
 							</div>
 
 							{/* JSON Configuration Card */}
-							<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
 								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 									<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
 										JSON Configuration
@@ -494,7 +494,7 @@ export function ConfigurationEditComponent() {
 							</div>
 
 							{/* API Usage Sidebar */}
-							<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
+							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
 								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 									<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
 										API Usage

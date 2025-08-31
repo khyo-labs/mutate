@@ -4,14 +4,15 @@ import { ArrowUpRight, Building, FileText, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useListWorkspace } from '@/hooks/use-organizations';
+import { useListWorkspace } from '@/hooks/use-workspaces';
 import { useSession } from '@/lib/auth-client';
 
 import { RecentMutations } from '../mutations/recent-mutations';
 
 export function Dashboard() {
 	const { data: session } = useSession();
-	const { data: organizations } = useListWorkspace();
+	const { data: workspaces } = useListWorkspace();
+	console.log('workspaces', workspaces);
 	return (
 		<div className="space-y-8">
 			{/* Header */}
@@ -73,15 +74,15 @@ export function Dashboard() {
 
 				<Card>
 					<CardHeader>
-						<CardTitle>Organization</CardTitle>
+						<CardTitle>Workspaces</CardTitle>
 					</CardHeader>
 					<CardContent className="space-y-3">
-						{organizations && organizations[0] && (
+						{workspaces && workspaces[0] && (
 							<>
 								<div className="flex items-center text-sm">
 									<Building className="text-muted-foreground mr-3 h-4 w-4" />
 									<span className="text-foreground font-medium">
-										{organizations[0].name}
+										{workspaces[0].name}
 									</span>
 								</div>
 								<div className="flex items-center text-sm">

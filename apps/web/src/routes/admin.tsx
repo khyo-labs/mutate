@@ -137,7 +137,7 @@ function AdminDashboard() {
 	async function fetchOrganizations() {
 		try {
 			const response = await api.get<ApiSuccessResponse<Organization[]>>(
-				'/v1/billing/admin/organizations',
+				'/v1/billing/admin/workspaces',
 			);
 			setOrganizations(response.data);
 		} catch (error: any) {
@@ -166,7 +166,7 @@ function AdminDashboard() {
 	async function fetchOrgUsageHistory(orgId: string) {
 		try {
 			const response = await api.get<ApiSuccessResponse<Organization>>(
-				`/v1/billing/admin/organizations/${orgId}`,
+				`/v1/billing/admin/workspaces/${orgId}`,
 			);
 			if (response.success) {
 				// Fetch usage history - this would need a new endpoint
@@ -204,7 +204,7 @@ function AdminDashboard() {
 	async function updateSubscriptionPlan(orgId: string, planId: string) {
 		try {
 			const response = await api.post<ApiSuccessResponse<Subscription>>(
-				`/v1/billing/admin/organizations/${orgId}/subscription`,
+				`/v1/billing/admin/workspaces/${orgId}/subscription`,
 				{
 					planId,
 				},
@@ -242,7 +242,7 @@ function AdminDashboard() {
 			}
 
 			const response = await api.post<ApiSuccessResponse<Subscription>>(
-				`/v1/billing/admin/organizations/${orgId}/overrides`,
+				`/v1/billing/admin/workspaces/${orgId}/overrides`,
 				payload,
 			);
 
@@ -348,7 +348,7 @@ function AdminDashboard() {
 			<div className="mb-6">
 				<h1 className="mb-2 text-3xl font-bold">Platform Admin Dashboard</h1>
 				<p className="text-muted-foreground">
-					Manage organizations, subscriptions, and billing
+					Manage workspaces, subscriptions, and billing
 				</p>
 			</div>
 
@@ -364,7 +364,7 @@ function AdminDashboard() {
 					<CardContent>
 						<div className="text-2xl font-bold">{stats.totalOrgs}</div>
 						<p className="text-muted-foreground text-xs">
-							Active organizations
+							Active workspaces
 						</p>
 					</CardContent>
 				</Card>

@@ -202,7 +202,7 @@ class WebhookService {
 	// Send webhook using priority system:
 	// 1. Transform request callbackUrl (highest priority)
 	// 2. Configuration-selected org webhook URL
-	// 3. Organization default webhook URL (fallback)
+	// 3. Return the file in the response if no webhook configured
 	async sendWebhookWithPriority(
 		organizationId: string,
 		configurationId: string,
@@ -229,26 +229,8 @@ class WebhookService {
 				},
 			});
 
-			// Get organization default webhook
-			const defaultWebhook = await db.query.organizationWebhooks.findFirst({
-				where: and(
-					eq(organizationWebhooks.organizationId, organizationId),
-					eq(organizationWebhooks.isDefault, true),
-				),
-				columns: {
-					id: true,
-					name: true,
-					url: true,
-					secret: true,
-				},
-			});
-
 			// Determine which webhook secret to use for external callbacks
-			// Priority: configuration-selected webhook secret > organization default webhook secret
-			const secret =
-				configuration?.webhookUrl?.secret ||
-				defaultWebhook?.secret ||
-				undefined;
+			const secret = configuration?.webhookUrl?.secret || undefined;
 
 			// Priority 1: Use transform request callback URL if provided
 			if (transformCallbackUrl) {
@@ -271,6 +253,12 @@ class WebhookService {
 					configuration.webhookUrl.url,
 				);
 				if (validation.valid) {
+					// Update lastUsedAt for the webhook
+					await db
+						.update(organizationWebhooks)
+						.set({ lastUsedAt: new Date() })
+						.where(eq(organizationWebhooks.id, configuration.webhookUrl.id));
+					
 					return await this.sendWebhook(
 						configuration.webhookUrl.url,
 						payload,
@@ -304,28 +292,7 @@ class WebhookService {
 				}
 			}
 
-			// Priority 3: Use organization default webhook URL
-			if (defaultWebhook) {
-				console.log(
-					`Using organization default webhook ${defaultWebhook.name} for job ${payload.jobId}`,
-				);
-				const validation = WebhookService.validateWebhookUrl(
-					defaultWebhook.url,
-				);
-				if (validation.valid) {
-					return await this.sendWebhook(
-						defaultWebhook.url,
-						payload,
-						defaultWebhook.secret || undefined,
-					);
-				} else {
-					console.error(
-						`Invalid organization default webhook URL: ${validation.error}`,
-					);
-				}
-			}
-
-			// No webhook configuration found
+			// No webhook configuration found - file will be returned in response
 			console.log(
 				`No webhook configured for organization ${organizationId}, configuration ${configurationId}`,
 			);

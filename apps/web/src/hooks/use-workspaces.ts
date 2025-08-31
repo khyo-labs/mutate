@@ -1,18 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import {
-	type CreateOrganizationRequest,
-	workspaceApi,
-} from '../api/workspaces';
+import { type CreateWorkspaceRequest, workspaceApi } from '../api/workspaces';
+
+const queryKey = ['workspaces'];
 
 export function useCreateWorkspace() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (data: CreateOrganizationRequest) => workspaceApi.create(data),
+		mutationFn: (data: CreateWorkspaceRequest) => workspaceApi.create(data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: ['organizations'],
+				queryKey: queryKey,
 			});
 		},
 	});
@@ -20,9 +19,8 @@ export function useCreateWorkspace() {
 
 export function useListWorkspace() {
 	return useQuery({
-		queryKey: ['organizations'],
+		queryKey: queryKey,
 		queryFn: () => workspaceApi.list(),
-		initialData: [],
 	});
 }
 

@@ -184,9 +184,9 @@ export async function billingRoutes(fastify: FastifyInstance) {
 		}
 	});
 
-	// Platform Admin endpoint: Set organization overrides
+	// Platform Admin endpoint: Set workspace overrides
 	fastify.post(
-		'/admin/organizations/:orgId/overrides',
+		'/admin/workspaces/:orgId/overrides',
 		async (request, reply) => {
 			try {
 				// Check for platform admin access
@@ -224,8 +224,8 @@ export async function billingRoutes(fastify: FastifyInstance) {
 		},
 	);
 
-	// Platform Admin endpoint: Get all organizations with usage stats
-	fastify.get('/admin/organizations', async (request, reply) => {
+	// Platform Admin endpoint: Get all workspaces with usage stats
+	fastify.get('/admin/workspaces', async (request, reply) => {
 		try {
 			// Check for platform admin access
 			if (!request.currentUser?.isPlatformAdmin) {
@@ -256,7 +256,7 @@ export async function billingRoutes(fastify: FastifyInstance) {
 
 	// Platform Admin endpoint: Update organization subscription
 	fastify.post(
-		'/admin/organizations/:orgId/subscription',
+		'/admin/workspaces/:orgId/subscription',
 		async (request, reply) => {
 			try {
 				// Check for platform admin access
@@ -302,7 +302,7 @@ export async function billingRoutes(fastify: FastifyInstance) {
 	);
 
 	// Platform Admin endpoint: Get organization limits and usage
-	fastify.get('/admin/organizations/:orgId', async (request, reply) => {
+	fastify.get('/admin/workspaces/:orgId', async (request, reply) => {
 		try {
 			// Check for platform admin access
 			if (!request.currentUser?.isPlatformAdmin) {

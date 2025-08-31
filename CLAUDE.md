@@ -48,7 +48,7 @@ mutate/
 ### Current Implementation Status
 
 - ✅ User authentication with Better Auth (email/password, GitHub, Google)
-- ✅ Organization-based multi-tenancy
+- ✅ Workspace-based multi-tenancy
 - ✅ Configuration management (CRUD operations)
 - ✅ Visual rule builder with drag & drop
 - ✅ File upload and processing
@@ -112,7 +112,7 @@ mutate/
 - `POST /v1/mutate` - Execute file transformation (async & sync support)
 - `GET /v1/jobs/:jobId` - Check transformation job status
 - `GET /v1/api-keys` - API key management
-- `GET /v1/organization/webhooks` - Webhook management
+- `GET /v1/workspaces/webhooks` - Webhook management
 - `GET /v1/files/:key` - Download transformed files
 - `GET /v1/health` - Health check
 

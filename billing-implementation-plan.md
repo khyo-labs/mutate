@@ -8,7 +8,7 @@
 
 - **Basic Rate Limiting**: 1,000 requests per minute per API key/IP (generic HTTP rate limiting)
 - **Transformation Jobs Table**: Records individual conversions but only for job management, not billing
-- **Organization Multi-tenancy**: Good foundation for per-org billing
+- **Workspace Multi-tenancy**: Good foundation for per-org billing
 - **File Size Limits**: 50MB max file size with async processing for files >10MB
 - **Audit Logs**: Basic action logging but not conversion-specific metrics
 
@@ -110,7 +110,7 @@
 ## Implementation Priority & Timeline
 
 **Phase 1 (Essential) - Week 1-2**: Basic usage tracking and quota enforcement
-**Phase 2 (Core) - Week 3-4**: Subscription plans and management  
+**Phase 2 (Core) - Week 3-4**: Subscription plans and management
 **Phase 3 (Business) - Week 5-6**: Payment processing and billing automation
 **Phase 4 (Enhancement) - Week 7+**: Advanced analytics and features
 
@@ -183,18 +183,18 @@ CREATE TABLE active_conversions (
 
 ```typescript
 // Usage tracking
-GET /v1/organizations/{id}/usage - Get current usage
-GET /v1/organizations/{id}/usage/history - Get usage history
+GET /v1/workspaces/{id}/usage - Get current usage
+GET /v1/workspaces/{id}/usage/history - Get usage history
 
 // Subscription management
-GET /v1/organizations/{id}/subscription - Get current subscription
-POST /v1/organizations/{id}/subscription - Create/update subscription
-DELETE /v1/organizations/{id}/subscription - Cancel subscription
+GET /v1/workspaces/{id}/subscription - Get current subscription
+POST /v1/workspaces/{id}/subscription - Create/update subscription
+DELETE /v1/workspaces/{id}/subscription - Cancel subscription
 
 // Billing
-GET /v1/organizations/{id}/billing - Get billing info
-POST /v1/organizations/{id}/billing/payment-method - Update payment method
-GET /v1/organizations/{id}/billing/invoices - Get billing history
+GET /v1/workspaces/{id}/billing - Get billing info
+POST /v1/workspaces/{id}/billing/payment-method - Update payment method
+GET /v1/workspaces/{id}/billing/invoices - Get billing history
 ```
 
 ## Services Architecture

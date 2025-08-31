@@ -271,8 +271,8 @@ export type Webhook = {
 	id: string;
 	name: string;
 	url: string;
-	isDefault: boolean;
 	secret?: string;
+	lastUsedAt?: string;
 	createdAt: string;
 	updatedAt: string;
 };

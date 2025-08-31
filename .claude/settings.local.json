@@ -18,13 +18,14 @@
       "Bash(tsx:*)",
       "Bash(pnpm tsx:*)",
       "Bash(pnpm --filter @mutate/api typecheck)",
-      "Bash(pnpm web add:*)"
+      "Bash(pnpm web add:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "shadcn"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

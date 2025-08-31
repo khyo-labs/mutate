@@ -19,7 +19,7 @@ interface CreateApiKeyForm {
 	expiresAt: string;
 }
 
-export function ApiKeysSettings() {
+export function ApiKeySettings() {
 	const [showCreateForm, setShowCreateForm] = useState(false);
 	const [createdApiKey, setCreatedApiKey] = useState<string | null>(null);
 	const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set());

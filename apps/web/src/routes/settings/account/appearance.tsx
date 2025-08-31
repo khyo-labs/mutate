@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Monitor, Moon, Sun } from 'lucide-react';
 
+import { SettingsHeader } from '@/components/settings/header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from '@/contexts/theme-provider';
@@ -35,14 +36,10 @@ function AppearanceComponent() {
 
 	return (
 		<div className="space-y-6">
-			<div>
-				<h1 className="text-2xl">Theme preferences</h1>
-				<p className="text-foreground mt-1">
-					Choose how Mutate looks to you. Sync with your system and
-					automatically switch between day and night themes or select a single
-					theme.
-				</p>
-			</div>
+			<SettingsHeader
+				title="Theme preferences"
+				description="Set your theme preference. Use automatic system sync for day/night switching or select a single theme."
+			/>
 
 			<div className="space-y-4">
 				<div>

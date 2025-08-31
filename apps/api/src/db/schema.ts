@@ -89,7 +89,7 @@ export const organizationWebhooks = pgTable('organization_webhook', {
 	name: varchar('name', { length: 255 }).notNull(),
 	url: text('url').notNull(),
 	secret: text('secret'),
-	isDefault: boolean('is_default').default(false).notNull(),
+	lastUsedAt: timestamp('last_used_at'),
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

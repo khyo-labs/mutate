@@ -3,20 +3,20 @@ import { Key, Webhook } from 'lucide-react';
 
 import { SettingsTabs } from '@/components/settings/settings-tabs';
 
-export const Route = createFileRoute('/settings/teams')({
+export const Route = createFileRoute('/settings/workspace')({
 	component: LayoutComponent,
 });
 
 const navigationItems = [
 	{
 		name: 'Webhooks',
-		href: '/settings/teams/webhooks',
+		href: '/settings/workspace/webhooks',
 		icon: Webhook,
 		description: 'Manage webhook endpoints and configurations',
 	},
 	{
 		name: 'API Keys',
-		href: '/settings/teams/api-keys',
+		href: '/settings/workspace/api-keys',
 		icon: Key,
 		description: 'Manage API keys and permissions',
 	},
@@ -33,5 +33,5 @@ function LayoutComponent() {
 				</div>
 			</main>
 		</div>
-	);
+	)
 }

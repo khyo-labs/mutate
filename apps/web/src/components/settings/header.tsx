@@ -1,8 +1,16 @@
 import { Button } from '../ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '../ui/dialog';
 
 type Props = {
 	title: string;
+	description?: string;
 	button?: {
 		icon?: React.ElementType;
 		label: string;
@@ -10,23 +18,32 @@ type Props = {
 	};
 };
 
-export function SettingsHeader({ title, button }: Props) {
+export function SettingsHeader({ title, description, button }: Props) {
 	return (
-		<div className="flex items-center justify-between">
-			<div className="flex items-center gap-2">
-				<h2 className="text-xl font-semibold">{title}</h2>
+		<div className="flex flex-col gap-1">
+			<div className="flex items-center justify-between">
+				<h1 className="text-2xl">{title}</h1>
+				{button && (
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button size="sm">
+								{button?.icon && <button.icon className="size-4" />}
+								{button?.label}
+							</Button>
+						</DialogTrigger>
+						<DialogContent>
+							<DialogHeader>
+								<DialogTitle>{button?.label}</DialogTitle>
+								<DialogDescription className="sr-only">
+									Dialog for {button?.label}
+								</DialogDescription>
+							</DialogHeader>
+							{button.dialog && <button.dialog />}
+						</DialogContent>
+					</Dialog>
+				)}
 			</div>
-			{button && (
-				<Dialog>
-					<DialogTrigger asChild>
-						<Button size="sm">
-							{button?.icon && <button.icon className="size-4" />}
-							{button?.label}
-						</Button>
-					</DialogTrigger>
-					<DialogContent>{button.dialog && <button.dialog />}</DialogContent>
-				</Dialog>
-			)}
+			<p className="text-foreground mt-1">{description}</p>
 		</div>
 	);
 }

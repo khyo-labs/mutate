@@ -1,46 +1,49 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useRef } from 'react';
 
+import type { Workspace } from '@/api/workspaces';
 import { Dashboard } from '@/components/dashboard';
 import { Layout } from '@/components/layouts';
-import { authClient } from '@/lib/auth-client';
-import { useOrganizationStore } from '@/stores/organization-store';
+import { useListWorkspace } from '@/hooks/use-workspaces';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 
-import { CreateOrganization } from '../components/organization/create-organization';
+import { CreateWorkspace } from '../components/workspace/create-workspace';
 
 export const Route = createFileRoute('/')({
 	component: RouteComponent,
 });
 
 export function RouteComponent() {
-	const { data: organizations, isPending } = authClient.useListOrganizations();
-	const { setOrganizations, activeOrganization, setActiveOrganization } =
-		useOrganizationStore();
+	const { data: workspaces, isPending } = useListWorkspace();
+	const { setWorkspaces, activeWorkspace, setActiveWorkspace } =
+		useWorkspaceStore();
 	const hasInitialized = useRef(false);
 
 	useEffect(() => {
-		if (organizations && !hasInitialized.current) {
-			setOrganizations(organizations);
-			if (!activeOrganization && organizations.length > 0) {
-				setActiveOrganization(organizations[0]);
+		if (workspaces && !hasInitialized.current) {
+			setWorkspaces(workspaces as unknown as Workspace[]);
+			if (!activeWorkspace && workspaces.length > 0) {
+				setActiveWorkspace(workspaces[0] as unknown as Workspace);
 			}
 			hasInitialized.current = true;
 		}
-	}, [
-		organizations,
-		setOrganizations,
-		activeOrganization,
-		setActiveOrganization,
-	]);
+	}, [workspaces, setWorkspaces, activeWorkspace, setActiveWorkspace]);
 
-	const hasOrganizations = (organizations || []).length > 0;
+	const hasWorkspaces = (workspaces || []).length > 0;
 
 	if (isPending) {
-		return <div>Loading...</div>;
+		return (
+			<div className="flex min-h-screen items-center justify-center">
+				<div className="text-center">
+					<div className="border-primary-600 mx-auto h-8 w-8 animate-spin rounded-full border-b-2"></div>
+					<p className="mt-2 text-sm text-gray-500">Loading...</p>
+				</div>
+			</div>
+		);
 	}
 
-	if (!hasOrganizations && !isPending) {
-		return <CreateOrganization />;
+	if (!hasWorkspaces && !isPending) {
+		return <CreateWorkspace />;
 	}
 
 	return (

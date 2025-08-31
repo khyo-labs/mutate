@@ -7,7 +7,7 @@ import { z } from 'zod';
 import {
 	useCheckSlugExists,
 	useCreateWorkspace,
-} from '../../hooks/use-organizations';
+} from '../../hooks/use-workspaces';
 import { useAuthStore, useSession } from '../../stores/auth-store';
 import { ProtectedRoute } from '../protected-route';
 import { Button } from '../ui/button';
@@ -29,10 +29,10 @@ import {
 } from '../ui/select';
 
 const formSchema = z.object({
-	organizationName: z.string().min(1, 'Organization name is required'),
-	organizationSlug: z
+	workspaceName: z.string().min(1, 'Workspace name is required'),
+	workspaceSlug: z
 		.string()
-		.min(1, 'Organization slug is required')
+		.min(1, 'Workspace slug is required')
 		.regex(
 			/^[a-z0-9-]+$/,
 			'Slug can only contain lowercase letters, numbers, and hyphens',
@@ -46,51 +46,51 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export function CreateOrganization() {
+export function CreateWorkspace() {
 	const { logout } = useAuthStore();
 	const { data: session } = useSession();
-	const createOrganization = useCreateWorkspace();
+	const createWorkspace = useCreateWorkspace();
 	const checkSlugExists = useCheckSlugExists();
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			organizationName: '',
-			organizationSlug: '',
+			workspaceName: '',
+			workspaceSlug: '',
 			companySize: '',
 		},
 	});
 
-	const organizationName = form.watch('organizationName');
-	const organizationSlug = form.watch('organizationSlug');
+	const workspaceName = form.watch('workspaceName');
+	const workspaceSlug = form.watch('workspaceSlug');
 
 	useEffect(() => {
-		if (organizationName) {
-			const slug = organizationName
+		if (workspaceName) {
+			const slug = workspaceName
 				.toLowerCase()
 				.replace(/[^a-z0-9]+/g, '-')
 				.replace(/^-|-$/g, '');
-			form.setValue('organizationSlug', slug);
+			form.setValue('workspaceSlug', slug);
 		}
-	}, [organizationName, form]);
+	}, [workspaceName, form]);
 
 	useEffect(() => {
 		const timeoutId = setTimeout(async () => {
-			if (!organizationSlug.length) {
-				form.clearErrors('organizationSlug');
+			if (!workspaceSlug.length) {
+				form.clearErrors('workspaceSlug');
 				checkSlugExists.reset();
 			}
 
-			if (organizationSlug?.length > 0) {
+			if (workspaceSlug?.length > 0) {
 				try {
-					const available = await checkSlugExists.mutateAsync(organizationSlug);
+					const available = await checkSlugExists.mutateAsync(workspaceSlug);
 					if (!available) {
-						form.setError('organizationSlug', {
+						form.setError('workspaceSlug', {
 							type: 'manual',
 							message: 'This workspace URL is already taken',
 						});
 					} else {
-						form.clearErrors('organizationSlug');
+						form.clearErrors('workspaceSlug');
 					}
 				} catch (error) {
 					console.error('Error checking slug:', error);
@@ -99,18 +99,18 @@ export function CreateOrganization() {
 		}, 500);
 
 		return () => clearTimeout(timeoutId);
-	}, [organizationSlug]);
+	}, [workspaceSlug]);
 
 	async function onSubmit(data: FormData) {
 		try {
-			await createOrganization.mutateAsync({
-				name: data.organizationName.trim(),
-				slug: data.organizationSlug.trim(),
+			await createWorkspace.mutateAsync({
+				name: data.workspaceName.trim(),
+				slug: data.workspaceSlug.trim(),
 				companySize: data.companySize,
 			});
 			window.location.reload();
 		} catch (error) {
-			console.error('Failed to create organization:', error);
+			console.error('Failed to create workspace:', error);
 		}
 	}
 
@@ -153,7 +153,7 @@ export function CreateOrganization() {
 								>
 									<FormField
 										control={form.control}
-										name="organizationName"
+										name="workspaceName"
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>Workspace Name</FormLabel>
@@ -169,7 +169,7 @@ export function CreateOrganization() {
 
 									<FormField
 										control={form.control}
-										name="organizationSlug"
+										name="workspaceSlug"
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>Workspace URL</FormLabel>
@@ -185,7 +185,7 @@ export function CreateOrganization() {
 														/>
 													</div>
 												</FormControl>
-												{!form.formState.errors.organizationSlug &&
+												{!form.formState.errors.workspaceSlug &&
 													checkSlugExists.isSuccess &&
 													!checkSlugExists.isPending && (
 														<p className="mt-1 text-sm text-green-600">
@@ -240,12 +240,12 @@ export function CreateOrganization() {
 										className="w-full"
 										disabled={
 											isSubmitting ||
-											createOrganization.isPending ||
+											createWorkspace.isPending ||
 											checkSlugExists.isPending
 										}
 									>
 										<BuildingIcon className="mr-2 size-4" />
-										{createOrganization.isPending
+										{createWorkspace.isPending
 											? 'Creating workspace...'
 											: 'Create workspace'}
 									</Button>

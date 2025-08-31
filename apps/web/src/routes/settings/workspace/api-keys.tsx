@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { ApiKeysSettings } from '@/components/settings/api-keys';
+import { ApiKeySettings } from '@/components/settings/api-key-settings';
 
-export const Route = createFileRoute('/settings/teams/api-keys')({
+export const Route = createFileRoute('/settings/workspace/api-keys')({
 	component: RouteComponent,
 });
 
@@ -14,8 +14,8 @@ function RouteComponent() {
 			</div>
 
 			<div className="max-w-4xl">
-				<ApiKeysSettings />
+				<ApiKeySettings />
 			</div>
 		</div>
-	);
+	)
 }

@@ -57,7 +57,11 @@ export function Sidebar() {
 	];
 
 	const bottomNavigationItems: NavigationItem[] = [
-		{ name: 'Team Settings', href: '/settings/teams', icon: Building2 },
+		{
+			name: 'Workspace Settings',
+			href: '/settings/workspace',
+			icon: Building2,
+		},
 	];
 
 	function isActiveRoute(href: string) {
@@ -221,17 +225,6 @@ export function Sidebar() {
 					</div>
 
 					<div className="flex-1 overflow-y-auto">
-						<div className="border-border border-b px-4 py-3">
-							<div className="text-muted-foreground text-xs font-medium">
-								Link Integrations
-							</div>
-							<div className="mt-2 flex gap-1">
-								<span className="text-lg">🔗</span>
-								<span className="text-lg">📊</span>
-								<span className="text-lg">📈</span>
-							</div>
-						</div>
-
 						<div className="px-3 py-3">
 							<nav className="space-y-1">
 								{navigationItems.map((item) => {

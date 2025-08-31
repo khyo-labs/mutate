@@ -17,13 +17,13 @@ import { Route as IndexRouteImport } from './routes/index';
 import { Route as SettingsIndexRouteImport } from './routes/settings/index';
 import { Route as MutationsIndexRouteImport } from './routes/mutations/index';
 import { Route as MutationsNewRouteImport } from './routes/mutations/new';
-import { Route as SettingsTeamsRouteRouteImport } from './routes/settings/teams/route';
+import { Route as SettingsWorkspaceRouteRouteImport } from './routes/settings/workspace/route';
 import { Route as SettingsAccountRouteRouteImport } from './routes/settings/account/route';
-import { Route as SettingsTeamsIndexRouteImport } from './routes/settings/teams/index';
+import { Route as SettingsWorkspaceIndexRouteImport } from './routes/settings/workspace/index';
 import { Route as SettingsAccountIndexRouteImport } from './routes/settings/account/index';
 import { Route as MutationsConfigIdIndexRouteImport } from './routes/mutations/$configId/index';
-import { Route as SettingsTeamsWebhooksRouteImport } from './routes/settings/teams/webhooks';
-import { Route as SettingsTeamsApiKeysRouteImport } from './routes/settings/teams/api-keys';
+import { Route as SettingsWorkspaceWebhooksRouteImport } from './routes/settings/workspace/webhooks';
+import { Route as SettingsWorkspaceApiKeysRouteImport } from './routes/settings/workspace/api-keys';
 import { Route as SettingsAccountProfileRouteImport } from './routes/settings/account/profile';
 import { Route as SettingsAccountAppearanceRouteImport } from './routes/settings/account/appearance';
 import { Route as MutationsConfigIdEditRouteImport } from './routes/mutations/$configId/edit';
@@ -68,9 +68,9 @@ const MutationsNewRoute = MutationsNewRouteImport.update({
   path: '/mutations/new',
   getParentRoute: () => rootRouteImport,
 } as any);
-const SettingsTeamsRouteRoute = SettingsTeamsRouteRouteImport.update({
-  id: '/teams',
-  path: '/teams',
+const SettingsWorkspaceRouteRoute = SettingsWorkspaceRouteRouteImport.update({
+  id: '/workspace',
+  path: '/workspace',
   getParentRoute: () => SettingsRouteRoute,
 } as any);
 const SettingsAccountRouteRoute = SettingsAccountRouteRouteImport.update({
@@ -78,10 +78,10 @@ const SettingsAccountRouteRoute = SettingsAccountRouteRouteImport.update({
   path: '/account',
   getParentRoute: () => SettingsRouteRoute,
 } as any);
-const SettingsTeamsIndexRoute = SettingsTeamsIndexRouteImport.update({
+const SettingsWorkspaceIndexRoute = SettingsWorkspaceIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => SettingsTeamsRouteRoute,
+  getParentRoute: () => SettingsWorkspaceRouteRoute,
 } as any);
 const SettingsAccountIndexRoute = SettingsAccountIndexRouteImport.update({
   id: '/',
@@ -93,16 +93,18 @@ const MutationsConfigIdIndexRoute = MutationsConfigIdIndexRouteImport.update({
   path: '/mutations/$configId/',
   getParentRoute: () => rootRouteImport,
 } as any);
-const SettingsTeamsWebhooksRoute = SettingsTeamsWebhooksRouteImport.update({
-  id: '/webhooks',
-  path: '/webhooks',
-  getParentRoute: () => SettingsTeamsRouteRoute,
-} as any);
-const SettingsTeamsApiKeysRoute = SettingsTeamsApiKeysRouteImport.update({
-  id: '/api-keys',
-  path: '/api-keys',
-  getParentRoute: () => SettingsTeamsRouteRoute,
-} as any);
+const SettingsWorkspaceWebhooksRoute =
+  SettingsWorkspaceWebhooksRouteImport.update({
+    id: '/webhooks',
+    path: '/webhooks',
+    getParentRoute: () => SettingsWorkspaceRouteRoute,
+  } as any);
+const SettingsWorkspaceApiKeysRoute =
+  SettingsWorkspaceApiKeysRouteImport.update({
+    id: '/api-keys',
+    path: '/api-keys',
+    getParentRoute: () => SettingsWorkspaceRouteRoute,
+  } as any);
 const SettingsAccountProfileRoute = SettingsAccountProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -127,18 +129,18 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
-  '/settings/teams': typeof SettingsTeamsRouteRouteWithChildren;
+  '/settings/workspace': typeof SettingsWorkspaceRouteRouteWithChildren;
   '/mutations/new': typeof MutationsNewRoute;
   '/mutations': typeof MutationsIndexRoute;
   '/settings/': typeof SettingsIndexRoute;
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
-  '/settings/teams/api-keys': typeof SettingsTeamsApiKeysRoute;
-  '/settings/teams/webhooks': typeof SettingsTeamsWebhooksRoute;
+  '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
+  '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
   '/mutations/$configId': typeof MutationsConfigIdIndexRoute;
   '/settings/account/': typeof SettingsAccountIndexRoute;
-  '/settings/teams/': typeof SettingsTeamsIndexRoute;
+  '/settings/workspace/': typeof SettingsWorkspaceIndexRoute;
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
@@ -151,11 +153,11 @@ export interface FileRoutesByTo {
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
-  '/settings/teams/api-keys': typeof SettingsTeamsApiKeysRoute;
-  '/settings/teams/webhooks': typeof SettingsTeamsWebhooksRoute;
+  '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
+  '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
   '/mutations/$configId': typeof MutationsConfigIdIndexRoute;
   '/settings/account': typeof SettingsAccountIndexRoute;
-  '/settings/teams': typeof SettingsTeamsIndexRoute;
+  '/settings/workspace': typeof SettingsWorkspaceIndexRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
@@ -165,18 +167,18 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
-  '/settings/teams': typeof SettingsTeamsRouteRouteWithChildren;
+  '/settings/workspace': typeof SettingsWorkspaceRouteRouteWithChildren;
   '/mutations/new': typeof MutationsNewRoute;
   '/mutations/': typeof MutationsIndexRoute;
   '/settings/': typeof SettingsIndexRoute;
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
-  '/settings/teams/api-keys': typeof SettingsTeamsApiKeysRoute;
-  '/settings/teams/webhooks': typeof SettingsTeamsWebhooksRoute;
+  '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
+  '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
   '/mutations/$configId/': typeof MutationsConfigIdIndexRoute;
   '/settings/account/': typeof SettingsAccountIndexRoute;
-  '/settings/teams/': typeof SettingsTeamsIndexRoute;
+  '/settings/workspace/': typeof SettingsWorkspaceIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
@@ -187,18 +189,18 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/settings/account'
-    | '/settings/teams'
+    | '/settings/workspace'
     | '/mutations/new'
     | '/mutations'
     | '/settings/'
     | '/mutations/$configId/edit'
     | '/settings/account/appearance'
     | '/settings/account/profile'
-    | '/settings/teams/api-keys'
-    | '/settings/teams/webhooks'
+    | '/settings/workspace/api-keys'
+    | '/settings/workspace/webhooks'
     | '/mutations/$configId'
     | '/settings/account/'
-    | '/settings/teams/';
+    | '/settings/workspace/';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
@@ -211,11 +213,11 @@ export interface FileRouteTypes {
     | '/mutations/$configId/edit'
     | '/settings/account/appearance'
     | '/settings/account/profile'
-    | '/settings/teams/api-keys'
-    | '/settings/teams/webhooks'
+    | '/settings/workspace/api-keys'
+    | '/settings/workspace/webhooks'
     | '/mutations/$configId'
     | '/settings/account'
-    | '/settings/teams';
+    | '/settings/workspace';
   id:
     | '__root__'
     | '/'
@@ -224,18 +226,18 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/settings/account'
-    | '/settings/teams'
+    | '/settings/workspace'
     | '/mutations/new'
     | '/mutations/'
     | '/settings/'
     | '/mutations/$configId/edit'
     | '/settings/account/appearance'
     | '/settings/account/profile'
-    | '/settings/teams/api-keys'
-    | '/settings/teams/webhooks'
+    | '/settings/workspace/api-keys'
+    | '/settings/workspace/webhooks'
     | '/mutations/$configId/'
     | '/settings/account/'
-    | '/settings/teams/';
+    | '/settings/workspace/';
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
@@ -308,11 +310,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MutationsNewRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/settings/teams': {
-      id: '/settings/teams';
-      path: '/teams';
-      fullPath: '/settings/teams';
-      preLoaderRoute: typeof SettingsTeamsRouteRouteImport;
+    '/settings/workspace': {
+      id: '/settings/workspace';
+      path: '/workspace';
+      fullPath: '/settings/workspace';
+      preLoaderRoute: typeof SettingsWorkspaceRouteRouteImport;
       parentRoute: typeof SettingsRouteRoute;
     };
     '/settings/account': {
@@ -322,12 +324,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsAccountRouteRouteImport;
       parentRoute: typeof SettingsRouteRoute;
     };
-    '/settings/teams/': {
-      id: '/settings/teams/';
+    '/settings/workspace/': {
+      id: '/settings/workspace/';
       path: '/';
-      fullPath: '/settings/teams/';
-      preLoaderRoute: typeof SettingsTeamsIndexRouteImport;
-      parentRoute: typeof SettingsTeamsRouteRoute;
+      fullPath: '/settings/workspace/';
+      preLoaderRoute: typeof SettingsWorkspaceIndexRouteImport;
+      parentRoute: typeof SettingsWorkspaceRouteRoute;
     };
     '/settings/account/': {
       id: '/settings/account/';
@@ -343,19 +345,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MutationsConfigIdIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/settings/teams/webhooks': {
-      id: '/settings/teams/webhooks';
+    '/settings/workspace/webhooks': {
+      id: '/settings/workspace/webhooks';
       path: '/webhooks';
-      fullPath: '/settings/teams/webhooks';
-      preLoaderRoute: typeof SettingsTeamsWebhooksRouteImport;
-      parentRoute: typeof SettingsTeamsRouteRoute;
+      fullPath: '/settings/workspace/webhooks';
+      preLoaderRoute: typeof SettingsWorkspaceWebhooksRouteImport;
+      parentRoute: typeof SettingsWorkspaceRouteRoute;
     };
-    '/settings/teams/api-keys': {
-      id: '/settings/teams/api-keys';
+    '/settings/workspace/api-keys': {
+      id: '/settings/workspace/api-keys';
       path: '/api-keys';
-      fullPath: '/settings/teams/api-keys';
-      preLoaderRoute: typeof SettingsTeamsApiKeysRouteImport;
-      parentRoute: typeof SettingsTeamsRouteRoute;
+      fullPath: '/settings/workspace/api-keys';
+      preLoaderRoute: typeof SettingsWorkspaceApiKeysRouteImport;
+      parentRoute: typeof SettingsWorkspaceRouteRoute;
     };
     '/settings/account/profile': {
       id: '/settings/account/profile';
@@ -396,30 +398,33 @@ const SettingsAccountRouteRouteChildren: SettingsAccountRouteRouteChildren = {
 const SettingsAccountRouteRouteWithChildren =
   SettingsAccountRouteRoute._addFileChildren(SettingsAccountRouteRouteChildren);
 
-interface SettingsTeamsRouteRouteChildren {
-  SettingsTeamsApiKeysRoute: typeof SettingsTeamsApiKeysRoute;
-  SettingsTeamsWebhooksRoute: typeof SettingsTeamsWebhooksRoute;
-  SettingsTeamsIndexRoute: typeof SettingsTeamsIndexRoute;
+interface SettingsWorkspaceRouteRouteChildren {
+  SettingsWorkspaceApiKeysRoute: typeof SettingsWorkspaceApiKeysRoute;
+  SettingsWorkspaceWebhooksRoute: typeof SettingsWorkspaceWebhooksRoute;
+  SettingsWorkspaceIndexRoute: typeof SettingsWorkspaceIndexRoute;
 }
 
-const SettingsTeamsRouteRouteChildren: SettingsTeamsRouteRouteChildren = {
-  SettingsTeamsApiKeysRoute: SettingsTeamsApiKeysRoute,
-  SettingsTeamsWebhooksRoute: SettingsTeamsWebhooksRoute,
-  SettingsTeamsIndexRoute: SettingsTeamsIndexRoute,
-};
+const SettingsWorkspaceRouteRouteChildren: SettingsWorkspaceRouteRouteChildren =
+  {
+    SettingsWorkspaceApiKeysRoute: SettingsWorkspaceApiKeysRoute,
+    SettingsWorkspaceWebhooksRoute: SettingsWorkspaceWebhooksRoute,
+    SettingsWorkspaceIndexRoute: SettingsWorkspaceIndexRoute,
+  };
 
-const SettingsTeamsRouteRouteWithChildren =
-  SettingsTeamsRouteRoute._addFileChildren(SettingsTeamsRouteRouteChildren);
+const SettingsWorkspaceRouteRouteWithChildren =
+  SettingsWorkspaceRouteRoute._addFileChildren(
+    SettingsWorkspaceRouteRouteChildren,
+  );
 
 interface SettingsRouteRouteChildren {
   SettingsAccountRouteRoute: typeof SettingsAccountRouteRouteWithChildren;
-  SettingsTeamsRouteRoute: typeof SettingsTeamsRouteRouteWithChildren;
+  SettingsWorkspaceRouteRoute: typeof SettingsWorkspaceRouteRouteWithChildren;
   SettingsIndexRoute: typeof SettingsIndexRoute;
 }
 
 const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
   SettingsAccountRouteRoute: SettingsAccountRouteRouteWithChildren,
-  SettingsTeamsRouteRoute: SettingsTeamsRouteRouteWithChildren,
+  SettingsWorkspaceRouteRoute: SettingsWorkspaceRouteRouteWithChildren,
   SettingsIndexRoute: SettingsIndexRoute,
 };
 
