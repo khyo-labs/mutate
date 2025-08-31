@@ -132,15 +132,14 @@ export type TransformationRule =
 	| CombineWorksheetsRule
 	| EvaluateFormulasRule;
 
-// Output format configurations
-export interface CsvOutputFormat {
+export type CsvOutputFormat = {
 	type: 'CSV';
 	delimiter: string;
 	encoding: 'UTF-8' | 'UTF-16' | 'ASCII';
 	includeHeaders: boolean;
-}
+};
 
-export interface PdfOutputFormat {
+export type PdfOutputFormat = {
 	type: 'PDF';
 	pageSize: 'A4' | 'Letter' | 'Legal';
 	orientation: 'portrait' | 'landscape';
@@ -150,13 +149,13 @@ export interface PdfOutputFormat {
 		left: number;
 		right: number;
 	};
-}
+};
 
-export interface JsonOutputFormat {
+export type JsonOutputFormat = {
 	type: 'JSON';
 	prettyPrint: boolean;
 	encoding: 'UTF-8' | 'UTF-16';
-}
+};
 
 export type OutputFormatConfig =
 	| CsvOutputFormat
@@ -164,7 +163,7 @@ export type OutputFormatConfig =
 	| JsonOutputFormat;
 
 // Configuration
-export interface Configuration {
+export type Configuration = {
 	id: string;
 	organizationId: string;
 	name: string;
@@ -178,24 +177,24 @@ export interface Configuration {
 	createdBy: string;
 	createdAt: string;
 	updatedAt: string;
-}
+};
 
 // API response types
-export interface ApiSuccessResponse<T = any> {
+export type ApiSuccessResponse<T = any> = {
 	success: true;
 	data: T;
-}
+};
 
-export interface ApiErrorResponse {
+export type ApiErrorResponse = {
 	success: false;
 	error: {
 		code: string;
 		message: string;
 		details?: Record<string, any>;
 	};
-}
+};
 
-export interface PaginatedResponse<T> {
+export type PaginatedResponse<T> = {
 	success: boolean;
 	data: T[];
 	pagination: {
@@ -204,34 +203,34 @@ export interface PaginatedResponse<T> {
 		total: number;
 		totalPages: number;
 	};
-}
+};
 
 export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 // Auth types
-export interface User {
+export type User = {
 	id: string;
 	email: string;
 	role: UserRole;
 	organizationId: string;
 	organizationName: string;
-}
+};
 
-export interface AuthTokens {
+export type AuthTokens = {
 	accessToken: string;
 	refreshToken: string;
-}
+};
 
-export interface AuthState {
+export type AuthState = {
 	user: User | null;
 	accessToken: string | null;
 	refreshToken: string | null;
 	isAuthenticated: boolean;
 	isLoading: boolean;
-}
+};
 
 // Transformation job
-export interface TransformationJob {
+export type TransformationJob = {
 	id: string;
 	organizationId: string;
 	configurationId: string;
@@ -244,26 +243,36 @@ export interface TransformationJob {
 	completedAt?: string;
 	createdBy: string;
 	createdAt: string;
-}
+};
 
 // Form types
-export interface RegisterFormData {
+export type RegisterFormData = {
 	email: string;
 	password: string;
 	name: string;
 	role?: UserRole;
-}
+};
 
-export interface LoginFormData {
+export type LoginFormData = {
 	email: string;
 	password: string;
-}
+};
 
-export interface ConfigurationFormData {
+export type ConfigurationFormData = {
 	name: string;
 	description?: string;
 	conversionType: ConversionType;
 	inputFormat: InputFormat;
 	outputFormat: OutputFormatConfig;
 	rules: TransformationRule[];
-}
+};
+
+export type Webhook = {
+	id: string;
+	name: string;
+	url: string;
+	isDefault: boolean;
+	secret?: string;
+	createdAt: string;
+	updatedAt: string;
+};

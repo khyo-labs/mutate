@@ -3,7 +3,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { ThemeProvider } from './contexts/theme-context';
+import { ThemeProvider } from './contexts/theme-provider';
 import './index.css';
 import { routeTree } from './routeTree.gen';
 
@@ -30,7 +30,7 @@ if (!rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
 	root.render(
 		<StrictMode>
-			<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+			<ThemeProvider defaultTheme="system" storageKey="mutate-ui-theme">
 				<QueryClientProvider client={queryClient}>
 					<RouterProvider router={router} />
 				</QueryClientProvider>

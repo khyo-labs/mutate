@@ -9,7 +9,6 @@ import { organizationSubscriptions } from '../db/schema.js';
 
 async function setupDefaultResources(organizationId: string) {
 	try {
-		// Check if subscription already exists
 		const existingSubscription = await db
 			.select()
 			.from(organizationSubscriptions)
@@ -42,7 +41,6 @@ async function setupDefaultResources(organizationId: string) {
 		console.log(`✅ Assigned free tier to organization: ${organizationId}`);
 	} catch (error) {
 		console.error('Failed to setup default resources for organization:', error);
-		// Don't throw - we don't want to fail organization creation if this fails
 	}
 }
 

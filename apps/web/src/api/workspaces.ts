@@ -32,7 +32,7 @@ export const workspaceApi = {
 
 	list: async function (): Promise<Organization[]> {
 		const response = await api.get<Organization[]>(
-			'/v1/auth/organizations/list',
+			'/v1/auth/organization/list',
 		);
 		return response;
 	},

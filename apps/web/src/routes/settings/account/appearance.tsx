@@ -1,20 +1,88 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { Monitor, Moon, Sun } from 'lucide-react';
 
-import { ThemeSettings } from '@/components/settings/theme-settings';
+import { Card, CardContent } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { useTheme } from '@/contexts/theme-provider';
 
 export const Route = createFileRoute('/settings/account/appearance')({
 	component: AppearanceComponent,
 });
 
 function AppearanceComponent() {
+	const { theme, setTheme } = useTheme();
+
+	const themes = [
+		{
+			name: 'Light mode',
+			value: 'light' as const,
+			icon: Sun,
+			description: 'Theme to use for light mode',
+		},
+		{
+			name: 'Dark mode',
+			value: 'dark' as const,
+			icon: Moon,
+			description: 'Theme to use for dark mode',
+		},
+		{
+			name: 'System',
+			value: 'system' as const,
+			icon: Monitor,
+			description: 'Theme to use to match your system theme',
+		},
+	];
+
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center gap-3">
-				<h1 className="text-2xl font-bold">Appearance</h1>
+			<div>
+				<h1 className="text-2xl">Theme preferences</h1>
+				<p className="text-foreground mt-1">
+					Choose how Mutate looks to you. Sync with your system and
+					automatically switch between day and night themes or select a single
+					theme.
+				</p>
 			</div>
 
-			<div className="max-w-4xl space-y-6">
-				<ThemeSettings />
+			<div className="space-y-4">
+				<div>
+					<h2 className="mb-3 text-base font-medium">Theme</h2>
+
+					<Card>
+						<CardContent className="p-4">
+							<div className="divide-border grid gap-3 divide-y">
+								{themes.map((item) => {
+									const isSelected = theme === item.value;
+
+									return (
+										<div
+											key={item.value}
+											className="flex items-center justify-between pb-3 last:pb-0"
+											onClick={() => setTheme(item.value)}
+										>
+											<div className="flex items-center gap-3">
+												<div>
+													<div className="text-sm">{item.name}</div>
+													<p className="text-muted-foreground text-xs">
+														{item.description}
+													</p>
+												</div>
+											</div>
+											<div className="text-muted-foreground flex items-center gap-2 text-sm">
+												{isSelected ? 'On' : 'Off'}
+												<Switch
+													checked={isSelected}
+													onCheckedChange={() => setTheme(item.value)}
+													onClick={(e) => e.stopPropagation()}
+												/>
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						</CardContent>
+					</Card>
+				</div>
 			</div>
 		</div>
 	);

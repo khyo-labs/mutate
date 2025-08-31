@@ -32,8 +32,6 @@ export const mutApi = {
 
 		const response = await api.get<PaginatedResponse<Configuration>>(url);
 
-		console.log('list configurations response', response);
-
 		if (!response.success) {
 			toast.error('Failed to list configurations');
 		}
