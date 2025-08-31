@@ -12,8 +12,10 @@ function ProfileComponent() {
 			</div>
 
 			<div className="max-w-4xl space-y-6">
-				<div className="rounded-lg border border-slate-200 bg-white p-6">
-					<p className="text-slate-600">Profile settings coming soon...</p>
+				<div className="rounded-lg border bg-card p-6 text-card-foreground">
+					<p className="text-muted-foreground">
+						Profile settings coming soon...
+					</p>
 				</div>
 			</div>
 		</div>

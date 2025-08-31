@@ -224,11 +224,11 @@ export function ConfigurationEditComponent() {
 		<Layout>
 			<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 				{/* Header Section */}
-				<div className="mb-8 border-b border-gray-200 pb-6">
+				<div className="mb-8 border-b pb-6">
 					<div className="mb-4 flex items-center space-x-4">
 						<button
 							onClick={handleCancel}
-							className="flex items-center text-gray-600 transition-colors hover:text-gray-900"
+							className="text-muted-foreground flex items-center transition-colors hover:text-foreground"
 						>
 							<ArrowLeft className="mr-2 h-4 w-4" />
 							Back to Mutation
@@ -237,10 +237,8 @@ export function ConfigurationEditComponent() {
 
 					<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
 						<div>
-							<h1 className="text-3xl font-bold text-gray-900">
-								Edit Mutation
-							</h1>
-							<p className="mt-2 text-lg text-gray-600">
+							<h1 className="text-3xl font-bold">Edit Mutation</h1>
+							<p className="text-muted-foreground mt-2 text-lg">
 								Modify your data transformation mutation
 							</p>
 						</div>
@@ -269,12 +267,12 @@ export function ConfigurationEditComponent() {
 						{/* Left Column - Main Content Area */}
 						<div className="space-y-8 xl:col-span-8">
 							{/* Transformation Rules Card - Larger Space */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-								<div className="border-b border-gray-200 px-6 py-5">
-									<h2 className="text-xl font-semibold text-gray-900">
+							<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+								<div className="border-b px-6 py-5">
+									<h2 className="text-xl font-semibold">
 										Transformation Rules
 									</h2>
-									<p className="mt-1 text-sm text-gray-600">
+									<p className="text-muted-foreground mt-1 text-sm">
 										Build your data transformation pipeline step by step
 									</p>
 								</div>
@@ -290,25 +288,23 @@ export function ConfigurationEditComponent() {
 							</div>
 
 							{/* Data Preview Tabs */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-								<div className="border-b border-gray-200 px-6 py-5">
+							<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+								<div className="border-b px-6 py-5">
 									<div className="flex items-center justify-between">
 										<div>
-											<h2 className="text-xl font-semibold text-gray-900">
-												Data Preview
-											</h2>
-											<p className="mt-1 text-sm text-gray-600">
+											<h2 className="text-xl font-semibold">Data Preview</h2>
+											<p className="text-muted-foreground mt-1 text-sm">
 												See how your transformations affect the data
 											</p>
 										</div>
 										{/* Tab Navigation */}
-										<div className="flex space-x-1 rounded-lg bg-gray-100 p-1">
+										<div className="flex space-x-1 rounded-lg bg-muted p-1">
 											<button
 												onClick={() => setActiveTab('preview')}
 												className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
 													activeTab === 'preview'
-														? 'bg-white text-gray-900 shadow-sm'
-														: 'text-gray-600 hover:text-gray-900'
+														? 'bg-background text-foreground shadow-sm'
+														: 'text-muted-foreground hover:text-foreground'
 												}`}
 											>
 												Live Preview
@@ -317,8 +313,8 @@ export function ConfigurationEditComponent() {
 												onClick={() => setActiveTab('data')}
 												className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
 													activeTab === 'data'
-														? 'bg-white text-gray-900 shadow-sm'
-														: 'text-gray-600 hover:text-gray-900'
+														? 'bg-background text-foreground shadow-sm'
+														: 'text-muted-foreground hover:text-foreground'
 												}`}
 											>
 												Sample Data
@@ -329,7 +325,7 @@ export function ConfigurationEditComponent() {
 								<div className="p-6">
 									{activeTab === 'preview' ? (
 										<div>
-											<h3 className="mb-4 text-lg font-medium text-gray-900">
+											<h3 className="mb-4 text-lg font-medium">
 												Live Preview
 											</h3>
 											<SpreadsheetPreview
@@ -339,7 +335,7 @@ export function ConfigurationEditComponent() {
 										</div>
 									) : (
 										<div>
-											<h3 className="mb-4 text-lg font-medium text-gray-900">
+											<h3 className="mb-4 text-lg font-medium">
 												Sample Data
 											</h3>
 											<FileUpload
@@ -352,12 +348,10 @@ export function ConfigurationEditComponent() {
 							</div>
 
 							{/* Output Preview Card */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-								<div className="border-b border-gray-200 px-6 py-5">
-									<h2 className="text-xl font-semibold text-gray-900">
-										Output Preview
-									</h2>
-									<p className="mt-1 text-sm text-gray-600">
+							<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+								<div className="border-b px-6 py-5">
+									<h2 className="text-xl font-semibold">Output Preview</h2>
+									<p className="text-muted-foreground mt-1 text-sm">
 										Preview the final CSV output with your transformations
 										applied
 									</p>
@@ -380,12 +374,10 @@ export function ConfigurationEditComponent() {
 						{/* Right Column - Configuration Sidebar */}
 						<div className="space-y-8 xl:col-span-4">
 							{/* Configuration Details Card */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-								<div className="border-b border-gray-200 px-6 py-5">
-									<h2 className="text-xl font-semibold text-gray-900">
-										Configuration
-									</h2>
-									<p className="mt-1 text-sm text-gray-600">
+							<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+								<div className="border-b px-6 py-5">
+									<h2 className="text-xl font-semibold">Configuration</h2>
+									<p className="text-muted-foreground mt-1 text-sm">
 										Basic settings for your transformation
 									</p>
 								</div>
@@ -393,7 +385,7 @@ export function ConfigurationEditComponent() {
 									<div>
 										<label
 											htmlFor="name"
-											className="mb-2 block text-sm font-medium text-gray-700"
+											className="mb-2 block text-sm font-medium"
 										>
 											Name <span className="text-red-500">*</span>
 										</label>
@@ -407,7 +399,7 @@ export function ConfigurationEditComponent() {
 													type="text"
 													id="name"
 													placeholder="Enter mutation name"
-													className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+													className="block w-full rounded-lg border bg-background px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
 												/>
 											)}
 										/>
@@ -420,7 +412,7 @@ export function ConfigurationEditComponent() {
 									<div>
 										<label
 											htmlFor="description"
-											className="mb-2 block text-sm font-medium text-gray-700"
+											className="mb-2 block text-sm font-medium"
 										>
 											Description
 										</label>
@@ -433,7 +425,7 @@ export function ConfigurationEditComponent() {
 													type="text"
 													id="description"
 													placeholder="Enter description (optional)"
-													className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+													className="block w-full rounded-lg border bg-background px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
 												/>
 											)}
 										/>
@@ -441,7 +433,7 @@ export function ConfigurationEditComponent() {
 									<div>
 										<label
 											htmlFor="webhookUrlId"
-											className="mb-2 block text-sm font-medium text-gray-700"
+											className="mb-2 block text-sm font-medium"
 										>
 											Webhook URL
 										</label>
@@ -452,7 +444,7 @@ export function ConfigurationEditComponent() {
 												<select
 													{...field}
 													id="webhookUrlId"
-													className="block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+													className="block w-full rounded-lg border bg-background px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
 												>
 													<option value="">Use organization default</option>
 													{webhooks.map((webhook: any) => (
@@ -464,7 +456,7 @@ export function ConfigurationEditComponent() {
 												</select>
 											)}
 										/>
-										<p className="mt-1 text-xs text-gray-500">
+										<p className="text-muted-foreground mt-1 text-xs">
 											Select a specific webhook URL for this configuration, or
 											leave blank to use the organization default.
 										</p>
@@ -473,9 +465,9 @@ export function ConfigurationEditComponent() {
 							</div>
 
 							{/* JSON Configuration Card */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-								<div className="border-b border-gray-200 px-6 py-5">
-									<h2 className="text-xl font-semibold text-gray-900">
+							<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+								<div className="border-b px-6 py-5">
+									<h2 className="text-xl font-semibold">
 										JSON Configuration
 									</h2>
 								</div>
@@ -494,12 +486,10 @@ export function ConfigurationEditComponent() {
 							</div>
 
 							{/* API Usage Sidebar */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-								<div className="border-b border-gray-200 px-6 py-5">
-									<h2 className="text-xl font-semibold text-gray-900">
-										API Usage
-									</h2>
-									<p className="mt-1 text-sm text-gray-600">
+							<div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+								<div className="border-b px-6 py-5">
+									<h2 className="text-xl font-semibold">API Usage</h2>
+									<p className="text-muted-foreground mt-1 text-sm">
 										Integration details and usage
 									</p>
 								</div>
@@ -511,9 +501,9 @@ export function ConfigurationEditComponent() {
 					</div>
 
 					{/* Action Bar */}
-					<div className="mt-12 border-t border-gray-200 pt-6">
+					<div className="mt-12 border-t pt-6">
 						<div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
-							<div className="text-sm text-gray-600">
+							<div className="text-muted-foreground text-sm">
 								{uploadedFile ? (
 									<span className="flex items-center">
 										<span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
@@ -526,7 +516,7 @@ export function ConfigurationEditComponent() {
 									</span>
 								)}
 								{/* Rules count */}
-								<span className="ml-4 text-gray-500">
+								<span className="text-muted-foreground ml-4">
 									{watchedRules.length} transformation rule
 									{watchedRules.length !== 1 ? 's' : ''} configured
 								</span>
