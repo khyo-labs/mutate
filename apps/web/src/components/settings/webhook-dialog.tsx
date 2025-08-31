@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { DialogClose } from '@radix-ui/react-dialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { RotateCw } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -81,7 +81,7 @@ export function WebhookDialog({ webhook }: { webhook?: Webhook }) {
 		}
 	}
 
-	function generateRandomSecret() {
+	function generateSecret() {
 		const secret = nanoid();
 		form.setValue('secret', secret);
 	}
@@ -121,13 +121,8 @@ export function WebhookDialog({ webhook }: { webhook?: Webhook }) {
 							<FormLabel>Secret</FormLabel>
 							<FormControl>
 								<div className="flex items-center gap-2">
-									<Input type="text" {...field} />
-									<Button
-										type="button"
-										size="sm"
-										onClick={generateRandomSecret}
-									>
-										<RotateCw className="size-4" />
+									<Input type="text" className="font-mono" {...field} />
+									<Button type="button" size="sm" onClick={generateSecret}>
 										Generate
 									</Button>
 								</div>
@@ -135,6 +130,18 @@ export function WebhookDialog({ webhook }: { webhook?: Webhook }) {
 						</FormItem>
 					)}
 				/>
+				<div className="flex justify-end gap-2">
+					<DialogClose asChild>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => form.reset()}
+						>
+							Cancel
+						</Button>
+					</DialogClose>
+					<Button type="submit">Save</Button>
+				</div>
 			</form>
 		</Form>
 	);

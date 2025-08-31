@@ -394,7 +394,9 @@ function DeleteRowsForm({
 										? 'Regular expression'
 										: 'Text to match'
 								}
-								className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+								className={`mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none ${
+									rule.params.condition?.type === 'pattern' ? 'font-mono' : ''
+								}`}
 							/>
 						</div>
 					)}

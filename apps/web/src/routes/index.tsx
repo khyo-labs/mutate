@@ -13,8 +13,9 @@ export const Route = createFileRoute('/')({
 });
 
 export function RouteComponent() {
-	const { data: organizations } = authClient.useListOrganizations();
-	const { setOrganizations, activeOrganization, setActiveOrganization } = useOrganizationStore();
+	const { data: organizations, isPending } = authClient.useListOrganizations();
+	const { setOrganizations, activeOrganization, setActiveOrganization } =
+		useOrganizationStore();
 	const hasInitialized = useRef(false);
 
 	useEffect(() => {
@@ -25,11 +26,20 @@ export function RouteComponent() {
 			}
 			hasInitialized.current = true;
 		}
-	}, [organizations, setOrganizations, activeOrganization, setActiveOrganization]);
+	}, [
+		organizations,
+		setOrganizations,
+		activeOrganization,
+		setActiveOrganization,
+	]);
 
 	const hasOrganizations = (organizations || []).length > 0;
 
-	if (!hasOrganizations) {
+	if (isPending) {
+		return <div>Loading...</div>;
+	}
+
+	if (!hasOrganizations && !isPending) {
 		return <CreateOrganization />;
 	}
 

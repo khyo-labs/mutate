@@ -1,14 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-	Edit2,
-	Eye,
-	EyeOff,
-	Globe,
-	Key,
-	Plus,
-	Star,
-	Trash2,
-} from 'lucide-react';
+import { Edit2, Eye, EyeOff, Globe, Key, Star, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
@@ -17,6 +8,7 @@ import type { ApiSuccessResponse, Webhook } from '@/types';
 
 import { Button } from '../ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog';
+import { SettingsHeader } from './header';
 import { WebhookDialog } from './webhook-dialog';
 
 export function WebhookSettings() {
@@ -71,21 +63,10 @@ export function WebhookSettings() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-2">
-					<h2 className="text-xl font-semibold">Webhooks</h2>
-				</div>
-				<Dialog>
-					<DialogTrigger asChild>
-						<Button title="Create webhook">
-							<Plus className="size-4" /> Create Webhook
-						</Button>
-					</DialogTrigger>
-					<DialogContent>
-						<WebhookDialog />
-					</DialogContent>
-				</Dialog>
-			</div>
+			<SettingsHeader
+				title="Webhooks"
+				button={{ label: 'New Webhook', dialog: WebhookDialog }}
+			/>
 
 			{isLoading && <div className="py-8 text-center">Loading webhooks...</div>}
 
