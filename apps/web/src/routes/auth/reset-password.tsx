@@ -82,7 +82,7 @@ export function ResetPasswordComponent() {
 		return (
 			<PublicLayout>
 				<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-					<div className="bg-card rounded-lg border p-6 shadow-sm text-center">
+					<div className="bg-card rounded-lg border p-6 text-center shadow-sm">
 						<h2 className="text-2xl font-bold text-green-600">
 							Password Reset!
 						</h2>
@@ -100,8 +100,10 @@ export function ResetPasswordComponent() {
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 				<div className="bg-card rounded-lg border p-6 shadow-sm">
-					<h2 className="text-center text-2xl font-bold mb-6">Reset Password</h2>
-					
+					<h2 className="mb-6 text-center text-2xl font-bold">
+						Reset Password
+					</h2>
+
 					<Form {...form}>
 						<form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
 							<FormField

@@ -76,8 +76,10 @@ export function ForgotPasswordComponent() {
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 				<div className="bg-card rounded-lg border p-6 shadow-sm">
-					<h2 className="text-center text-2xl font-bold mb-6">Forgot Password</h2>
-					
+					<h2 className="mb-6 text-center text-2xl font-bold">
+						Forgot Password
+					</h2>
+
 					<Form {...form}>
 						<form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
 							<FormField

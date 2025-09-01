@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { z } from 'zod';
 
 import { verifyEmail } from '@/api/auth';
+
 import { PublicLayout } from '../../components/layouts';
 
 const verifyEmailSearchSchema = z.object({
@@ -49,10 +50,10 @@ export function VerifyEmailComponent() {
 	return (
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-				<div className="bg-card rounded-lg border p-6 shadow-sm text-center">
+				<div className="bg-card rounded-lg border p-6 text-center shadow-sm">
 					{status === 'loading' && (
 						<>
-							<Loader2 className="mx-auto h-12 w-12 animate-spin text-primary-600" />
+							<Loader2 className="text-primary-600 mx-auto h-12 w-12 animate-spin" />
 							<h2 className="mt-4 text-2xl font-bold">Verifying...</h2>
 							<p className="mt-2 text-gray-600">
 								Please wait while we verify your email address.

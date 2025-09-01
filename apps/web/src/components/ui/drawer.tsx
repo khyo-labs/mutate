@@ -15,12 +15,6 @@ function DrawerTrigger({
 	return <DrawerPrimitive.Trigger data-slot="drawer-trigger" {...props} />;
 }
 
-function DrawerPortal({
-	...props
-}: React.ComponentProps<typeof DrawerPrimitive.Portal>) {
-	return <DrawerPrimitive.Portal data-slot="drawer-portal" {...props} />;
-}
-
 function DrawerClose({
 	...props
 }: React.ComponentProps<typeof DrawerPrimitive.Close>) {
@@ -49,7 +43,7 @@ function DrawerContent({
 	...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
 	return (
-		<DrawerPortal data-slot="drawer-portal">
+		<>
 			<DrawerOverlay />
 			<DrawerPrimitive.Content
 				data-slot="drawer-content"
@@ -66,7 +60,7 @@ function DrawerContent({
 				<div className="bg-muted mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
 				{children}
 			</DrawerPrimitive.Content>
-		</DrawerPortal>
+		</>
 	);
 }
 
@@ -121,7 +115,6 @@ function DrawerDescription({
 
 export {
 	Drawer,
-	DrawerPortal,
 	DrawerOverlay,
 	DrawerTrigger,
 	DrawerClose,
