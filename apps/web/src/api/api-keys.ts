@@ -1,5 +1,7 @@
 import { toast } from 'sonner';
 
+import type { SuccessResponse } from '@/types';
+
 import { api } from './client';
 
 export type ApiKey = {
@@ -20,19 +22,25 @@ export type ApiKeyCreate = {
 
 export const apiKeysApi = {
 	list: async (): Promise<ApiKey[]> => {
-		const response = await api.get<ApiKey[]>('/v1/api-keys');
+		const response = await api.get<SuccessResponse<ApiKey[]>>('/v1/api-keys');
 		return response.data;
 	},
 
 	create: async (data: ApiKeyCreate): Promise<ApiKey> => {
-		const response = await api.post<ApiKey>('/v1/api-keys', data);
+		const response = await api.post<SuccessResponse<ApiKey>>(
+			'/v1/api-keys',
+			data,
+		);
 
 		toast.success('API key created successfully');
 		return response.data;
 	},
 
 	update: async (id: string, data: ApiKeyCreate): Promise<ApiKey> => {
-		const response = await api.put<ApiKey>(`/v1/api-keys/${id}`, data);
+		const response = await api.put<SuccessResponse<ApiKey>>(
+			`/v1/api-keys/${id}`,
+			data,
+		);
 
 		toast.success('API key updated successfully');
 		return response.data;
