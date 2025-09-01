@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
 
+import { sendResetPassword } from '@/api/auth';
 import { Button } from '@/components/ui/button';
 
 import { PublicLayout } from '../components/layouts';
-import { auth } from '../lib/auth-client';
 
 export const Route = createFileRoute('/forgot-password')({
 	component: ForgotPasswordComponent,
@@ -21,7 +21,6 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 export function ForgotPasswordComponent() {
-	const navigate = useNavigate();
 	const [isLoading, setIsLoading] = useState(false);
 	const [apiError, setApiError] = useState<string | null>(null);
 	const [isSuccess, setIsSuccess] = useState(false);
@@ -38,9 +37,8 @@ export function ForgotPasswordComponent() {
 		try {
 			setIsLoading(true);
 			setApiError(null);
-			await auth.email.sendResetPassword({ email: data.email });
+			await sendResetPassword(data.email);
 			setIsSuccess(true);
-			// navigate({ to: '/check-email' });
 		} catch (error) {
 			setApiError(
 				error instanceof Error ? error.message : 'Failed to send reset link',

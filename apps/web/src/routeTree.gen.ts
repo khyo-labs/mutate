@@ -11,12 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root';
 import { Route as RegisterRouteImport } from './routes/register';
 import { Route as LoginRouteImport } from './routes/login';
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password';
+import { Route as CheckEmailRouteImport } from './routes/check-email';
 import { Route as AdminRouteImport } from './routes/admin';
 import { Route as SettingsRouteRouteImport } from './routes/settings/route';
 import { Route as IndexRouteImport } from './routes/index';
 import { Route as SettingsIndexRouteImport } from './routes/settings/index';
 import { Route as MutationsIndexRouteImport } from './routes/mutations/index';
 import { Route as MutationsNewRouteImport } from './routes/mutations/new';
+import { Route as AuthVerifyEmailRouteImport } from './routes/auth/verify-email';
+import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password';
 import { Route as SettingsWorkspaceRouteRouteImport } from './routes/settings/workspace/route';
 import { Route as SettingsAccountRouteRouteImport } from './routes/settings/account/route';
 import { Route as SettingsWorkspaceIndexRouteImport } from './routes/settings/workspace/index';
@@ -36,6 +40,16 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const CheckEmailRoute = CheckEmailRouteImport.update({
+  id: '/check-email',
+  path: '/check-email',
   getParentRoute: () => rootRouteImport,
 } as any);
 const AdminRoute = AdminRouteImport.update({
@@ -66,6 +80,16 @@ const MutationsIndexRoute = MutationsIndexRouteImport.update({
 const MutationsNewRoute = MutationsNewRouteImport.update({
   id: '/mutations/new',
   path: '/mutations/new',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
+  id: '/auth/verify-email',
+  path: '/auth/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/auth/reset-password',
+  path: '/auth/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any);
 const SettingsWorkspaceRouteRoute = SettingsWorkspaceRouteRouteImport.update({
@@ -126,10 +150,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
   '/settings': typeof SettingsRouteRouteWithChildren;
   '/admin': typeof AdminRoute;
+  '/check-email': typeof CheckEmailRoute;
+  '/forgot-password': typeof ForgotPasswordRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
   '/settings/workspace': typeof SettingsWorkspaceRouteRouteWithChildren;
+  '/auth/reset-password': typeof AuthResetPasswordRoute;
+  '/auth/verify-email': typeof AuthVerifyEmailRoute;
   '/mutations/new': typeof MutationsNewRoute;
   '/mutations': typeof MutationsIndexRoute;
   '/settings/': typeof SettingsIndexRoute;
@@ -145,8 +173,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
   '/admin': typeof AdminRoute;
+  '/check-email': typeof CheckEmailRoute;
+  '/forgot-password': typeof ForgotPasswordRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
+  '/auth/reset-password': typeof AuthResetPasswordRoute;
+  '/auth/verify-email': typeof AuthVerifyEmailRoute;
   '/mutations/new': typeof MutationsNewRoute;
   '/mutations': typeof MutationsIndexRoute;
   '/settings': typeof SettingsIndexRoute;
@@ -164,10 +196,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute;
   '/settings': typeof SettingsRouteRouteWithChildren;
   '/admin': typeof AdminRoute;
+  '/check-email': typeof CheckEmailRoute;
+  '/forgot-password': typeof ForgotPasswordRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
   '/settings/workspace': typeof SettingsWorkspaceRouteRouteWithChildren;
+  '/auth/reset-password': typeof AuthResetPasswordRoute;
+  '/auth/verify-email': typeof AuthVerifyEmailRoute;
   '/mutations/new': typeof MutationsNewRoute;
   '/mutations/': typeof MutationsIndexRoute;
   '/settings/': typeof SettingsIndexRoute;
@@ -186,10 +222,14 @@ export interface FileRouteTypes {
     | '/'
     | '/settings'
     | '/admin'
+    | '/check-email'
+    | '/forgot-password'
     | '/login'
     | '/register'
     | '/settings/account'
     | '/settings/workspace'
+    | '/auth/reset-password'
+    | '/auth/verify-email'
     | '/mutations/new'
     | '/mutations'
     | '/settings/'
@@ -205,8 +245,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
+    | '/check-email'
+    | '/forgot-password'
     | '/login'
     | '/register'
+    | '/auth/reset-password'
+    | '/auth/verify-email'
     | '/mutations/new'
     | '/mutations'
     | '/settings'
@@ -223,10 +267,14 @@ export interface FileRouteTypes {
     | '/'
     | '/settings'
     | '/admin'
+    | '/check-email'
+    | '/forgot-password'
     | '/login'
     | '/register'
     | '/settings/account'
     | '/settings/workspace'
+    | '/auth/reset-password'
+    | '/auth/verify-email'
     | '/mutations/new'
     | '/mutations/'
     | '/settings/'
@@ -244,8 +292,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren;
   AdminRoute: typeof AdminRoute;
+  CheckEmailRoute: typeof CheckEmailRoute;
+  ForgotPasswordRoute: typeof ForgotPasswordRoute;
   LoginRoute: typeof LoginRoute;
   RegisterRoute: typeof RegisterRoute;
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute;
+  AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute;
   MutationsNewRoute: typeof MutationsNewRoute;
   MutationsIndexRoute: typeof MutationsIndexRoute;
   MutationsConfigIdEditRoute: typeof MutationsConfigIdEditRoute;
@@ -266,6 +318,20 @@ declare module '@tanstack/react-router' {
       path: '/login';
       fullPath: '/login';
       preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/forgot-password': {
+      id: '/forgot-password';
+      path: '/forgot-password';
+      fullPath: '/forgot-password';
+      preLoaderRoute: typeof ForgotPasswordRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/check-email': {
+      id: '/check-email';
+      path: '/check-email';
+      fullPath: '/check-email';
+      preLoaderRoute: typeof CheckEmailRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/admin': {
@@ -308,6 +374,20 @@ declare module '@tanstack/react-router' {
       path: '/mutations/new';
       fullPath: '/mutations/new';
       preLoaderRoute: typeof MutationsNewRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/auth/verify-email': {
+      id: '/auth/verify-email';
+      path: '/auth/verify-email';
+      fullPath: '/auth/verify-email';
+      preLoaderRoute: typeof AuthVerifyEmailRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/auth/reset-password': {
+      id: '/auth/reset-password';
+      path: '/auth/reset-password';
+      fullPath: '/auth/reset-password';
+      preLoaderRoute: typeof AuthResetPasswordRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/settings/workspace': {
@@ -436,8 +516,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
   AdminRoute: AdminRoute,
+  CheckEmailRoute: CheckEmailRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
+  AuthVerifyEmailRoute: AuthVerifyEmailRoute,
   MutationsNewRoute: MutationsNewRoute,
   MutationsIndexRoute: MutationsIndexRoute,
   MutationsConfigIdEditRoute: MutationsConfigIdEditRoute,

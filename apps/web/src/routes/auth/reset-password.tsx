@@ -5,10 +5,10 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { resetPassword } from '@/api/auth';
 import { Button } from '@/components/ui/button';
 
 import { PublicLayout } from '../../components/layouts';
-import { auth } from '../../lib/auth-client';
 
 const resetPasswordSearchSchema = z.object({
 	token: z.string().optional(),
@@ -55,7 +55,7 @@ export function ResetPasswordComponent() {
 		try {
 			setIsLoading(true);
 			setApiError(null);
-			await auth.email.resetPassword({ token, password: data.password });
+			await resetPassword(data.password, token);
 			setIsSuccess(true);
 			setTimeout(() => {
 				navigate({ to: '/login' });

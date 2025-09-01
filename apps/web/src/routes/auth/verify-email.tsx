@@ -3,8 +3,8 @@ import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 
+import { verifyEmail } from '@/api/auth';
 import { PublicLayout } from '../../components/layouts';
-import { auth } from '../../lib/auth-client';
 
 const verifyEmailSearchSchema = z.object({
 	token: z.string().optional(),
@@ -32,7 +32,7 @@ export function VerifyEmailComponent() {
 			}
 
 			try {
-				await auth.email.verifyEmail({ token });
+				await verifyEmail(token);
 				setStatus('success');
 				setTimeout(() => {
 					navigate({ to: '/' });
