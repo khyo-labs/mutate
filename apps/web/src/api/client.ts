@@ -6,6 +6,8 @@ import axios, {
 } from 'axios';
 import { toast } from 'sonner';
 
+import type {} from '../types';
+
 type RequestOptions = {
 	endpoint: string;
 	method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

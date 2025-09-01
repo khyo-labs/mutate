@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 
 import { api } from '@/api/client';
 import { useSession } from '@/stores/auth-store';
-import type { ApiSuccessResponse } from '@/types';
+import type { SuccessResponse } from '@/types';
 
 import { ProtectedRoute } from './protected-route';
 import { Sidebar } from './sidebar';
@@ -22,7 +22,7 @@ export function Layout({ children }: LayoutProps) {
 	async function handleResendVerificationEmail() {
 		setIsSending(true);
 		try {
-			await api.post<ApiSuccessResponse>('/v1/auth/resend-verification-email');
+			await api.post<SuccessResponse>('/v1/auth/resend-verification-email');
 			toast.success('Verification email sent. Please check your inbox.');
 		} finally {
 			setIsSending(false);
