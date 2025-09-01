@@ -50,6 +50,9 @@ const configSchema = z.object({
 	LOG_LEVEL: z
 		.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
 		.default('info'),
+
+	SENDGRID_API_KEY: z.string(),
+	SENDGRID_FROM_EMAIL: z.string().email(),
 });
 
 const env = {
@@ -81,6 +84,8 @@ const env = {
 	RATE_LIMIT_MAX: process.env.RATE_LIMIT_MAX,
 	RATE_LIMIT_WINDOW: process.env.RATE_LIMIT_WINDOW,
 	LOG_LEVEL: process.env.LOG_LEVEL,
+	SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+	SENDGRID_FROM_EMAIL: process.env.SENDGRID_FROM_EMAIL,
 };
 
 export const config = configSchema.parse(env);

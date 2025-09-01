@@ -5,7 +5,6 @@ import { ulid } from 'ulid';
 import { config } from '../config.js';
 import { db } from '../db/connection.js';
 import { configurations, transformationJobs } from '../db/schema.js';
-import { authenticateAPIKey } from '../middleware/auth.js';
 import { trackConversionStart } from '../middleware/billing-middleware.js';
 import { QuotaEnforcementService } from '../services/billing/index.js';
 import { QueueService } from '../services/queue.js';
@@ -82,7 +81,8 @@ function validateFileType(
 }
 
 export async function mutateRoutes(fastify: FastifyInstance) {
-	fastify.addHook('preHandler', authenticateAPIKey);
+	fastify.addHook('preHandler', fastify.authenticate);
+	fastify.addHook('preHandler', fastify.requireVerifiedEmail);
 
 	fastify.post('/', async (request, reply) => {
 		try {

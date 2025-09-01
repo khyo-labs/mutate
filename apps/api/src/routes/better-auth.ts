@@ -10,7 +10,7 @@ export async function betterAuthRoutes(fastify: FastifyInstance) {
 
 			const headers = new Headers();
 
-			Object.entries(request.headers).forEach(([key, value]) => {
+			Object.entries(request.headers).forEach(([key, value]: [string, any]) => {
 				if (value) {
 					const headerValue = Array.isArray(value)
 						? value.join(', ')
@@ -36,7 +36,9 @@ export async function betterAuthRoutes(fastify: FastifyInstance) {
 			const response = await auth.handler(req);
 
 			reply.status(response.status);
-			response.headers.forEach((value, key) => reply.header(key, value));
+			response.headers.forEach((value: string, key: string) =>
+				reply.header(key, value),
+			);
 
 			const responseText = response.body ? await response.text() : null;
 			reply.send(responseText);
