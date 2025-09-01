@@ -5,11 +5,16 @@ import { logger } from '../../utils/logger.js';
 
 sgMail.setApiKey(config.SENDGRID_API_KEY);
 
-interface EmailParams {
+export type EmailParams = {
 	to: string;
 	subject: string;
 	html: string;
-}
+};
+
+export type EmailArgs = {
+	user: any;
+	url: string;
+};
 
 export async function sendEmail({ to, subject, html }: EmailParams) {
 	const msg = {

@@ -82,7 +82,6 @@ function validateFileType(
 
 export async function mutateRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
-	fastify.addHook('preHandler', fastify.requireVerifiedEmail);
 
 	fastify.post('/', async (request, reply) => {
 		try {

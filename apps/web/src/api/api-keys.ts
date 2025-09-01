@@ -1,6 +1,7 @@
 import { toast } from 'sonner';
 
-import type { ApiResponse } from '../types';
+import type { SuccessResponse } from '@/types';
+
 import { api } from './client';
 
 export type ApiKey = {
@@ -13,43 +14,36 @@ export type ApiKey = {
 	apiKey?: string; // Only returned when creating
 };
 
+export type ApiKeyCreate = {
+	name: string;
+	permissions: string[];
+	expiresAt: string | null;
+};
+
 export const apiKeysApi = {
 	list: async (): Promise<ApiKey[]> => {
-		const response = await api.get<ApiResponse<ApiKey[]>>('/v1/api-keys');
-
-		if (response.success) {
-			return response.data;
-		}
-
-		toast.error('Failed to load API keys');
-		throw new Error('Failed to load API keys');
+		const response = await api.get<SuccessResponse<ApiKey[]>>('/v1/api-keys');
+		return response.data;
 	},
 
-	create: async (data: Partial<ApiKey>): Promise<ApiKey> => {
-		const response = await api.post<ApiResponse<ApiKey>>('/v1/api-keys', data);
+	create: async (data: ApiKeyCreate): Promise<ApiKey> => {
+		const response = await api.post<SuccessResponse<ApiKey>>(
+			'/v1/api-keys',
+			data,
+		);
 
-		if (response.success) {
-			toast.success('API key created successfully');
-			return response.data;
-		}
-
-		toast.error('Failed to create API key');
-		return {} as ApiKey;
+		toast.success('API key created successfully');
+		return response.data;
 	},
 
-	update: async (id: string, data: Partial<ApiKey>): Promise<ApiKey> => {
-		const response = await api.put<ApiResponse<ApiKey>>(
+	update: async (id: string, data: ApiKeyCreate): Promise<ApiKey> => {
+		const response = await api.put<SuccessResponse<ApiKey>>(
 			`/v1/api-keys/${id}`,
 			data,
 		);
 
-		if (response.success) {
-			toast.success('API key updated successfully');
-			return response.data;
-		}
-
-		toast.error('Failed to update API key');
-		return {} as ApiKey;
+		toast.success('API key updated successfully');
+		return response.data;
 	},
 
 	delete: async (id: string): Promise<void> => {

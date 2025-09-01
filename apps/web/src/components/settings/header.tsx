@@ -23,10 +23,8 @@ type Props = {
 		icon?: React.ElementType;
 		label: string;
 		dialog?: React.ElementType;
-		drawer?: {
-			component: React.ElementType;
-			props?: Record<string, unknown>;
-		};
+		drawer?: React.ElementType;
+		disabled?: boolean;
 	};
 };
 
@@ -38,7 +36,7 @@ export function SettingsHeader({ title, description, button }: Props) {
 				{button?.dialog && (
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button size="sm">
+							<Button size="sm" disabled={button?.disabled}>
 								{button?.icon && <button.icon className="size-4" />}
 								{button?.label}
 							</Button>
@@ -58,7 +56,7 @@ export function SettingsHeader({ title, description, button }: Props) {
 				{button?.drawer && (
 					<Drawer direction="right">
 						<DrawerTrigger asChild>
-							<Button size="sm">
+							<Button size="sm" disabled={button?.disabled}>
 								{button?.icon && <button.icon className="size-4" />}
 								{button?.label}
 							</Button>
@@ -70,7 +68,7 @@ export function SettingsHeader({ title, description, button }: Props) {
 									Drawer for {button?.label}
 								</DrawerDescription>
 							</DrawerHeader>
-							<button.drawer.component {...button.drawer.props} />
+							<button.drawer />
 						</DrawerContent>
 					</Drawer>
 				)}

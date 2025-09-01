@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { api } from '@/api/client';
-import type { ApiResponse, Webhook } from '@/types';
+import type { SuccessResponse, Webhook } from '@/types';
 
 import { Card, CardContent } from '../ui/card';
 import { SettingsHeader } from './header';
@@ -17,20 +17,16 @@ export function WebhookSettings() {
 	const { data: webhooks = [], isLoading } = useQuery<Webhook[]>({
 		queryKey: queryKey,
 		queryFn: async () => {
-			const response = await api.get<ApiResponse<Webhook[]>>(
+			const response = await api.get<SuccessResponse<Webhook[]>>(
 				'/v1/workspaces/webhooks?includeSecrets=true',
 			);
-			if (response.success) {
-				return response.data;
-			}
-			toast.error('Failed to get webhooks');
-			return [];
+			return response.data;
 		},
 	});
 
 	const deleteWebhook = useMutation({
 		mutationFn: async (id: string) => {
-			const response = await api.delete<ApiResponse<void>>(
+			const response = await api.delete<SuccessResponse<void>>(
 				`/v1/workspaces/webhooks/${id}`,
 			);
 			if (!response.success) {
@@ -53,10 +49,7 @@ export function WebhookSettings() {
 				button={{
 					label: 'New Webhook',
 					icon: Plus,
-					drawer: {
-						component: WebhookDrawer,
-						props: {},
-					},
+					drawer: () => <WebhookDrawer />,
 				}}
 			/>
 

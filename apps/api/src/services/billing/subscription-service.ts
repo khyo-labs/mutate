@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
+import { ulid } from 'ulid';
 
 import { db } from '../../db/connection.js';
 import {
@@ -63,7 +63,7 @@ export class SubscriptionService {
 		periodEnd.setMonth(periodEnd.getMonth() + 1);
 
 		await db.insert(organizationSubscriptions).values({
-			id: nanoid(),
+			id: ulid(),
 			organizationId,
 			planId: 'plan_free',
 			status: 'active',
@@ -81,7 +81,7 @@ export class SubscriptionService {
 			periodEnd.setMonth(periodEnd.getMonth() + 1);
 
 			await db.insert(organizationSubscriptions).values({
-				id: nanoid(),
+				id: ulid(),
 				organizationId,
 				planId: newPlanId,
 				status: 'active',
@@ -182,3 +182,5 @@ export class SubscriptionService {
 		};
 	}
 }
+
+export const subscriptionService = new SubscriptionService();

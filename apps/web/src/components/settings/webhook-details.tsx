@@ -32,14 +32,14 @@ import {
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '../ui/dialog';
-import { WebhookDialog } from './webhook-dialog';
+	Drawer,
+	DrawerContent,
+	DrawerDescription,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger,
+} from '../ui/drawer';
+import { WebhookDrawer } from './webhook-drawer';
 
 type Props = {
 	webhook: Webhook;
@@ -94,23 +94,24 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
-					<Dialog>
-						<DialogTrigger asChild>
+					<Drawer direction="right">
+						<DrawerTrigger asChild>
 							<Button variant="outline" size="sm">
-								<Edit className="h-4 w-4" />
+								<Edit className="size-4" />
 								Edit
 							</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Edit webhook</DialogTitle>
-								<DialogDescription className="sr-only">
-									Dialog for editing a webhook
-								</DialogDescription>
-							</DialogHeader>
-							<WebhookDialog webhook={webhook} />
-						</DialogContent>
-					</Dialog>
+						</DrawerTrigger>
+						<DrawerContent>
+							<DrawerHeader>
+								<DrawerTitle>Edit webhook</DrawerTitle>
+								<DrawerDescription className="sr-only">
+									Drawer for editing a webhook
+								</DrawerDescription>
+							</DrawerHeader>
+							<WebhookDrawer webhook={webhook} />
+						</DrawerContent>
+					</Drawer>
+
 					<AlertDialog>
 						<AlertDialogTrigger asChild>
 							<Button
