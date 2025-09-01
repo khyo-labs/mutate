@@ -152,8 +152,10 @@ function AdminDashboard() {
 		if (editingPlan) {
 			setPlanForm({
 				name: editingPlan.name,
-				monthlyConversionLimit: editingPlan.monthlyConversionLimit?.toString() || '',
-				concurrentConversionLimit: editingPlan.concurrentConversionLimit?.toString() || '',
+				monthlyConversionLimit:
+					editingPlan.monthlyConversionLimit?.toString() || '',
+				concurrentConversionLimit:
+					editingPlan.concurrentConversionLimit?.toString() || '',
 				maxFileSizeMb: editingPlan.maxFileSizeMb?.toString() || '',
 				priceCents: editingPlan.priceCents.toString(),
 				billingInterval: editingPlan.billingInterval,
@@ -181,8 +183,9 @@ function AdminDashboard() {
 	}
 
 	async function fetchPlans() {
-		const response =
-			await api.get<SuccessResponse<SubscriptionPlan[]>>('/v1/admin/billing/plans');
+		const response = await api.get<SuccessResponse<SubscriptionPlan[]>>(
+			'/v1/admin/billing/plans',
+		);
 		setPlans(response.data);
 	}
 
@@ -235,46 +238,50 @@ function AdminDashboard() {
 	}
 
 	async function savePlan() {
-		try {
-			const payload = {
-				name: planForm.name,
-				monthlyConversionLimit: planForm.monthlyConversionLimit ? parseInt(planForm.monthlyConversionLimit) : null,
-				concurrentConversionLimit: planForm.concurrentConversionLimit ? parseInt(planForm.concurrentConversionLimit) : null,
-				maxFileSizeMb: planForm.maxFileSizeMb ? parseInt(planForm.maxFileSizeMb) : null,
-				priceCents: parseInt(planForm.priceCents),
-				billingInterval: planForm.billingInterval,
-				overagePriceCents: planForm.overagePriceCents ? parseInt(planForm.overagePriceCents) : null,
-				features: planForm.features ? JSON.parse(planForm.features) : {},
-				isDefault: planForm.isDefault,
-				isPublic: planForm.isPublic,
-			};
+		const payload = {
+			name: planForm.name,
+			monthlyConversionLimit: planForm.monthlyConversionLimit
+				? parseInt(planForm.monthlyConversionLimit)
+				: null,
+			concurrentConversionLimit: planForm.concurrentConversionLimit
+				? parseInt(planForm.concurrentConversionLimit)
+				: null,
+			maxFileSizeMb: planForm.maxFileSizeMb
+				? parseInt(planForm.maxFileSizeMb)
+				: null,
+			priceCents: parseInt(planForm.priceCents),
+			billingInterval: planForm.billingInterval,
+			overagePriceCents: planForm.overagePriceCents
+				? parseInt(planForm.overagePriceCents)
+				: null,
+			features: planForm.features ? JSON.parse(planForm.features) : {},
+			isDefault: planForm.isDefault,
+			isPublic: planForm.isPublic,
+		};
 
-			if (editingPlan) {
-				await api.put(`/v1/admin/billing/plans/${editingPlan.id}`, payload);
-				toast.success('Plan updated successfully');
-			} else {
-				await api.post('/v1/admin/billing/plans', payload);
-				toast.success('Plan created successfully');
-			}
-
-			setShowPlanModal(false);
-			setEditingPlan(null);
-			setPlanForm({
-				name: '',
-				monthlyConversionLimit: '',
-				concurrentConversionLimit: '',
-				maxFileSizeMb: '',
-				priceCents: '',
-				billingInterval: 'month',
-				overagePriceCents: '',
-				features: '',
-				isDefault: false,
-				isPublic: true,
-			});
-			fetchPlans();
-		} catch (error) {
-			toast.error('Failed to save plan');
+		if (editingPlan) {
+			await api.put(`/v1/admin/billing/plans/${editingPlan.id}`, payload);
+			toast.success('Plan updated successfully');
+		} else {
+			await api.post('/v1/admin/billing/plans', payload);
+			toast.success('Plan created successfully');
 		}
+
+		setShowPlanModal(false);
+		setEditingPlan(null);
+		setPlanForm({
+			name: '',
+			monthlyConversionLimit: '',
+			concurrentConversionLimit: '',
+			maxFileSizeMb: '',
+			priceCents: '',
+			billingInterval: 'month',
+			overagePriceCents: '',
+			features: '',
+			isDefault: false,
+			isPublic: true,
+		});
+		fetchPlans();
 	}
 
 	async function deletePlan(planId: string) {
@@ -282,23 +289,15 @@ function AdminDashboard() {
 			return;
 		}
 
-		try {
-			await api.delete(`/v1/admin/billing/plans/${planId}`);
-			toast.success('Plan deleted successfully');
-			fetchPlans();
-		} catch (error: any) {
-			toast.error(error.response?.data?.error?.message || 'Failed to delete plan');
-		}
+		await api.delete(`/v1/admin/billing/plans/${planId}`);
+		toast.success('Plan deleted successfully');
+		fetchPlans();
 	}
 
 	async function setDefaultPlan(planId: string) {
-		try {
-			await api.put(`/v1/admin/billing/plans/${planId}/default`);
-			toast.success('Default plan updated successfully');
-			fetchPlans();
-		} catch (error) {
-			toast.error('Failed to set default plan');
-		}
+		await api.put(`/v1/admin/billing/plans/${planId}/default`, {});
+		toast.success('Default plan updated successfully');
+		fetchPlans();
 	}
 
 	async function saveOverrides(orgId: string) {
@@ -447,7 +446,9 @@ function AdminDashboard() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-2xl font-bold">{stats.totalOrgs}</div>
-								<p className="text-muted-foreground text-xs">Active workspaces</p>
+								<p className="text-muted-foreground text-xs">
+									Active workspaces
+								</p>
 							</CardContent>
 						</Card>
 
@@ -459,8 +460,12 @@ function AdminDashboard() {
 								<Activity className="text-muted-foreground h-4 w-4" />
 							</CardHeader>
 							<CardContent>
-								<div className="text-2xl font-bold">{stats.totalConversions}</div>
-								<p className="text-muted-foreground text-xs">This billing period</p>
+								<div className="text-2xl font-bold">
+									{stats.totalConversions}
+								</div>
+								<p className="text-muted-foreground text-xs">
+									This billing period
+								</p>
 							</CardContent>
 						</Card>
 
@@ -473,7 +478,9 @@ function AdminDashboard() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-2xl font-bold">{stats.totalOverages}</div>
-								<p className="text-muted-foreground text-xs">Extra conversions</p>
+								<p className="text-muted-foreground text-xs">
+									Extra conversions
+								</p>
 							</CardContent>
 						</Card>
 
@@ -617,7 +624,9 @@ function AdminDashboard() {
 											<CardHeader className="pb-3">
 												<div className="flex items-start justify-between">
 													<div>
-														<CardTitle className="text-lg">{org.name}</CardTitle>
+														<CardTitle className="text-lg">
+															{org.name}
+														</CardTitle>
 														<p className="text-muted-foreground mt-1 text-sm">
 															{org.id}
 														</p>
@@ -642,7 +651,9 @@ function AdminDashboard() {
 														</span>
 													</div>
 													<div className="flex justify-between">
-														<span className="text-muted-foreground">Usage:</span>
+														<span className="text-muted-foreground">
+															Usage:
+														</span>
 														<span className="font-medium">
 															{org.currentUsage}
 															{org.plan?.monthlyConversionLimit
@@ -651,8 +662,12 @@ function AdminDashboard() {
 														</span>
 													</div>
 													<div className="flex justify-between">
-														<span className="text-muted-foreground">Overages:</span>
-														<span className="font-medium">{org.overageCount}</span>
+														<span className="text-muted-foreground">
+															Overages:
+														</span>
+														<span className="font-medium">
+															{org.overageCount}
+														</span>
 													</div>
 													{org.subscription?.overrideMonthlyLimit && (
 														<Badge variant="outline" className="text-xs">
@@ -714,11 +729,14 @@ function AdminDashboard() {
 														</p>
 													</div>
 													<div className="text-center">
-														<p className="text-sm">{org.overageCount} overages</p>
+														<p className="text-sm">
+															{org.overageCount} overages
+														</p>
 													</div>
 													<div className="text-center">
 														<p className="text-sm font-medium">
-															${((org.plan?.priceCents || 0) / 100).toFixed(2)}/mo
+															${((org.plan?.priceCents || 0) / 100).toFixed(2)}
+															/mo
 														</p>
 													</div>
 												</div>
@@ -738,7 +756,9 @@ function AdminDashboard() {
 							<div className="flex items-center justify-between">
 								<div>
 									<CardTitle>Subscription Plans</CardTitle>
-									<CardDescription>Manage subscription plans and pricing</CardDescription>
+									<CardDescription>
+										Manage subscription plans and pricing
+									</CardDescription>
 								</div>
 								<Button
 									onClick={() => {
@@ -784,22 +804,26 @@ function AdminDashboard() {
 													</Badge>
 												)}
 											</div>
-											<p className="text-muted-foreground text-sm mt-1">
-												${(plan.priceCents / 100).toFixed(2)}/{plan.billingInterval}
+											<p className="text-muted-foreground mt-1 text-sm">
+												${(plan.priceCents / 100).toFixed(2)}/
+												{plan.billingInterval}
 											</p>
-											<div className="mt-2 flex gap-4 text-sm text-muted-foreground">
+											<div className="text-muted-foreground mt-2 flex gap-4 text-sm">
 												<span>
-													Conversions: {plan.monthlyConversionLimit || 'Unlimited'}
+													Conversions:{' '}
+													{plan.monthlyConversionLimit || 'Unlimited'}
 												</span>
 												<span>
-													Concurrent: {plan.concurrentConversionLimit || 'Unlimited'}
+													Concurrent:{' '}
+													{plan.concurrentConversionLimit || 'Unlimited'}
 												</span>
 												<span>
 													Max Size: {plan.maxFileSizeMb || 'Unlimited'} MB
 												</span>
 												{plan.overagePriceCents && (
 													<span>
-														Overage: ${(plan.overagePriceCents / 100).toFixed(2)}
+														Overage: $
+														{(plan.overagePriceCents / 100).toFixed(2)}
 													</span>
 												)}
 											</div>
@@ -1417,7 +1441,9 @@ function AdminDashboard() {
 									{editingPlan ? 'Edit Plan' : 'Create Plan'}
 								</h2>
 								<p className="text-muted-foreground mt-1 text-sm">
-									{editingPlan ? 'Update subscription plan details' : 'Create a new subscription plan'}
+									{editingPlan
+										? 'Update subscription plan details'
+										: 'Create a new subscription plan'}
 								</p>
 							</div>
 							<Button
@@ -1432,14 +1458,16 @@ function AdminDashboard() {
 							</Button>
 						</div>
 
-						<div className="p-6 space-y-4">
+						<div className="space-y-4 p-6">
 							<div className="grid gap-4 md:grid-cols-2">
 								<div>
 									<Label htmlFor="planName">Plan Name</Label>
 									<Input
 										id="planName"
 										value={planForm.name}
-										onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })}
+										onChange={(e) =>
+											setPlanForm({ ...planForm, name: e.target.value })
+										}
 										placeholder="e.g., Professional"
 									/>
 								</div>
@@ -1450,7 +1478,9 @@ function AdminDashboard() {
 										id="planPrice"
 										type="number"
 										value={planForm.priceCents}
-										onChange={(e) => setPlanForm({ ...planForm, priceCents: e.target.value })}
+										onChange={(e) =>
+											setPlanForm({ ...planForm, priceCents: e.target.value })
+										}
 										placeholder="e.g., 2900 for $29.00"
 									/>
 								</div>
@@ -1459,7 +1489,9 @@ function AdminDashboard() {
 									<Label htmlFor="billingInterval">Billing Interval</Label>
 									<Select
 										value={planForm.billingInterval}
-										onValueChange={(value) => setPlanForm({ ...planForm, billingInterval: value })}
+										onValueChange={(value) =>
+											setPlanForm({ ...planForm, billingInterval: value })
+										}
 									>
 										<SelectTrigger>
 											<SelectValue />
@@ -1477,18 +1509,30 @@ function AdminDashboard() {
 										id="monthlyLimit"
 										type="number"
 										value={planForm.monthlyConversionLimit}
-										onChange={(e) => setPlanForm({ ...planForm, monthlyConversionLimit: e.target.value })}
+										onChange={(e) =>
+											setPlanForm({
+												...planForm,
+												monthlyConversionLimit: e.target.value,
+											})
+										}
 										placeholder="Leave empty for unlimited"
 									/>
 								</div>
 
 								<div>
-									<Label htmlFor="concurrentLimit">Concurrent Conversion Limit</Label>
+									<Label htmlFor="concurrentLimit">
+										Concurrent Conversion Limit
+									</Label>
 									<Input
 										id="concurrentLimit"
 										type="number"
 										value={planForm.concurrentConversionLimit}
-										onChange={(e) => setPlanForm({ ...planForm, concurrentConversionLimit: e.target.value })}
+										onChange={(e) =>
+											setPlanForm({
+												...planForm,
+												concurrentConversionLimit: e.target.value,
+											})
+										}
 										placeholder="Leave empty for unlimited"
 									/>
 								</div>
@@ -1499,18 +1543,30 @@ function AdminDashboard() {
 										id="maxFileSize"
 										type="number"
 										value={planForm.maxFileSizeMb}
-										onChange={(e) => setPlanForm({ ...planForm, maxFileSizeMb: e.target.value })}
+										onChange={(e) =>
+											setPlanForm({
+												...planForm,
+												maxFileSizeMb: e.target.value,
+											})
+										}
 										placeholder="Leave empty for unlimited"
 									/>
 								</div>
 
 								<div>
-									<Label htmlFor="overagePrice">Overage Price (cents per conversion)</Label>
+									<Label htmlFor="overagePrice">
+										Overage Price (cents per conversion)
+									</Label>
 									<Input
 										id="overagePrice"
 										type="number"
 										value={planForm.overagePriceCents}
-										onChange={(e) => setPlanForm({ ...planForm, overagePriceCents: e.target.value })}
+										onChange={(e) =>
+											setPlanForm({
+												...planForm,
+												overagePriceCents: e.target.value,
+											})
+										}
 										placeholder="Leave empty for no overages"
 									/>
 								</div>
@@ -1520,9 +1576,11 @@ function AdminDashboard() {
 								<Label htmlFor="features">Features (JSON)</Label>
 								<textarea
 									id="features"
-									className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+									className="border-input bg-background min-h-[100px] w-full rounded-md border px-3 py-2 text-sm"
 									value={planForm.features}
-									onChange={(e) => setPlanForm({ ...planForm, features: e.target.value })}
+									onChange={(e) =>
+										setPlanForm({ ...planForm, features: e.target.value })
+									}
 									placeholder='{"feature1": true, "feature2": false}'
 								/>
 							</div>
@@ -1532,20 +1590,28 @@ function AdminDashboard() {
 									<input
 										type="checkbox"
 										checked={planForm.isDefault}
-										onChange={(e) => setPlanForm({ ...planForm, isDefault: e.target.checked })}
+										onChange={(e) =>
+											setPlanForm({ ...planForm, isDefault: e.target.checked })
+										}
 										className="rounded border-gray-300"
 									/>
-									<span className="text-sm font-medium">Set as default plan for new organizations</span>
+									<span className="text-sm font-medium">
+										Set as default plan for new organizations
+									</span>
 								</label>
 
 								<label className="flex items-center space-x-2">
 									<input
 										type="checkbox"
 										checked={planForm.isPublic}
-										onChange={(e) => setPlanForm({ ...planForm, isPublic: e.target.checked })}
+										onChange={(e) =>
+											setPlanForm({ ...planForm, isPublic: e.target.checked })
+										}
 										className="rounded border-gray-300"
 									/>
-									<span className="text-sm font-medium">Visible to users (public plan)</span>
+									<span className="text-sm font-medium">
+										Visible to users (public plan)
+									</span>
 								</label>
 							</div>
 
