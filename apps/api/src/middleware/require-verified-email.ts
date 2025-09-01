@@ -12,7 +12,10 @@ export async function requireVerifiedEmail(
 		return;
 	}
 
-	const session = await auth.getSession(request, reply);
+	const session = await auth.api.getSession({
+		headers: request.headers as any,
+	});
+
 	if (!session?.user?.emailVerified) {
 		return reply.status(403).send({
 			error: 'Email not verified',

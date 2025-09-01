@@ -7,6 +7,15 @@ import { z } from 'zod';
 
 import { resetPassword } from '@/api/auth';
 import { Button } from '@/components/ui/button';
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 import { PublicLayout } from '../../components/layouts';
 
@@ -38,12 +47,12 @@ export function ResetPasswordComponent() {
 	const [apiError, setApiError] = useState<string | null>(null);
 	const [isSuccess, setIsSuccess] = useState(false);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-	} = useForm<ResetPasswordFormData>({
+	const form = useForm<ResetPasswordFormData>({
 		resolver: zodResolver(resetPasswordSchema),
+		defaultValues: {
+			password: '',
+			confirmPassword: '',
+		},
 	});
 
 	const onSubmit = async (data: ResetPasswordFormData) => {
@@ -91,71 +100,66 @@ export function ResetPasswordComponent() {
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 				<div className="bg-card rounded-lg border p-6 shadow-sm">
-					<h2 className="text-center text-2xl font-bold">Reset Password</h2>
-					<form className="mt-6 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-						<div>
-							<label
-								htmlFor="password"
-								className="block text-sm font-medium text-gray-700"
-							>
-								New Password
-							</label>
-							<div className="mt-1">
-								<input
-									{...register('password')}
-									type="password"
-									className="input"
-									placeholder="Enter your new password"
-								/>
-								{errors.password && (
-									<p className="mt-1 text-sm text-red-600">
-										{errors.password.message}
-									</p>
+					<h2 className="text-center text-2xl font-bold mb-6">Reset Password</h2>
+					
+					<Form {...form}>
+						<form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+							<FormField
+								control={form.control}
+								name="password"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>New Password</FormLabel>
+										<FormControl>
+											<Input
+												type="password"
+												placeholder="Enter your new password"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
 								)}
-							</div>
-						</div>
+							/>
 
-						<div>
-							<label
-								htmlFor="confirmPassword"
-								className="block text-sm font-medium text-gray-700"
-							>
-								Confirm New Password
-							</label>
-							<div className="mt-1">
-								<input
-									{...register('confirmPassword')}
-									type="password"
-									className="input"
-									placeholder="Confirm your new password"
-								/>
-								{errors.confirmPassword && (
-									<p className="mt-1 text-sm text-red-600">
-										{errors.confirmPassword.message}
-									</p>
+							<FormField
+								control={form.control}
+								name="confirmPassword"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Confirm New Password</FormLabel>
+										<FormControl>
+											<Input
+												type="password"
+												placeholder="Confirm your new password"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
 								)}
-							</div>
-						</div>
+							/>
 
-						{apiError && (
-							<div className="rounded-md bg-red-50 p-4">
-								<div className="text-sm text-red-700">{apiError}</div>
-							</div>
-						)}
+							{apiError && (
+								<div className="rounded-md bg-red-50 p-4">
+									<div className="text-sm text-red-700">{apiError}</div>
+								</div>
+							)}
 
-						<div>
-							<Button type="submit" disabled={isLoading} className="w-full">
-								{isLoading ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Resetting password...
-									</>
-								) : (
-									'Reset password'
-								)}
-							</Button>
-						</div>
-					</form>
+							<div>
+								<Button type="submit" disabled={isLoading} className="w-full">
+									{isLoading ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											Resetting password...
+										</>
+									) : (
+										'Reset password'
+									)}
+								</Button>
+							</div>
+						</form>
+					</Form>
 				</div>
 			</div>
 		</PublicLayout>

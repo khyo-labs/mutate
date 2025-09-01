@@ -7,6 +7,15 @@ import z from 'zod';
 
 import { sendResetPassword } from '@/api/auth';
 import { Button } from '@/components/ui/button';
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 import { PublicLayout } from '../components/layouts';
 
@@ -25,12 +34,11 @@ export function ForgotPasswordComponent() {
 	const [apiError, setApiError] = useState<string | null>(null);
 	const [isSuccess, setIsSuccess] = useState(false);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-	} = useForm<ForgotPasswordFormData>({
+	const form = useForm<ForgotPasswordFormData>({
 		resolver: zodResolver(forgotPasswordSchema),
+		defaultValues: {
+			email: '',
+		},
 	});
 
 	const onSubmit = async (data: ForgotPasswordFormData) => {
@@ -52,7 +60,7 @@ export function ForgotPasswordComponent() {
 		return (
 			<PublicLayout>
 				<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-					<div className="bg-card rounded-lg border p-6 shadow-sm text-center">
+					<div className="bg-card rounded-lg border p-6 text-center shadow-sm">
 						<h2 className="text-2xl font-bold">Check your email</h2>
 						<p className="mt-4 text-gray-600">
 							We've sent a password reset link to your email address. Please
@@ -68,50 +76,49 @@ export function ForgotPasswordComponent() {
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 				<div className="bg-card rounded-lg border p-6 shadow-sm">
-					<h2 className="text-center text-2xl font-bold">Forgot Password</h2>
-					<form className="mt-6 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-						<div>
-							<label
-								htmlFor="email"
-								className="block text-sm font-medium text-gray-700"
-							>
-								Email address
-							</label>
-							<div className="mt-1">
-								<input
-									{...register('email')}
-									type="email"
-									autoComplete="email"
-									className="input"
-									placeholder="Enter your email"
-								/>
-								{errors.email && (
-									<p className="mt-1 text-sm text-red-600">
-										{errors.email.message}
-									</p>
+					<h2 className="text-center text-2xl font-bold mb-6">Forgot Password</h2>
+					
+					<Form {...form}>
+						<form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+							<FormField
+								control={form.control}
+								name="email"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Email address</FormLabel>
+										<FormControl>
+											<Input
+												type="email"
+												autoComplete="email"
+												placeholder="Enter your email"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
 								)}
-							</div>
-						</div>
+							/>
 
-						{apiError && (
-							<div className="rounded-md bg-red-50 p-4">
-								<div className="text-sm text-red-700">{apiError}</div>
-							</div>
-						)}
+							{apiError && (
+								<div className="rounded-md bg-red-50 p-4">
+									<div className="text-sm text-red-700">{apiError}</div>
+								</div>
+							)}
 
-						<div>
-							<Button type="submit" disabled={isLoading} className="w-full">
-								{isLoading ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Sending reset link...
-									</>
-								) : (
-									'Send reset link'
-								)}
-							</Button>
-						</div>
-					</form>
+							<div>
+								<Button type="submit" disabled={isLoading} className="w-full">
+									{isLoading ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											Sending reset link...
+										</>
+									) : (
+										'Send reset link'
+									)}
+								</Button>
+							</div>
+						</form>
+					</Form>
 				</div>
 			</div>
 		</PublicLayout>
