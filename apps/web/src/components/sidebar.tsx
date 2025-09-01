@@ -6,6 +6,8 @@ import {
 	Home,
 	LogOut,
 	Menu,
+	Settings,
+	Users,
 	X,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -31,6 +33,11 @@ interface NavigationItem {
 	badge?: string;
 }
 
+interface NavigationSection {
+	title: string;
+	items: NavigationItem[];
+}
+
 export function Sidebar() {
 	const [isCollapsed] = useState(false);
 	const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -48,23 +55,31 @@ export function Sidebar() {
 
 	const navigationItems: NavigationItem[] = [
 		{ name: 'Home', href: '/', icon: Home },
-		{
-			name: 'Mutations',
-			href: '/mutations',
-			icon: FileText,
-			badge: mutations?.pagination?.total?.toString() || '0',
-		},
 	];
 
-	const bottomNavigationItems: NavigationItem[] = [
-		{
-			name: 'Workspace Settings',
-			href: '/settings/workspace',
-			icon: Building2,
-		},
-	];
+	const workspaceNavigation: NavigationSection = {
+		title: 'Workspace',
+		items: [
+			{
+				name: 'Mutations',
+				href: '/mutations',
+				icon: FileText,
+				badge: mutations?.pagination?.total?.toString() || '0',
+			},
+			{
+				name: 'Members',
+				href: '/settings/members',
+				icon: Users,
+			},
+			{
+				name: 'Settings',
+				href: '/settings/workspace',
+				icon: Settings,
+			},
+		],
+	};
 
-	function isActiveRoute(href: string) {
+	function isActiveRoute(href:string) {
 		const currentPath = location.pathname;
 		if (href === '/') {
 			return currentPath === '/';
@@ -117,72 +132,93 @@ export function Sidebar() {
 			</div>
 
 			<div className="flex-1 overflow-y-auto px-3 py-3">
-				<nav className="space-y-1">
-					{navigationItems.map((item) => {
-						const Icon = item.icon;
-						const isActive = isActiveRoute(item.href);
+				<nav className="grid gap-y-4">
+					<div className="space-y-1">
+						<h3 className="text-muted-foreground px-3 text-xs font-semibold uppercase tracking-wider">
+							Home
+						</h3>
+						{navigationItems.map((item) => {
+							const Icon = item.icon;
+							const isActive = isActiveRoute(item.href);
 
-						return (
-							<Link
-								key={item.name}
-								to={item.href}
-								className={cn(
-									'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
-									isActive
-										? 'bg-accent text-foreground font-medium'
-										: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-									isCollapsed && 'justify-center px-2',
-								)}
-								onClick={() => setIsMobileOpen(false)}
-							>
-								<Icon className="h-4 w-4 flex-shrink-0" />
-								{!isCollapsed && (
-									<>
-										<span className="flex-1">{item.name}</span>
-										{item.badge && (
-											<span
-												className={cn(
-													'rounded px-1.5 py-0.5 text-xs font-medium',
-													item.badge === 'New'
-														? 'bg-green-500/20 text-green-600 dark:text-green-400'
-														: 'bg-muted text-muted-foreground',
-												)}
-											>
-												{item.badge}
-											</span>
-										)}
-									</>
-								)}
-							</Link>
-						);
-					})}
-				</nav>
-			</div>
+							return (
+								<Link
+									key={item.name}
+									to={item.href}
+									className={cn(
+										'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
+										isActive
+											? 'bg-accent text-foreground font-medium'
+											: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+										isCollapsed && 'justify-center px-2',
+									)}
+									onClick={() => setIsMobileOpen(false)}
+								>
+									<Icon className="h-4 w-4 flex-shrink-0" />
+									{!isCollapsed && (
+										<>
+											<span className="flex-1">{item.name}</span>
+											{item.badge && (
+												<span
+													className={cn(
+														'rounded px-1.5 py-0.5 text-xs font-medium',
+														item.badge === 'New'
+															? 'bg-green-500/20 text-green-600 dark:text-green-400'
+															: 'bg-muted text-muted-foreground',
+													)}
+												>
+													{item.badge}
+												</span>
+											)}
+										</>
+									)}
+								</Link>
+							);
+						})}
+					</div>
+					<div className="space-y-1">
+						<h3 className="text-muted-foreground px-3 text-xs font-semibold uppercase tracking-wider">
+							{workspaceNavigation.title}
+						</h3>
+						{workspaceNavigation.items.map((item) => {
+							const Icon = item.icon;
+							const isActive = isActiveRoute(item.href);
 
-			<div className="border-border border-t px-3 py-3">
-				<nav className="space-y-1">
-					{bottomNavigationItems.map((item) => {
-						const Icon = item.icon;
-						const isActive = isActiveRoute(item.href);
-
-						return (
-							<Link
-								key={item.name}
-								to={item.href}
-								className={cn(
-									'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
-									isActive
-										? 'bg-accent text-foreground font-medium'
-										: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-									isCollapsed && 'justify-center px-2',
-								)}
-								onClick={() => setIsMobileOpen(false)}
-							>
-								<Icon className="h-4 w-4 flex-shrink-0" />
-								{!isCollapsed && <span className="flex-1">{item.name}</span>}
-							</Link>
-						);
-					})}
+							return (
+								<Link
+									key={item.name}
+									to={item.href}
+									className={cn(
+										'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
+										isActive
+											? 'bg-accent text-foreground font-medium'
+											: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+										isCollapsed && 'justify-center px-2',
+									)}
+									onClick={() => setIsMobileOpen(false)}
+								>
+									<Icon className="h-4 w-4 flex-shrink-0" />
+									{!isCollapsed && (
+										<>
+											<span className="flex-1">{item.name}</span>
+											{item.badge && (
+												<span
+													className={cn(
+														'rounded px-1.5 py-0.5 text-xs font-medium',
+														item.badge === 'New'
+															? 'bg-green-500/20 text-green-600 dark:text-green-400'
+															: 'bg-muted text-muted-foreground',
+													)}
+												>
+													{item.badge}
+												</span>
+											)}
+										</>
+									)}
+								</Link>
+							);
+						})}
+					</div>
 				</nav>
 			</div>
 		</>
@@ -226,67 +262,89 @@ export function Sidebar() {
 
 					<div className="flex-1 overflow-y-auto">
 						<div className="px-3 py-3">
-							<nav className="space-y-1">
-								{navigationItems.map((item) => {
-									const Icon = item.icon;
-									const isActive = isActiveRoute(item.href);
+							<nav className="grid gap-y-4">
+								<div className="space-y-1">
+									<h3 className="text-muted-foreground px-3 text-xs font-semibold uppercase tracking-wider">
+										Home
+									</h3>
+									{navigationItems.map((item) => {
+										const Icon = item.icon;
+										const isActive = isActiveRoute(item.href);
 
-									return (
-										<Link
-											key={item.name}
-											to={item.href}
-											className={cn(
-												'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
-												isActive
-													? 'bg-accent text-foreground font-medium'
-													: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-											)}
-											onClick={() => setIsMobileOpen(false)}
-										>
-											<Icon className="h-4 w-4 flex-shrink-0" />
-											<span className="flex-1">{item.name}</span>
-											{item.badge && (
-												<span
-													className={cn(
-														'rounded px-1.5 py-0.5 text-xs font-medium',
-														item.badge === 'New'
-															? 'bg-green-500/20 text-green-600 dark:text-green-400'
-															: 'bg-muted text-muted-foreground',
-													)}
-												>
-													{item.badge}
-												</span>
-											)}
-										</Link>
-									);
-								})}
+										return (
+											<Link
+												key={item.name}
+												to={item.href}
+												className={cn(
+													'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
+													isActive
+														? 'bg-accent text-foreground font-medium'
+														: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+												)}
+												onClick={() => setIsMobileOpen(false)}
+											>
+												<Icon className="h-4 w-4 flex-shrink-0" />
+												<span className="flex-1">{item.name}</span>
+												{item.badge && (
+													<span
+														className={cn(
+															'rounded px-1.5 py-0.5 text-xs font-medium',
+															item.badge === 'New'
+																? 'bg-green-500/20 text-green-600 dark:text-green-400'
+																: 'bg-muted text-muted-foreground',
+														)}
+													>
+														{item.badge}
+													</span>
+												)}
+											</Link>
+										);
+									})}
+								</div>
+								<div className="space-y-1">
+									<h3 className="text-muted-foreground px-3 text-xs font-semibold uppercase tracking-wider">
+										{workspaceNavigation.title}
+									</h3>
+									{workspaceNavigation.items.map((item) => {
+										const Icon = item.icon;
+										const isActive = isActiveRoute(item.href);
+
+										return (
+											<Link
+												key={item.name}
+												to={item.href}
+												className={cn(
+													'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
+													isActive
+														? 'bg-accent text-foreground font-medium'
+														: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+												)}
+												onClick={() => setIsMobileOpen(false)}
+											>
+												<Icon className="h-4 w-4 flex-shrink-0" />
+												<span className="flex-1">{item.name}</span>
+												{item.badge && (
+													<span
+														className={cn(
+															'rounded px-1.5 py-0.5 text-xs font-medium',
+															item.badge === 'New'
+																? 'bg-green-500/20 text-green-600 dark:text-green-400'
+																: 'bg-muted text-muted-foreground',
+														)}
+													>
+														{item.badge}
+													</span>
+												)}
+											</Link>
+										);
+									})}
+								</div>
 							</nav>
 						</div>
 					</div>
 
 					<div className="border-border border-t px-3 py-3">
 						<nav className="space-y-1">
-							{bottomNavigationItems.map((item) => {
-								const Icon = item.icon;
-								const isActive = isActiveRoute(item.href);
-
-								return (
-									<Link
-										key={item.name}
-										to={item.href}
-										className={cn(
-											'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
-											isActive
-												? 'bg-accent text-foreground font-medium'
-												: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-										)}
-										onClick={() => setIsMobileOpen(false)}
-									>
-										<Icon className="h-4 w-4 flex-shrink-0" />
-										<span className="flex-1">{item.name}</span>
-									</Link>
-								);
-							})}
 							<button
 								onClick={handleLogout}
 								className="text-muted-foreground hover:bg-accent/50 hover:text-destructive flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200"
