@@ -33,7 +33,6 @@ const updateApiKeySchema = z.object({
 });
 
 function generateApiKey(): string {
-	// Generate a random API key with prefix
 	const randomBytes = crypto.getRandomValues(new Uint8Array(32));
 	const key = Array.from(randomBytes, (byte) =>
 		byte.toString(16).padStart(2, '0'),
@@ -42,9 +41,11 @@ function generateApiKey(): string {
 }
 
 export async function apiKeyRoutes(fastify: FastifyInstance) {
-	fastify.addHook('preHandler', fastify.authenticate);
+	fastify.addHook('preHandler', async (request, reply) => {
+		await fastify.authenticate(request, reply);
+		await fastify.requireVerifiedEmail(request, reply);
+	});
 
-	// List API keys
 	fastify.get('/', async (request, reply) => {
 		try {
 			const keys = await db
@@ -55,7 +56,6 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 					lastUsedAt: apiKeys.lastUsedAt,
 					createdAt: apiKeys.createdAt,
 					expiresAt: apiKeys.expiresAt,
-					// Don't return the actual key hash
 				})
 				.from(apiKeys)
 				.where(eq(apiKeys.organizationId, request.currentUser!.organizationId))
@@ -77,7 +77,6 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 		}
 	});
 
-	// Create API key
 	fastify.post(
 		'/',
 		{
@@ -106,7 +105,6 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 			const { name, permissions, expiresAt } = validationResult.data;
 
 			try {
-				// Generate API key
 				const apiKey = generateApiKey();
 				const keyHash = await bcrypt.hash(apiKey, 10);
 
@@ -133,7 +131,6 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 					success: true,
 					data: {
 						...newApiKey,
-						// Return the plain API key only once when created
 						apiKey,
 					},
 				};
@@ -150,7 +147,6 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 		},
 	);
 
-	// Update API key
 	fastify.put(
 		'/:id',
 		{
@@ -222,7 +218,6 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 		},
 	);
 
-	// Delete API key
 	fastify.delete(
 		'/:id',
 		{

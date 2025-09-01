@@ -15,7 +15,6 @@ export function Dashboard() {
 	console.log('workspaces', workspaces);
 	return (
 		<div className="space-y-8">
-			{/* Header */}
 			<div className="flex items-start justify-between">
 				<div className="space-y-1">
 					<h1 className="text-foreground text-3xl font-bold">Dashboard</h1>

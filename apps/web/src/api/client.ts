@@ -65,15 +65,15 @@ class ApiClient {
 		return this.makeRequest({ endpoint, method: 'GET' });
 	}
 
-	post<T>(endpoint: string, data: Record<string, T> = {}): Promise<T> {
+	post<T>(endpoint: string, data: Record<string, unknown> = {}): Promise<T> {
 		return this.makeRequest({ endpoint, method: 'POST', data });
 	}
 
-	put<T>(endpoint: string, data: Record<string, T>): Promise<T> {
+	put<T>(endpoint: string, data: Record<string, unknown>): Promise<T> {
 		return this.makeRequest({ endpoint, method: 'PUT', data });
 	}
 
-	patch<T>(endpoint: string, data: Record<string, T>): Promise<T> {
+	patch<T>(endpoint: string, data: Record<string, unknown>): Promise<T> {
 		return this.makeRequest({ endpoint, method: 'PATCH', data });
 	}
 

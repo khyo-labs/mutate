@@ -1,11 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
+import { AlertCircle, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { apiKeysApi } from '@/api/api-keys';
 import { Card, CardContent } from '@/components/ui/card';
+import { useSession } from '@/stores/auth-store';
 
+import { Alert, AlertDescription } from '../ui/alert';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ApiKeyDetails } from './api-key-details';
@@ -14,8 +16,11 @@ import { SettingsHeader } from './header';
 
 export function ApiKeySettings() {
 	const queryClient = useQueryClient();
+	const { data: session } = useSession();
 	const [keyToShow, setKeyToShow] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
+
+	const isEmailVerified = session?.user?.emailVerified;
 
 	const { data: apiKeys = [], isLoading } = useQuery({
 		queryKey: ['workspace', 'api-keys'],
@@ -77,17 +82,31 @@ export function ApiKeySettings() {
 						label: 'New API Key',
 						icon: Plus,
 						drawer: () => <ApiKeyDrawer onSuccess={showKeyOnCreate} />,
+						disabled: !isEmailVerified,
 					}}
 				/>
+
+				{!isEmailVerified && (
+					<Alert>
+						<AlertCircle className="h-4 w-4" />
+						<AlertDescription>
+							You must verify your email address before you can create API keys.
+							Check your inbox for the verification email.
+						</AlertDescription>
+					</Alert>
+				)}
 
 				{isLoading && (
 					<div className="py-8 text-center">Loading API keys...</div>
 				)}
 
 				{!isLoading && apiKeys.length === 0 && (
-					<div className="py-8 text-center text-gray-500">
-						Create your first API key to get started.
-					</div>
+					<Alert>
+						<AlertCircle className="h-4 w-4" />
+						<AlertDescription>
+							Create your first API key to get started.
+						</AlertDescription>
+					</Alert>
 				)}
 
 				{!isLoading && apiKeys.length > 0 && (
