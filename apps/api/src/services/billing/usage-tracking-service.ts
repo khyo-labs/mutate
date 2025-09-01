@@ -1,12 +1,8 @@
 import { and, eq, sql } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
+import { ulid } from 'ulid';
 
 import { db } from '../../db/connection.js';
-import {
-	activeConversions,
-	transformationJobs,
-	usageRecords,
-} from '../../db/schema.js';
+import { activeConversions, usageRecords } from '../../db/schema.js';
 import type { BillingPeriod, ConversionEvent, UsageStats } from './types.js';
 
 export class UsageTrackingService {
@@ -69,7 +65,7 @@ export class UsageTrackingService {
 
 	async recordConversionStart(event: ConversionEvent): Promise<void> {
 		await db.insert(activeConversions).values({
-			id: nanoid(),
+			id: ulid(),
 			organizationId: event.organizationId,
 			jobId: event.jobId,
 		});
@@ -114,7 +110,7 @@ export class UsageTrackingService {
 					.where(eq(usageRecords.id, existing[0].id));
 			} else {
 				await trx.insert(usageRecords).values({
-					id: nanoid(),
+					id: ulid(),
 					organizationId: event.organizationId,
 					month: period.month,
 					year: period.year,
@@ -190,3 +186,5 @@ export class UsageTrackingService {
 		);
 	}
 }
+
+export const usageTrackingService = new UsageTrackingService();

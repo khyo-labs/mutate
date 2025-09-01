@@ -43,7 +43,6 @@ function generateApiKey(): string {
 
 export async function apiKeyRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
-	fastify.addHook('preHandler', fastify.requireVerifiedEmail);
 
 	// List API keys
 	fastify.get('/', async (request, reply) => {

@@ -153,3 +153,5 @@ export class QuotaEnforcementService {
 		};
 	}
 }
+
+export const quotaEnforcementService = new QuotaEnforcementService();

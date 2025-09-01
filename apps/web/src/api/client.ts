@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 type RequestOptions = {
 	endpoint: string;
 	method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-	data?: Record<string, any>;
+	data?: Record<string, unknown>;
 };
 
 class ApiClient {
@@ -39,7 +39,8 @@ class ApiClient {
 			(error) => {
 				console.error('Response error:', error.response?.data || error);
 				const errorMessage =
-					error.response?.data?.message || 'An unexpected error occurred';
+					error.response?.data?.error?.message ||
+					'An unexpected error occurred';
 				toast.error(errorMessage);
 				return Promise.reject(error);
 			},
@@ -64,15 +65,15 @@ class ApiClient {
 		return this.makeRequest({ endpoint, method: 'GET' });
 	}
 
-	post<T>(endpoint: string, data: Record<string, any> = {}): Promise<T> {
+	post<T>(endpoint: string, data: Record<string, T> = {}): Promise<T> {
 		return this.makeRequest({ endpoint, method: 'POST', data });
 	}
 
-	put<T>(endpoint: string, data: Record<string, any>): Promise<T> {
+	put<T>(endpoint: string, data: Record<string, T>): Promise<T> {
 		return this.makeRequest({ endpoint, method: 'PUT', data });
 	}
 
-	patch<T>(endpoint: string, data: Record<string, any>): Promise<T> {
+	patch<T>(endpoint: string, data: Record<string, T>): Promise<T> {
 		return this.makeRequest({ endpoint, method: 'PATCH', data });
 	}
 

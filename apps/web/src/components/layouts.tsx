@@ -3,10 +3,11 @@ import { toast } from 'sonner';
 
 import { api } from '@/api/client';
 import { useSession } from '@/stores/auth-store';
+import type { ApiSuccessResponse } from '@/types';
 
-import { Button } from './ui/button';
 import { ProtectedRoute } from './protected-route';
 import { Sidebar } from './sidebar';
+import { Button } from './ui/button';
 
 type LayoutProps = {
 	children: React.ReactNode;
@@ -21,7 +22,7 @@ export function Layout({ children }: LayoutProps) {
 	const handleResendVerificationEmail = async () => {
 		setIsSending(true);
 		try {
-			await api.post('/v1/auth/resend-verification-email');
+			await api.post<ApiSuccessResponse>('/v1/auth/resend-verification-email');
 			toast.success('Verification email sent. Please check your inbox.');
 		} finally {
 			setIsSending(false);
@@ -35,8 +36,8 @@ export function Layout({ children }: LayoutProps) {
 					<div className="bg-primary text-primary-foreground p-4">
 						<div className="container mx-auto flex items-center justify-between">
 							<p>
-								Your email address has not been verified. Please check your inbox
-								for a verification link.
+								Your email address has not been verified. Please check your
+								inbox for a verification link.
 							</p>
 							<Button
 								variant="secondary"

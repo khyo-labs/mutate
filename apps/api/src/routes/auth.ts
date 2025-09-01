@@ -10,7 +10,13 @@ export async function authRoutes(fastify: FastifyInstance) {
 		},
 		async (request, reply) => {
 			if (!request.currentUser) {
-				return reply.status(401).send({ message: 'Unauthorized' });
+				return reply.status(401).send({
+					success: false,
+					error: {
+						code: 'UNAUTHORIZED',
+						message: 'Unauthorized',
+					},
+				});
 			}
 
 			const session = await auth.api.getSession({
@@ -18,11 +24,23 @@ export async function authRoutes(fastify: FastifyInstance) {
 			});
 
 			if (!session?.user) {
-				return reply.status(401).send({ message: 'Unauthorized' });
+				return reply.status(401).send({
+					success: false,
+					error: {
+						code: 'UNAUTHORIZED',
+						message: 'Unauthorized',
+					},
+				});
 			}
 
 			if (session.user.emailVerified) {
-				return reply.status(400).send({ message: 'Email already verified' });
+				return reply.status(400).send({
+					success: false,
+					error: {
+						code: 'EMAIL_ALREADY_VERIFIED',
+						message: 'Email already verified',
+					},
+				});
 			}
 
 			try {
@@ -35,9 +53,13 @@ export async function authRoutes(fastify: FastifyInstance) {
 				return reply.send({ message: 'Verification email sent.' });
 			} catch (error) {
 				fastify.log.error(error, 'Failed to send verification email');
-				return reply
-					.status(500)
-					.send({ message: 'Failed to send verification email' });
+				return reply.status(500).send({
+					success: false,
+					error: {
+						code: 'FAILED_TO_SEND_VERIFICATION_EMAIL',
+						message: 'Failed to send verification email',
+					},
+				});
 			}
 		},
 	);

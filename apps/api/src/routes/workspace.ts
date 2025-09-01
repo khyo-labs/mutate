@@ -14,7 +14,6 @@ import { getErrorMessage } from '../utils/error.js';
 
 export async function workspaceRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
-	fastify.addHook('preHandler', fastify.requireVerifiedEmail);
 
 	fastify.get('/', async (request, reply) => {
 		try {
