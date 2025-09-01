@@ -68,7 +68,11 @@ await fastify.register(rateLimit, {
 	max: 1_000,
 	timeWindow: '1 minute',
 	keyGenerator: (request) => {
-		return (request.headers['x-api-key'] as string) || request.ip;
+		const authHeader = request.headers.authorization;
+		if (authHeader && authHeader.startsWith('Bearer ')) {
+			return authHeader.substring(7);
+		}
+		return request.ip;
 	},
 });
 
