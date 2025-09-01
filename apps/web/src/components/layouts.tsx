@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
 
 import { api } from '@/api/client';
@@ -15,11 +15,11 @@ type LayoutProps = {
 
 export function Layout({ children }: LayoutProps) {
 	const { data: session } = useSession();
-	const [isSending, setIsSending] = React.useState(false);
+	const [isSending, setIsSending] = useState(false);
 
 	const showBanner = !session?.user?.emailVerified;
 
-	const handleResendVerificationEmail = async () => {
+	async function handleResendVerificationEmail() {
 		setIsSending(true);
 		try {
 			await api.post<ApiSuccessResponse>('/v1/auth/resend-verification-email');
@@ -27,7 +27,7 @@ export function Layout({ children }: LayoutProps) {
 		} finally {
 			setIsSending(false);
 		}
-	};
+	}
 
 	return (
 		<ProtectedRoute>
