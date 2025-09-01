@@ -149,7 +149,7 @@ export function NewConfigurationComponent() {
 		<Layout>
 			<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 				{/* Header Section */}
-				<div className="mb-8 border-b border-gray-200 dark:border-gray-700 pb-6">
+				<div className="mb-8 border-b border-gray-200 pb-6 dark:border-gray-700">
 					<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
 						Mutation Studio
 					</h1>
@@ -171,8 +171,8 @@ export function NewConfigurationComponent() {
 					{/* Left Column - Main Content Area */}
 					<div className="space-y-8 xl:col-span-8">
 						{/* Transformation Rules Card - Larger Space */}
-						<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
-							<div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
+						<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+							<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 								<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
 									Transformation Rules
 								</h2>
@@ -186,8 +186,8 @@ export function NewConfigurationComponent() {
 						</div>
 
 						{/* Data Preview Tabs */}
-						<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
-							<div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
+						<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+							<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 								<div className="flex items-center justify-between">
 									<div>
 										<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -245,8 +245,8 @@ export function NewConfigurationComponent() {
 						</div>
 
 						{/* Output Preview Card */}
-						<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
-							<div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
+						<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+							<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 								<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
 									Output Preview
 								</h2>
@@ -272,8 +272,8 @@ export function NewConfigurationComponent() {
 					{/* Right Column - Configuration Sidebar */}
 					<div className="space-y-8 xl:col-span-4">
 						{/* Configuration Details Card */}
-						<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
-							<div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
+						<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+							<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 								<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
 									Configuration
 								</h2>
@@ -321,8 +321,8 @@ export function NewConfigurationComponent() {
 						</div>
 
 						{/* JSON Configuration Card */}
-						<div className="rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 shadow-sm">
-							<div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
+						<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+							<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
 								<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
 									JSON Configuration
 								</h2>

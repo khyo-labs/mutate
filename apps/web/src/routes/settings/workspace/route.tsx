@@ -33,5 +33,5 @@ function LayoutComponent() {
 				</div>
 			</main>
 		</div>
-	)
+	);
 }

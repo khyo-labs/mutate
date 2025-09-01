@@ -17,5 +17,5 @@ function RouteComponent() {
 				<ApiKeySettings />
 			</div>
 		</div>
-	)
+	);
 }
