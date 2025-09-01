@@ -25,7 +25,7 @@ export class SubscriptionService {
 			.limit(1);
 
 		if (!subscription.length) {
-			await this.assignFreePlan(organizationId);
+			await this.assignDefaultPlan(organizationId);
 			return this.getDefaultFreeLimits();
 		}
 
@@ -57,7 +57,12 @@ export class SubscriptionService {
 		return subscription[0] || null;
 	}
 
-	async assignFreePlan(organizationId: string) {
+	async assignDefaultPlan(organizationId: string) {
+		const defaultPlan = await this.getDefaultPlan();
+		if (!defaultPlan) {
+			throw new Error('No default plan configured');
+		}
+
 		const now = new Date();
 		const periodEnd = new Date(now);
 		periodEnd.setMonth(periodEnd.getMonth() + 1);
@@ -65,11 +70,16 @@ export class SubscriptionService {
 		await db.insert(organizationSubscriptions).values({
 			id: ulid(),
 			organizationId,
-			planId: 'plan_free',
+			planId: defaultPlan.id,
 			status: 'active',
 			currentPeriodStart: now,
 			currentPeriodEnd: periodEnd,
 		});
+	}
+
+	// Keep old method for backward compatibility but redirect to new one
+	async assignFreePlan(organizationId: string) {
+		return this.assignDefaultPlan(organizationId);
 	}
 
 	async upgradePlan(organizationId: string, newPlanId: string) {
@@ -111,12 +121,139 @@ export class SubscriptionService {
 			.where(eq(organizationSubscriptions.organizationId, organizationId));
 	}
 
-	async getAllPlans() {
+	async getAllPlans(includePrivate = false) {
+		const conditions = [eq(subscriptionPlans.active, true)];
+		if (!includePrivate) {
+			conditions.push(eq(subscriptionPlans.isPublic, true));
+		}
+
 		return await db
 			.select()
 			.from(subscriptionPlans)
-			.where(eq(subscriptionPlans.active, true))
+			.where(and(...conditions))
 			.orderBy(subscriptionPlans.priceCents);
+	}
+
+	async getDefaultPlan() {
+		const plans = await db
+			.select()
+			.from(subscriptionPlans)
+			.where(
+				and(
+					eq(subscriptionPlans.active, true),
+					eq(subscriptionPlans.isDefault, true),
+				),
+			)
+			.limit(1);
+
+		return plans[0] || null;
+	}
+
+	async getPlanById(planId: string) {
+		const plans = await db
+			.select()
+			.from(subscriptionPlans)
+			.where(eq(subscriptionPlans.id, planId))
+			.limit(1);
+
+		return plans[0] || null;
+	}
+
+	async createPlan(plan: {
+		name: string;
+		monthlyConversionLimit: number | null;
+		concurrentConversionLimit: number | null;
+		maxFileSizeMb: number | null;
+		priceCents: number;
+		billingInterval: string;
+		overagePriceCents: number | null;
+		features: Record<string, unknown> | null;
+		isDefault?: boolean;
+		isPublic?: boolean;
+	}) {
+		const id = `plan_${plan.name.toLowerCase().replace(/\s+/g, '_')}_${ulid()}`;
+
+		// If setting as default, unset other defaults first
+		if (plan.isDefault) {
+			await db
+				.update(subscriptionPlans)
+				.set({ isDefault: false })
+				.where(eq(subscriptionPlans.isDefault, true));
+		}
+
+		const [newPlan] = await db
+			.insert(subscriptionPlans)
+			.values({
+				id,
+				...plan,
+				isDefault: plan.isDefault ?? false,
+				isPublic: plan.isPublic ?? true,
+			})
+			.returning();
+
+		return newPlan;
+	}
+
+	async updatePlan(
+		planId: string,
+		updates: Partial<{
+			name: string;
+			monthlyConversionLimit: number | null;
+			concurrentConversionLimit: number | null;
+			maxFileSizeMb: number | null;
+			priceCents: number;
+			billingInterval: string;
+			overagePriceCents: number | null;
+			features: Record<string, unknown> | null;
+			isDefault: boolean;
+			isPublic: boolean;
+			active: boolean;
+		}>,
+	) {
+		// If setting as default, unset other defaults first
+		if (updates.isDefault === true) {
+			await db
+				.update(subscriptionPlans)
+				.set({ isDefault: false })
+				.where(eq(subscriptionPlans.isDefault, true));
+		}
+
+		const [updatedPlan] = await db
+			.update(subscriptionPlans)
+			.set({
+				...updates,
+				updatedAt: new Date(),
+			})
+			.where(eq(subscriptionPlans.id, planId))
+			.returning();
+
+		return updatedPlan;
+	}
+
+	async deletePlan(planId: string) {
+		// Check if plan is in use
+		const subscriptionsUsingPlan = await db
+			.select()
+			.from(organizationSubscriptions)
+			.where(eq(organizationSubscriptions.planId, planId))
+			.limit(1);
+
+		if (subscriptionsUsingPlan.length > 0) {
+			throw new Error('Cannot delete plan that is currently in use');
+		}
+
+		// Check if it's the default plan
+		const plan = await db
+			.select()
+			.from(subscriptionPlans)
+			.where(eq(subscriptionPlans.id, planId))
+			.limit(1);
+
+		if (plan[0]?.isDefault) {
+			throw new Error('Cannot delete the default plan');
+		}
+
+		await db.delete(subscriptionPlans).where(eq(subscriptionPlans.id, planId));
 	}
 
 	async getAllOrganizationsWithUsage() {

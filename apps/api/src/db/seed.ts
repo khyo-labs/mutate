@@ -18,6 +18,8 @@ export const defaultPlans = [
 			customBranding: false,
 		},
 		active: true,
+		isDefault: true,
+		isPublic: true,
 	},
 	{
 		id: 'plan_starter',
@@ -35,6 +37,8 @@ export const defaultPlans = [
 			customBranding: false,
 		},
 		active: true,
+		isDefault: false,
+		isPublic: true,
 	},
 	{
 		id: 'plan_pro',
@@ -53,6 +57,8 @@ export const defaultPlans = [
 			customRules: true,
 		},
 		active: true,
+		isDefault: false,
+		isPublic: true,
 	},
 	{
 		id: 'plan_enterprise',
@@ -73,6 +79,8 @@ export const defaultPlans = [
 			sla: true,
 		},
 		active: true,
+		isDefault: false,
+		isPublic: true,
 	},
 ];
 

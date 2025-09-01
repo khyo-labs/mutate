@@ -8,6 +8,7 @@ import { config } from './config.js';
 import { errorHandler } from './middleware/error-handler.js';
 import requireVerifiedEmail from './middleware/require-verified-email.js';
 import authPlugin from './plugins/auth.js';
+import { adminBillingRoutes } from './routes/admin/billing.js';
 import { authRoutes } from './routes/auth.js';
 import { billingRoutes } from './routes/billing.js';
 import { configRoutes } from './routes/configuration.js';
@@ -91,6 +92,7 @@ await fastify.register(workspaceRoutes, { prefix: '/v1/workspaces' });
 await fastify.register(mutateRoutes, { prefix: '/v1/mutate' });
 await fastify.register(fileRoutes, { prefix: '/v1/files' });
 await fastify.register(billingRoutes, { prefix: '/v1/billing' });
+await fastify.register(adminBillingRoutes, { prefix: '/v1/admin/billing' });
 
 const { apiKeyRoutes } = await import('./routes/api-keys.js');
 await fastify.register(apiKeyRoutes, { prefix: '/v1/api-keys' });
