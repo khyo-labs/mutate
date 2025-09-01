@@ -14,7 +14,6 @@ import '../types/fastify.js';
 import type { ConversionType } from '../types/index.js';
 import { logError } from '../utils/logger.js';
 
-// Helper function to validate file type against conversion type
 function validateFileType(
 	conversionType: ConversionType,
 	filename: string,

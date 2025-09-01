@@ -14,6 +14,8 @@ import { ApiKeyDetails } from './api-key-details';
 import { ApiKeyDrawer } from './api-key-drawer';
 import { SettingsHeader } from './header';
 
+const queryKey = ['workspace', 'api-keys'];
+
 export function ApiKeySettings() {
 	const queryClient = useQueryClient();
 	const { data: session } = useSession();
@@ -23,14 +25,14 @@ export function ApiKeySettings() {
 	const isEmailVerified = session?.user?.emailVerified;
 
 	const { data: apiKeys = [], isLoading } = useQuery({
-		queryKey: ['workspace', 'api-keys'],
+		queryKey: queryKey,
 		queryFn: apiKeysApi.list,
 	});
 
 	const deleteMutation = useMutation({
 		mutationFn: apiKeysApi.delete,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['api-keys'] });
+			queryClient.invalidateQueries({ queryKey: queryKey });
 		},
 	});
 

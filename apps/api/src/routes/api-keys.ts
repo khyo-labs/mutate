@@ -16,6 +16,7 @@ const createApiKeySchema = z.object({
 	expiresAt: z
 		.string()
 		.optional()
+		.nullable()
 		.transform((val) => (val ? new Date(val) : null)),
 });
 
@@ -29,6 +30,7 @@ const updateApiKeySchema = z.object({
 	expiresAt: z
 		.string()
 		.optional()
+		.nullable()
 		.transform((val) => (val ? new Date(val) : null)),
 });
 

@@ -84,10 +84,8 @@ export async function authenticate(
 	const authHeader = request.headers.authorization;
 
 	if (authHeader && authHeader.startsWith('Bearer ')) {
-		// API key authentication
 		return authenticateAPIKey(request, reply);
 	}
-	// Session-based authentication
 	return authenticateSession(request, reply);
 }
 
