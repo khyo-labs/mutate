@@ -12,10 +12,8 @@ export async function authenticateSession(
 	reply: FastifyReply,
 ) {
 	try {
-		// Create a proper Request object that Better Auth can use
 		const fullUrl = `${request.protocol}://${request.headers.host}${request.url}`;
 
-		// Convert Fastify request to a proper Request object
 		const req = new Request(fullUrl, {
 			method: request.method,
 			headers: request.headers as any,
@@ -25,11 +23,9 @@ export async function authenticateSession(
 		let session = await auth.api.getSession(req);
 
 		if (!session) {
-			console.log('Trying alternative session method...');
 			const altSession = await auth.api.getSession({
 				headers: req.headers,
 			});
-			console.log('alt session:', altSession);
 
 			if (!altSession) {
 				return reply.code(401).send({
@@ -57,7 +53,6 @@ export async function authenticateSession(
 
 		const userOrgInfo = membership[0];
 
-		// Check if user is platform admin
 		const platformAdmin = await db
 			.select({ role: platformAdmins.role })
 			.from(platformAdmins)
@@ -114,7 +109,6 @@ export async function authenticateAPIKey(
 	const apiKey = authHeader.substring(7);
 
 	try {
-		// Find API key by comparing hashes
 		const keys = await db
 			.select({
 				id: apiKeys.id,
@@ -163,7 +157,7 @@ export async function authenticateAPIKey(
 			.where(eq(apiKeys.id, validKey.id));
 
 		request.currentUser = {
-			id: validKey.createdBy, // Use the actual user ID who created the API key
+			id: validKey.createdBy,
 			organizationId: validKey.organizationId,
 			role: 'api',
 			isPlatformAdmin: false,

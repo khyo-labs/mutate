@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 
 import { db } from '../db/connection.js';
-import { organization, organizationWebhooks } from '../db/schema.js';
+import { organizationWebhooks } from '../db/schema.js';
 import { auth } from '../lib/auth.js';
 import {
 	createWorkspaceSchema,
@@ -10,11 +10,11 @@ import {
 	updateWorkspaceWebhookSchema,
 } from '../schemas/workspace.js';
 import { WebhookService } from '../services/webhook.js';
+import '../types/fastify.js';
 import { getErrorMessage } from '../utils/error.js';
 
 export async function workspaceRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
-	fastify.addHook('preHandler', fastify.requireVerifiedEmail);
 
 	fastify.get('/', async (request, reply) => {
 		try {

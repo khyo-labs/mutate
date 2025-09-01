@@ -1,10 +1,10 @@
 import { toast } from 'sonner';
 
 import type {
-	ApiResponse,
 	Configuration,
 	ConfigurationFormData,
 	PaginatedResponse,
+	SuccessResponse,
 } from '../types';
 import { api } from './client';
 
@@ -40,7 +40,7 @@ export const mutApi = {
 	},
 
 	get: async (id: string): Promise<Configuration> => {
-		const response = await api.get<ApiResponse<Configuration>>(
+		const response = await api.get<SuccessResponse<Configuration>>(
 			`/v1/configurations/${id}`,
 		);
 
@@ -60,33 +60,14 @@ export const mutApi = {
 		id: string,
 		data: Partial<ConfigurationFormData>,
 	): Promise<Configuration> => {
-		try {
-			console.log('mutApi.update - Sending data:', data);
-			const response = await api.put<ApiResponse<Configuration>>(
-				`/v1/configurations/${id}`,
-				data,
-			);
-			console.log('mutApi.update - Received response:', response);
+		console.log('mutApi.update - Sending data:', data);
+		const response = await api.put<SuccessResponse<Configuration>>(
+			`/v1/configurations/${id}`,
+			data,
+		);
+		console.log('mutApi.update - Received response:', response);
 
-			if (response.success) {
-				return response.data;
-			}
-
-			console.error('mutApi.update - Response not successful:', response);
-			toast.error('Failed to update mutation');
-			throw new Error('Failed to update mutation');
-		} catch (error: any) {
-			console.error('mutApi.update - Error caught:', error);
-			console.error('mutApi.update - Error response:', error.response?.data);
-
-			// Show more specific error message
-			const errorMessage =
-				error.response?.data?.error?.message ||
-				error.message ||
-				'Failed to update mutation';
-			toast.error(errorMessage);
-			throw new Error(errorMessage);
-		}
+		return response.data;
 	},
 
 	delete: async (id: string): Promise<void> => {
@@ -94,6 +75,9 @@ export const mutApi = {
 	},
 
 	clone: async (id: string): Promise<Configuration> => {
-		return api.post<Configuration>(`/v1/configurations/${id}/clone`);
+		const response = await api.post<SuccessResponse<Configuration>>(
+			`/v1/configurations/${id}/clone`,
+		);
+		return response.data;
 	},
 };

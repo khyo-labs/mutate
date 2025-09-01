@@ -1,54 +1,11 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { organization } from 'better-auth/plugins';
-import { eq } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
+import { createAuthMiddleware, organization } from 'better-auth/plugins';
 
+import { config } from '../config.js';
 import { db } from '../db/connection.js';
-import { organizationSubscriptions } from '../db/schema.js';
-import { sendEmail } from '../services/email/index.js';
-
-async function setupDefaultResources(organizationId: string) {
-	try {
-		const existingSubscription = await db
-			.select()
-			.from(organizationSubscriptions)
-			.where(eq(organizationSubscriptions.organizationId, organizationId))
-			.limit(1);
-
-		if (existingSubscription.length > 0) {
-			console.log(
-				'Subscription already exists for organization:',
-				organizationId,
-			);
-			return;
-		}
-
-		// Assign free plan to the new organization
-		const now = new Date();
-		const periodEnd = new Date(now);
-		periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-		await db.insert(organizationSubscriptions).values({
-			id: nanoid(),
-			organizationId,
-			planId: 'plan_free', // Default free plan
-			status: 'active',
-			currentPeriodStart: now,
-			currentPeriodEnd: periodEnd,
-			createdAt: now,
-		});
-
-		console.log(`✅ Assigned free tier to organization: ${organizationId}`);
-	} catch (error) {
-		console.error('Failed to setup default resources for organization:', error);
-	}
-}
-
-interface EmailArgs {
-	user: any;
-	url: string;
-}
+import { subscriptionService } from '../services/billing/subscription-service.js';
+import { EmailArgs, sendEmail } from '../services/email/index.js';
 
 export const auth = betterAuth({
 	secret:
@@ -61,7 +18,6 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 		requireEmailVerification: true,
-		forgotPasswordEnabled: true,
 		sendResetPassword: async ({ user, url }: EmailArgs) => {
 			await sendEmail({
 				to: user.email,
@@ -69,6 +25,12 @@ export const auth = betterAuth({
 				html: `Click <a href="${url}">here</a> to reset your password.`,
 			});
 		},
+	},
+	emailVerification: {
+		sendOnSignUp: true,
+		sendOnSignIn: true,
+		autoSignInAfterVerification: true,
+		expiresIn: 3600,
 		sendVerificationEmail: async ({ user, url }: EmailArgs) => {
 			await sendEmail({
 				to: user.email,
@@ -76,10 +38,6 @@ export const auth = betterAuth({
 				html: `Click <a href="${url}">here</a> to verify your email.`,
 			});
 		},
-	},
-	emailVerification: {
-		sendOnSignUp: true,
-		sendOnSignIn: true,
 	},
 	socialProviders: {
 		github: {
@@ -91,6 +49,20 @@ export const auth = betterAuth({
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
 		},
 	},
+	hooks: {
+		after: createAuthMiddleware(async (ctx) => {
+			if (ctx.path.startsWith('/sign-up')) {
+				const newSession = ctx.context.newSession;
+				if (newSession) {
+					await sendEmail({
+						to: 'alan@khyo.com',
+						subject: 'New user registered for Mutate',
+						html: `A new user, ${newSession.user.name}, registered for Mutate: ${JSON.stringify(newSession.user)}`,
+					});
+				}
+			}
+		}),
+	},
 	plugins: [
 		organization({
 			allowUserToCreateOrganization: true,
@@ -99,7 +71,7 @@ export const auth = betterAuth({
 				disabled: false,
 				afterCreate: async ({ organization, member, user }) => {
 					console.log('Organization created:', organization);
-					await setupDefaultResources(organization.id);
+					await subscriptionService.assignFreePlan(organization.id);
 				},
 			},
 		}),
@@ -107,17 +79,18 @@ export const auth = betterAuth({
 	session: {
 		expiresIn: 60 * 60 * 24 * 7, // 7 days
 		updateAge: 60 * 60 * 24, // 1 day
-		storage: 'cookie',
-		cookie: {
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'lax',
-			httpOnly: true,
+	},
+	advanced: {
+		cookiePrefix: 'mutate',
+	},
+	trustedOrigins: config.CORS_ORIGINS,
+	logger: {
+		disabled: config.NODE_ENV === 'production',
+		level: 'error',
+		log: (level, message, ...args) => {
+			console.log(`[${level}] ${message}`, ...args);
 		},
 	},
-	trustedOrigins: process.env.CORS_ORIGINS
-		? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
-		: ['http://localhost:5173', 'http://localhost:3000'],
-	debug: process.env.NODE_ENV === 'development', // Enable debug logging in development
 });
 
 export type Session = typeof auth.$Infer.Session;

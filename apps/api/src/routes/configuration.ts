@@ -15,7 +15,6 @@ import { logError } from '../utils/logger.js';
 
 export async function configRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
-	fastify.addHook('preHandler', fastify.requireVerifiedEmail);
 	fastify.post(
 		'/',
 		{

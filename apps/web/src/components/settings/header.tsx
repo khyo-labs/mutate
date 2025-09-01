@@ -24,6 +24,7 @@ type Props = {
 		label: string;
 		dialog?: React.ElementType;
 		drawer?: React.ElementType;
+		disabled?: boolean;
 	};
 };
 
@@ -35,7 +36,7 @@ export function SettingsHeader({ title, description, button }: Props) {
 				{button?.dialog && (
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button size="sm">
+							<Button size="sm" disabled={button?.disabled}>
 								{button?.icon && <button.icon className="size-4" />}
 								{button?.label}
 							</Button>
@@ -55,7 +56,7 @@ export function SettingsHeader({ title, description, button }: Props) {
 				{button?.drawer && (
 					<Drawer direction="right">
 						<DrawerTrigger asChild>
-							<Button size="sm">
+							<Button size="sm" disabled={button?.disabled}>
 								{button?.icon && <button.icon className="size-4" />}
 								{button?.label}
 							</Button>

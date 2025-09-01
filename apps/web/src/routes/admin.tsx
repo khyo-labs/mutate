@@ -28,7 +28,7 @@ import {
 } from 'recharts';
 import { toast } from 'sonner';
 
-import type { ApiSuccessResponse } from '@/types';
+import type { SuccessResponse } from '@/types';
 
 import { api } from '../api/client';
 import { Badge } from '../components/ui/badge';
@@ -70,7 +70,7 @@ interface SubscriptionPlan {
 	priceCents: number;
 	billingInterval: string;
 	overagePriceCents: number | null;
-	features: any;
+	features: Record<string, unknown>;
 }
 
 type Subscription = {
@@ -135,130 +135,101 @@ function AdminDashboard() {
 	}, [selectedOrg]);
 
 	async function fetchOrganizations() {
-		try {
-			const response = await api.get<ApiSuccessResponse<Organization[]>>(
-				'/v1/billing/admin/workspaces',
-			);
-			setOrganizations(response.data);
-		} catch (error: any) {
-			if (error.response?.status === 403) {
-				toast.error('You do not have admin access');
-			} else {
-				toast.error('Failed to fetch organizations');
-			}
-		} finally {
-			setLoading(false);
-		}
+		const response = await api.get<SuccessResponse<Organization[]>>(
+			'/v1/billing/admin/workspaces',
+		);
+		setOrganizations(response.data);
+		setLoading(false);
 	}
 
 	async function fetchPlans() {
-		try {
-			const response =
-				await api.get<ApiSuccessResponse<SubscriptionPlan[]>>(
-					'/v1/billing/plans',
-				);
-			setPlans(response.data);
-		} catch (error) {
-			console.error('Failed to fetch plans:', error);
-		}
+		const response =
+			await api.get<SuccessResponse<SubscriptionPlan[]>>('/v1/billing/plans');
+		setPlans(response.data);
 	}
 
 	async function fetchOrgUsageHistory(orgId: string) {
-		try {
-			const response = await api.get<ApiSuccessResponse<Organization>>(
-				`/v1/billing/admin/workspaces/${orgId}`,
-			);
-			if (response.success) {
-				// Fetch usage history - this would need a new endpoint
-				// For now, we'll use mock data
-				const mockHistory: UsageHistory[] = [
-					{
-						month: 1,
-						year: 2024,
-						conversionCount: 45,
-						overageCount: 0,
-						conversionTypeBreakdown: { XLSX_TO_CSV: 45 },
-					},
-					{
-						month: 2,
-						year: 2024,
-						conversionCount: 78,
-						overageCount: 0,
-						conversionTypeBreakdown: { XLSX_TO_CSV: 78 },
-					},
-					{
-						month: 3,
-						year: 2024,
-						conversionCount: 102,
-						overageCount: 2,
-						conversionTypeBreakdown: { XLSX_TO_CSV: 102 },
-					},
-				];
-				setOrgUsageHistory(mockHistory);
-			}
-		} catch (error) {
-			console.error('Failed to fetch organization details:', error);
-		}
+		const response = await api.get<SuccessResponse<Organization>>(
+			`/v1/billing/admin/workspaces/${orgId}`,
+		);
+		console.log(response);
+		// Fetch usage history - this would need a new endpoint
+		// For now, we'll use mock data
+		const mockHistory: UsageHistory[] = [
+			{
+				month: 1,
+				year: 2024,
+				conversionCount: 45,
+				overageCount: 0,
+				conversionTypeBreakdown: { XLSX_TO_CSV: 45 },
+			},
+			{
+				month: 2,
+				year: 2024,
+				conversionCount: 78,
+				overageCount: 0,
+				conversionTypeBreakdown: { XLSX_TO_CSV: 78 },
+			},
+			{
+				month: 3,
+				year: 2024,
+				conversionCount: 102,
+				overageCount: 2,
+				conversionTypeBreakdown: { XLSX_TO_CSV: 102 },
+			},
+		];
+		setOrgUsageHistory(mockHistory);
 	}
 
 	async function updateSubscriptionPlan(orgId: string, planId: string) {
-		try {
-			const response = await api.post<ApiSuccessResponse<Subscription>>(
-				`/v1/billing/admin/workspaces/${orgId}/subscription`,
-				{
-					planId,
-				},
-			);
+		const response = await api.post<SuccessResponse<Subscription>>(
+			`/v1/billing/admin/workspaces/${orgId}/subscription`,
+			{
+				planId,
+			},
+		);
 
-			if (response.success) {
-				toast.success('Subscription updated successfully');
-				setEditingSubscription(false);
-				setNewPlanId('');
-				fetchOrganizations();
-			}
-		} catch (error) {
-			toast.error('Failed to update subscription');
-		}
+		console.log(response);
+		toast.success('Subscription updated successfully');
+		setEditingSubscription(false);
+		setNewPlanId('');
+		fetchOrganizations();
 	}
 
 	async function saveOverrides(orgId: string) {
-		try {
-			const payload: any = {};
-			if (overrides.monthlyConversionLimit) {
-				payload.monthlyConversionLimit = parseInt(
-					overrides.monthlyConversionLimit,
-				);
-			}
-			if (overrides.concurrentConversionLimit) {
-				payload.concurrentConversionLimit = parseInt(
-					overrides.concurrentConversionLimit,
-				);
-			}
-			if (overrides.maxFileSizeMb) {
-				payload.maxFileSizeMb = parseInt(overrides.maxFileSizeMb);
-			}
-			if (overrides.overagePriceCents) {
-				payload.overagePriceCents = parseInt(overrides.overagePriceCents);
-			}
-
-			const response = await api.post<ApiSuccessResponse<Subscription>>(
-				`/v1/billing/admin/workspaces/${orgId}/overrides`,
-				payload,
+		const payload: Record<string, unknown> = {};
+		if (overrides.monthlyConversionLimit) {
+			payload.monthlyConversionLimit = parseInt(
+				overrides.monthlyConversionLimit,
 			);
-
-			if (response.success) {
-				toast.success('Overrides saved successfully');
-				setOverrides({
-					monthlyConversionLimit: '',
-					concurrentConversionLimit: '',
-					maxFileSizeMb: '',
-					overagePriceCents: '',
-				});
-				fetchOrganizations();
-			}
-		} catch (error) {
-			toast.error('Failed to save overrides');
 		}
+		if (overrides.concurrentConversionLimit) {
+			payload.concurrentConversionLimit = parseInt(
+				overrides.concurrentConversionLimit,
+			);
+		}
+		if (overrides.maxFileSizeMb) {
+			payload.maxFileSizeMb = parseInt(overrides.maxFileSizeMb);
+		}
+		if (overrides.overagePriceCents) {
+			payload.overagePriceCents = parseInt(overrides.overagePriceCents);
+		}
+
+		const response = await api.post<SuccessResponse<Subscription>>(
+			`/v1/billing/admin/workspaces/${orgId}/overrides`,
+			payload,
+		);
+
+		console.log(response);
+
+		toast.success('Overrides saved successfully');
+		setOverrides({
+			monthlyConversionLimit: '',
+			concurrentConversionLimit: '',
+			maxFileSizeMb: '',
+			overagePriceCents: '',
+		});
+		fetchOrganizations();
 	}
 
 	// Filtered and searched organizations

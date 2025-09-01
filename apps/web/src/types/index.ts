@@ -60,7 +60,7 @@ export type RuleType =
 export interface BaseTransformationRule {
 	id: string;
 	type: RuleType;
-	params: Record<string, any>;
+	params: Record<string, unknown>;
 }
 
 // Specific rule types
@@ -180,17 +180,17 @@ export type Configuration = {
 };
 
 // API response types
-export type ApiSuccessResponse<T = any> = {
+export type SuccessResponse<T = unknown> = {
 	success: true;
 	data: T;
 };
 
-export type ApiErrorResponse = {
+export type ErrorResponse = {
 	success: false;
 	error: {
 		code: string;
 		message: string;
-		details?: Record<string, any>;
+		details?: Record<string, unknown>;
 	};
 };
 
@@ -205,7 +205,7 @@ export type PaginatedResponse<T> = {
 	};
 };
 
-export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse;
+export type ApiResponse<T = unknown> = SuccessResponse<T> | ErrorResponse;
 
 // Auth types
 export type User = {
@@ -238,7 +238,7 @@ export type TransformationJob = {
 	inputFileUrl?: string;
 	outputFileUrl?: string;
 	errorMessage?: string;
-	executionLog?: Record<string, any>;
+	executionLog?: Record<string, unknown>;
 	startedAt?: string;
 	completedAt?: string;
 	createdBy: string;

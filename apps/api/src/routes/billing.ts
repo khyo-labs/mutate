@@ -10,7 +10,6 @@ import { logError } from '../utils/logger.js';
 
 export async function billingRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
-	fastify.addHook('preHandler', fastify.requireVerifiedEmail);
 
 	const subscriptionService = new SubscriptionService();
 	const usageService = new UsageTrackingService();

@@ -6,6 +6,10 @@ declare module 'fastify' {
 			request: FastifyRequest,
 			reply: FastifyReply,
 		) => Promise<void>;
+		requireVerifiedEmail: (
+			request: FastifyRequest,
+			reply: FastifyReply,
+		) => Promise<void>;
 	}
 
 	interface FastifyRequest {

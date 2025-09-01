@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import type { ApiKey } from '@/api/api-keys';
+import type { ApiKey, ApiKeyCreate } from '@/api/api-keys';
 import { apiKeysApi } from '@/api/api-keys';
 
 import { Button } from '../ui/button';
@@ -57,7 +57,7 @@ export function ApiKeyDrawer({
 	});
 
 	const updateApiKey = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: FormData }) =>
+		mutationFn: ({ id, data }: { id: string; data: ApiKeyCreate }) =>
 			apiKeysApi.update(id, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['workspace', 'api-keys'] });
@@ -66,11 +66,15 @@ export function ApiKeyDrawer({
 	});
 
 	function handleSubmit(data: FormData) {
-		console.log(data);
+		const apiData: ApiKeyCreate = {
+			...data,
+			expiresAt: data.expiresAt || null,
+		};
+
 		if (apiKey) {
-			updateApiKey.mutate({ id: apiKey.id, data });
+			updateApiKey.mutate({ id: apiKey.id, data: apiData });
 		} else {
-			createApiKey.mutate(data);
+			createApiKey.mutate(apiData);
 		}
 	}
 
