@@ -2,14 +2,43 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach to process",
+            "name": "Debug API (Attach)",
             "type": "node",
             "request": "attach",
             "port": 9229,
+            "restart": true,
             "skipFiles": [
                 "<node_internals>/**",
                 "${workspaceFolder}/node_modules/**"
+            ],
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceFolder}/apps/api/**/*.js"
             ]
+        },
+        {
+            "name": "Launch API with Debugger",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": [
+                "--filter",
+                "@mutate/api",
+                "exec",
+                "tsx",
+                "watch",
+                "--inspect",
+                "src/index.ts"
+            ],
+            "cwd": "${workspaceFolder}/apps/api",
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "sourceMaps": true,
+            "env": {
+                "NODE_ENV": "development"
+            }
         }
     ]
 }
