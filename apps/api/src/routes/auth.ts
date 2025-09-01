@@ -9,19 +9,26 @@ export async function authRoutes(fastify: FastifyInstance) {
 			preHandler: [fastify.authenticate],
 		},
 		async (request, reply) => {
-			const user = request.user;
-			if (!user) {
+			if (!request.currentUser) {
 				return reply.status(401).send({ message: 'Unauthorized' });
 			}
 
-			if (user.emailVerified) {
+			const session = await auth.api.getSession({
+				headers: request.headers as any,
+			});
+
+			if (!session?.user) {
+				return reply.status(401).send({ message: 'Unauthorized' });
+			}
+
+			if (session.user.emailVerified) {
 				return reply.status(400).send({ message: 'Email already verified' });
 			}
 
 			try {
 				await auth.api.sendVerificationEmail({
 					body: {
-						email: user.email,
+						email: session.user.email,
 					},
 					headers: request.headers as Record<string, string>,
 				});
@@ -34,4 +41,53 @@ export async function authRoutes(fastify: FastifyInstance) {
 			}
 		},
 	);
+
+	fastify.all('/*', async (request, reply) => {
+		try {
+			const cleanPath = request.url || '/';
+			const fullUrl = `http://${request.headers.host}${cleanPath}`;
+
+			const headers = new Headers();
+
+			Object.entries(request.headers).forEach(([key, value]: [string, any]) => {
+				if (value) {
+					const headerValue = Array.isArray(value)
+						? value.join(', ')
+						: value.toString();
+					headers.append(key, headerValue);
+				}
+			});
+
+			let body: string | undefined;
+			if (request.body) {
+				body =
+					typeof request.body === 'string'
+						? request.body
+						: JSON.stringify(request.body);
+			}
+
+			const req = new Request(fullUrl, {
+				method: request.method,
+				headers,
+				body: body || undefined,
+			});
+
+			const response = await auth.handler(req);
+
+			reply.status(response.status);
+			response.headers.forEach((value: string, key: string) =>
+				reply.header(key, value),
+			);
+
+			const responseText = response.body ? await response.text() : null;
+			reply.send(responseText);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Unknown error';
+			fastify.log.error('Authentication Error: %s', message);
+			reply.status(500).send({
+				error: 'Internal authentication error',
+				code: 'AUTH_FAILURE',
+			});
+		}
+	});
 }
