@@ -23,7 +23,10 @@ type Props = {
 		icon?: React.ElementType;
 		label: string;
 		dialog?: React.ElementType;
-		drawer?: React.ElementType;
+		drawer?: {
+			component: React.ElementType;
+			props?: Record<string, unknown>;
+		};
 	};
 };
 
@@ -67,7 +70,7 @@ export function SettingsHeader({ title, description, button }: Props) {
 									Drawer for {button?.label}
 								</DrawerDescription>
 							</DrawerHeader>
-							<button.drawer />
+							<button.drawer.component {...button.drawer.props} />
 						</DrawerContent>
 					</Drawer>
 				)}

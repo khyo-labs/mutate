@@ -8,7 +8,7 @@ import type { ApiResponse, Webhook } from '@/types';
 import { Card, CardContent } from '../ui/card';
 import { SettingsHeader } from './header';
 import { WebhookDetails } from './webhook-details';
-import { WebhookDialog } from './webhook-dialog';
+import { WebhookDrawer } from './webhook-drawer';
 
 const queryKey = ['workspace', 'webhooks'];
 
@@ -50,7 +50,14 @@ export function WebhookSettings() {
 			<SettingsHeader
 				title="Webhooks"
 				description="Configure webhook URLs to receive real-time notifications when mutations complete. Protect your endpoints with a secret key for request validation."
-				button={{ label: 'New Webhook', icon: Plus, dialog: WebhookDialog }}
+				button={{
+					label: 'New Webhook',
+					icon: Plus,
+					drawer: {
+						component: WebhookDrawer,
+						props: {},
+					},
+				}}
 			/>
 
 			{isLoading && <div className="py-8 text-center">Loading webhooks...</div>}
