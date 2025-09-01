@@ -258,7 +258,7 @@ class WebhookService {
 						.update(organizationWebhooks)
 						.set({ lastUsedAt: new Date() })
 						.where(eq(organizationWebhooks.id, configuration.webhookUrl.id));
-					
+
 					return await this.sendWebhook(
 						configuration.webhookUrl.url,
 						payload,

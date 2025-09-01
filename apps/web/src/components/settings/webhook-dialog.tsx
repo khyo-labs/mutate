@@ -3,7 +3,7 @@ import { DialogClose } from '@radix-ui/react-dialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, Copy, Eye, EyeOff } from 'lucide-react';
 import { nanoid } from 'nanoid';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -27,6 +27,7 @@ export function WebhookDialog({ webhook }: { webhook?: Webhook }) {
 	const queryClient = useQueryClient();
 	const [showSecret, setShowSecret] = useState<boolean>(!webhook);
 	const [copied, setCopied] = useState(false);
+	const closeButtonRef = useRef<HTMLButtonElement>(null);
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(schema),
@@ -53,7 +54,7 @@ export function WebhookDialog({ webhook }: { webhook?: Webhook }) {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['workspace', 'webhooks'] });
 			form.reset();
-			toast.success('Webhook created successfully');
+			closeButtonRef.current?.click();
 		},
 	});
 
@@ -78,7 +79,7 @@ export function WebhookDialog({ webhook }: { webhook?: Webhook }) {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['workspace', 'webhooks'] });
 			form.reset();
-			toast.success('Webhook updated successfully');
+			closeButtonRef.current?.click();
 		},
 	});
 
@@ -190,6 +191,7 @@ export function WebhookDialog({ webhook }: { webhook?: Webhook }) {
 				<div className="flex justify-end gap-2">
 					<DialogClose asChild>
 						<Button
+							ref={closeButtonRef}
 							type="button"
 							variant="outline"
 							onClick={() => form.reset()}

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { api } from '@/api/client';
@@ -49,7 +50,7 @@ export function WebhookSettings() {
 			<SettingsHeader
 				title="Webhooks"
 				description="Configure webhook URLs to receive real-time notifications when mutations complete. Protect your endpoints with a secret key for request validation."
-				button={{ label: 'New Webhook', dialog: WebhookDialog }}
+				button={{ label: 'New Webhook', icon: Plus, dialog: WebhookDialog }}
 			/>
 
 			{isLoading && <div className="py-8 text-center">Loading webhooks...</div>}
@@ -67,7 +68,6 @@ export function WebhookSettings() {
 							{webhooks.map((webhook) => (
 								<div key={webhook.id} className="pb-8 last:pb-0">
 									<WebhookDetails
-										key={webhook.id}
 										webhook={webhook}
 										deleteWebhook={deleteWebhook}
 									/>

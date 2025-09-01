@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import type { ApiResponse } from '../types';
 import { api } from './client';
 
-export interface ApiKey {
+export type ApiKey = {
 	id: string;
 	name: string;
 	permissions: string[];
@@ -11,19 +11,7 @@ export interface ApiKey {
 	createdAt: string;
 	expiresAt: string | null;
 	apiKey?: string; // Only returned when creating
-}
-
-export interface CreateApiKeyRequest {
-	name: string;
-	permissions?: string[];
-	expiresAt?: string;
-}
-
-export interface UpdateApiKeyRequest {
-	name?: string;
-	permissions?: string[];
-	expiresAt?: string;
-}
+};
 
 export const apiKeysApi = {
 	list: async (): Promise<ApiKey[]> => {
@@ -37,7 +25,7 @@ export const apiKeysApi = {
 		throw new Error('Failed to load API keys');
 	},
 
-	create: async (data: CreateApiKeyRequest): Promise<ApiKey> => {
+	create: async (data: Partial<ApiKey>): Promise<ApiKey> => {
 		const response = await api.post<ApiResponse<ApiKey>>('/v1/api-keys', data);
 
 		if (response.success) {
@@ -46,10 +34,10 @@ export const apiKeysApi = {
 		}
 
 		toast.error('Failed to create API key');
-		throw new Error('Failed to create API key');
+		return {} as ApiKey;
 	},
 
-	update: async (id: string, data: UpdateApiKeyRequest): Promise<ApiKey> => {
+	update: async (id: string, data: Partial<ApiKey>): Promise<ApiKey> => {
 		const response = await api.put<ApiResponse<ApiKey>>(
 			`/v1/api-keys/${id}`,
 			data,
@@ -61,7 +49,7 @@ export const apiKeysApi = {
 		}
 
 		toast.error('Failed to update API key');
-		throw new Error('Failed to update API key');
+		return {} as ApiKey;
 	},
 
 	delete: async (id: string): Promise<void> => {

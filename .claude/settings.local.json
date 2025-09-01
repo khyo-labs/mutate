@@ -19,7 +19,8 @@
       "Bash(pnpm tsx:*)",
       "Bash(pnpm --filter @mutate/api typecheck)",
       "Bash(pnpm web add:*)",
-      "WebSearch"
+      "WebSearch",
+      "mcp__shadcn__get_add_command_for_items"
     ],
     "deny": [],
     "ask": []

@@ -363,9 +363,7 @@ function AdminDashboard() {
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">{stats.totalOrgs}</div>
-						<p className="text-muted-foreground text-xs">
-							Active workspaces
-						</p>
+						<p className="text-muted-foreground text-xs">Active workspaces</p>
 					</CardContent>
 				</Card>
 

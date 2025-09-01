@@ -185,44 +185,41 @@ export async function billingRoutes(fastify: FastifyInstance) {
 	});
 
 	// Platform Admin endpoint: Set workspace overrides
-	fastify.post(
-		'/admin/workspaces/:orgId/overrides',
-		async (request, reply) => {
-			try {
-				// Check for platform admin access
-				if (!request.currentUser?.isPlatformAdmin) {
-					return reply.code(403).send({
-						success: false,
-						error: 'Platform admin access required',
-					});
-				}
-
-				const { orgId } = request.params as { orgId: string };
-				const overrides = request.body as {
-					monthlyConversionLimit?: number | null;
-					concurrentConversionLimit?: number | null;
-					maxFileSizeMb?: number | null;
-					overagePriceCents?: number | null;
-				};
-
-				await subscriptionService.setOrganizationOverrides(orgId, overrides);
-
-				return {
-					success: true,
-					message: 'Organization overrides updated successfully',
-				};
-			} catch (error) {
-				logError(request.log, 'Set overrides error:', error);
-				return reply.code(500).send({
+	fastify.post('/admin/workspaces/:orgId/overrides', async (request, reply) => {
+		try {
+			// Check for platform admin access
+			if (!request.currentUser?.isPlatformAdmin) {
+				return reply.code(403).send({
 					success: false,
-					error: {
-						code: 'OVERRIDES_FAILED',
-						message: 'Failed to set organization overrides',
-					},
+					error: 'Platform admin access required',
 				});
 			}
-		},
-	);
+
+			const { orgId } = request.params as { orgId: string };
+			const overrides = request.body as {
+				monthlyConversionLimit?: number | null;
+				concurrentConversionLimit?: number | null;
+				maxFileSizeMb?: number | null;
+				overagePriceCents?: number | null;
+			};
+
+			await subscriptionService.setOrganizationOverrides(orgId, overrides);
+
+			return {
+				success: true,
+				message: 'Organization overrides updated successfully',
+			};
+		} catch (error) {
+			logError(request.log, 'Set overrides error:', error);
+			return reply.code(500).send({
+				success: false,
+				error: {
+					code: 'OVERRIDES_FAILED',
+					message: 'Failed to set organization overrides',
+				},
+			});
+		}
+	});
 
 	// Platform Admin endpoint: Get all workspaces with usage stats
 	fastify.get('/admin/workspaces', async (request, reply) => {

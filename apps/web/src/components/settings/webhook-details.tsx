@@ -4,18 +4,31 @@ import {
 	CircleSmall,
 	Clock,
 	Copy,
+	Edit,
 	Eye,
 	EyeOff,
 	Globe,
 	Key,
+	Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { cn } from '@/lib/utils';
 import type { Webhook } from '@/types';
-import { formatRelativeTime } from '@/utils/format-time';
+import { formatRelativeTime } from '@/utils/dates';
 
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '../ui/alert-dialog';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import {
@@ -80,17 +93,13 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 						</span>
 					</div>
 				</div>
-				<div className="flex items-center gap-3">
-					<Button
-						variant="destructive"
-						onClick={() => deleteWebhook.mutate(webhook.id)}
-						disabled={deleteWebhook.isPending}
-					>
-						Delete
-					</Button>
+				<div className="flex items-center gap-2">
 					<Dialog>
 						<DialogTrigger asChild>
-							<Button>Edit</Button>
+							<Button variant="outline" size="sm">
+								<Edit className="h-4 w-4" />
+								Edit
+							</Button>
 						</DialogTrigger>
 						<DialogContent>
 							<DialogHeader>
@@ -102,6 +111,38 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 							<WebhookDialog webhook={webhook} />
 						</DialogContent>
 					</Dialog>
+					<AlertDialog>
+						<AlertDialogTrigger asChild>
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={deleteWebhook.isPending}
+								className="text-destructive hover:bg-destructive/10"
+							>
+								<Trash2 className="h-4 w-4" />
+								Delete
+							</Button>
+						</AlertDialogTrigger>
+						<AlertDialogContent>
+							<AlertDialogHeader>
+								<AlertDialogTitle>Delete Webhook</AlertDialogTitle>
+								<AlertDialogDescription>
+									Are you sure you want to delete the webhook "{webhook.name}"?
+									This will stop all notifications to {webhook.url}. This action
+									cannot be undone.
+								</AlertDialogDescription>
+							</AlertDialogHeader>
+							<AlertDialogFooter>
+								<AlertDialogCancel>Cancel</AlertDialogCancel>
+								<AlertDialogAction
+									onClick={() => deleteWebhook.mutate(webhook.id)}
+									className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+								>
+									Delete
+								</AlertDialogAction>
+							</AlertDialogFooter>
+						</AlertDialogContent>
+					</AlertDialog>
 				</div>
 			</div>
 
@@ -122,7 +163,6 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 					</div>
 				)}
 
-				{/* Secret */}
 				<div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
 					<Key className="text-muted-foreground mt-0.5 h-4 w-4" />
 					<div className="flex-1">
@@ -177,19 +217,17 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 					</div>
 				</div>
 
-				{webhook.lastUsedAt && (
-					<div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
-						<Clock className="text-muted-foreground mt-0.5 h-4 w-4" />
-						<div>
-							<p className="text-muted-foreground mb-1 text-xs font-medium">
-								Last Request
-							</p>
-							<p className="text-foreground text-sm">
-								{formatRelativeTime(webhook.lastUsedAt)}
-							</p>
-						</div>
+				<div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
+					<Clock className="text-muted-foreground mt-0.5 h-4 w-4" />
+					<div>
+						<p className="text-muted-foreground mb-1 text-xs font-medium">
+							Last Sent
+						</p>
+						<p className="text-foreground text-sm">
+							{formatRelativeTime(webhook.lastUsedAt)}
+						</p>
 					</div>
-				)}
+				</div>
 			</div>
 		</div>
 	);
