@@ -6,6 +6,15 @@ import { useForm } from 'react-hook-form';
 import z from 'zod';
 
 import { Button } from '@/components/ui/button';
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 import { PublicLayout } from '../components/layouts';
 import { signIn } from '../lib/auth-client';
@@ -28,12 +37,12 @@ export function LoginComponent() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [apiError, setApiError] = useState<string | null>(null);
 
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-	} = useForm<LoginFormData>({
+	const form = useForm<LoginFormData>({
 		resolver: zodResolver(loginSchema),
+		defaultValues: {
+			email: '',
+			password: '',
+		},
 	});
 
 	const onSubmit = async (data: LoginFormData) => {
@@ -121,95 +130,92 @@ export function LoginComponent() {
 						</div>
 					</div>
 
-					<form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-						<div>
-							<label
-								htmlFor="email"
-								className="block text-sm font-medium text-gray-700"
-							>
-								Email address
-							</label>
-							<div className="mt-1">
-								<input
-									{...register('email')}
-									type="email"
-									autoComplete="email"
-									className="input"
-									placeholder="Enter your email"
-								/>
-								{errors.email && (
-									<p className="mt-1 text-sm text-red-600">
-										{errors.email.message}
-									</p>
+					<Form {...form}>
+						<form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+							<FormField
+								control={form.control}
+								name="email"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Email address</FormLabel>
+										<FormControl>
+											<Input
+												type="email"
+												autoComplete="email"
+												placeholder="Enter your email"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
 								)}
-							</div>
-						</div>
+							/>
 
-						<div>
-							<label
-								htmlFor="password"
-								className="block text-sm font-medium text-gray-700"
-							>
-								Password
-							</label>
-							<div className="relative mt-1">
-								<input
-									{...register('password')}
-									type={showPassword ? 'text' : 'password'}
-									autoComplete="current-password"
-									className="input pr-10"
-									placeholder="Enter your password"
-								/>
-								<button
-									type="button"
-									className="absolute inset-y-0 right-0 flex items-center pr-3"
-									onClick={() => setShowPassword(!showPassword)}
-								>
-									{showPassword ? (
-										<EyeOff className="h-4 w-4 text-gray-400" />
+							<FormField
+								control={form.control}
+								name="password"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Password</FormLabel>
+										<FormControl>
+											<div className="relative">
+												<Input
+													type={showPassword ? 'text' : 'password'}
+													autoComplete="current-password"
+													placeholder="Enter your password"
+													className="pr-10"
+													{...field}
+												/>
+												<button
+													type="button"
+													className="absolute inset-y-0 right-0 flex items-center pr-3"
+													onClick={() => setShowPassword(!showPassword)}
+												>
+													{showPassword ? (
+														<EyeOff className="h-4 w-4 text-gray-400" />
+													) : (
+														<Eye className="h-4 w-4 text-gray-400" />
+													)}
+												</button>
+											</div>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							{apiError && (
+								<div className="rounded-md bg-red-50 p-4">
+									<div className="text-sm text-red-700">{apiError}</div>
+								</div>
+							)}
+
+							<div>
+								<Button type="submit" disabled={isLoading} className="w-full">
+									{isLoading ? (
+										<>
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											Signing in...
+										</>
 									) : (
-										<Eye className="h-4 w-4 text-gray-400" />
+										'Sign in'
 									)}
-								</button>
-								{errors.password && (
-									<p className="mt-1 text-sm text-red-600">
-										{errors.password.message}
-									</p>
-								)}
+								</Button>
 							</div>
-						</div>
 
-						{apiError && (
-							<div className="rounded-md bg-red-50 p-4">
-								<div className="text-sm text-red-700">{apiError}</div>
+							<div className="text-center">
+								<span className="text-foreground/80 text-sm">
+									Don't have an account?{' '}
+									<Link
+										to="/register"
+										className="text-foreground hover:text-primary-500 font-medium"
+									>
+										Sign up
+									</Link>
+								</span>
 							</div>
-						)}
-
-						<div>
-							<Button type="submit" disabled={isLoading} className="w-full">
-								{isLoading ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Signing in...
-									</>
-								) : (
-									'Sign in'
-								)}
-							</Button>
-						</div>
-
-						<div className="text-center">
-							<span className="text-sm text-gray-600">
-								Don't have an account?{' '}
-								<Link
-									to="/register"
-									className="text-primary-600 hover:text-primary-500 font-medium"
-								>
-									Sign up
-								</Link>
-							</span>
-						</div>
-					</form>
+						</form>
+					</Form>
 				</div>
 			</div>
 		</PublicLayout>

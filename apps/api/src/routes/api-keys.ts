@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import { db } from '../db/connection.js';
 import { apiKeys } from '../db/schema.js';
-import { authenticateSession, requireRole } from '../middleware/auth.js';
+import { requireRole } from '../middleware/auth.js';
 import '../types/fastify.js';
 import { logError } from '../utils/logger.js';
 
@@ -42,7 +42,8 @@ function generateApiKey(): string {
 }
 
 export async function apiKeyRoutes(fastify: FastifyInstance) {
-	fastify.addHook('preHandler', authenticateSession);
+	fastify.addHook('preHandler', fastify.authenticate);
+	fastify.addHook('preHandler', fastify.requireVerifiedEmail);
 
 	// List API keys
 	fastify.get('/', async (request, reply) => {

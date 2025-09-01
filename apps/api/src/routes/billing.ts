@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify';
 
-import { authenticateSession } from '../middleware/auth.js';
 import {
 	QuotaEnforcementService,
 	SubscriptionService,
@@ -10,7 +9,8 @@ import '../types/fastify.js';
 import { logError } from '../utils/logger.js';
 
 export async function billingRoutes(fastify: FastifyInstance) {
-	fastify.addHook('preHandler', authenticateSession);
+	fastify.addHook('preHandler', fastify.authenticate);
+	fastify.addHook('preHandler', fastify.requireVerifiedEmail);
 
 	const subscriptionService = new SubscriptionService();
 	const usageService = new UsageTrackingService();

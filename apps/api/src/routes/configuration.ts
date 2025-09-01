@@ -4,7 +4,7 @@ import { ulid } from 'ulid';
 
 import { db } from '../db/connection.js';
 import { configurationVersions, configurations } from '../db/schema.js';
-import { authenticateSession, requireRole } from '../middleware/auth.js';
+import { requireRole } from '../middleware/auth.js';
 import {
 	configurationQuerySchema,
 	createSchema,
@@ -14,7 +14,8 @@ import '../types/fastify.js';
 import { logError } from '../utils/logger.js';
 
 export async function configRoutes(fastify: FastifyInstance) {
-	fastify.addHook('preHandler', authenticateSession);
+	fastify.addHook('preHandler', fastify.authenticate);
+	fastify.addHook('preHandler', fastify.requireVerifiedEmail);
 	fastify.post(
 		'/',
 		{

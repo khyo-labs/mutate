@@ -82,6 +82,20 @@ export async function authenticateSession(
 	}
 }
 
+export async function authenticate(
+	request: FastifyRequest,
+	reply: FastifyReply,
+) {
+	const authHeader = request.headers.authorization;
+
+	if (authHeader && authHeader.startsWith('Bearer ')) {
+		// API key authentication
+		return authenticateAPIKey(request, reply);
+	}
+	// Session-based authentication
+	return authenticateSession(request, reply);
+}
+
 export async function authenticateAPIKey(
 	request: FastifyRequest,
 	reply: FastifyReply,

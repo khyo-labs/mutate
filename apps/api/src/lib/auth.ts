@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid';
 
 import { db } from '../db/connection.js';
 import { organizationSubscriptions } from '../db/schema.js';
+import { sendEmail } from '../services/email/index.js';
 
 async function setupDefaultResources(organizationId: string) {
 	try {
@@ -44,6 +45,11 @@ async function setupDefaultResources(organizationId: string) {
 	}
 }
 
+interface EmailArgs {
+	user: any;
+	url: string;
+}
+
 export const auth = betterAuth({
 	secret:
 		process.env.BETTER_AUTH_SECRET ||
@@ -54,11 +60,26 @@ export const auth = betterAuth({
 	baseURL: `${process.env.BASE_URL || 'http://localhost:3000'}/v1/auth`,
 	emailAndPassword: {
 		enabled: true,
-		requireEmailVerification: false,
+		requireEmailVerification: true,
 		forgotPasswordEnabled: true,
-		sendResetPassword: async ({ user, url }) => {
-			console.log(`Password reset link for ${user.email}: ${url}`);
+		sendResetPassword: async ({ user, url }: EmailArgs) => {
+			await sendEmail({
+				to: user.email,
+				subject: 'Reset your password',
+				html: `Click <a href="${url}">here</a> to reset your password.`,
+			});
 		},
+		sendVerificationEmail: async ({ user, url }: EmailArgs) => {
+			await sendEmail({
+				to: user.email,
+				subject: 'Verify your email address',
+				html: `Click <a href="${url}">here</a> to verify your email.`,
+			});
+		},
+	},
+	emailVerification: {
+		sendOnSignUp: true,
+		sendOnSignIn: true,
 	},
 	socialProviders: {
 		github: {

@@ -6,6 +6,7 @@ import Fastify from 'fastify';
 
 import { config } from './config.js';
 import { errorHandler } from './middleware/error-handler.js';
+import requireVerifiedEmail from './middleware/require-verified-email.js';
 import authPlugin from './plugins/auth.js';
 import { betterAuthRoutes } from './routes/better-auth.js';
 import { billingRoutes } from './routes/billing.js';
@@ -77,6 +78,7 @@ await fastify.register(rateLimit, {
 });
 
 await fastify.register(authPlugin);
+await fastify.register(requireVerifiedEmail);
 
 fastify.setErrorHandler(errorHandler);
 
