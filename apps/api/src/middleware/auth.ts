@@ -86,9 +86,8 @@ export async function authenticateAPIKey(
 	request: FastifyRequest,
 	reply: FastifyReply,
 ) {
-	const apiKey = request.headers['x-api-key'] as string;
-
-	if (!apiKey) {
+	const authHeader = request.headers.authorization;
+	if (!authHeader || !authHeader.startsWith('Bearer ')) {
 		return reply.code(401).send({
 			success: false,
 			error: {
@@ -97,6 +96,8 @@ export async function authenticateAPIKey(
 			},
 		});
 	}
+
+	const apiKey = authHeader.substring(7);
 
 	try {
 		// Find API key by comparing hashes
