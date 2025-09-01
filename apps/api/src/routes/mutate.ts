@@ -177,12 +177,10 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			// Debug: Log file buffer info
 			console.log(
 				`File buffer info: size=${fileBuffer.length}, first 50 bytes=${fileBuffer.slice(0, 50).toString('hex')}`,
 			);
 
-			// Check file size constraints
 			if (fileBuffer.length > config.MAX_FILE_SIZE) {
 				return reply.code(400).send({
 					success: false,

@@ -7,8 +7,10 @@ import {
 	DollarSign,
 	FileText,
 	Loader2,
+	Plus,
 	Search,
 	Settings,
+	Trash2,
 	Users,
 	X,
 } from 'lucide-react';
@@ -71,6 +73,9 @@ interface SubscriptionPlan {
 	billingInterval: string;
 	overagePriceCents: number | null;
 	features: Record<string, unknown>;
+	isDefault?: boolean;
+	isPublic?: boolean;
+	active?: boolean;
 }
 
 type Subscription = {
@@ -122,11 +127,44 @@ function AdminDashboard() {
 		maxFileSizeMb: '',
 		overagePriceCents: '',
 	});
+	const [activeTab, setActiveTab] = useState('organizations');
+	const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
+	const [showPlanModal, setShowPlanModal] = useState(false);
+	const [planForm, setPlanForm] = useState({
+		name: '',
+		monthlyConversionLimit: '',
+		concurrentConversionLimit: '',
+		maxFileSizeMb: '',
+		priceCents: '',
+		billingInterval: 'month',
+		overagePriceCents: '',
+		features: '',
+		isDefault: false,
+		isPublic: true,
+	});
 
 	useEffect(() => {
 		fetchOrganizations();
 		fetchPlans();
 	}, []);
+
+	useEffect(() => {
+		if (editingPlan) {
+			setPlanForm({
+				name: editingPlan.name,
+				monthlyConversionLimit: editingPlan.monthlyConversionLimit?.toString() || '',
+				concurrentConversionLimit: editingPlan.concurrentConversionLimit?.toString() || '',
+				maxFileSizeMb: editingPlan.maxFileSizeMb?.toString() || '',
+				priceCents: editingPlan.priceCents.toString(),
+				billingInterval: editingPlan.billingInterval,
+				overagePriceCents: editingPlan.overagePriceCents?.toString() || '',
+				features: JSON.stringify(editingPlan.features || {}, null, 2),
+				isDefault: editingPlan.isDefault || false,
+				isPublic: editingPlan.isPublic !== false,
+			});
+			setShowPlanModal(true);
+		}
+	}, [editingPlan]);
 
 	useEffect(() => {
 		if (selectedOrg) {
@@ -136,7 +174,7 @@ function AdminDashboard() {
 
 	async function fetchOrganizations() {
 		const response = await api.get<SuccessResponse<Organization[]>>(
-			'/v1/billing/admin/workspaces',
+			'/v1/admin/billing/workspaces',
 		);
 		setOrganizations(response.data);
 		setLoading(false);
@@ -144,13 +182,13 @@ function AdminDashboard() {
 
 	async function fetchPlans() {
 		const response =
-			await api.get<SuccessResponse<SubscriptionPlan[]>>('/v1/billing/plans');
+			await api.get<SuccessResponse<SubscriptionPlan[]>>('/v1/admin/billing/plans');
 		setPlans(response.data);
 	}
 
 	async function fetchOrgUsageHistory(orgId: string) {
 		const response = await api.get<SuccessResponse<Organization>>(
-			`/v1/billing/admin/workspaces/${orgId}`,
+			`/v1/admin/billing/workspaces/${orgId}`,
 		);
 		console.log(response);
 		// Fetch usage history - this would need a new endpoint
@@ -183,7 +221,7 @@ function AdminDashboard() {
 
 	async function updateSubscriptionPlan(orgId: string, planId: string) {
 		const response = await api.post<SuccessResponse<Subscription>>(
-			`/v1/billing/admin/workspaces/${orgId}/subscription`,
+			`/v1/admin/billing/workspaces/${orgId}/subscription`,
 			{
 				planId,
 			},
@@ -194,6 +232,73 @@ function AdminDashboard() {
 		setEditingSubscription(false);
 		setNewPlanId('');
 		fetchOrganizations();
+	}
+
+	async function savePlan() {
+		try {
+			const payload = {
+				name: planForm.name,
+				monthlyConversionLimit: planForm.monthlyConversionLimit ? parseInt(planForm.monthlyConversionLimit) : null,
+				concurrentConversionLimit: planForm.concurrentConversionLimit ? parseInt(planForm.concurrentConversionLimit) : null,
+				maxFileSizeMb: planForm.maxFileSizeMb ? parseInt(planForm.maxFileSizeMb) : null,
+				priceCents: parseInt(planForm.priceCents),
+				billingInterval: planForm.billingInterval,
+				overagePriceCents: planForm.overagePriceCents ? parseInt(planForm.overagePriceCents) : null,
+				features: planForm.features ? JSON.parse(planForm.features) : {},
+				isDefault: planForm.isDefault,
+				isPublic: planForm.isPublic,
+			};
+
+			if (editingPlan) {
+				await api.put(`/v1/admin/billing/plans/${editingPlan.id}`, payload);
+				toast.success('Plan updated successfully');
+			} else {
+				await api.post('/v1/admin/billing/plans', payload);
+				toast.success('Plan created successfully');
+			}
+
+			setShowPlanModal(false);
+			setEditingPlan(null);
+			setPlanForm({
+				name: '',
+				monthlyConversionLimit: '',
+				concurrentConversionLimit: '',
+				maxFileSizeMb: '',
+				priceCents: '',
+				billingInterval: 'month',
+				overagePriceCents: '',
+				features: '',
+				isDefault: false,
+				isPublic: true,
+			});
+			fetchPlans();
+		} catch (error) {
+			toast.error('Failed to save plan');
+		}
+	}
+
+	async function deletePlan(planId: string) {
+		if (!confirm('Are you sure you want to delete this plan?')) {
+			return;
+		}
+
+		try {
+			await api.delete(`/v1/admin/billing/plans/${planId}`);
+			toast.success('Plan deleted successfully');
+			fetchPlans();
+		} catch (error: any) {
+			toast.error(error.response?.data?.error?.message || 'Failed to delete plan');
+		}
+	}
+
+	async function setDefaultPlan(planId: string) {
+		try {
+			await api.put(`/v1/admin/billing/plans/${planId}/default`);
+			toast.success('Default plan updated successfully');
+			fetchPlans();
+		} catch (error) {
+			toast.error('Failed to set default plan');
+		}
 	}
 
 	async function saveOverrides(orgId: string) {
@@ -216,7 +321,7 @@ function AdminDashboard() {
 		}
 
 		const response = await api.post<SuccessResponse<Subscription>>(
-			`/v1/billing/admin/workspaces/${orgId}/overrides`,
+			`/v1/admin/billing/workspaces/${orgId}/overrides`,
 			payload,
 		);
 
@@ -323,300 +428,416 @@ function AdminDashboard() {
 				</p>
 			</div>
 
-			{/* Statistics Cards */}
-			<div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Total Organizations
-						</CardTitle>
-						<Users className="text-muted-foreground h-4 w-4" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">{stats.totalOrgs}</div>
-						<p className="text-muted-foreground text-xs">Active workspaces</p>
-					</CardContent>
-				</Card>
+			{/* Tab Navigation */}
+			<Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+				<TabsList>
+					<TabsTrigger value="organizations">Organizations</TabsTrigger>
+					<TabsTrigger value="plans">Subscription Plans</TabsTrigger>
+				</TabsList>
 
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Total Conversions
-						</CardTitle>
-						<Activity className="text-muted-foreground h-4 w-4" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">{stats.totalConversions}</div>
-						<p className="text-muted-foreground text-xs">This billing period</p>
-					</CardContent>
-				</Card>
+				<TabsContent value="organizations">
+					{/* Statistics Cards */}
+					<div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+						<Card>
+							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+								<CardTitle className="text-sm font-medium">
+									Total Organizations
+								</CardTitle>
+								<Users className="text-muted-foreground h-4 w-4" />
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{stats.totalOrgs}</div>
+								<p className="text-muted-foreground text-xs">Active workspaces</p>
+							</CardContent>
+						</Card>
 
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Total Overages
-						</CardTitle>
-						<AlertCircle className="text-muted-foreground h-4 w-4" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">{stats.totalOverages}</div>
-						<p className="text-muted-foreground text-xs">Extra conversions</p>
-					</CardContent>
-				</Card>
+						<Card>
+							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+								<CardTitle className="text-sm font-medium">
+									Total Conversions
+								</CardTitle>
+								<Activity className="text-muted-foreground h-4 w-4" />
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{stats.totalConversions}</div>
+								<p className="text-muted-foreground text-xs">This billing period</p>
+							</CardContent>
+						</Card>
 
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Monthly Revenue
-						</CardTitle>
-						<DollarSign className="text-muted-foreground h-4 w-4" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">
-							${(stats.totalRevenue / 100).toFixed(2)}
-						</div>
-						<p className="text-muted-foreground text-xs">
-							Recurring + overages
-						</p>
-					</CardContent>
-				</Card>
-			</div>
+						<Card>
+							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+								<CardTitle className="text-sm font-medium">
+									Total Overages
+								</CardTitle>
+								<AlertCircle className="text-muted-foreground h-4 w-4" />
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{stats.totalOverages}</div>
+								<p className="text-muted-foreground text-xs">Extra conversions</p>
+							</CardContent>
+						</Card>
 
-			{/* Plan Distribution Chart */}
-			<div className="mb-6 grid gap-6 md:grid-cols-2">
-				<Card>
-					<CardHeader>
-						<CardTitle>Plan Distribution</CardTitle>
-						<CardDescription>
-							Organizations by subscription plan
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<ResponsiveContainer width="100%" height={250}>
-							<PieChart>
-								<Pie
-									data={planChartData}
-									cx="50%"
-									cy="50%"
-									labelLine={false}
-									label={({ name, percent = 0 }) =>
-										`${name} ${(percent * 100).toFixed(0)}%`
-									}
-									outerRadius={80}
-									fill="#8884d8"
-									dataKey="value"
-								>
-									{planChartData.map((_entry, index) => (
-										<Cell
-											key={`cell-${index}`}
-											fill={COLORS[index % COLORS.length]}
-										/>
-									))}
-								</Pie>
-								<Tooltip />
-							</PieChart>
-						</ResponsiveContainer>
-					</CardContent>
-				</Card>
-
-				<Card>
-					<CardHeader>
-						<CardTitle>Quick Actions</CardTitle>
-						<CardDescription>Common administrative tasks</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-2">
-						<Button className="w-full justify-start" variant="outline">
-							<FileText className="mr-2 h-4 w-4" />
-							Generate Billing Report
-						</Button>
-						<Button className="w-full justify-start" variant="outline">
-							<CreditCard className="mr-2 h-4 w-4" />
-							Process Pending Invoices
-						</Button>
-						<Button className="w-full justify-start" variant="outline">
-							<Users className="mr-2 h-4 w-4" />
-							Bulk Update Subscriptions
-						</Button>
-						<Button className="w-full justify-start" variant="outline">
-							<Settings className="mr-2 h-4 w-4" />
-							Configure Billing Settings
-						</Button>
-					</CardContent>
-				</Card>
-			</div>
-
-			{/* Search and Filters */}
-			<Card className="mb-6">
-				<CardHeader>
-					<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-						<CardTitle>Organizations</CardTitle>
-						<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-							<div className="relative flex-1 sm:flex-initial">
-								<Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
-								<Input
-									placeholder="Search organizations..."
-									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
-									className="w-full pl-8 sm:w-[300px]"
-								/>
-							</div>
-							<Select value={filterPlan} onValueChange={setFilterPlan}>
-								<SelectTrigger className="w-full sm:w-[180px]">
-									<SelectValue placeholder="Filter by plan" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">All Plans</SelectItem>
-									{plans.map((plan) => (
-										<SelectItem key={plan.id} value={plan.id}>
-											{plan.name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							<div className="flex gap-1">
-								<Button
-									variant={view === 'grid' ? 'default' : 'outline'}
-									size="sm"
-									onClick={() => setView('grid')}
-								>
-									Grid
-								</Button>
-								<Button
-									variant={view === 'list' ? 'default' : 'outline'}
-									size="sm"
-									onClick={() => setView('list')}
-								>
-									List
-								</Button>
-							</div>
-						</div>
+						<Card>
+							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+								<CardTitle className="text-sm font-medium">
+									Monthly Revenue
+								</CardTitle>
+								<DollarSign className="text-muted-foreground h-4 w-4" />
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">
+									${(stats.totalRevenue / 100).toFixed(2)}
+								</div>
+								<p className="text-muted-foreground text-xs">
+									Recurring + overages
+								</p>
+							</CardContent>
+						</Card>
 					</div>
-				</CardHeader>
-				<CardContent>
-					{view === 'grid' ? (
-						<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-							{filteredOrgs.map((org) => (
-								<Card
-									key={org.id}
-									className="cursor-pointer transition-shadow hover:shadow-lg"
-									onClick={() => setSelectedOrg(org)}
-								>
-									<CardHeader className="pb-3">
-										<div className="flex items-start justify-between">
-											<div>
-												<CardTitle className="text-lg">{org.name}</CardTitle>
-												<p className="text-muted-foreground mt-1 text-sm">
-													{org.id}
-												</p>
-											</div>
-											<Badge
-												variant={
-													org.subscription?.status === 'active'
-														? 'default'
-														: 'secondary'
-												}
-											>
-												{org.subscription?.status || 'No Plan'}
-											</Badge>
-										</div>
-									</CardHeader>
-									<CardContent>
-										<div className="space-y-2 text-sm">
-											<div className="flex justify-between">
-												<span className="text-muted-foreground">Plan:</span>
-												<span className="font-medium">
-													{org.plan?.name || 'None'}
-												</span>
-											</div>
-											<div className="flex justify-between">
-												<span className="text-muted-foreground">Usage:</span>
-												<span className="font-medium">
-													{org.currentUsage}
-													{org.plan?.monthlyConversionLimit
-														? ` / ${org.plan.monthlyConversionLimit}`
-														: ''}
-												</span>
-											</div>
-											<div className="flex justify-between">
-												<span className="text-muted-foreground">Overages:</span>
-												<span className="font-medium">{org.overageCount}</span>
-											</div>
-											{org.subscription?.overrideMonthlyLimit && (
-												<Badge variant="outline" className="text-xs">
-													Custom Limits
-												</Badge>
-											)}
-										</div>
-										<div className="mt-3 border-t pt-3">
-											<Button
-												variant="ghost"
-												size="sm"
-												className="w-full"
-												onClick={(e) => {
-													e.stopPropagation();
-													setSelectedOrg(org);
-												}}
-											>
-												View Details
-												<ChevronRight className="ml-1 h-4 w-4" />
-											</Button>
-										</div>
-									</CardContent>
-								</Card>
-							))}
-						</div>
-					) : (
-						<div className="space-y-2">
-							{filteredOrgs.map((org) => (
-								<div
-									key={org.id}
-									className="hover:bg-accent/50 cursor-pointer rounded-lg border p-4 transition-colors"
-									onClick={() => setSelectedOrg(org)}
-								>
-									<div className="flex items-center justify-between">
-										<div className="grid flex-1 grid-cols-5 items-center gap-4">
-											<div>
-												<p className="font-semibold">{org.name}</p>
-												<p className="text-muted-foreground text-xs">
-													{org.id}
-												</p>
-											</div>
-											<div className="text-center">
-												<Badge
-													variant={
-														org.subscription?.status === 'active'
-															? 'default'
-															: 'secondary'
-													}
-												>
-													{org.plan?.name || 'No Plan'}
-												</Badge>
-											</div>
-											<div className="text-center">
-												<p className="text-sm">
-													{org.currentUsage}
-													{org.plan?.monthlyConversionLimit
-														? ` / ${org.plan.monthlyConversionLimit}`
-														: ' conversions'}
-												</p>
-											</div>
-											<div className="text-center">
-												<p className="text-sm">{org.overageCount} overages</p>
-											</div>
-											<div className="text-center">
-												<p className="text-sm font-medium">
-													${((org.plan?.priceCents || 0) / 100).toFixed(2)}/mo
-												</p>
-											</div>
-										</div>
-										<ChevronRight className="ml-4 h-4 w-4" />
+
+					{/* Plan Distribution Chart */}
+					<div className="mb-6 grid gap-6 md:grid-cols-2">
+						<Card>
+							<CardHeader>
+								<CardTitle>Plan Distribution</CardTitle>
+								<CardDescription>
+									Organizations by subscription plan
+								</CardDescription>
+							</CardHeader>
+							<CardContent>
+								<ResponsiveContainer width="100%" height={250}>
+									<PieChart>
+										<Pie
+											data={planChartData}
+											cx="50%"
+											cy="50%"
+											labelLine={false}
+											label={({ name, percent = 0 }) =>
+												`${name} ${(percent * 100).toFixed(0)}%`
+											}
+											outerRadius={80}
+											fill="#8884d8"
+											dataKey="value"
+										>
+											{planChartData.map((_entry, index) => (
+												<Cell
+													key={`cell-${index}`}
+													fill={COLORS[index % COLORS.length]}
+												/>
+											))}
+										</Pie>
+										<Tooltip />
+									</PieChart>
+								</ResponsiveContainer>
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle>Quick Actions</CardTitle>
+								<CardDescription>Common administrative tasks</CardDescription>
+							</CardHeader>
+							<CardContent className="space-y-2">
+								<Button className="w-full justify-start" variant="outline">
+									<FileText className="mr-2 h-4 w-4" />
+									Generate Billing Report
+								</Button>
+								<Button className="w-full justify-start" variant="outline">
+									<CreditCard className="mr-2 h-4 w-4" />
+									Process Pending Invoices
+								</Button>
+								<Button className="w-full justify-start" variant="outline">
+									<Users className="mr-2 h-4 w-4" />
+									Bulk Update Subscriptions
+								</Button>
+								<Button className="w-full justify-start" variant="outline">
+									<Settings className="mr-2 h-4 w-4" />
+									Configure Billing Settings
+								</Button>
+							</CardContent>
+						</Card>
+					</div>
+
+					{/* Search and Filters */}
+					<Card className="mb-6">
+						<CardHeader>
+							<div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+								<CardTitle>Organizations</CardTitle>
+								<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+									<div className="relative flex-1 sm:flex-initial">
+										<Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
+										<Input
+											placeholder="Search organizations..."
+											value={searchTerm}
+											onChange={(e) => setSearchTerm(e.target.value)}
+											className="w-full pl-8 sm:w-[300px]"
+										/>
+									</div>
+									<Select value={filterPlan} onValueChange={setFilterPlan}>
+										<SelectTrigger className="w-full sm:w-[180px]">
+											<SelectValue placeholder="Filter by plan" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="all">All Plans</SelectItem>
+											{plans.map((plan) => (
+												<SelectItem key={plan.id} value={plan.id}>
+													{plan.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+									<div className="flex gap-1">
+										<Button
+											variant={view === 'grid' ? 'default' : 'outline'}
+											size="sm"
+											onClick={() => setView('grid')}
+										>
+											Grid
+										</Button>
+										<Button
+											variant={view === 'list' ? 'default' : 'outline'}
+											size="sm"
+											onClick={() => setView('list')}
+										>
+											List
+										</Button>
 									</div>
 								</div>
-							))}
-						</div>
-					)}
-				</CardContent>
-			</Card>
+							</div>
+						</CardHeader>
+						<CardContent>
+							{view === 'grid' ? (
+								<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+									{filteredOrgs.map((org) => (
+										<Card
+											key={org.id}
+											className="cursor-pointer transition-shadow hover:shadow-lg"
+											onClick={() => setSelectedOrg(org)}
+										>
+											<CardHeader className="pb-3">
+												<div className="flex items-start justify-between">
+													<div>
+														<CardTitle className="text-lg">{org.name}</CardTitle>
+														<p className="text-muted-foreground mt-1 text-sm">
+															{org.id}
+														</p>
+													</div>
+													<Badge
+														variant={
+															org.subscription?.status === 'active'
+																? 'default'
+																: 'secondary'
+														}
+													>
+														{org.subscription?.status || 'No Plan'}
+													</Badge>
+												</div>
+											</CardHeader>
+											<CardContent>
+												<div className="space-y-2 text-sm">
+													<div className="flex justify-between">
+														<span className="text-muted-foreground">Plan:</span>
+														<span className="font-medium">
+															{org.plan?.name || 'None'}
+														</span>
+													</div>
+													<div className="flex justify-between">
+														<span className="text-muted-foreground">Usage:</span>
+														<span className="font-medium">
+															{org.currentUsage}
+															{org.plan?.monthlyConversionLimit
+																? ` / ${org.plan.monthlyConversionLimit}`
+																: ''}
+														</span>
+													</div>
+													<div className="flex justify-between">
+														<span className="text-muted-foreground">Overages:</span>
+														<span className="font-medium">{org.overageCount}</span>
+													</div>
+													{org.subscription?.overrideMonthlyLimit && (
+														<Badge variant="outline" className="text-xs">
+															Custom Limits
+														</Badge>
+													)}
+												</div>
+												<div className="mt-3 border-t pt-3">
+													<Button
+														variant="ghost"
+														size="sm"
+														className="w-full"
+														onClick={(e) => {
+															e.stopPropagation();
+															setSelectedOrg(org);
+														}}
+													>
+														View Details
+														<ChevronRight className="ml-1 h-4 w-4" />
+													</Button>
+												</div>
+											</CardContent>
+										</Card>
+									))}
+								</div>
+							) : (
+								<div className="space-y-2">
+									{filteredOrgs.map((org) => (
+										<div
+											key={org.id}
+											className="hover:bg-accent/50 cursor-pointer rounded-lg border p-4 transition-colors"
+											onClick={() => setSelectedOrg(org)}
+										>
+											<div className="flex items-center justify-between">
+												<div className="grid flex-1 grid-cols-5 items-center gap-4">
+													<div>
+														<p className="font-semibold">{org.name}</p>
+														<p className="text-muted-foreground text-xs">
+															{org.id}
+														</p>
+													</div>
+													<div className="text-center">
+														<Badge
+															variant={
+																org.subscription?.status === 'active'
+																	? 'default'
+																	: 'secondary'
+															}
+														>
+															{org.plan?.name || 'No Plan'}
+														</Badge>
+													</div>
+													<div className="text-center">
+														<p className="text-sm">
+															{org.currentUsage}
+															{org.plan?.monthlyConversionLimit
+																? ` / ${org.plan.monthlyConversionLimit}`
+																: ' conversions'}
+														</p>
+													</div>
+													<div className="text-center">
+														<p className="text-sm">{org.overageCount} overages</p>
+													</div>
+													<div className="text-center">
+														<p className="text-sm font-medium">
+															${((org.plan?.priceCents || 0) / 100).toFixed(2)}/mo
+														</p>
+													</div>
+												</div>
+												<ChevronRight className="ml-4 h-4 w-4" />
+											</div>
+										</div>
+									))}
+								</div>
+							)}
+						</CardContent>
+					</Card>
+				</TabsContent>
+
+				<TabsContent value="plans">
+					<Card>
+						<CardHeader>
+							<div className="flex items-center justify-between">
+								<div>
+									<CardTitle>Subscription Plans</CardTitle>
+									<CardDescription>Manage subscription plans and pricing</CardDescription>
+								</div>
+								<Button
+									onClick={() => {
+										setEditingPlan(null);
+										setPlanForm({
+											name: '',
+											monthlyConversionLimit: '',
+											concurrentConversionLimit: '',
+											maxFileSizeMb: '',
+											priceCents: '',
+											billingInterval: 'month',
+											overagePriceCents: '',
+											features: '',
+											isDefault: false,
+											isPublic: true,
+										});
+										setShowPlanModal(true);
+									}}
+								>
+									<Plus className="mr-2 h-4 w-4" />
+									Create Plan
+								</Button>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-4">
+								{plans.map((plan) => (
+									<div
+										key={plan.id}
+										className="flex items-center justify-between rounded-lg border p-4"
+									>
+										<div className="flex-1">
+											<div className="flex items-center gap-2">
+												<h3 className="text-lg font-semibold">{plan.name}</h3>
+												{plan.isDefault && (
+													<Badge variant="default" className="text-xs">
+														Default
+													</Badge>
+												)}
+												{!plan.isPublic && (
+													<Badge variant="secondary" className="text-xs">
+														Private
+													</Badge>
+												)}
+											</div>
+											<p className="text-muted-foreground text-sm mt-1">
+												${(plan.priceCents / 100).toFixed(2)}/{plan.billingInterval}
+											</p>
+											<div className="mt-2 flex gap-4 text-sm text-muted-foreground">
+												<span>
+													Conversions: {plan.monthlyConversionLimit || 'Unlimited'}
+												</span>
+												<span>
+													Concurrent: {plan.concurrentConversionLimit || 'Unlimited'}
+												</span>
+												<span>
+													Max Size: {plan.maxFileSizeMb || 'Unlimited'} MB
+												</span>
+												{plan.overagePriceCents && (
+													<span>
+														Overage: ${(plan.overagePriceCents / 100).toFixed(2)}
+													</span>
+												)}
+											</div>
+										</div>
+										<div className="flex gap-2">
+											{!plan.isDefault && (
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={() => setDefaultPlan(plan.id)}
+												>
+													Set Default
+												</Button>
+											)}
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => setEditingPlan(plan)}
+											>
+												Edit
+											</Button>
+											{!plan.isDefault && (
+												<Button
+													variant="destructive"
+													size="sm"
+													onClick={() => deletePlan(plan.id)}
+												>
+													<Trash2 className="h-4 w-4" />
+												</Button>
+											)}
+										</div>
+									</div>
+								))}
+							</div>
+						</CardContent>
+					</Card>
+				</TabsContent>
+			</Tabs>
 
 			{/* Organization Details Modal */}
 			{selectedOrg && (
@@ -1181,6 +1402,167 @@ function AdminDashboard() {
 									</Card>
 								</TabsContent>
 							</Tabs>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Plan Modal */}
+			{showPlanModal && (
+				<div className="bg-background/80 fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 backdrop-blur-sm">
+					<div className="bg-background max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg border">
+						<div className="bg-background sticky top-0 flex items-start justify-between border-b p-6">
+							<div>
+								<h2 className="text-2xl font-bold">
+									{editingPlan ? 'Edit Plan' : 'Create Plan'}
+								</h2>
+								<p className="text-muted-foreground mt-1 text-sm">
+									{editingPlan ? 'Update subscription plan details' : 'Create a new subscription plan'}
+								</p>
+							</div>
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={() => {
+									setShowPlanModal(false);
+									setEditingPlan(null);
+								}}
+							>
+								<X className="h-4 w-4" />
+							</Button>
+						</div>
+
+						<div className="p-6 space-y-4">
+							<div className="grid gap-4 md:grid-cols-2">
+								<div>
+									<Label htmlFor="planName">Plan Name</Label>
+									<Input
+										id="planName"
+										value={planForm.name}
+										onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })}
+										placeholder="e.g., Professional"
+									/>
+								</div>
+
+								<div>
+									<Label htmlFor="planPrice">Price (cents)</Label>
+									<Input
+										id="planPrice"
+										type="number"
+										value={planForm.priceCents}
+										onChange={(e) => setPlanForm({ ...planForm, priceCents: e.target.value })}
+										placeholder="e.g., 2900 for $29.00"
+									/>
+								</div>
+
+								<div>
+									<Label htmlFor="billingInterval">Billing Interval</Label>
+									<Select
+										value={planForm.billingInterval}
+										onValueChange={(value) => setPlanForm({ ...planForm, billingInterval: value })}
+									>
+										<SelectTrigger>
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="month">Monthly</SelectItem>
+											<SelectItem value="year">Yearly</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+
+								<div>
+									<Label htmlFor="monthlyLimit">Monthly Conversion Limit</Label>
+									<Input
+										id="monthlyLimit"
+										type="number"
+										value={planForm.monthlyConversionLimit}
+										onChange={(e) => setPlanForm({ ...planForm, monthlyConversionLimit: e.target.value })}
+										placeholder="Leave empty for unlimited"
+									/>
+								</div>
+
+								<div>
+									<Label htmlFor="concurrentLimit">Concurrent Conversion Limit</Label>
+									<Input
+										id="concurrentLimit"
+										type="number"
+										value={planForm.concurrentConversionLimit}
+										onChange={(e) => setPlanForm({ ...planForm, concurrentConversionLimit: e.target.value })}
+										placeholder="Leave empty for unlimited"
+									/>
+								</div>
+
+								<div>
+									<Label htmlFor="maxFileSize">Max File Size (MB)</Label>
+									<Input
+										id="maxFileSize"
+										type="number"
+										value={planForm.maxFileSizeMb}
+										onChange={(e) => setPlanForm({ ...planForm, maxFileSizeMb: e.target.value })}
+										placeholder="Leave empty for unlimited"
+									/>
+								</div>
+
+								<div>
+									<Label htmlFor="overagePrice">Overage Price (cents per conversion)</Label>
+									<Input
+										id="overagePrice"
+										type="number"
+										value={planForm.overagePriceCents}
+										onChange={(e) => setPlanForm({ ...planForm, overagePriceCents: e.target.value })}
+										placeholder="Leave empty for no overages"
+									/>
+								</div>
+							</div>
+
+							<div>
+								<Label htmlFor="features">Features (JSON)</Label>
+								<textarea
+									id="features"
+									className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+									value={planForm.features}
+									onChange={(e) => setPlanForm({ ...planForm, features: e.target.value })}
+									placeholder='{"feature1": true, "feature2": false}'
+								/>
+							</div>
+
+							<div className="flex gap-4">
+								<label className="flex items-center space-x-2">
+									<input
+										type="checkbox"
+										checked={planForm.isDefault}
+										onChange={(e) => setPlanForm({ ...planForm, isDefault: e.target.checked })}
+										className="rounded border-gray-300"
+									/>
+									<span className="text-sm font-medium">Set as default plan for new organizations</span>
+								</label>
+
+								<label className="flex items-center space-x-2">
+									<input
+										type="checkbox"
+										checked={planForm.isPublic}
+										onChange={(e) => setPlanForm({ ...planForm, isPublic: e.target.checked })}
+										className="rounded border-gray-300"
+									/>
+									<span className="text-sm font-medium">Visible to users (public plan)</span>
+								</label>
+							</div>
+
+							<div className="flex gap-2 pt-4">
+								<Button
+									variant="outline"
+									onClick={() => {
+										setShowPlanModal(false);
+										setEditingPlan(null);
+									}}
+								>
+									Cancel
+								</Button>
+								<Button onClick={savePlan}>
+									{editingPlan ? 'Update Plan' : 'Create Plan'}
+								</Button>
+							</div>
 						</div>
 					</div>
 				</div>

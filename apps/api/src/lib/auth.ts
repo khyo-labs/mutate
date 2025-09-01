@@ -72,7 +72,7 @@ export const auth = betterAuth({
 				disabled: false,
 				afterCreate: async ({ organization, member, user }) => {
 					console.log('Organization created:', organization);
-					await subscriptionService.assignFreePlan(organization.id);
+					await subscriptionService.assignDefaultPlan(organization.id);
 				},
 			},
 		}),
