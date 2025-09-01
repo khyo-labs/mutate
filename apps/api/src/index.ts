@@ -8,8 +8,7 @@ import { config } from './config.js';
 import { errorHandler } from './middleware/error-handler.js';
 import requireVerifiedEmail from './middleware/require-verified-email.js';
 import authPlugin from './plugins/auth.js';
-import { authRoutes } from './routes/auth.js';
-import { betterAuthRoutes } from './routes/better-auth.js';
+import authRoutesPlugin from './plugins/auth-routes.js';
 import { billingRoutes } from './routes/billing.js';
 import { configRoutes } from './routes/configuration.js';
 import { fileRoutes } from './routes/files.js';
@@ -84,8 +83,7 @@ await fastify.register(requireVerifiedEmail);
 fastify.setErrorHandler(errorHandler);
 
 await fastify.register(healthRoutes, { prefix: '/v1/health' });
-await fastify.register(authRoutes, { prefix: '/v1/auth' });
-await fastify.register(betterAuthRoutes, { prefix: '/v1/auth' });
+await fastify.register(authRoutesPlugin, { prefix: '/v1/auth' });
 await fastify.register(configRoutes, {
 	prefix: '/v1/configurations',
 });
