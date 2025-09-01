@@ -31,10 +31,9 @@ import { ApiKeyDrawer } from './api-key-drawer';
 type Props = {
 	apiKey: ApiKey;
 	deleteApiKey: UseMutationResult<any, Error, string, unknown>; // eslint-disable-line @typescript-eslint/no-explicit-any
-	onEdit?: () => void;
 };
 
-export function ApiKeyDetails({ apiKey, deleteApiKey, onEdit }: Props) {
+export function ApiKeyDetails({ apiKey, deleteApiKey }: Props) {
 	function isExpired(expiresAt: string | null) {
 		if (!expiresAt) return false;
 		return new Date(expiresAt) < new Date();
@@ -69,7 +68,7 @@ export function ApiKeyDetails({ apiKey, deleteApiKey, onEdit }: Props) {
 				<div className="flex items-center gap-2">
 					<Drawer direction="right">
 						<DrawerTrigger asChild>
-							<Button variant="outline" size="sm" onClick={onEdit}>
+							<Button variant="outline" size="sm">
 								<Edit className="size-4" />
 								Edit
 							</Button>
@@ -78,7 +77,7 @@ export function ApiKeyDetails({ apiKey, deleteApiKey, onEdit }: Props) {
 							<DrawerHeader>
 								<DrawerTitle>Edit API key</DrawerTitle>
 								<DrawerDescription className="sr-only">
-									Dialog for editing an API key
+								Drawer for editing an API key
 								</DrawerDescription>
 							</DrawerHeader>
 							<ApiKeyDrawer apiKey={apiKey} />
