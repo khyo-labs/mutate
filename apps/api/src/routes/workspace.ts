@@ -3,6 +3,7 @@ import { FastifyInstance } from 'fastify';
 
 import { db } from '../db/connection.js';
 import { organization, organizationWebhooks } from '../db/schema.js';
+import '../types/fastify.js';
 import { auth } from '../lib/auth.js';
 import {
 	createWorkspaceSchema,
