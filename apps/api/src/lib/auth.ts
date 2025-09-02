@@ -1,6 +1,10 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { createAuthMiddleware, organization } from 'better-auth/plugins';
+import {
+	createAuthMiddleware,
+	organization,
+	passkey,
+} from 'better-auth/plugins';
 
 import { config } from '../config.js';
 import { db } from '../db/connection.js';
@@ -64,6 +68,14 @@ export const auth = betterAuth({
 		}),
 	},
 	plugins: [
+		passkey({
+			rpName: 'Mutate',
+			rpID:
+				config.NODE_ENV === 'production'
+					? new URL(config.CORS_ORIGINS[0]).hostname
+					: 'localhost',
+			origin: config.CORS_ORIGINS[0],
+		}),
 		organization({
 			allowUserToCreateOrganization: true,
 			organizationLimit: 1,
