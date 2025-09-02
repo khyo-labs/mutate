@@ -30,6 +30,7 @@ import { Route as MutationsConfigIdIndexRouteImport } from './routes/mutations/$
 import { Route as SettingsWorkspaceWebhooksRouteImport } from './routes/settings/workspace/webhooks';
 import { Route as SettingsWorkspaceMembersRouteImport } from './routes/settings/workspace/members';
 import { Route as SettingsWorkspaceApiKeysRouteImport } from './routes/settings/workspace/api-keys';
+import { Route as SettingsAccountSecurityRouteImport } from './routes/settings/account/security';
 import { Route as SettingsAccountProfileRouteImport } from './routes/settings/account/profile';
 import { Route as SettingsAccountAppearanceRouteImport } from './routes/settings/account/appearance';
 import { Route as MutationsConfigIdEditRouteImport } from './routes/mutations/$configId/edit';
@@ -142,6 +143,11 @@ const SettingsWorkspaceApiKeysRoute =
     path: '/api-keys',
     getParentRoute: () => SettingsWorkspaceRouteRoute,
   } as any);
+const SettingsAccountSecurityRoute = SettingsAccountSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => SettingsAccountRouteRoute,
+} as any);
 const SettingsAccountProfileRoute = SettingsAccountProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -178,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
+  '/settings/account/security': typeof SettingsAccountSecurityRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
+  '/settings/account/security': typeof SettingsAccountSecurityRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
+  '/settings/account/security': typeof SettingsAccountSecurityRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/mutations/$configId/edit'
     | '/settings/account/appearance'
     | '/settings/account/profile'
+    | '/settings/account/security'
     | '/settings/workspace/api-keys'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
@@ -279,6 +289,7 @@ export interface FileRouteTypes {
     | '/mutations/$configId/edit'
     | '/settings/account/appearance'
     | '/settings/account/profile'
+    | '/settings/account/security'
     | '/settings/workspace/api-keys'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/mutations/$configId/edit'
     | '/settings/account/appearance'
     | '/settings/account/profile'
+    | '/settings/account/security'
     | '/settings/workspace/api-keys'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
@@ -479,6 +491,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsWorkspaceApiKeysRouteImport;
       parentRoute: typeof SettingsWorkspaceRouteRoute;
     };
+    '/settings/account/security': {
+      id: '/settings/account/security';
+      path: '/security';
+      fullPath: '/settings/account/security';
+      preLoaderRoute: typeof SettingsAccountSecurityRouteImport;
+      parentRoute: typeof SettingsAccountRouteRoute;
+    };
     '/settings/account/profile': {
       id: '/settings/account/profile';
       path: '/profile';
@@ -506,12 +525,14 @@ declare module '@tanstack/react-router' {
 interface SettingsAccountRouteRouteChildren {
   SettingsAccountAppearanceRoute: typeof SettingsAccountAppearanceRoute;
   SettingsAccountProfileRoute: typeof SettingsAccountProfileRoute;
+  SettingsAccountSecurityRoute: typeof SettingsAccountSecurityRoute;
   SettingsAccountIndexRoute: typeof SettingsAccountIndexRoute;
 }
 
 const SettingsAccountRouteRouteChildren: SettingsAccountRouteRouteChildren = {
   SettingsAccountAppearanceRoute: SettingsAccountAppearanceRoute,
   SettingsAccountProfileRoute: SettingsAccountProfileRoute,
+  SettingsAccountSecurityRoute: SettingsAccountSecurityRoute,
   SettingsAccountIndexRoute: SettingsAccountIndexRoute,
 };
 
