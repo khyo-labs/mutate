@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 import { apiKeysApi } from '@/api/api-keys';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,33 +8,31 @@ import { useSession } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 
 import { Alert, AlertDescription } from '../ui/alert';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
 import { ApiKeyDetails } from './api-key-details';
 import { ApiKeyDrawer } from './api-key-drawer';
 import { SettingsHeader } from './header';
+import { NewApiKey } from './new-api-key';
 
-const queryKey = ['workspace', 'api-keys'];
+const queryKeys = ['workspace', 'api-keys'];
 
 export function ApiKeySettings() {
 	const queryClient = useQueryClient();
+	const { activeWorkspace } = useWorkspaceStore();
 	const { data: session } = useSession();
 	const [keyToShow, setKeyToShow] = useState<string | null>(null);
-	const [copied, setCopied] = useState(false);
-	const { activeWorkspace } = useWorkspaceStore();
 
 	const isEmailVerified = session?.user?.emailVerified;
 
 	const { data: apiKeys = [], isLoading } = useQuery({
-		queryKey: [...queryKey, activeWorkspace?.id],
+		queryKey: [...queryKeys, activeWorkspace?.id],
 		queryFn: apiKeysApi.list,
 	});
 
 	const deleteMutation = useMutation({
-		mutationFn: apiKeysApi.delete,
+		mutationFn: (id: string) => apiKeysApi.delete(id),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: [...queryKey, activeWorkspace?.id],
+				queryKey: [...queryKeys, activeWorkspace?.id],
 			});
 		},
 	});
@@ -44,38 +41,8 @@ export function ApiKeySettings() {
 		setKeyToShow(key);
 	}
 
-	function copyToClipboard(key: string) {
-		navigator.clipboard.writeText(key);
-		setCopied(true);
-		toast.success('Copied to clipboard');
-	}
-
 	if (keyToShow) {
-		return (
-			<div className="space-y-6">
-				<div className="border-success bg-success/10 rounded-lg border p-4">
-					<h3 className="text-success font-medium">API Key Created</h3>
-					<Input
-						value={keyToShow}
-						readOnly
-						onClick={() => copyToClipboard(keyToShow)}
-					/>
-
-					<p className="text-destructive mt-1 text-sm">
-						Save this key now - you won't be able to see it again!
-					</p>
-				</div>
-				<Button disabled={!copied} onClick={() => setKeyToShow(null)}>
-					Done
-				</Button>
-				<div className="bg-muted/50 rounded-lg p-3">
-					<p className="font-medium">How to use this API key:</p>
-					<code className="mt-2 block text-xs">
-						Authorization: Bearer {keyToShow.slice(0, 10)}...
-					</code>
-				</div>
-			</div>
-		);
+		return <NewApiKey apiKey={keyToShow} onDone={() => setKeyToShow(null)} />;
 	}
 
 	return (
