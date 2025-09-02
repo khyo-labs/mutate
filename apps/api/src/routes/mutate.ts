@@ -14,7 +14,6 @@ import '../types/fastify.js';
 import type { ConversionType } from '../types/index.js';
 import { logError } from '../utils/logger.js';
 
-// Helper function to validate file type against conversion type
 function validateFileType(
 	conversionType: ConversionType,
 	filename: string,
@@ -178,12 +177,10 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			// Debug: Log file buffer info
 			console.log(
 				`File buffer info: size=${fileBuffer.length}, first 50 bytes=${fileBuffer.slice(0, 50).toString('hex')}`,
 			);
 
-			// Check file size constraints
 			if (fileBuffer.length > config.MAX_FILE_SIZE) {
 				return reply.code(400).send({
 					success: false,

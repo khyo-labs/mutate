@@ -38,6 +38,7 @@ const configSchema = z.object({
 	FILE_TTL: z.coerce.number().default(86_400), // 24 hours in seconds
 	ASYNC_THRESHOLD: z.coerce.number().default(10_485_760), // 10MB - files larger than this go to queue
 
+	BASE_URL: z.string().default('http://localhost:5173'),
 	API_BASE_URL: z.string().optional(),
 
 	WEBHOOK_SECRET: z.string().optional(),
@@ -56,6 +57,7 @@ const configSchema = z.object({
 });
 
 const env = {
+	BASE_URL: process.env.BASE_URL,
 	NODE_ENV: process.env.NODE_ENV,
 	PORT: process.env.PORT,
 	HOST: process.env.HOST,

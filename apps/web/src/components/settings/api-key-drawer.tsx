@@ -2,23 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
-import type { ApiKey, ApiKeyCreate } from '@/api/api-keys';
-import { apiKeysApi } from '@/api/api-keys';
+import type { ApiKey, ApiKeyFormData } from '@/api/api-keys';
+import { apiKeysApi, schema } from '@/api/api-keys';
 
 import { Button } from '../ui/button';
 import { DrawerClose, DrawerFooter } from '../ui/drawer';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '../ui/form';
 import { Input } from '../ui/input';
-
-const schema = z.object({
-	name: z.string().min(1, 'Name is required'),
-	permissions: z.array(z.string()),
-	expiresAt: z.string().nullable().optional(),
-});
-
-type FormData = z.infer<typeof schema>;
 
 export function ApiKeyDrawer({
 	apiKey,
@@ -30,12 +21,12 @@ export function ApiKeyDrawer({
 	const queryClient = useQueryClient();
 	const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-	const form = useForm<FormData>({
+	const form = useForm<ApiKeyFormData>({
 		resolver: zodResolver(schema),
 		defaultValues: {
 			name: apiKey?.name || '',
 			permissions: apiKey?.permissions || ['transform'],
-			expiresAt: apiKey?.expiresAt || '',
+			expiresAt: apiKey?.expiresAt || null,
 		},
 	});
 
@@ -57,7 +48,7 @@ export function ApiKeyDrawer({
 	});
 
 	const updateApiKey = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: ApiKeyCreate }) =>
+		mutationFn: ({ id, data }: { id: string; data: ApiKeyFormData }) =>
 			apiKeysApi.update(id, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['workspace', 'api-keys'] });
@@ -65,16 +56,11 @@ export function ApiKeyDrawer({
 		},
 	});
 
-	function handleSubmit(data: FormData) {
-		const apiData: ApiKeyCreate = {
-			...data,
-			expiresAt: data.expiresAt || null,
-		};
-
+	function handleSubmit(data: ApiKeyFormData) {
 		if (apiKey) {
-			updateApiKey.mutate({ id: apiKey.id, data: apiData });
+			updateApiKey.mutate({ id: apiKey.id, data });
 		} else {
-			createApiKey.mutate(apiData);
+			createApiKey.mutate(data);
 		}
 	}
 

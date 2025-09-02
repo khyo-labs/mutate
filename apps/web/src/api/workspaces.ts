@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 
-import type { ApiResponse } from '@/types';
+import type { ApiResponse, SuccessResponse } from '@/types';
 
 import { api } from './client';
 
@@ -27,24 +27,16 @@ export type SlugStatus = {
 
 export const workspaceApi = {
 	create: async function (data: CreateWorkspaceRequest): Promise<Workspace> {
-		const response = await api.post<ApiResponse<Workspace>>(
+		const response = await api.post<SuccessResponse<Workspace>>(
 			'/v1/workspaces/create',
 			data,
 		);
-		if (!response.success) {
-			toast.error('Failed to create workspace');
-			return {} as Workspace;
-		}
 		return response.data;
 	},
 
 	list: async function (): Promise<Workspace[]> {
-		console.log('list');
-		const response = await api.get<ApiResponse<Workspace[]>>('/v1/workspaces');
-		if (!response.success) {
-			toast.error('Failed to list workspaces');
-			return [] as Workspace[];
-		}
+		const response =
+			await api.get<SuccessResponse<Workspace[]>>('/v1/workspaces');
 		return response.data;
 	},
 
@@ -56,7 +48,7 @@ export const workspaceApi = {
 			},
 		);
 		if (!response.success) {
-			toast.error('Failed to check slug availability');
+			toast.error(response.error.message);
 			return false;
 		}
 		return response.data.status;

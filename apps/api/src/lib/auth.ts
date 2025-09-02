@@ -18,7 +18,7 @@ export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: 'pg',
 	}),
-	baseURL: `${process.env.BASE_URL || 'http://localhost:3000'}/v1/auth`,
+	baseURL: `${process.env.API_BASE_URL || 'http://localhost:3000'}/v1/auth`,
 	emailAndPassword: {
 		enabled: true,
 		requireEmailVerification: true,
@@ -78,12 +78,12 @@ export const auth = betterAuth({
 		}),
 		organization({
 			allowUserToCreateOrganization: true,
-			organizationLimit: 1,
+			organizationLimit: 1, // TODO: Remove once we fix issues with multiple organizations
 			organizationCreation: {
 				disabled: false,
 				afterCreate: async ({ organization, member, user }) => {
 					console.log('Organization created:', organization);
-					await subscriptionService.assignFreePlan(organization.id);
+					await subscriptionService.assignDefaultPlan(organization.id);
 				},
 			},
 		}),

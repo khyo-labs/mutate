@@ -1,8 +1,17 @@
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 import type { SuccessResponse } from '@/types';
 
 import { api } from './client';
+
+export const schema = z.object({
+	name: z.string().min(1, 'Name is required'),
+	permissions: z.array(z.string()),
+	expiresAt: z.string().nullable().optional(),
+});
+
+export type ApiKeyFormData = z.infer<typeof schema>;
 
 export type ApiKey = {
 	id: string;
@@ -26,7 +35,7 @@ export const apiKeysApi = {
 		return response.data;
 	},
 
-	create: async (data: ApiKeyCreate): Promise<ApiKey> => {
+	create: async (data: ApiKeyFormData): Promise<ApiKey> => {
 		const response = await api.post<SuccessResponse<ApiKey>>(
 			'/v1/api-keys',
 			data,
@@ -36,7 +45,7 @@ export const apiKeysApi = {
 		return response.data;
 	},
 
-	update: async (id: string, data: ApiKeyCreate): Promise<ApiKey> => {
+	update: async (id: string, data: ApiKeyFormData): Promise<ApiKey> => {
 		const response = await api.put<SuccessResponse<ApiKey>>(
 			`/v1/api-keys/${id}`,
 			data,

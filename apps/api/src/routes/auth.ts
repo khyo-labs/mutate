@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 
+import { config } from '../config.js';
 import { auth } from '../lib/auth.js';
 
 export async function authRoutes(fastify: FastifyInstance) {
@@ -47,6 +48,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 				await auth.api.sendVerificationEmail({
 					body: {
 						email: session.user.email,
+						callbackURL: `${config.BASE_URL}`,
 					},
 					headers: request.headers as Record<string, string>,
 				});

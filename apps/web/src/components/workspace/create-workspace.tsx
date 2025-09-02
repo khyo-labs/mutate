@@ -1,8 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { BuildingIcon } from 'lucide-react';
-import { useEffect } from 'react';
+import { BuildingIcon, ChevronLeft } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+
+import { router } from '@/main';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 
 import {
 	useCheckSlugExists,
@@ -51,6 +54,7 @@ export function CreateWorkspace() {
 	const { data: session } = useSession();
 	const createWorkspace = useCreateWorkspace();
 	const checkSlugExists = useCheckSlugExists();
+	const { activeWorkspace } = useWorkspaceStore();
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(formSchema),
@@ -63,6 +67,7 @@ export function CreateWorkspace() {
 
 	const workspaceName = form.watch('workspaceName');
 	const workspaceSlug = form.watch('workspaceSlug');
+	const previousSlugRef = useRef<string>('');
 
 	useEffect(() => {
 		if (workspaceName) {
@@ -75,57 +80,74 @@ export function CreateWorkspace() {
 	}, [workspaceName, form]);
 
 	useEffect(() => {
-		const timeoutId = setTimeout(async () => {
-			if (!workspaceSlug.length) {
-				form.clearErrors('workspaceSlug');
-				checkSlugExists.reset();
-			}
+		if (workspaceSlug === previousSlugRef.current) {
+			return;
+		}
+		previousSlugRef.current = workspaceSlug;
 
-			if (workspaceSlug?.length > 0) {
-				try {
-					const available = await checkSlugExists.mutateAsync(workspaceSlug);
-					if (!available) {
-						form.setError('workspaceSlug', {
-							type: 'manual',
-							message: 'This workspace URL is already taken',
-						});
-					} else {
-						form.clearErrors('workspaceSlug');
-					}
-				} catch (error) {
-					console.error('Error checking slug:', error);
-				}
+		if (!workspaceSlug || workspaceSlug.length === 0) {
+			form.clearErrors('workspaceSlug');
+			checkSlugExists.reset();
+			return;
+		}
+
+		const slugRegex = /^[a-z0-9-]+$/;
+		if (
+			!slugRegex.test(workspaceSlug) ||
+			workspaceSlug.startsWith('-') ||
+			workspaceSlug.endsWith('-')
+		) {
+			checkSlugExists.reset();
+			return;
+		}
+
+		const timeoutId = setTimeout(async () => {
+			const available = await checkSlugExists.mutateAsync(workspaceSlug);
+			if (!available) {
+				form.setError('workspaceSlug', {
+					type: 'manual',
+					message: 'This workspace URL is already taken',
+				});
+			} else {
+				form.clearErrors('workspaceSlug');
 			}
 		}, 500);
 
 		return () => clearTimeout(timeoutId);
-	}, [workspaceSlug]);
+	}, [workspaceSlug, checkSlugExists, form]);
 
 	async function onSubmit(data: FormData) {
-		try {
-			await createWorkspace.mutateAsync({
-				name: data.workspaceName.trim(),
-				slug: data.workspaceSlug.trim(),
-				companySize: data.companySize,
-			});
-			window.location.reload();
-		} catch (error) {
-			console.error('Failed to create workspace:', error);
-		}
+		await createWorkspace.mutateAsync({
+			name: data.workspaceName.trim(),
+			slug: data.workspaceSlug.trim(),
+			companySize: data.companySize,
+		});
+		router.navigate({ to: '/' });
 	}
 
 	const isSubmitting = form.formState.isSubmitting;
 
 	return (
 		<ProtectedRoute>
-			<div className="min-h-screen bg-gray-50">
+			<div className="bg-background min-h-screen">
 				{/* Header */}
-				<div className="border-b border-gray-200 bg-white px-6 py-4">
+				<div className="border-border bg-card border-b px-6 py-4">
 					<div className="flex items-center justify-between">
-						<Button onClick={logout}>Log out</Button>
+						{activeWorkspace && (
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={() => {
+									router.history.back();
+								}}
+							>
+								<ChevronLeft className="mr-2 size-4" /> Back to Mutate
+							</Button>
+						)}
+						{!activeWorkspace && <Button onClick={logout}>Log out</Button>}
 						<div className="text-right">
-							<div className="text-xs text-gray-500">Logged in as:</div>
-							<div className="text-sm font-medium text-gray-900">
+							<div className="text-muted-foreground text-xs">Logged in as:</div>
+							<div className="text-foreground text-sm font-medium">
 								{session?.user?.email}
 							</div>
 						</div>
@@ -136,16 +158,16 @@ export function CreateWorkspace() {
 				<div className="flex flex-col items-center justify-center px-4 py-16">
 					<div className="w-full max-w-lg">
 						<div className="mb-8 text-center">
-							<h1 className="mb-2 text-2xl font-semibold text-gray-900">
+							<h1 className="text-foreground mb-2 text-2xl font-semibold">
 								Create a new workspace
 							</h1>
-							<p className="leading-relaxed text-gray-600">
+							<p className="text-muted-foreground leading-relaxed">
 								Workspaces are shared environments where teams can work
 								collaboratively with shared data.
 							</p>
 						</div>
 
-						<div className="rounded-lg border border-gray-200 bg-white p-6">
+						<div className="border-border bg-card rounded-lg border p-6">
 							<Form {...form}>
 								<form
 									onSubmit={form.handleSubmit(onSubmit)}
@@ -175,7 +197,7 @@ export function CreateWorkspace() {
 												<FormLabel>Workspace URL</FormLabel>
 												<FormControl>
 													<div className="flex">
-														<span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500">
+														<span className="border-input bg-muted text-muted-foreground inline-flex items-center rounded-l-md border border-r-0 px-3 text-sm">
 															usemutate.com/
 														</span>
 														<Input

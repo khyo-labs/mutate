@@ -18,8 +18,11 @@ export async function requireVerifiedEmail(
 
 	if (!session?.user?.emailVerified) {
 		return reply.status(403).send({
-			error: 'Email not verified',
-			code: 'EMAIL_NOT_VERIFIED',
+			success: false,
+			error: {
+				code: 'EMAIL_NOT_VERIFIED',
+				message: 'Email not verified',
+			},
 		});
 	}
 }

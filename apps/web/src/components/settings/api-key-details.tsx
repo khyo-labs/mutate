@@ -77,7 +77,7 @@ export function ApiKeyDetails({ apiKey, deleteApiKey }: Props) {
 							<DrawerHeader>
 								<DrawerTitle>Edit API key</DrawerTitle>
 								<DrawerDescription className="sr-only">
-								Drawer for editing an API key
+									Drawer for editing an API key
 								</DrawerDescription>
 							</DrawerHeader>
 							<ApiKeyDrawer apiKey={apiKey} />
