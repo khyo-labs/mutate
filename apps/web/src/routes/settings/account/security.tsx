@@ -1,26 +1,23 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+import { SettingsHeader } from '@/components/settings/header';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog';
+	Drawer,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger,
+} from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { authClient } from '@/lib/auth-client';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 export const Route = createFileRoute('/settings/account/security')({
 	component: SecurityPage,
@@ -28,111 +25,107 @@ export const Route = createFileRoute('/settings/account/security')({
 
 type Passkey = {
 	id: string;
-	name: string | null;
+	name?: string;
 	deviceType: string;
-	createdAt: string;
+	createdAt: Date;
+};
+
+const passkeyKeys = {
+	all: ['passkeys'] as const,
+	list: () => [...passkeyKeys.all, 'list'] as const,
 };
 
 function SecurityPage() {
-	const [passkeys, setPasskeys] = useState<Passkey[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [isAddDialogOpen, setAddDialogOpen] = useState(false);
+	const [isAddDrawerOpen, setAddDrawerOpen] = useState(false);
 	const [newPasskeyName, setNewPasskeyName] = useState('');
+	const queryClient = useQueryClient();
 
-	async function loadPasskeys() {
-		setIsLoading(true);
-		const { data, error } = await authClient.passkey.listUserPasskeys();
-		if (error) {
-			toast.error('Failed to load passkeys', { description: error.message });
-		} else if (data) {
-			setPasskeys(data as Passkey[]);
-		}
-		setIsLoading(false);
-	}
+	const { data: passkeys = [], isLoading } = useQuery({
+		queryKey: passkeyKeys.list(),
+		queryFn: async () => {
+			const response = await authClient.passkey.listUserPasskeys();
+			if (response?.error) {
+				throw new Error(response.error.message);
+			}
+			return response?.data || [];
+		},
+	});
 
-	useEffect(() => {
-		loadPasskeys();
-	}, []);
-
-	async function handleDelete(id: string) {
-		const { error } = await authClient.passkey.deletePasskey({ id });
-		if (error) {
-			toast.error('Failed to delete passkey', { description: error.message });
-		} else {
+	const deletePasskeyMutation = useMutation({
+		mutationFn: async (id: string) => {
+			const response = await authClient.passkey.deletePasskey({ id });
+			if (response?.error) {
+				throw new Error(response.error.message);
+			}
+			return response;
+		},
+		onSuccess: () => {
 			toast.success('Passkey deleted successfully');
-			loadPasskeys(); // Refresh the list
-		}
-	}
+			queryClient.invalidateQueries({ queryKey: passkeyKeys.list() });
+		},
+		onError: (error: Error) => {
+			toast.error('Failed to delete passkey', {
+				description: error.message,
+			});
+		},
+	});
 
-	async function handleAddPasskey() {
-		const { error } = await authClient.passkey.addPasskey({
-			name: newPasskeyName,
-		});
-		if (error) {
-			toast.error('Failed to add passkey', { description: error.message });
-		} else {
+	const addPasskeyMutation = useMutation({
+		mutationFn: async (name: string) => {
+			const response = await authClient.passkey.addPasskey({ name });
+			if (response?.error) {
+				throw new Error(response.error.message);
+			}
+			return response;
+		},
+		onSuccess: () => {
 			toast.success('Passkey added successfully');
 			setNewPasskeyName('');
-			setAddDialogOpen(false);
-			loadPasskeys(); // Refresh the list
-		}
+			setAddDrawerOpen(false);
+			queryClient.invalidateQueries({ queryKey: passkeyKeys.list() });
+		},
+		onError: (error: Error) => {
+			toast.error('Failed to add passkey', {
+				description: error.message,
+			});
+		},
+	});
+
+	function handleDelete(id: string) {
+		deletePasskeyMutation.mutate(id);
+	}
+
+	function handleAddPasskey() {
+		addPasskeyMutation.mutate(newPasskeyName);
 	}
 
 	return (
 		<div className="space-y-8">
-			<Card>
-				<CardHeader>
-					<CardTitle>Passkeys</CardTitle>
-					<CardDescription>
-						Manage the passkeys used for signing in to your account.
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					{isLoading ? (
-						<p>Loading passkeys...</p>
-					) : (
-						<div className="space-y-4">
-							<ul className="space-y-2">
-								{passkeys.map((key) => (
-									<li
-										key={key.id}
-										className="flex items-center justify-between rounded-md border p-4"
-									>
-										<div>
-											<p className="font-medium">
-												{key.name || 'Unnamed Passkey'}
-											</p>
-											<p className="text-sm text-muted-foreground">
-												Added on {new Date(key.createdAt).toLocaleDateString()}{' '}
-												- {key.deviceType}
-											</p>
-										</div>
-										<Button
-											variant="destructive"
-											size="sm"
-											onClick={() => handleDelete(key.id)}
-										>
-											Delete
-										</Button>
-									</li>
-								))}
-							</ul>
-							{passkeys.length === 0 && <p>No passkeys found.</p>}
-						</div>
-					)}
-					<Dialog open={isAddDialogOpen} onOpenChange={setAddDialogOpen}>
-						<DialogTrigger asChild>
-							<Button className="mt-4">Add a new Passkey</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Add a new Passkey</DialogTitle>
-								<DialogDescription>
+			<SettingsHeader
+				title="Security"
+				description="Manage your account security settings."
+			/>
+
+			<div className="space-y-4">
+				<div className="flex items-center justify-between">
+					<h2 className="text-base font-medium">Passkeys</h2>
+					<Drawer
+						open={isAddDrawerOpen}
+						onOpenChange={setAddDrawerOpen}
+						direction="right"
+					>
+						<DrawerTrigger asChild>
+							<Button size="sm">Add new passkey</Button>
+						</DrawerTrigger>
+						<DrawerContent>
+							<DrawerHeader>
+								<DrawerTitle>Add a new Passkey</DrawerTitle>
+								<DrawerDescription>
 									Follow the instructions on your device to create a new
 									passkey.
-								</DialogDescription>
-							</DialogHeader>
-							<div className="grid gap-4 py-4">
+								</DrawerDescription>
+							</DrawerHeader>
+							<div className="grid gap-4 px-4 py-4">
 								<div className="grid grid-cols-4 items-center gap-4">
 									<Label htmlFor="name" className="text-right">
 										Name
@@ -146,13 +139,47 @@ function SecurityPage() {
 									/>
 								</div>
 							</div>
-							<DialogFooter>
+							<DrawerFooter>
 								<Button onClick={handleAddPasskey}>Save</Button>
-							</DialogFooter>
-						</DialogContent>
-					</Dialog>
-				</CardContent>
-			</Card>
+							</DrawerFooter>
+						</DrawerContent>
+					</Drawer>
+				</div>
+				<Card>
+					<CardContent className="p-4">
+						{isLoading ? (
+							<p>Loading passkeys...</p>
+						) : (
+							<ul className="divide-border grid gap-3 divide-y">
+								{passkeys.map((key: Passkey) => (
+									<li
+										key={key.id}
+										className="flex items-center justify-between pb-3 last:pb-0"
+									>
+										<div>
+											<p className="font-medium">
+												{key.name || 'Unnamed Passkey'}
+											</p>
+											<p className="text-muted-foreground text-sm">
+												Added on {new Date(key.createdAt).toLocaleDateString()}{' '}
+												- {key.deviceType}
+											</p>
+										</div>
+										<Button
+											variant="destructive"
+											size="sm"
+											onClick={() => handleDelete(key.id)}
+										>
+											Delete
+										</Button>
+									</li>
+								))}
+								{passkeys.length === 0 && <p>No passkeys found.</p>}
+							</ul>
+						)}
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	);
 }

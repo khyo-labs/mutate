@@ -42,44 +42,42 @@ function AppearanceComponent() {
 			/>
 
 			<div className="space-y-4">
-				<div>
-					<h2 className="mb-3 text-base font-medium">Theme</h2>
+				<h2 className="mb-3 text-base font-medium">Theme</h2>
 
-					<Card>
-						<CardContent className="p-4">
-							<div className="divide-border grid gap-3 divide-y">
-								{themes.map((item) => {
-									const isSelected = theme === item.value;
+				<Card>
+					<CardContent className="p-4">
+						<ul className="divide-border grid gap-3 divide-y">
+							{themes.map((item) => {
+								const isSelected = theme === item.value;
 
-									return (
-										<div
-											key={item.value}
-											className="flex items-center justify-between pb-3 last:pb-0"
-											onClick={() => setTheme(item.value)}
-										>
-											<div className="flex items-center gap-3">
-												<div>
-													<div className="text-sm">{item.name}</div>
-													<p className="text-muted-foreground text-xs">
-														{item.description}
-													</p>
-												</div>
-											</div>
-											<div className="text-muted-foreground flex items-center gap-2 text-sm">
-												{isSelected ? 'On' : 'Off'}
-												<Switch
-													checked={isSelected}
-													onCheckedChange={() => setTheme(item.value)}
-													onClick={(e) => e.stopPropagation()}
-												/>
+								return (
+									<li
+										key={item.value}
+										className="flex items-center justify-between pb-3 last:pb-0"
+										onClick={() => setTheme(item.value)}
+									>
+										<div className="flex items-center gap-3">
+											<div>
+												<div className="text-sm">{item.name}</div>
+												<p className="text-muted-foreground text-xs">
+													{item.description}
+												</p>
 											</div>
 										</div>
-									);
-								})}
-							</div>
-						</CardContent>
-					</Card>
-				</div>
+										<div className="text-muted-foreground flex items-center gap-2 text-sm">
+											{isSelected ? 'On' : 'Off'}
+											<Switch
+												checked={isSelected}
+												onCheckedChange={() => setTheme(item.value)}
+												onClick={(e) => e.stopPropagation()}
+											/>
+										</div>
+									</li>
+								);
+							})}
+						</ul>
+					</CardContent>
+				</Card>
 			</div>
 		</div>
 	);

@@ -1,10 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import {
-	createAuthMiddleware,
-	organization,
-	passkey,
-} from 'better-auth/plugins';
+import { createAuthMiddleware, organization } from 'better-auth/plugins';
+import { passkey } from 'better-auth/plugins/passkey';
 
 import { config } from '../config.js';
 import { db } from '../db/connection.js';
@@ -74,7 +71,7 @@ export const auth = betterAuth({
 				config.NODE_ENV === 'production'
 					? new URL(config.CORS_ORIGINS[0]).hostname
 					: 'localhost',
-			origin: config.CORS_ORIGINS[0],
+			origin: process.env.BASE_URL || 'http://localhost:5173',
 		}),
 		organization({
 			allowUserToCreateOrganization: true,

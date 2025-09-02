@@ -5,12 +5,11 @@ import {
 	redirect,
 	useNavigate,
 } from '@tanstack/react-router';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { Eye, EyeOff, KeyRound, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
 
-import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import {
 	Form,
@@ -47,7 +46,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginComponent() {
 	const navigate = useNavigate();
-	const { login, isLoading, syncSession } = useAuthStore();
+	const { login, isLoading } = useAuthStore();
 	const [showPassword, setShowPassword] = useState(false);
 	const [apiError, setApiError] = useState<string | null>(null);
 
@@ -64,15 +63,17 @@ export function LoginComponent() {
 			'PublicKeyCredential' in window &&
 			typeof PublicKeyCredential.isConditionalMediationAvailable === 'function'
 		) {
-			PublicKeyCredential.isConditionalMediationAvailable().then((isAvailable) => {
-				if (isAvailable) {
-					void authClient.signIn.passkey({ autoFill: true });
-				}
-			});
+			PublicKeyCredential.isConditionalMediationAvailable().then(
+				(isAvailable) => {
+					if (isAvailable) {
+						void authClient.signIn.passkey({ autoFill: true });
+					}
+				},
+			);
 		}
 	}, []);
 
-	const onSubmit = async (data: LoginFormData) => {
+	async function onSubmit(data: LoginFormData) {
 		try {
 			setApiError(null);
 			await login(data);
@@ -80,9 +81,9 @@ export function LoginComponent() {
 		} catch (error) {
 			setApiError(error instanceof Error ? error.message : 'Login failed');
 		}
-	};
+	}
 
-	const handlePasskeyLogin = async () => {
+	async function handlePasskeyLogin() {
 		try {
 			const email = form.getValues('email');
 			if (!email || !z.string().email().safeParse(email).success) {
@@ -96,16 +97,15 @@ export function LoginComponent() {
 			if (error) {
 				throw new Error(error.message);
 			}
-			await syncSession();
 			navigate({ to: '/' });
 		} catch (error) {
 			setApiError(
 				error instanceof Error ? error.message : 'Passkey sign-in failed',
 			);
 		}
-	};
+	}
 
-	const handleOAuthLogin = async (provider: 'github' | 'google') => {
+	async function handleOAuthLogin(provider: 'github' | 'google') {
 		try {
 			await signIn.social({
 				provider,
@@ -116,7 +116,7 @@ export function LoginComponent() {
 				error instanceof Error ? error.message : 'OAuth login failed',
 			);
 		}
-	};
+	}
 
 	return (
 		<PublicLayout>
