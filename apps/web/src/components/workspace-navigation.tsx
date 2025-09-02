@@ -57,9 +57,6 @@ export function WorkspaceNavigation({
 		},
 	];
 
-	console.log(workspaces);
-	console.log(activeWorkspace);
-
 	const moreItems: NavigationItem[] = [
 		{
 			name: 'Webhooks',

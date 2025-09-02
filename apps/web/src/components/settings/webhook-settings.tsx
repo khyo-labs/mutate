@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { api } from '@/api/client';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 import type { SuccessResponse, Webhook } from '@/types';
 
 import { Card, CardContent } from '../ui/card';
@@ -14,8 +15,9 @@ const queryKey = ['workspace', 'webhooks'];
 
 export function WebhookSettings() {
 	const queryClient = useQueryClient();
+	const { activeWorkspace } = useWorkspaceStore();
 	const { data: webhooks = [], isLoading } = useQuery<Webhook[]>({
-		queryKey: queryKey,
+		queryKey: [...queryKey, activeWorkspace?.id],
 		queryFn: async () => {
 			const response = await api.get<SuccessResponse<Webhook[]>>(
 				'/v1/workspaces/webhooks?includeSecrets=true',
@@ -36,7 +38,9 @@ export function WebhookSettings() {
 			toast.success('Webhook deleted successfully');
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKey });
+			queryClient.invalidateQueries({
+				queryKey: [...queryKey, activeWorkspace?.id],
+			});
 			toast.success('Webhook deleted successfully');
 		},
 	});
