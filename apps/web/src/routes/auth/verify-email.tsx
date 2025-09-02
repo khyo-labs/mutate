@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
@@ -6,12 +6,21 @@ import { z } from 'zod';
 import { verifyEmail } from '@/api/auth';
 
 import { PublicLayout } from '../../components/layouts';
+import { authClient } from '../../lib/auth-client';
 
 const verifyEmailSearchSchema = z.object({
 	token: z.string().optional(),
 });
 
 export const Route = createFileRoute('/auth/verify-email')({
+	beforeLoad: async () => {
+		const { data: session } = await authClient.getSession();
+		if (session) {
+			throw redirect({
+				to: '/',
+			});
+		}
+	},
 	validateSearch: (search) => verifyEmailSearchSchema.parse(search),
 	component: VerifyEmailComponent,
 });
