@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root';
 import { Route as RegisterRouteImport } from './routes/register';
 import { Route as LoginRouteImport } from './routes/login';
+import { Route as JoinRouteImport } from './routes/join';
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password';
 import { Route as CheckEmailRouteImport } from './routes/check-email';
 import { Route as AdminRouteImport } from './routes/admin';
@@ -27,6 +28,7 @@ import { Route as SettingsWorkspaceIndexRouteImport } from './routes/settings/wo
 import { Route as SettingsAccountIndexRouteImport } from './routes/settings/account/index';
 import { Route as MutationsConfigIdIndexRouteImport } from './routes/mutations/$configId/index';
 import { Route as SettingsWorkspaceWebhooksRouteImport } from './routes/settings/workspace/webhooks';
+import { Route as SettingsWorkspaceMembersRouteImport } from './routes/settings/workspace/members';
 import { Route as SettingsWorkspaceApiKeysRouteImport } from './routes/settings/workspace/api-keys';
 import { Route as SettingsAccountProfileRouteImport } from './routes/settings/account/profile';
 import { Route as SettingsAccountAppearanceRouteImport } from './routes/settings/account/appearance';
@@ -40,6 +42,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
   getParentRoute: () => rootRouteImport,
 } as any);
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -123,6 +130,12 @@ const SettingsWorkspaceWebhooksRoute =
     path: '/webhooks',
     getParentRoute: () => SettingsWorkspaceRouteRoute,
   } as any);
+const SettingsWorkspaceMembersRoute =
+  SettingsWorkspaceMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
+    getParentRoute: () => SettingsWorkspaceRouteRoute,
+  } as any);
 const SettingsWorkspaceApiKeysRoute =
   SettingsWorkspaceApiKeysRouteImport.update({
     id: '/api-keys',
@@ -152,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute;
   '/check-email': typeof CheckEmailRoute;
   '/forgot-password': typeof ForgotPasswordRoute;
+  '/join': typeof JoinRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
@@ -165,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
+  '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
   '/mutations/$configId': typeof MutationsConfigIdIndexRoute;
   '/settings/account/': typeof SettingsAccountIndexRoute;
@@ -175,6 +190,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute;
   '/check-email': typeof CheckEmailRoute;
   '/forgot-password': typeof ForgotPasswordRoute;
+  '/join': typeof JoinRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/auth/reset-password': typeof AuthResetPasswordRoute;
@@ -186,6 +202,7 @@ export interface FileRoutesByTo {
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
+  '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
   '/mutations/$configId': typeof MutationsConfigIdIndexRoute;
   '/settings/account': typeof SettingsAccountIndexRoute;
@@ -198,6 +215,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute;
   '/check-email': typeof CheckEmailRoute;
   '/forgot-password': typeof ForgotPasswordRoute;
+  '/join': typeof JoinRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/settings/account': typeof SettingsAccountRouteRouteWithChildren;
@@ -211,6 +229,7 @@ export interface FileRoutesById {
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
+  '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
   '/mutations/$configId/': typeof MutationsConfigIdIndexRoute;
   '/settings/account/': typeof SettingsAccountIndexRoute;
@@ -224,6 +243,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/check-email'
     | '/forgot-password'
+    | '/join'
     | '/login'
     | '/register'
     | '/settings/account'
@@ -237,6 +257,7 @@ export interface FileRouteTypes {
     | '/settings/account/appearance'
     | '/settings/account/profile'
     | '/settings/workspace/api-keys'
+    | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
     | '/mutations/$configId'
     | '/settings/account/'
@@ -247,6 +268,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/check-email'
     | '/forgot-password'
+    | '/join'
     | '/login'
     | '/register'
     | '/auth/reset-password'
@@ -258,6 +280,7 @@ export interface FileRouteTypes {
     | '/settings/account/appearance'
     | '/settings/account/profile'
     | '/settings/workspace/api-keys'
+    | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
     | '/mutations/$configId'
     | '/settings/account'
@@ -269,6 +292,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/check-email'
     | '/forgot-password'
+    | '/join'
     | '/login'
     | '/register'
     | '/settings/account'
@@ -282,6 +306,7 @@ export interface FileRouteTypes {
     | '/settings/account/appearance'
     | '/settings/account/profile'
     | '/settings/workspace/api-keys'
+    | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
     | '/mutations/$configId/'
     | '/settings/account/'
@@ -294,6 +319,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute;
   CheckEmailRoute: typeof CheckEmailRoute;
   ForgotPasswordRoute: typeof ForgotPasswordRoute;
+  JoinRoute: typeof JoinRoute;
   LoginRoute: typeof LoginRoute;
   RegisterRoute: typeof RegisterRoute;
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute;
@@ -318,6 +344,13 @@ declare module '@tanstack/react-router' {
       path: '/login';
       fullPath: '/login';
       preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/join': {
+      id: '/join';
+      path: '/join';
+      fullPath: '/join';
+      preLoaderRoute: typeof JoinRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/forgot-password': {
@@ -432,6 +465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsWorkspaceWebhooksRouteImport;
       parentRoute: typeof SettingsWorkspaceRouteRoute;
     };
+    '/settings/workspace/members': {
+      id: '/settings/workspace/members';
+      path: '/members';
+      fullPath: '/settings/workspace/members';
+      preLoaderRoute: typeof SettingsWorkspaceMembersRouteImport;
+      parentRoute: typeof SettingsWorkspaceRouteRoute;
+    };
     '/settings/workspace/api-keys': {
       id: '/settings/workspace/api-keys';
       path: '/api-keys';
@@ -480,6 +520,7 @@ const SettingsAccountRouteRouteWithChildren =
 
 interface SettingsWorkspaceRouteRouteChildren {
   SettingsWorkspaceApiKeysRoute: typeof SettingsWorkspaceApiKeysRoute;
+  SettingsWorkspaceMembersRoute: typeof SettingsWorkspaceMembersRoute;
   SettingsWorkspaceWebhooksRoute: typeof SettingsWorkspaceWebhooksRoute;
   SettingsWorkspaceIndexRoute: typeof SettingsWorkspaceIndexRoute;
 }
@@ -487,6 +528,7 @@ interface SettingsWorkspaceRouteRouteChildren {
 const SettingsWorkspaceRouteRouteChildren: SettingsWorkspaceRouteRouteChildren =
   {
     SettingsWorkspaceApiKeysRoute: SettingsWorkspaceApiKeysRoute,
+    SettingsWorkspaceMembersRoute: SettingsWorkspaceMembersRoute,
     SettingsWorkspaceWebhooksRoute: SettingsWorkspaceWebhooksRoute,
     SettingsWorkspaceIndexRoute: SettingsWorkspaceIndexRoute,
   };
@@ -518,6 +560,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   CheckEmailRoute: CheckEmailRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,

@@ -39,7 +39,6 @@ export const workspaceApi = {
 	},
 
 	list: async function (): Promise<Workspace[]> {
-		console.log('list');
 		const response = await api.get<ApiResponse<Workspace[]>>('/v1/workspaces');
 		if (!response.success) {
 			toast.error('Failed to list workspaces');
@@ -56,7 +55,7 @@ export const workspaceApi = {
 			},
 		);
 		if (!response.success) {
-			toast.error('Failed to check slug availability');
+			toast.error(response.error.message);
 			return false;
 		}
 		return response.data.status;

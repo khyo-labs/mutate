@@ -235,6 +235,8 @@ export const subscriptionPlans = pgTable('subscription_plan', {
 	overagePriceCents: integer('overage_price_cents'),
 	features: jsonb('features'),
 	active: boolean('active').default(true).notNull(),
+	isDefault: boolean('is_default').default(false).notNull(),
+	isPublic: boolean('is_public').default(true).notNull(),
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
