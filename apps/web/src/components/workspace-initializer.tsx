@@ -17,7 +17,10 @@ export function WorkspaceInitializer() {
 		if (!isPending && workspaces && !hasInitialized.current) {
 			setWorkspaces(workspaces as unknown as Workspace[]);
 			if (!activeWorkspace && workspaces.length > 0) {
-				setActiveWorkspace(workspaces[0] as unknown as Workspace);
+				const activeId = session?.session?.activeOrganizationId;
+				const workspaceToSelect =
+					workspaces.find((ws) => ws.id === activeId) || workspaces[0];
+				setActiveWorkspace(workspaceToSelect as unknown as Workspace);
 			}
 			hasInitialized.current = true;
 		}

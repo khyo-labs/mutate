@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
+import { api } from '@/api/client';
 import type { Workspace } from '@/api/workspaces';
-import { authClient } from '@/lib/auth-client';
 
 type WorkspaceStore = {
 	isLoading: boolean;
@@ -12,19 +12,27 @@ type WorkspaceStore = {
 	setLoading: (isLoading: boolean) => void;
 };
 
-export const useWorkspaceStore = create<WorkspaceStore>((set) => ({
+export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
 	isLoading: false,
 	workspaces: [],
 	activeWorkspace: null,
 	setWorkspaces: (organizations: Workspace[]) => {
 		set({ workspaces: organizations });
 	},
-	setActiveWorkspace: (organization: Workspace) => {
-		authClient.organization.setActive({
-			organizationId: organization.id,
-			organizationSlug: organization.slug,
-		});
-		set({ activeWorkspace: organization });
+	setActiveWorkspace: async (organization: Workspace) => {
+		const previousActiveWorkspace = get().activeWorkspace;
+		try {
+			set({ activeWorkspace: organization });
+
+			// Also call our API to persist the change
+			await api.post('/v1/workspaces/set-active', {
+				organizationId: organization.id,
+			});
+		} catch (error) {
+			console.error('Failed to set active workspace:', error);
+			// If there's an error, revert to the previous active workspace
+			set({ activeWorkspace: previousActiveWorkspace });
+		}
 	},
 	setLoading: (isLoading: boolean) => {
 		set({ isLoading });

@@ -101,6 +101,44 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 		}
 	});
 
+	// Set active workspace/organization
+	fastify.post('/set-active', async (request, reply) => {
+		try {
+			const { organizationId } = request.body as { organizationId: string };
+
+			if (!organizationId) {
+				return reply.status(400).send({
+					success: false,
+					error: {
+						code: 'ORGANIZATION_ID_REQUIRED',
+						message: 'Organization ID is required',
+					},
+				});
+			}
+
+			const result = await auth.api.setActiveOrganization({
+				body: {
+					organizationId,
+				},
+				headers: request.headers as any,
+			});
+
+			return reply.send({
+				success: true,
+				data: result,
+			});
+		} catch (error) {
+			fastify.log.error(error);
+			return reply.status(400).send({
+				success: false,
+				error: {
+					code: 'FAILED_TO_SET_ACTIVE_WORKSPACE',
+					message: getErrorMessage(error, 'Failed to set active workspace'),
+				},
+			});
+		}
+	});
+
 	// Get all webhooks for current workspace
 	fastify.get('/webhooks', async (request, reply) => {
 		try {

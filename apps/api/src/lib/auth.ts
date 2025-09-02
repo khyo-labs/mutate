@@ -2,9 +2,11 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAuthMiddleware, organization } from 'better-auth/plugins';
 import { passkey } from 'better-auth/plugins/passkey';
+import { eq } from 'drizzle-orm';
 
 import { config } from '../config.js';
 import { db } from '../db/connection.js';
+import { user } from '../db/schema.js';
 import { subscriptionService } from '../services/billing/subscription-service.js';
 import { EmailArgs, sendEmail } from '../services/email/index.js';
 
@@ -85,9 +87,55 @@ export const auth = betterAuth({
 			},
 		}),
 	],
+	databaseHooks: {
+		session: {
+			create: {
+				before: async (session: any) => {
+					if (!session.userId) {
+						return { data: session };
+					}
+					const [userData] = await db
+						.select()
+						.from(user)
+						.where(eq(user.id, session.userId));
+
+					if (!userData) {
+						return { data: session };
+					}
+
+					return {
+						data: {
+							...session,
+							activeOrganizationId:
+								userData.activeOrganizationId || session.activeOrganizationId,
+						},
+					};
+				},
+			},
+			update: {
+				after: async (session: any) => {
+					if (session.activeOrganizationId !== undefined && session.userId) {
+						await db
+							.update(user)
+							.set({
+								activeOrganizationId: session.activeOrganizationId,
+								updatedAt: new Date(),
+							})
+							.where(eq(user.id, session.userId));
+					}
+				},
+			},
+		},
+	},
 	session: {
 		expiresIn: 60 * 60 * 24 * 7, // 7 days
 		updateAge: 60 * 60 * 24, // 1 day
+		additionalFields: {
+			activeOrganizationId: {
+				type: 'string',
+				required: false,
+			},
+		},
 	},
 	advanced: {
 		cookiePrefix: 'mutate',
