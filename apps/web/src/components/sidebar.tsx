@@ -1,19 +1,8 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import {
-	Building2,
-	ChevronDown,
-	FileText,
-	Home,
-	LogOut,
-	Menu,
-	Settings,
-	Users,
-	X,
-} from 'lucide-react';
+import { ChevronDown, Home, LogOut, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { useMutations } from '@/hooks/use-mutations';
 import { cn } from '@/lib/utils';
 import { useAuthStore, useSession } from '@/stores/auth-store';
 
@@ -25,6 +14,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { WorkspaceNavigation } from './workspace-navigation';
 
 interface NavigationItem {
 	name: string;
@@ -33,17 +23,11 @@ interface NavigationItem {
 	badge?: string;
 }
 
-interface NavigationSection {
-	title: string;
-	items: NavigationItem[];
-}
-
 export function Sidebar() {
 	const [isCollapsed] = useState(false);
 	const [isMobileOpen, setIsMobileOpen] = useState(false);
 	const { logout } = useAuthStore();
 	const { data: session } = useSession();
-	const { data: mutations } = useMutations();
 	const location = useLocation();
 
 	async function handleLogout() {
@@ -57,29 +41,7 @@ export function Sidebar() {
 		{ name: 'Home', href: '/', icon: Home },
 	];
 
-	const workspaceNavigation: NavigationSection = {
-		title: 'Workspace',
-		items: [
-			{
-				name: 'Mutations',
-				href: '/mutations',
-				icon: FileText,
-				badge: mutations?.pagination?.total?.toString() || '0',
-			},
-			{
-				name: 'Members',
-				href: '/settings/members',
-				icon: Users,
-			},
-			{
-				name: 'Settings',
-				href: '/settings/workspace',
-				icon: Settings,
-			},
-		],
-	};
-
-	function isActiveRoute(href:string) {
+	function isActiveRoute(href: string) {
 		const currentPath = location.pathname;
 		if (href === '/') {
 			return currentPath === '/';
@@ -176,49 +138,11 @@ export function Sidebar() {
 							);
 						})}
 					</div>
-					<div className="space-y-1">
-						<h3 className="text-muted-foreground px-3 text-xs font-semibold uppercase tracking-wider">
-							{workspaceNavigation.title}
-						</h3>
-						{workspaceNavigation.items.map((item) => {
-							const Icon = item.icon;
-							const isActive = isActiveRoute(item.href);
 
-							return (
-								<Link
-									key={item.name}
-									to={item.href}
-									className={cn(
-										'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
-										isActive
-											? 'bg-accent text-foreground font-medium'
-											: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-										isCollapsed && 'justify-center px-2',
-									)}
-									onClick={() => setIsMobileOpen(false)}
-								>
-									<Icon className="h-4 w-4 flex-shrink-0" />
-									{!isCollapsed && (
-										<>
-											<span className="flex-1">{item.name}</span>
-											{item.badge && (
-												<span
-													className={cn(
-														'rounded px-1.5 py-0.5 text-xs font-medium',
-														item.badge === 'New'
-															? 'bg-green-500/20 text-green-600 dark:text-green-400'
-															: 'bg-muted text-muted-foreground',
-													)}
-												>
-													{item.badge}
-												</span>
-											)}
-										</>
-									)}
-								</Link>
-							);
-						})}
-					</div>
+					<WorkspaceNavigation
+						isCollapsed={isCollapsed}
+						setIsMobileOpen={setIsMobileOpen}
+					/>
 				</nav>
 			</div>
 		</>
@@ -301,44 +225,11 @@ export function Sidebar() {
 										);
 									})}
 								</div>
-								<div className="space-y-1">
-									<h3 className="text-muted-foreground px-3 text-xs font-semibold uppercase tracking-wider">
-										{workspaceNavigation.title}
-									</h3>
-									{workspaceNavigation.items.map((item) => {
-										const Icon = item.icon;
-										const isActive = isActiveRoute(item.href);
 
-										return (
-											<Link
-												key={item.name}
-												to={item.href}
-												className={cn(
-													'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
-													isActive
-														? 'bg-accent text-foreground font-medium'
-														: 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-												)}
-												onClick={() => setIsMobileOpen(false)}
-											>
-												<Icon className="h-4 w-4 flex-shrink-0" />
-												<span className="flex-1">{item.name}</span>
-												{item.badge && (
-													<span
-														className={cn(
-															'rounded px-1.5 py-0.5 text-xs font-medium',
-															item.badge === 'New'
-																? 'bg-green-500/20 text-green-600 dark:text-green-400'
-																: 'bg-muted text-muted-foreground',
-														)}
-													>
-														{item.badge}
-													</span>
-												)}
-											</Link>
-										);
-									})}
-								</div>
+								<WorkspaceNavigation
+									isCollapsed={false}
+									setIsMobileOpen={setIsMobileOpen}
+								/>
 							</nav>
 						</div>
 					</div>

@@ -1,5 +1,4 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router';
-import { Key, Webhook } from 'lucide-react';
 
 import { SettingsTabs } from '@/components/settings/settings-tabs';
 
@@ -11,14 +10,17 @@ const navigationItems = [
 	{
 		name: 'Webhooks',
 		href: '/settings/workspace/webhooks',
-		icon: Webhook,
 		description: 'Manage webhook endpoints and configurations',
 	},
 	{
 		name: 'API Keys',
 		href: '/settings/workspace/api-keys',
-		icon: Key,
 		description: 'Manage API keys and permissions',
+	},
+	{
+		name: 'Members',
+		href: '/settings/workspace/members',
+		description: 'Manage workspace members',
 	},
 ];
 
