@@ -64,14 +64,24 @@ export function LoginComponent() {
 			typeof PublicKeyCredential.isConditionalMediationAvailable === 'function'
 		) {
 			PublicKeyCredential.isConditionalMediationAvailable().then(
-				(isAvailable) => {
+				async (isAvailable) => {
 					if (isAvailable) {
-						void authClient.signIn.passkey({ autoFill: true });
+						try {
+							const { error } = await authClient.signIn.passkey({ 
+								autoFill: true 
+							});
+							if (!error) {
+								navigate({ to: '/' });
+							}
+						} catch (error) {
+							// Silent fail for autofill - user can still use manual passkey button
+							console.debug('Autofill passkey not used');
+						}
 					}
 				},
 			);
 		}
-	}, []);
+	}, [navigate]);
 
 	async function onSubmit(data: LoginFormData) {
 		try {
