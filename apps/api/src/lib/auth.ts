@@ -67,7 +67,6 @@ export const auth = betterAuth({
 	plugins: [
 		organization({
 			allowUserToCreateOrganization: true,
-			organizationLimit: 1,
 			organizationCreation: {
 				disabled: false,
 				afterCreate: async ({ organization, member, user }) => {
