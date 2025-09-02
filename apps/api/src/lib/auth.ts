@@ -106,24 +106,22 @@ export const auth = betterAuth({
 					return {
 						data: {
 							...session,
-							activeOrganizationId: userData.activeOrganizationId,
+							activeOrganizationId: userData.activeOrganizationId || session.activeOrganizationId,
 						},
 					};
 				},
 			},
 			update: {
-				before: async (session: any) => {
-					if (session.activeOrganizationId && session.userId) {
+				after: async (session: any) => {
+					if (session.activeOrganizationId !== undefined && session.userId) {
 						await db
 							.update(user)
 							.set({
 								activeOrganizationId: session.activeOrganizationId,
+								updatedAt: new Date(),
 							})
 							.where(eq(user.id, session.userId));
 					}
-					return {
-						data: session,
-					};
 				},
 			},
 		},

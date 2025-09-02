@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAuthStore, useSession } from '@/stores/auth-store';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 
 import {
 	DropdownMenu,
@@ -24,6 +25,7 @@ interface NavigationItem {
 }
 
 export function Sidebar() {
+	const { activeWorkspace } = useWorkspaceStore();
 	const [isCollapsed] = useState(false);
 	const [isMobileOpen, setIsMobileOpen] = useState(false);
 	const { logout } = useAuthStore();
@@ -34,8 +36,8 @@ export function Sidebar() {
 		await logout();
 	}
 
-	const organizationName = session?.user.name || 'Mutate Inc.';
-	const userEmail = session?.user?.email || 'admin@mutate.com';
+	const organizationName = activeWorkspace?.name || session?.user?.name;
+	const userEmail = session?.user?.email || '';
 
 	const navigationItems: NavigationItem[] = [
 		{ name: 'Home', href: '/', icon: Home },
@@ -61,7 +63,7 @@ export function Sidebar() {
 							{!isCollapsed && (
 								<DropdownMenu>
 									<DropdownMenuTrigger>
-										<div className="flex-1">
+										<div className="flex-1 text-left">
 											<div className="flex items-center gap-1">
 												<span className="text-foreground text-sm font-semibold">
 													{organizationName}
