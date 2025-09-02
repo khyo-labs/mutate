@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { apiKeysApi } from '@/api/api-keys';
 import { Card, CardContent } from '@/components/ui/card';
 import { useSession } from '@/stores/auth-store';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 
 import { Alert, AlertDescription } from '../ui/alert';
 import { ApiKeyDetails } from './api-key-details';
@@ -12,24 +13,27 @@ import { ApiKeyDrawer } from './api-key-drawer';
 import { SettingsHeader } from './header';
 import { NewApiKey } from './new-api-key';
 
-const queryKey = ['workspace', 'api-keys'];
+const queryKeys = ['workspace', 'api-keys'];
 
 export function ApiKeySettings() {
 	const queryClient = useQueryClient();
+	const { activeWorkspace } = useWorkspaceStore();
 	const { data: session } = useSession();
 	const [keyToShow, setKeyToShow] = useState<string | null>(null);
 
 	const isEmailVerified = session?.user?.emailVerified;
 
 	const { data: apiKeys = [], isLoading } = useQuery({
-		queryKey: queryKey,
+		queryKey: [...queryKeys, activeWorkspace?.id],
 		queryFn: apiKeysApi.list,
 	});
 
 	const deleteMutation = useMutation({
-		mutationFn: apiKeysApi.delete,
+		mutationFn: (id: string) => apiKeysApi.delete(id),
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKey });
+			queryClient.invalidateQueries({
+				queryKey: [...queryKeys, activeWorkspace?.id],
+			});
 		},
 	});
 
@@ -38,9 +42,7 @@ export function ApiKeySettings() {
 	}
 
 	if (keyToShow) {
-		return (
-			<NewApiKey apiKey={keyToShow} onDone={() => setKeyToShow(null)} />
-		);
+		return <NewApiKey apiKey={keyToShow} onDone={() => setKeyToShow(null)} />;
 	}
 
 	return (
