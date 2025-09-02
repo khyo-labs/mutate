@@ -3,7 +3,9 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { SettingsHeader } from '@/components/settings/header';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
 	Form,
 	FormControl,
@@ -23,7 +25,7 @@ export const Route = createFileRoute('/settings/account/profile')({
 
 const formSchema = z.object({
 	name: z.string().min(1, 'Name is required'),
-	image: z.string().url('Invalid image URL').nullable().optional(),
+	image: z.url('Invalid image URL').nullable().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -36,7 +38,6 @@ function ProfileComponent() {
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: session?.user.name || '',
-			image: session?.user.image || '',
 		},
 	});
 
@@ -46,12 +47,13 @@ function ProfileComponent() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center gap-3">
-				<h1 className="text-2xl font-bold dark:text-white">Profile</h1>
-			</div>
+			<SettingsHeader
+				title="Profile"
+				description="Manage your profile settings"
+			/>
 
-			<div className="max-w-4xl space-y-6">
-				<div className="rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
+			<Card>
+				<CardContent className="p-4">
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 							<FormField
@@ -95,8 +97,8 @@ function ProfileComponent() {
 							</Button>
 						</form>
 					</Form>
-				</div>
-			</div>
+				</CardContent>
+			</Card>
 		</div>
 	);
 }
