@@ -1,6 +1,6 @@
 {
-	"id": "8277d2da-2c4e-4d32-b237-4060150426e3",
-	"prevId": "9c4531b8-d5d6-4c6c-be16-eac12b63c7f2",
+	"id": "6980fccf-b031-46e9-91bc-b5f4a6d9e704",
+	"prevId": "8277d2da-2c4e-4d32-b237-4060150426e3",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -1664,6 +1664,12 @@
 					"type": "timestamp",
 					"primaryKey": false,
 					"notNull": true
+				},
+				"active_organization_id": {
+					"name": "active_organization_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
 				}
 			},
 			"indexes": {},
