@@ -1,3 +1,4 @@
+import { APIError } from 'better-auth/api';
 import { eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 
@@ -30,7 +31,10 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 			fastify.log.error(error);
 			return reply.status(500).send({
 				success: false,
-				error: getErrorMessage(error, 'Failed to list workspaces'),
+				error: {
+					code: 'FAILED_TO_LIST_WORKSPACES',
+					message: getErrorMessage(error, 'Failed to list workspaces'),
+				},
 			});
 		}
 	});
@@ -58,7 +62,10 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 			fastify.log.error(error);
 			return reply.status(400).send({
 				success: false,
-				error: getErrorMessage(error, 'Failed to create workspace'),
+				error: {
+					code: 'FAILED_TO_CREATE_WORKSPACE',
+					message: getErrorMessage(error, 'Failed to create workspace'),
+				},
 			});
 		}
 	});
@@ -72,14 +79,21 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 				},
 			});
 
-			console.log('result', result);
-
 			return reply.send({
 				success: true,
 				data: result,
 			});
 		} catch (error) {
 			fastify.log.error(error);
+			if (error instanceof APIError && error?.body?.code === 'SLUG_IS_TAKEN') {
+				return reply.status(200).send({
+					success: false,
+					error: {
+						code: 'SLUG_IS_TAKEN',
+						message: 'This workspace URL is already taken',
+					},
+				});
+			}
 			return reply.status(400).send({
 				success: false,
 				error: getErrorMessage(error, 'Failed to check workspace slug'),
