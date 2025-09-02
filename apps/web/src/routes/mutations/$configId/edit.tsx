@@ -29,13 +29,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@/components/ui/tabs';
-import type { Configuration, TransformationRule } from '@/types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { Configuration, TransformationRule, Webhook } from '@/types';
 
 export const Route = createFileRoute('/mutations/$configId/edit')({
 	component: ConfigurationEditComponent,
@@ -55,7 +50,6 @@ export function ConfigurationEditComponent() {
 
 	const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
 
-	// Fetch configuration data
 	const {
 		data: config,
 		isLoading,
@@ -66,7 +60,6 @@ export function ConfigurationEditComponent() {
 		enabled: !!configId,
 	});
 
-	// Fetch organization webhooks for the selector
 	const { data: webhooks = [] } = useQuery({
 		queryKey: ['workspace', 'webhooks'],
 		queryFn: async () => {
@@ -79,7 +72,6 @@ export function ConfigurationEditComponent() {
 		},
 	});
 
-	// Form setup with react-hook-form
 	const form = useForm<FormData>({
 		defaultValues: {
 			name: '',
@@ -98,12 +90,10 @@ export function ConfigurationEditComponent() {
 		reset,
 	} = form;
 
-	// Watch form values for live preview
 	const watchedName = watch('name');
 	const watchedDescription = watch('description');
 	const watchedRules = watch('rules');
 
-	// Update form when configuration data is loaded
 	useEffect(() => {
 		if (config) {
 			reset({
@@ -115,11 +105,9 @@ export function ConfigurationEditComponent() {
 		}
 	}, [config, reset]);
 
-	// Update configuration mutation
 	const updateConfigurationMutation = useMutation({
 		mutationFn: async (data: FormData) => {
-			// Only send fields that have values and validate rules
-			const configurationData: any = {};
+			const configurationData: Partial<Configuration> = {};
 
 			if (data.name && data.name.trim()) {
 				configurationData.name = data.name.trim();
@@ -424,18 +412,15 @@ export function ConfigurationEditComponent() {
 												<Select
 													onValueChange={field.onChange}
 													defaultValue={field.value}
+													value={field.value}
 												>
 													<SelectTrigger>
 														<SelectValue placeholder="Use organization default" />
 													</SelectTrigger>
 													<SelectContent>
-														<SelectItem value="">
-															Use organization default
-														</SelectItem>
-														{webhooks.map((webhook: any) => (
+														{webhooks.map((webhook: Webhook) => (
 															<SelectItem key={webhook.id} value={webhook.id}>
-																{webhook.name}{' '}
-																{webhook.isDefault ? '(Default)' : ''}
+																{webhook.name}
 															</SelectItem>
 														))}
 													</SelectContent>
@@ -492,7 +477,7 @@ export function ConfigurationEditComponent() {
 							<div className="text-muted-foreground text-sm">
 								{uploadedFile ? (
 									<span className="flex items-center">
-									<span className="bg-green-500 mr-2 h-2 w-2 rounded-full"></span>
+										<span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
 										File uploaded: {uploadedFile.name}
 									</span>
 								) : (
