@@ -330,11 +330,13 @@ export function ConfigurationsComponent() {
 						<AlertDialogCancel onClick={() => setConfigToDelete(null)}>
 							Cancel
 						</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={() => configToDelete && handleDelete(configToDelete)}
-							variant="destructive"
-						>
-							Delete
+						<AlertDialogAction asChild>
+							<Button
+								variant="destructive"
+								onClick={() => configToDelete && handleDelete(configToDelete)}
+							>
+								Delete
+							</Button>
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
