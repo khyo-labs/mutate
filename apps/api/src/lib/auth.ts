@@ -1,6 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAuthMiddleware, organization } from 'better-auth/plugins';
+import { passkey } from 'better-auth/plugins/passkey';
 
 import { config } from '../config.js';
 import { db } from '../db/connection.js';
@@ -64,6 +65,14 @@ export const auth = betterAuth({
 		}),
 	},
 	plugins: [
+		passkey({
+			rpName: 'Mutate',
+			rpID:
+				config.NODE_ENV === 'production'
+					? new URL(config.CORS_ORIGINS[0]).hostname
+					: 'localhost',
+			origin: process.env.BASE_URL || 'http://localhost:5173',
+		}),
 		organization({
 			allowUserToCreateOrganization: true,
 			organizationLimit: 1, // TODO: Remove once we fix issues with multiple organizations

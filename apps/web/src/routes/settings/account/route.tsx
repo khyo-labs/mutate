@@ -1,5 +1,5 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router';
-import { Palette, User } from 'lucide-react';
+import { Palette, Shield, User } from 'lucide-react';
 
 import { SettingsTabs } from '@/components/settings/settings-tabs';
 
@@ -19,6 +19,12 @@ const navigationItems = [
 		href: '/settings/account/appearance',
 		icon: Palette,
 		description: 'Customize your theme and display preferences',
+	},
+	{
+		name: 'Security',
+		href: '/settings/account/security',
+		icon: Shield,
+		description: 'Manage your account security settings',
 	},
 ];
 

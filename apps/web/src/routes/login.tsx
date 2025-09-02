@@ -5,8 +5,8 @@ import {
 	redirect,
 	useNavigate,
 } from '@tanstack/react-router';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { Eye, EyeOff, KeyRound, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
 
@@ -58,7 +58,22 @@ export function LoginComponent() {
 		},
 	});
 
-	const onSubmit = async (data: LoginFormData) => {
+	useEffect(() => {
+		if (
+			'PublicKeyCredential' in window &&
+			typeof PublicKeyCredential.isConditionalMediationAvailable === 'function'
+		) {
+			PublicKeyCredential.isConditionalMediationAvailable().then(
+				(isAvailable) => {
+					if (isAvailable) {
+						void authClient.signIn.passkey({ autoFill: true });
+					}
+				},
+			);
+		}
+	}, []);
+
+	async function onSubmit(data: LoginFormData) {
 		try {
 			setApiError(null);
 			await login(data);
@@ -66,9 +81,31 @@ export function LoginComponent() {
 		} catch (error) {
 			setApiError(error instanceof Error ? error.message : 'Login failed');
 		}
-	};
+	}
 
-	const handleOAuthLogin = async (provider: 'github' | 'google') => {
+	async function handlePasskeyLogin() {
+		try {
+			const email = form.getValues('email');
+			if (!email || !z.string().email().safeParse(email).success) {
+				form.setError('email', {
+					message: 'Please enter a valid email to use a passkey.',
+				});
+				return;
+			}
+			setApiError(null);
+			const { error } = await authClient.signIn.passkey({ email });
+			if (error) {
+				throw new Error(error.message);
+			}
+			navigate({ to: '/' });
+		} catch (error) {
+			setApiError(
+				error instanceof Error ? error.message : 'Passkey sign-in failed',
+			);
+		}
+	}
+
+	async function handleOAuthLogin(provider: 'github' | 'google') {
 		try {
 			await signIn.social({
 				provider,
@@ -79,7 +116,7 @@ export function LoginComponent() {
 				error instanceof Error ? error.message : 'OAuth login failed',
 			);
 		}
-	};
+	}
 
 	return (
 		<PublicLayout>
@@ -130,6 +167,14 @@ export function LoginComponent() {
 							</svg>
 							Continue with Google
 						</button>
+						<button
+							type="button"
+							onClick={handlePasskeyLogin}
+							className="flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+						>
+							<KeyRound className="mr-2 h-5 w-5" />
+							Continue with Passkey
+						</button>
 					</div>
 
 					<div className="relative mb-6">
@@ -154,7 +199,7 @@ export function LoginComponent() {
 										<FormControl>
 											<Input
 												type="email"
-												autoComplete="email"
+												autoComplete="email webauthn"
 												placeholder="Enter your email"
 												{...field}
 											/>

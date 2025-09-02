@@ -348,6 +348,7 @@ export const userRelations = relations(user, ({ many }) => ({
 	apiKeys: many(apiKeys),
 	auditLogs: many(auditLogs),
 	configurationVersions: many(configurationVersions),
+	passkeys: many(passkey),
 }));
 
 export const organizationWebhooksRelations = relations(
@@ -420,6 +421,29 @@ export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
 	}),
 	createdBy: one(user, {
 		fields: [apiKeys.createdBy],
+		references: [user.id],
+	}),
+}));
+
+export const passkey = pgTable('passkey', {
+	id: text('id').primaryKey(),
+	name: text('name'),
+	publicKey: text('public_key').notNull(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+	credentialID: text('credential_id').notNull().unique(),
+	counter: integer('counter').notNull(),
+	deviceType: text('device_type').notNull(),
+	backedUp: boolean('backed_up').notNull(),
+	transports: text('transports'),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	aaguid: text('aaguid'),
+});
+
+export const passkeyRelations = relations(passkey, ({ one }) => ({
+	user: one(user, {
+		fields: [passkey.userId],
 		references: [user.id],
 	}),
 }));
