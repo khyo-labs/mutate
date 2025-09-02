@@ -15,6 +15,7 @@ import { configRoutes } from './routes/configuration.js';
 import { fileRoutes } from './routes/files.js';
 import { healthRoutes } from './routes/health.js';
 import { mutateRoutes } from './routes/mutate.js';
+import { userRoutes } from './routes/user.js';
 import { workspaceRoutes } from './routes/workspace.js';
 import { transformationQueue } from './services/queue.js';
 import './types/fastify.js';
@@ -93,6 +94,7 @@ await fastify.register(mutateRoutes, { prefix: '/v1/mutate' });
 await fastify.register(fileRoutes, { prefix: '/v1/files' });
 await fastify.register(billingRoutes, { prefix: '/v1/billing' });
 await fastify.register(adminBillingRoutes, { prefix: '/v1/admin/billing' });
+await fastify.register(userRoutes, { prefix: '/v1/user' });
 
 const { apiKeyRoutes } = await import('./routes/api-keys.js');
 await fastify.register(apiKeyRoutes, { prefix: '/v1/api-keys' });
