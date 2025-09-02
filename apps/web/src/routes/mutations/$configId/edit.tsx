@@ -13,7 +13,24 @@ import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
 import { RuleBuilder } from '@/components/rule-builder';
 import { SpreadsheetPreview } from '@/components/spreadsheet-preview';
 import { Button } from '@/components/ui/button';
-import type { Configuration, TransformationRule } from '@/types';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { Configuration, TransformationRule, Webhook } from '@/types';
 
 export const Route = createFileRoute('/mutations/$configId/edit')({
 	component: ConfigurationEditComponent,
@@ -32,9 +49,7 @@ export function ConfigurationEditComponent() {
 	const queryClient = useQueryClient();
 
 	const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
-	const [activeTab, setActiveTab] = useState<'preview' | 'data'>('preview');
 
-	// Fetch configuration data
 	const {
 		data: config,
 		isLoading,
@@ -45,7 +60,6 @@ export function ConfigurationEditComponent() {
 		enabled: !!configId,
 	});
 
-	// Fetch organization webhooks for the selector
 	const { data: webhooks = [] } = useQuery({
 		queryKey: ['workspace', 'webhooks'],
 		queryFn: async () => {
@@ -58,7 +72,6 @@ export function ConfigurationEditComponent() {
 		},
 	});
 
-	// Form setup with react-hook-form
 	const form = useForm<FormData>({
 		defaultValues: {
 			name: '',
@@ -77,12 +90,10 @@ export function ConfigurationEditComponent() {
 		reset,
 	} = form;
 
-	// Watch form values for live preview
 	const watchedName = watch('name');
 	const watchedDescription = watch('description');
 	const watchedRules = watch('rules');
 
-	// Update form when configuration data is loaded
 	useEffect(() => {
 		if (config) {
 			reset({
@@ -94,11 +105,9 @@ export function ConfigurationEditComponent() {
 		}
 	}, [config, reset]);
 
-	// Update configuration mutation
 	const updateConfigurationMutation = useMutation({
 		mutationFn: async (data: FormData) => {
-			// Only send fields that have values and validate rules
-			const configurationData: any = {};
+			const configurationData: Partial<Configuration> = {};
 
 			if (data.name && data.name.trim()) {
 				configurationData.name = data.name.trim();
@@ -222,25 +231,22 @@ export function ConfigurationEditComponent() {
 
 	return (
 		<Layout>
-			<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+			<div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
 				{/* Header Section */}
-				<div className="mb-8 border-b border-gray-200 pb-6 dark:border-gray-700">
+				<div className="border-b pb-6">
 					<div className="mb-4 flex items-center space-x-4">
-						<button
-							onClick={handleCancel}
-							className="flex items-center text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-						>
+						<Button variant="outline" onClick={handleCancel}>
 							<ArrowLeft className="mr-2 h-4 w-4" />
 							Back to Mutation
-						</button>
+						</Button>
 					</div>
 
 					<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
 						<div>
-							<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+							<h1 className="text-foreground text-3xl font-bold">
 								Edit Mutation
 							</h1>
-							<p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+							<p className="text-muted-foreground mt-2 text-lg">
 								Modify your data transformation mutation
 							</p>
 						</div>
@@ -254,7 +260,6 @@ export function ConfigurationEditComponent() {
 										params: { configId },
 									})
 								}
-								className="px-4 py-2"
 							>
 								<Eye className="mr-2 h-4 w-4" />
 								Preview
@@ -269,16 +274,14 @@ export function ConfigurationEditComponent() {
 						{/* Left Column - Main Content Area */}
 						<div className="space-y-8 xl:col-span-8">
 							{/* Transformation Rules Card - Larger Space */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
-									<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-										Transformation Rules
-									</h2>
-									<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+							<Card>
+								<CardHeader>
+									<CardTitle>Transformation Rules</CardTitle>
+									<CardDescription>
 										Build your data transformation pipeline step by step
-									</p>
-								</div>
-								<div className="p-6">
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
 									<Controller
 										name="rules"
 										control={control}
@@ -286,83 +289,59 @@ export function ConfigurationEditComponent() {
 											<RuleBuilder rules={value} onChange={onChange} />
 										)}
 									/>
-								</div>
-							</div>
+								</CardContent>
+							</Card>
 
 							{/* Data Preview Tabs */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
-									<div className="flex items-center justify-between">
-										<div>
-											<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-												Data Preview
-											</h2>
-											<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-												See how your transformations affect the data
-											</p>
+							<Tabs defaultValue="preview">
+								<Card>
+									<CardHeader>
+										<div className="flex items-center justify-between">
+											<div>
+												<CardTitle>Data Preview</CardTitle>
+												<CardDescription>
+													See how your transformations affect the data
+												</CardDescription>
+											</div>
+											<TabsList>
+												<TabsTrigger value="preview">Live Preview</TabsTrigger>
+												<TabsTrigger value="data">Sample Data</TabsTrigger>
+											</TabsList>
 										</div>
-										{/* Tab Navigation */}
-										<div className="flex space-x-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-700">
-											<button
-												onClick={() => setActiveTab('preview')}
-												className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-													activeTab === 'preview'
-														? 'bg-white text-gray-900 shadow-sm dark:bg-gray-600 dark:text-gray-100'
-														: 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
-												}`}
-											>
-												Live Preview
-											</button>
-											<button
-												onClick={() => setActiveTab('data')}
-												className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-													activeTab === 'data'
-														? 'bg-white text-gray-900 shadow-sm dark:bg-gray-600 dark:text-gray-100'
-														: 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100'
-												}`}
-											>
-												Sample Data
-											</button>
-										</div>
-									</div>
-								</div>
-								<div className="p-6">
-									{activeTab === 'preview' ? (
-										<div>
-											<h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100">
+									</CardHeader>
+									<CardContent>
+										<TabsContent value="preview">
+											<h3 className="text-foreground mb-4 text-lg font-medium">
 												Live Preview
 											</h3>
 											<SpreadsheetPreview
 												file={uploadedFile}
 												rules={watchedRules}
 											/>
-										</div>
-									) : (
-										<div>
-											<h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100">
+										</TabsContent>
+										<TabsContent value="data">
+											<h3 className="text-foreground mb-4 text-lg font-medium">
 												Sample Data
 											</h3>
 											<FileUpload
 												onFileUploaded={setUploadedFile}
 												currentFile={uploadedFile}
 											/>
-										</div>
-									)}
-								</div>
-							</div>
+										</TabsContent>
+									</CardContent>
+								</Card>
+							</Tabs>
 
 							{/* Output Preview Card */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
-									<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-										Output Preview
-									</h2>
-									<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+							<Card>
+								<CardHeader>
+									<CardTitle>Output Preview</CardTitle>
+									<CardDescription>
 										Preview the final CSV output with your transformations
 										applied
-									</p>
-								</div>
-								<div className="p-6">
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
 									<CsvOutputPreview
 										file={uploadedFile}
 										rules={watchedRules}
@@ -373,41 +352,34 @@ export function ConfigurationEditComponent() {
 											includeHeaders: true,
 										}}
 									/>
-								</div>
-							</div>
+								</CardContent>
+							</Card>
 						</div>
 
 						{/* Right Column - Configuration Sidebar */}
 						<div className="space-y-8 xl:col-span-4">
 							{/* Configuration Details Card */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
-									<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-										Configuration
-									</h2>
-									<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+							<Card>
+								<CardHeader>
+									<CardTitle>Configuration</CardTitle>
+									<CardDescription>
 										Basic settings for your transformation
-									</p>
-								</div>
-								<div className="space-y-5 p-6">
+									</CardDescription>
+								</CardHeader>
+								<CardContent className="space-y-5">
 									<div>
-										<label
-											htmlFor="name"
-											className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
-										>
+										<Label htmlFor="name">
 											Name <span className="text-red-500">*</span>
-										</label>
+										</Label>
 										<Controller
 											name="name"
 											control={control}
 											rules={{ required: 'Mutation name is required' }}
 											render={({ field }) => (
-												<input
+												<Input
 													{...field}
-													type="text"
 													id="name"
 													placeholder="Enter mutation name"
-													className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-700"
 												/>
 											)}
 										/>
@@ -418,102 +390,91 @@ export function ConfigurationEditComponent() {
 										)}
 									</div>
 									<div>
-										<label
-											htmlFor="description"
-											className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
-										>
-											Description
-										</label>
+										<Label htmlFor="description">Description</Label>
 										<Controller
 											name="description"
 											control={control}
 											render={({ field }) => (
-												<input
+												<Input
 													{...field}
-													type="text"
 													id="description"
 													placeholder="Enter description (optional)"
-													className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-700"
 												/>
 											)}
 										/>
 									</div>
 									<div>
-										<label
-											htmlFor="webhookUrlId"
-											className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
-										>
-											Webhook URL
-										</label>
+										<Label htmlFor="webhookUrlId">Webhook URL</Label>
 										<Controller
 											name="webhookUrlId"
 											control={control}
 											render={({ field }) => (
-												<select
-													{...field}
-													id="webhookUrlId"
-													className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-700"
+												<Select
+													onValueChange={field.onChange}
+													defaultValue={field.value}
+													value={field.value}
 												>
-													<option value="">Use organization default</option>
-													{webhooks.map((webhook: any) => (
-														<option key={webhook.id} value={webhook.id}>
-															{webhook.name}{' '}
-															{webhook.isDefault ? '(Default)' : ''}
-														</option>
-													))}
-												</select>
+													<SelectTrigger>
+														<SelectValue placeholder="Use organization default" />
+													</SelectTrigger>
+													<SelectContent>
+														{webhooks.map((webhook: Webhook) => (
+															<SelectItem key={webhook.id} value={webhook.id}>
+																{webhook.name}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
 											)}
 										/>
-										<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+										<p className="text-muted-foreground mt-1 text-xs">
 											Select a specific webhook URL for this configuration, or
 											leave blank to use the organization default.
 										</p>
 									</div>
-								</div>
-							</div>
+								</CardContent>
+							</Card>
 
 							{/* JSON Configuration Card */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
-									<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-										JSON Configuration
-									</h2>
-								</div>
-								<JsonConfigPanel
-									name={watchedName}
-									description={watchedDescription}
-									rules={watchedRules}
-									outputFormat={{
-										type: 'CSV',
-										delimiter: ',',
-										encoding: 'UTF-8',
-										includeHeaders: true,
-									}}
-									onImport={handleImportConfig}
-								/>
-							</div>
+							<Card>
+								<CardHeader>
+									<CardTitle>JSON Configuration</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<JsonConfigPanel
+										name={watchedName}
+										description={watchedDescription}
+										rules={watchedRules}
+										outputFormat={{
+											type: 'CSV',
+											delimiter: ',',
+											encoding: 'UTF-8',
+											includeHeaders: true,
+										}}
+										onImport={handleImportConfig}
+									/>
+								</CardContent>
+							</Card>
 
 							{/* API Usage Sidebar */}
-							<div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-								<div className="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
-									<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-										API Usage
-									</h2>
-									<p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+							<Card>
+								<CardHeader>
+									<CardTitle>API Usage</CardTitle>
+									<CardDescription>
 										Integration details and usage
-									</p>
-								</div>
-								<div className="p-6">
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
 									<MutationSidebar config={config} />
-								</div>
-							</div>
+								</CardContent>
+							</Card>
 						</div>
 					</div>
 
 					{/* Action Bar */}
-					<div className="mt-12 border-t border-gray-200 pt-6 dark:border-gray-700">
+					<div className="border-t pt-6">
 						<div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
-							<div className="text-sm text-gray-600 dark:text-gray-400">
+							<div className="text-muted-foreground text-sm">
 								{uploadedFile ? (
 									<span className="flex items-center">
 										<span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
@@ -521,24 +482,19 @@ export function ConfigurationEditComponent() {
 									</span>
 								) : (
 									<span className="flex items-center">
-										<span className="mr-2 h-2 w-2 rounded-full bg-gray-400"></span>
+										<span className="bg-muted-foreground mr-2 h-2 w-2 rounded-full"></span>
 										No file uploaded
 									</span>
 								)}
 								{/* Rules count */}
-								<span className="ml-4 text-gray-500 dark:text-gray-400">
+								<span className="text-muted-foreground ml-4">
 									{watchedRules.length} transformation rule
 									{watchedRules.length !== 1 ? 's' : ''} configured
 								</span>
 							</div>
 
 							<div className="flex space-x-3">
-								<Button
-									type="button"
-									variant="outline"
-									onClick={handleCancel}
-									className="px-6 py-2.5"
-								>
+								<Button type="button" variant="outline" onClick={handleCancel}>
 									Cancel
 								</Button>
 								<Button
@@ -546,7 +502,6 @@ export function ConfigurationEditComponent() {
 									disabled={
 										isSubmitting || updateConfigurationMutation.isPending
 									}
-									className="bg-blue-600 px-6 py-2.5 hover:bg-blue-700 focus:ring-blue-500"
 								>
 									<Save className="mr-2 h-4 w-4" />
 									{isSubmitting || updateConfigurationMutation.isPending

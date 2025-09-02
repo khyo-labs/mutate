@@ -172,6 +172,7 @@ export type Configuration = {
 	inputFormat: InputFormat;
 	outputFormat: OutputFormatConfig;
 	rules: TransformationRule[];
+	webhookUrlId?: string | null;
 	version: number;
 	isActive: boolean;
 	createdBy: string;

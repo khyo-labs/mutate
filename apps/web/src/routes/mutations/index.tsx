@@ -16,6 +16,16 @@ import React, { useState } from 'react';
 
 import { mutApi } from '@/api/mutations';
 import { Layout } from '@/components/layouts';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,7 +39,6 @@ export function ConfigurationsComponent() {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
-	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [configToDelete, setConfigToDelete] = useState<string | null>(null);
 
 	const {
@@ -70,7 +79,6 @@ export function ConfigurationsComponent() {
 	const handleDelete = async (configId: string) => {
 		try {
 			await deleteConfiguration.mutateAsync(configId);
-			setShowDeleteModal(false);
 			setConfigToDelete(null);
 		} catch (error) {
 			console.error('Failed to delete configuration:', error);
@@ -240,7 +248,6 @@ export function ConfigurationsComponent() {
 															<button
 																onClick={() => {
 																	setConfigToDelete(config.id);
-																	setShowDeleteModal(true);
 																	setSelectedConfig(null);
 																}}
 																className="text-destructive hover:bg-destructive/10 flex w-full items-center px-4 py-2 text-sm"
@@ -287,60 +294,53 @@ export function ConfigurationsComponent() {
 				{/* Pagination */}
 				{pagination && pagination.totalPages > 1 && (
 					<div className="flex items-center justify-between">
-						<div className="text-sm text-gray-700">
+						<div className="text-muted-foreground text-sm">
 							Page {pagination.page} of {pagination.totalPages}
 						</div>
 						<div className="flex space-x-2">
-							<button
+							<Button
 								onClick={() => setCurrentPage(pagination.page - 1)}
 								disabled={pagination.page <= 1}
-								className="btn btn-outline disabled:cursor-not-allowed disabled:opacity-50"
+								variant="outline"
 							>
 								Previous
-							</button>
-							<button
+							</Button>
+							<Button
 								onClick={() => setCurrentPage(pagination.page + 1)}
 								disabled={pagination.page >= pagination.totalPages}
-								className="btn btn-outline disabled:cursor-not-allowed disabled:opacity-50"
+								variant="outline"
 							>
 								Next
-							</button>
+							</Button>
 						</div>
 					</div>
 				)}
 			</div>
 
-			{/* Delete Confirmation Modal */}
-			{showDeleteModal && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-					<div className="w-full max-w-md rounded-lg bg-white p-6">
-						<h3 className="mb-4 text-lg font-medium text-gray-900">
-							Delete Configuration
-						</h3>
-						<p className="mb-6 text-sm text-gray-600">
+			<AlertDialog open={!!configToDelete}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Delete Configuration</AlertDialogTitle>
+						<AlertDialogDescription>
 							Are you sure you want to delete this configuration? This action
 							cannot be undone.
-						</p>
-						<div className="flex justify-end space-x-3">
-							<button
-								onClick={() => {
-									setShowDeleteModal(false);
-									setConfigToDelete(null);
-								}}
-								className="btn btn-outline"
-							>
-								Cancel
-							</button>
-							<button
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={() => setConfigToDelete(null)}>
+							Cancel
+						</AlertDialogCancel>
+						<AlertDialogAction asChild>
+							<Button
+								variant="destructive"
 								onClick={() => configToDelete && handleDelete(configToDelete)}
-								className="btn bg-red-600 text-white hover:bg-red-700"
 							>
 								Delete
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
+							</Button>
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 
 			{/* Click outside to close dropdown */}
 			{selectedConfig && (
