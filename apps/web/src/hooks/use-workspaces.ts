@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useSession } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 
 import {
@@ -27,10 +28,12 @@ export function useCreateWorkspace() {
 
 export function useListWorkspace() {
 	const { activeWorkspace } = useWorkspaceStore();
+	const { data: session } = useSession();
 
 	return useQuery({
 		queryKey: [...queryKey, activeWorkspace?.id],
 		queryFn: () => workspaceApi.list(),
+		enabled: !!session?.user,
 	});
 }
 
