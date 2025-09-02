@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -18,12 +18,21 @@ import {
 import { Input } from '@/components/ui/input';
 
 import { PublicLayout } from '../../components/layouts';
+import { authClient } from '../../lib/auth-client';
 
 const resetPasswordSearchSchema = z.object({
 	token: z.string().optional(),
 });
 
 export const Route = createFileRoute('/auth/reset-password')({
+	beforeLoad: async () => {
+		const { data: session } = await authClient.getSession();
+		if (session) {
+			throw redirect({
+				to: '/',
+			});
+		}
+	},
 	validateSearch: (search) => resetPasswordSearchSchema.parse(search),
 	component: ResetPasswordComponent,
 });

@@ -117,16 +117,12 @@ export function CreateWorkspace() {
 	}, [workspaceSlug, checkSlugExists, form]);
 
 	async function onSubmit(data: FormData) {
-		try {
-			await createWorkspace.mutateAsync({
-				name: data.workspaceName.trim(),
-				slug: data.workspaceSlug.trim(),
-				companySize: data.companySize,
-			});
-			router.navigate({ to: '/' });
-		} catch (error) {
-			console.error('Failed to create workspace:', error);
-		}
+		await createWorkspace.mutateAsync({
+			name: data.workspaceName.trim(),
+			slug: data.workspaceSlug.trim(),
+			companySize: data.companySize,
+		});
+		router.navigate({ to: '/' });
 	}
 
 	const isSubmitting = form.formState.isSubmitting;

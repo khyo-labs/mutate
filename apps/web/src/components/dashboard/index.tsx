@@ -12,7 +12,6 @@ import { RecentMutations } from '../mutations/recent-mutations';
 export function Dashboard() {
 	const { data: session } = useSession();
 	const { data: workspaces } = useListWorkspace();
-	console.log('workspaces', workspaces);
 	return (
 		<div className="space-y-8">
 			<div className="flex items-start justify-between">

@@ -1,5 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
+import {
+	Link,
+	createFileRoute,
+	redirect,
+	useNavigate,
+} from '@tanstack/react-router';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,10 +22,18 @@ import {
 import { Input } from '@/components/ui/input';
 
 import { PublicLayout } from '../components/layouts';
-import { signIn } from '../lib/auth-client';
+import { authClient, signIn } from '../lib/auth-client';
 import { useAuthStore } from '../stores/auth-store';
 
 export const Route = createFileRoute('/login')({
+	beforeLoad: async () => {
+		const { data: session } = await authClient.getSession();
+		if (session) {
+			throw redirect({
+				to: '/',
+			});
+		}
+	},
 	component: LoginComponent,
 });
 

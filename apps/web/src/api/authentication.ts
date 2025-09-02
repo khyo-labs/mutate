@@ -1,7 +1,7 @@
 import type { LoginFormData, RegisterFormData, User } from '../types';
 import { api } from './client';
 
-interface AuthResponse {
+export interface AuthResponse {
 	user: User;
 	accessToken: string;
 	refreshToken: string;
