@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { apiKeysApi } from '@/api/api-keys';
 import { Card, CardContent } from '@/components/ui/card';
 import { useSession } from '@/stores/auth-store';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 
 import { Alert, AlertDescription } from '../ui/alert';
 import { Button } from '../ui/button';
@@ -21,18 +22,21 @@ export function ApiKeySettings() {
 	const { data: session } = useSession();
 	const [keyToShow, setKeyToShow] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
+	const { activeWorkspace } = useWorkspaceStore();
 
 	const isEmailVerified = session?.user?.emailVerified;
 
 	const { data: apiKeys = [], isLoading } = useQuery({
-		queryKey: queryKey,
+		queryKey: [...queryKey, activeWorkspace?.id],
 		queryFn: apiKeysApi.list,
 	});
 
 	const deleteMutation = useMutation({
 		mutationFn: apiKeysApi.delete,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: queryKey });
+			queryClient.invalidateQueries({
+				queryKey: [...queryKey, activeWorkspace?.id],
+			});
 		},
 	});
 
