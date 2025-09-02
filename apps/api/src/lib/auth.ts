@@ -106,7 +106,8 @@ export const auth = betterAuth({
 					return {
 						data: {
 							...session,
-							activeOrganizationId: userData.activeOrganizationId || session.activeOrganizationId,
+							activeOrganizationId:
+								userData.activeOrganizationId || session.activeOrganizationId,
 						},
 					};
 				},

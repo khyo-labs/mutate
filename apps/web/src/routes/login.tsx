@@ -67,8 +67,8 @@ export function LoginComponent() {
 				async (isAvailable) => {
 					if (isAvailable) {
 						try {
-							const { error } = await authClient.signIn.passkey({ 
-								autoFill: true 
+							const { error } = await authClient.signIn.passkey({
+								autoFill: true,
 							});
 							if (!error) {
 								navigate({ to: '/' });

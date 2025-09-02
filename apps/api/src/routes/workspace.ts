@@ -105,7 +105,7 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 	fastify.post('/set-active', async (request, reply) => {
 		try {
 			const { organizationId } = request.body as { organizationId: string };
-			
+
 			if (!organizationId) {
 				return reply.status(400).send({
 					success: false,
