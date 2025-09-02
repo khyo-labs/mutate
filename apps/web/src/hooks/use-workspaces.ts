@@ -1,25 +1,35 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { type CreateWorkspaceRequest, workspaceApi } from '../api/workspaces';
+import { useWorkspaceStore } from '@/stores/workspace-store';
+
+import {
+	type CreateWorkspaceRequest,
+	type Workspace,
+	workspaceApi,
+} from '../api/workspaces';
 
 const queryKey = ['workspaces'];
 
 export function useCreateWorkspace() {
 	const queryClient = useQueryClient();
+	const { setActiveWorkspace } = useWorkspaceStore();
 
 	return useMutation({
 		mutationFn: (data: CreateWorkspaceRequest) => workspaceApi.create(data),
-		onSuccess: () => {
+		onSuccess: (workspace: Workspace) => {
 			queryClient.invalidateQueries({
-				queryKey: queryKey,
+				queryKey: [...queryKey, workspace?.id],
 			});
+			setActiveWorkspace(workspace);
 		},
 	});
 }
 
 export function useListWorkspace() {
+	const { activeWorkspace } = useWorkspaceStore();
+
 	return useQuery({
-		queryKey: queryKey,
+		queryKey: [...queryKey, activeWorkspace?.id],
 		queryFn: () => workspaceApi.list(),
 	});
 }

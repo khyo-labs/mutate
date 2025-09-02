@@ -336,7 +336,6 @@ function AdminDashboard() {
 		fetchOrganizations();
 	}
 
-	// Filtered and searched organizations
 	const filteredOrgs = useMemo(() => {
 		return organizations.filter((org) => {
 			const matchesSearch =

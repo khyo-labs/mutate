@@ -14,7 +14,7 @@ export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: 'pg',
 	}),
-	baseURL: `${process.env.BASE_URL || 'http://localhost:3000'}/v1/auth`,
+	baseURL: `${process.env.API_BASE_URL || 'http://localhost:3000'}/v1/auth`,
 	emailAndPassword: {
 		enabled: true,
 		requireEmailVerification: true,
@@ -32,7 +32,6 @@ export const auth = betterAuth({
 		autoSignInAfterVerification: true,
 		expiresIn: 3600,
 		sendVerificationEmail: async ({ user, url }: EmailArgs) => {
-			console.log('Sending verification email to', user.email, url);
 			await sendEmail({
 				to: user.email,
 				subject: 'Verify your email address',
@@ -67,7 +66,6 @@ export const auth = betterAuth({
 	plugins: [
 		organization({
 			allowUserToCreateOrganization: true,
-			organizationLimit: 1,
 			organizationCreation: {
 				disabled: false,
 				afterCreate: async ({ organization, member, user }) => {
