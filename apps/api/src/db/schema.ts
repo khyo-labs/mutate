@@ -25,6 +25,7 @@ export const user = pgTable('user', {
 	updatedAt: timestamp('updated_at')
 		.$defaultFn(() => new Date())
 		.notNull(),
+	activeOrganizationId: text('active_organization_id'),
 });
 
 export const session = pgTable('session', {
