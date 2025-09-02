@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 import { ulid } from 'ulid';
 import { z } from 'zod';
@@ -181,8 +181,10 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 					.update(apiKeys)
 					.set(validationResult.data)
 					.where(
-						eq(apiKeys.id, id) &&
+						and(
+							eq(apiKeys.id, id),
 							eq(apiKeys.organizationId, request.currentUser!.organizationId),
+						),
 					)
 					.returning({
 						id: apiKeys.id,
@@ -232,8 +234,10 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 				const [deletedKey] = await db
 					.delete(apiKeys)
 					.where(
-						eq(apiKeys.id, id) &&
+						and(
+							eq(apiKeys.id, id),
 							eq(apiKeys.organizationId, request.currentUser!.organizationId),
+						),
 					)
 					.returning({ id: apiKeys.id });
 
