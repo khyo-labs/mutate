@@ -24,12 +24,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type {
 	Configuration,
 	ConversionType,
@@ -326,7 +321,7 @@ export function NewConfigurationComponent() {
 						<div className="text-muted-foreground text-sm">
 							{uploadedFile ? (
 								<span className="flex items-center">
-									<span className="bg-green-500 mr-2 h-2 w-2 rounded-full"></span>
+									<span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
 									File uploaded: {uploadedFile.name}
 								</span>
 							) : (
