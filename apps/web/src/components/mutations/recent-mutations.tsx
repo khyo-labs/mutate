@@ -8,19 +8,19 @@ import { Button } from '../ui/button';
 import { NoMutations } from './no-mutations';
 
 export function RecentMutations() {
-	const { data: configData } = useMutations({ page: 1, limit: 5 });
+	const { data: mutData } = useMutations({ page: 1, limit: 5 });
 
-	const configurations = configData?.data || [];
+	const mutations = mutData?.data || [];
 
-	if (configurations?.length === 0) {
+	if (mutations?.length === 0) {
 		return <NoMutations />;
 	}
 
 	return (
 		<div className="space-y-3">
-			{configurations.map((config) => (
+			{mutations.map((mutation) => (
 				<div
-					key={config.id}
+					key={mutation.id}
 					className="border-border bg-muted/50 flex items-center justify-between rounded-lg border p-4"
 				>
 					<div className="flex items-center space-x-3">
@@ -29,23 +29,23 @@ export function RecentMutations() {
 						</div>
 						<div>
 							<h3 className="text-foreground text-sm font-medium">
-								{config.name}
+								{mutation.name}
 							</h3>
 							<p className="text-muted-foreground text-xs">
-								{config.description || 'No description'}
+								{mutation.description || 'No description'}
 							</p>
 						</div>
 					</div>
 					<div className="flex items-center space-x-3">
 						<span className="text-muted-foreground text-xs">
-							v{config.version}
+							v{mutation.version}
 						</span>
-						<Badge variant={config.isActive ? 'default' : 'secondary'}>
-							{config.isActive ? 'Active' : 'Inactive'}
+						<Badge variant={mutation.isActive ? 'default' : 'secondary'}>
+							{mutation.isActive ? 'Active' : 'Inactive'}
 						</Badge>
 						<Link
-							to="/mutations/$configId/edit"
-							params={{ configId: config.id }}
+							to="/mutations/$mutationId/edit"
+							params={{ mutationId: mutation.id }}
 						>
 							<Button variant="outline" size="sm">
 								Edit
