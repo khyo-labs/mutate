@@ -13,27 +13,27 @@ import { Route as RegisterRouteImport } from './routes/register';
 import { Route as LoginRouteImport } from './routes/login';
 import { Route as JoinRouteImport } from './routes/join';
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password';
+import { Route as CreateMutationRouteImport } from './routes/create-mutation';
 import { Route as CheckEmailRouteImport } from './routes/check-email';
 import { Route as AdminRouteImport } from './routes/admin';
 import { Route as SettingsRouteRouteImport } from './routes/settings/route';
 import { Route as IndexRouteImport } from './routes/index';
 import { Route as SettingsIndexRouteImport } from './routes/settings/index';
 import { Route as MutationsIndexRouteImport } from './routes/mutations/index';
-import { Route as MutationsNewRouteImport } from './routes/mutations/new';
 import { Route as AuthVerifyEmailRouteImport } from './routes/auth/verify-email';
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password';
 import { Route as SettingsWorkspaceRouteRouteImport } from './routes/settings/workspace/route';
 import { Route as SettingsAccountRouteRouteImport } from './routes/settings/account/route';
 import { Route as SettingsWorkspaceIndexRouteImport } from './routes/settings/workspace/index';
 import { Route as SettingsAccountIndexRouteImport } from './routes/settings/account/index';
-import { Route as MutationsConfigIdIndexRouteImport } from './routes/mutations/$configId/index';
+import { Route as MutationsMutationIdIndexRouteImport } from './routes/mutations/$mutationId/index';
 import { Route as SettingsWorkspaceWebhooksRouteImport } from './routes/settings/workspace/webhooks';
 import { Route as SettingsWorkspaceMembersRouteImport } from './routes/settings/workspace/members';
 import { Route as SettingsWorkspaceApiKeysRouteImport } from './routes/settings/workspace/api-keys';
 import { Route as SettingsAccountSecurityRouteImport } from './routes/settings/account/security';
 import { Route as SettingsAccountProfileRouteImport } from './routes/settings/account/profile';
 import { Route as SettingsAccountAppearanceRouteImport } from './routes/settings/account/appearance';
-import { Route as MutationsConfigIdEditRouteImport } from './routes/mutations/$configId/edit';
+import { Route as MutationsMutationIdEditRouteImport } from './routes/mutations/$mutationId/edit';
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -53,6 +53,11 @@ const JoinRoute = JoinRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const CreateMutationRoute = CreateMutationRouteImport.update({
+  id: '/create-mutation',
+  path: '/create-mutation',
   getParentRoute: () => rootRouteImport,
 } as any);
 const CheckEmailRoute = CheckEmailRouteImport.update({
@@ -85,11 +90,6 @@ const MutationsIndexRoute = MutationsIndexRouteImport.update({
   path: '/mutations/',
   getParentRoute: () => rootRouteImport,
 } as any);
-const MutationsNewRoute = MutationsNewRouteImport.update({
-  id: '/mutations/new',
-  path: '/mutations/new',
-  getParentRoute: () => rootRouteImport,
-} as any);
 const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
   id: '/auth/verify-email',
   path: '/auth/verify-email',
@@ -120,11 +120,12 @@ const SettingsAccountIndexRoute = SettingsAccountIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SettingsAccountRouteRoute,
 } as any);
-const MutationsConfigIdIndexRoute = MutationsConfigIdIndexRouteImport.update({
-  id: '/mutations/$configId/',
-  path: '/mutations/$configId/',
-  getParentRoute: () => rootRouteImport,
-} as any);
+const MutationsMutationIdIndexRoute =
+  MutationsMutationIdIndexRouteImport.update({
+    id: '/mutations/$mutationId/',
+    path: '/mutations/$mutationId/',
+    getParentRoute: () => rootRouteImport,
+  } as any);
 const SettingsWorkspaceWebhooksRoute =
   SettingsWorkspaceWebhooksRouteImport.update({
     id: '/webhooks',
@@ -159,9 +160,9 @@ const SettingsAccountAppearanceRoute =
     path: '/appearance',
     getParentRoute: () => SettingsAccountRouteRoute,
   } as any);
-const MutationsConfigIdEditRoute = MutationsConfigIdEditRouteImport.update({
-  id: '/mutations/$configId/edit',
-  path: '/mutations/$configId/edit',
+const MutationsMutationIdEditRoute = MutationsMutationIdEditRouteImport.update({
+  id: '/mutations/$mutationId/edit',
+  path: '/mutations/$mutationId/edit',
   getParentRoute: () => rootRouteImport,
 } as any);
 
@@ -170,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRouteRouteWithChildren;
   '/admin': typeof AdminRoute;
   '/check-email': typeof CheckEmailRoute;
+  '/create-mutation': typeof CreateMutationRoute;
   '/forgot-password': typeof ForgotPasswordRoute;
   '/join': typeof JoinRoute;
   '/login': typeof LoginRoute;
@@ -178,17 +180,16 @@ export interface FileRoutesByFullPath {
   '/settings/workspace': typeof SettingsWorkspaceRouteRouteWithChildren;
   '/auth/reset-password': typeof AuthResetPasswordRoute;
   '/auth/verify-email': typeof AuthVerifyEmailRoute;
-  '/mutations/new': typeof MutationsNewRoute;
   '/mutations': typeof MutationsIndexRoute;
   '/settings/': typeof SettingsIndexRoute;
-  '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
+  '/mutations/$mutationId/edit': typeof MutationsMutationIdEditRoute;
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
   '/settings/account/security': typeof SettingsAccountSecurityRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
-  '/mutations/$configId': typeof MutationsConfigIdIndexRoute;
+  '/mutations/$mutationId': typeof MutationsMutationIdIndexRoute;
   '/settings/account/': typeof SettingsAccountIndexRoute;
   '/settings/workspace/': typeof SettingsWorkspaceIndexRoute;
 }
@@ -196,23 +197,23 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute;
   '/admin': typeof AdminRoute;
   '/check-email': typeof CheckEmailRoute;
+  '/create-mutation': typeof CreateMutationRoute;
   '/forgot-password': typeof ForgotPasswordRoute;
   '/join': typeof JoinRoute;
   '/login': typeof LoginRoute;
   '/register': typeof RegisterRoute;
   '/auth/reset-password': typeof AuthResetPasswordRoute;
   '/auth/verify-email': typeof AuthVerifyEmailRoute;
-  '/mutations/new': typeof MutationsNewRoute;
   '/mutations': typeof MutationsIndexRoute;
   '/settings': typeof SettingsIndexRoute;
-  '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
+  '/mutations/$mutationId/edit': typeof MutationsMutationIdEditRoute;
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
   '/settings/account/security': typeof SettingsAccountSecurityRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
-  '/mutations/$configId': typeof MutationsConfigIdIndexRoute;
+  '/mutations/$mutationId': typeof MutationsMutationIdIndexRoute;
   '/settings/account': typeof SettingsAccountIndexRoute;
   '/settings/workspace': typeof SettingsWorkspaceIndexRoute;
 }
@@ -222,6 +223,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRouteRouteWithChildren;
   '/admin': typeof AdminRoute;
   '/check-email': typeof CheckEmailRoute;
+  '/create-mutation': typeof CreateMutationRoute;
   '/forgot-password': typeof ForgotPasswordRoute;
   '/join': typeof JoinRoute;
   '/login': typeof LoginRoute;
@@ -230,17 +232,16 @@ export interface FileRoutesById {
   '/settings/workspace': typeof SettingsWorkspaceRouteRouteWithChildren;
   '/auth/reset-password': typeof AuthResetPasswordRoute;
   '/auth/verify-email': typeof AuthVerifyEmailRoute;
-  '/mutations/new': typeof MutationsNewRoute;
   '/mutations/': typeof MutationsIndexRoute;
   '/settings/': typeof SettingsIndexRoute;
-  '/mutations/$configId/edit': typeof MutationsConfigIdEditRoute;
+  '/mutations/$mutationId/edit': typeof MutationsMutationIdEditRoute;
   '/settings/account/appearance': typeof SettingsAccountAppearanceRoute;
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
   '/settings/account/security': typeof SettingsAccountSecurityRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
-  '/mutations/$configId/': typeof MutationsConfigIdIndexRoute;
+  '/mutations/$mutationId/': typeof MutationsMutationIdIndexRoute;
   '/settings/account/': typeof SettingsAccountIndexRoute;
   '/settings/workspace/': typeof SettingsWorkspaceIndexRoute;
 }
@@ -251,6 +252,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/admin'
     | '/check-email'
+    | '/create-mutation'
     | '/forgot-password'
     | '/join'
     | '/login'
@@ -259,17 +261,16 @@ export interface FileRouteTypes {
     | '/settings/workspace'
     | '/auth/reset-password'
     | '/auth/verify-email'
-    | '/mutations/new'
     | '/mutations'
     | '/settings/'
-    | '/mutations/$configId/edit'
+    | '/mutations/$mutationId/edit'
     | '/settings/account/appearance'
     | '/settings/account/profile'
     | '/settings/account/security'
     | '/settings/workspace/api-keys'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
-    | '/mutations/$configId'
+    | '/mutations/$mutationId'
     | '/settings/account/'
     | '/settings/workspace/';
   fileRoutesByTo: FileRoutesByTo;
@@ -277,23 +278,23 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/check-email'
+    | '/create-mutation'
     | '/forgot-password'
     | '/join'
     | '/login'
     | '/register'
     | '/auth/reset-password'
     | '/auth/verify-email'
-    | '/mutations/new'
     | '/mutations'
     | '/settings'
-    | '/mutations/$configId/edit'
+    | '/mutations/$mutationId/edit'
     | '/settings/account/appearance'
     | '/settings/account/profile'
     | '/settings/account/security'
     | '/settings/workspace/api-keys'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
-    | '/mutations/$configId'
+    | '/mutations/$mutationId'
     | '/settings/account'
     | '/settings/workspace';
   id:
@@ -302,6 +303,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/admin'
     | '/check-email'
+    | '/create-mutation'
     | '/forgot-password'
     | '/join'
     | '/login'
@@ -310,17 +312,16 @@ export interface FileRouteTypes {
     | '/settings/workspace'
     | '/auth/reset-password'
     | '/auth/verify-email'
-    | '/mutations/new'
     | '/mutations/'
     | '/settings/'
-    | '/mutations/$configId/edit'
+    | '/mutations/$mutationId/edit'
     | '/settings/account/appearance'
     | '/settings/account/profile'
     | '/settings/account/security'
     | '/settings/workspace/api-keys'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
-    | '/mutations/$configId/'
+    | '/mutations/$mutationId/'
     | '/settings/account/'
     | '/settings/workspace/';
   fileRoutesById: FileRoutesById;
@@ -330,16 +331,16 @@ export interface RootRouteChildren {
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren;
   AdminRoute: typeof AdminRoute;
   CheckEmailRoute: typeof CheckEmailRoute;
+  CreateMutationRoute: typeof CreateMutationRoute;
   ForgotPasswordRoute: typeof ForgotPasswordRoute;
   JoinRoute: typeof JoinRoute;
   LoginRoute: typeof LoginRoute;
   RegisterRoute: typeof RegisterRoute;
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute;
   AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute;
-  MutationsNewRoute: typeof MutationsNewRoute;
   MutationsIndexRoute: typeof MutationsIndexRoute;
-  MutationsConfigIdEditRoute: typeof MutationsConfigIdEditRoute;
-  MutationsConfigIdIndexRoute: typeof MutationsConfigIdIndexRoute;
+  MutationsMutationIdEditRoute: typeof MutationsMutationIdEditRoute;
+  MutationsMutationIdIndexRoute: typeof MutationsMutationIdIndexRoute;
 }
 
 declare module '@tanstack/react-router' {
@@ -370,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password';
       fullPath: '/forgot-password';
       preLoaderRoute: typeof ForgotPasswordRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/create-mutation': {
+      id: '/create-mutation';
+      path: '/create-mutation';
+      fullPath: '/create-mutation';
+      preLoaderRoute: typeof CreateMutationRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/check-email': {
@@ -414,13 +422,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MutationsIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/mutations/new': {
-      id: '/mutations/new';
-      path: '/mutations/new';
-      fullPath: '/mutations/new';
-      preLoaderRoute: typeof MutationsNewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
     '/auth/verify-email': {
       id: '/auth/verify-email';
       path: '/auth/verify-email';
@@ -463,11 +464,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsAccountIndexRouteImport;
       parentRoute: typeof SettingsAccountRouteRoute;
     };
-    '/mutations/$configId/': {
-      id: '/mutations/$configId/';
-      path: '/mutations/$configId';
-      fullPath: '/mutations/$configId';
-      preLoaderRoute: typeof MutationsConfigIdIndexRouteImport;
+    '/mutations/$mutationId/': {
+      id: '/mutations/$mutationId/';
+      path: '/mutations/$mutationId';
+      fullPath: '/mutations/$mutationId';
+      preLoaderRoute: typeof MutationsMutationIdIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/settings/workspace/webhooks': {
@@ -512,11 +513,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsAccountAppearanceRouteImport;
       parentRoute: typeof SettingsAccountRouteRoute;
     };
-    '/mutations/$configId/edit': {
-      id: '/mutations/$configId/edit';
-      path: '/mutations/$configId/edit';
-      fullPath: '/mutations/$configId/edit';
-      preLoaderRoute: typeof MutationsConfigIdEditRouteImport;
+    '/mutations/$mutationId/edit': {
+      id: '/mutations/$mutationId/edit';
+      path: '/mutations/$mutationId/edit';
+      fullPath: '/mutations/$mutationId/edit';
+      preLoaderRoute: typeof MutationsMutationIdEditRouteImport;
       parentRoute: typeof rootRouteImport;
     };
   }
@@ -580,16 +581,16 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
   AdminRoute: AdminRoute,
   CheckEmailRoute: CheckEmailRoute,
+  CreateMutationRoute: CreateMutationRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   JoinRoute: JoinRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthVerifyEmailRoute: AuthVerifyEmailRoute,
-  MutationsNewRoute: MutationsNewRoute,
   MutationsIndexRoute: MutationsIndexRoute,
-  MutationsConfigIdEditRoute: MutationsConfigIdEditRoute,
-  MutationsConfigIdIndexRoute: MutationsConfigIdIndexRoute,
+  MutationsMutationIdEditRoute: MutationsMutationIdEditRoute,
+  MutationsMutationIdIndexRoute: MutationsMutationIdIndexRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

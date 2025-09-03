@@ -8,29 +8,29 @@ import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
 import { formatDate } from '@/lib/utils';
 import type { ApiResponse, Configuration } from '@/types';
 
-export const Route = createFileRoute('/mutations/$configId/')({
+export const Route = createFileRoute('/mutations/$mutationId/')({
 	component: ConfigurationDetailComponent,
 });
 
 export function ConfigurationDetailComponent() {
-	const { configId } = Route.useParams();
+	const { mutationId } = Route.useParams();
 	const navigate = useNavigate();
 	const {
 		data: config,
 		isLoading,
 		error,
 	} = useQuery({
-		queryKey: ['mutations', configId],
+		queryKey: ['mutations', mutationId],
 		queryFn: async () => {
 			const response = await api.get<ApiResponse<Configuration>>(
-				`/v1/configurations/${configId}`,
+				`/v1/configurations/${mutationId}`,
 			);
 			if (!response.success) {
 				throw new Error(response.error.message);
 			}
 			return response.data;
 		},
-		enabled: !!configId,
+		enabled: !!mutationId,
 	});
 
 	function getRuleTypeLabel(ruleType: string) {
@@ -131,8 +131,8 @@ export function ConfigurationDetailComponent() {
 
 						<div className="mt-6 flex flex-col space-y-2 sm:mt-0 sm:flex-row sm:space-x-3 sm:space-y-0">
 							<Link
-								to="/mutations/$configId/edit"
-								params={{ configId: config.id }}
+								to="/mutations/$mutationId/edit"
+								params={{ mutationId: config.id }}
 								className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
 							>
 								<Edit className="mr-2 h-4 w-4" />

@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 
 import { mutApi } from '@/api/mutations';
+import { workspaceApi } from '@/api/workspaces';
 
 import type {
 	Configuration,
 	ConfigurationFormData,
 	TransformationRule,
 } from '../types';
+import { useWorkspaceStore } from './workspace-store';
 
 interface ConfigurationStore {
 	configurations: Configuration[];
@@ -35,13 +37,11 @@ interface ConfigurationStore {
 	fetchConfiguration: (id: string) => Promise<Configuration>;
 	setCurrentConfiguration: (config: Configuration | null) => void;
 
-	// Local state setters (for internal use)
 	setConfigurations: (configs: Configuration[]) => void;
 	addConfiguration: (config: Configuration) => void;
 	setLoading: (loading: boolean) => void;
 	setError: (error: string | null) => void;
 
-	// Rule builder state
 	availableRules: TransformationRule[];
 	setAvailableRules: (rules: TransformationRule[]) => void;
 }
@@ -121,28 +121,18 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 		console.log('fetchConfigurations: Starting...', params);
 		set({ isLoading: true, error: null });
 		try {
-			const response = await mutApi.list(params);
-			console.log('fetchConfigurations: Success', response);
-			console.log('fetchConfigurations: typeof response', typeof response);
-			console.log(
-				'fetchConfigurations: Array.isArray(response)',
-				Array.isArray(response),
-			);
-			console.log('fetchConfigurations: response.data', response.data);
-			console.log(
-				'fetchConfigurations: response.pagination',
-				response.pagination,
-			);
+			const workspace = useWorkspaceStore.getState().activeWorkspace;
+			if (!workspace) {
+				throw new Error('No active workspace selected');
+			}
+			const response = await workspaceApi.getMutations(workspace.id, params);
 
-			// Handle different response formats
 			let configurations: Configuration[], pagination;
 
 			if (Array.isArray(response)) {
-				// Direct array response
 				configurations = response;
 				pagination = null;
 			} else if (response && response.data) {
-				// Wrapped response with data and pagination
 				configurations = response.data;
 				pagination = response.pagination || null;
 			} else {
@@ -150,19 +140,19 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 				pagination = null;
 			}
 
-			console.log('fetchConfigurations: Final configurations', configurations);
-			console.log('fetchConfigurations: Final pagination', pagination);
-
 			set({
 				configurations,
 				pagination,
 				isLoading: false,
 			});
 			console.log('fetchConfigurations: State after set', get());
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.log('fetchConfigurations: Error', error);
 			set({
-				error: error?.message || 'Failed to fetch configurations',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to fetch configurations',
 				isLoading: false,
 			});
 		}
@@ -179,10 +169,13 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 				isLoading: false,
 			}));
 			return newConfig;
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.log('createConfiguration: Error', error);
 			set({
-				error: error?.message || 'Failed to create configuration',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to create configuration',
 				isLoading: false,
 			});
 			throw error;
@@ -207,9 +200,12 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 				isLoading: false,
 			}));
 			return updatedConfig;
-		} catch (error: any) {
+		} catch (error: unknown) {
 			set({
-				error: error?.message || 'Failed to update configuration',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to update configuration',
 				isLoading: false,
 			});
 			throw error;
@@ -230,9 +226,12 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 						: state.currentConfiguration,
 				isLoading: false,
 			}));
-		} catch (error: any) {
+		} catch (error: unknown) {
 			set({
-				error: error?.message || 'Failed to delete configuration',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to delete configuration',
 				isLoading: false,
 			});
 			throw error;
@@ -245,16 +244,18 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 			const config = await mutApi.get(id);
 			set({ currentConfiguration: config, isLoading: false });
 			return config;
-		} catch (error: any) {
+		} catch (error: unknown) {
 			set({
-				error: error?.message || 'Failed to fetch configuration',
+				error:
+					error instanceof Error
+						? error.message
+						: 'Failed to fetch configuration',
 				isLoading: false,
 			});
 			throw error;
 		}
 	},
 
-	// Local state setters
 	setConfigurations: (configurations) => set({ configurations }),
 
 	addConfiguration: (config) => {

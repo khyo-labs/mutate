@@ -115,7 +115,7 @@ export function ConfigurationsComponent() {
 							{pagination && ` (${pagination.total} total)`}
 						</p>
 					</div>
-					<Link to="/mutations/new">
+					<Link to="/create-mutation">
 						<Button>
 							<Plus className="mr-2 h-4 w-4" />
 							New Mutation
@@ -203,8 +203,8 @@ export function ConfigurationsComponent() {
 
 										<div className="flex items-center space-x-2">
 											<Link
-												to="/mutations/$configId"
-												params={{ configId: config.id }}
+												to="/mutations/$mutationId"
+												params={{ mutationId: config.id }}
 											>
 												<Button variant="outline" size="sm">
 													<Eye className="mr-1 h-3 w-3" />
@@ -212,8 +212,8 @@ export function ConfigurationsComponent() {
 												</Button>
 											</Link>
 											<Link
-												to="/mutations/$configId/edit"
-												params={{ configId: config.id }}
+												to="/mutations/$mutationId/edit"
+												params={{ mutationId: config.id }}
 											>
 												<Button variant="default" size="sm">
 													<Edit className="mr-1 h-3 w-3" />
@@ -279,10 +279,10 @@ export function ConfigurationsComponent() {
 							</p>
 							{!searchTerm && (
 								<div className="mt-4">
-									<Link to="/mutations/new">
+									<Link to="/create-mutation">
 										<Button>
 											<Plus className="mr-2 h-4 w-4" />
-											Create Configuration
+											Create Mutation
 										</Button>
 									</Link>
 								</div>

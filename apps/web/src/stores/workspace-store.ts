@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import { api } from '@/api/client';
 import type { Workspace } from '@/api/workspaces';
+import { queryClient } from '@/lib/query-client';
 
 type WorkspaceStore = {
 	isLoading: boolean;
@@ -23,6 +24,13 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
 		const previousActiveWorkspace = get().activeWorkspace;
 		try {
 			set({ activeWorkspace: organization });
+
+			// Invalidate all workspace-scoped queries when switching workspaces
+			// This ensures fresh data is fetched for the new workspace
+			await queryClient.invalidateQueries({ queryKey: ['mutations'] });
+			await queryClient.invalidateQueries({ queryKey: ['api-keys'] });
+			await queryClient.invalidateQueries({ queryKey: ['webhooks'] });
+			await queryClient.invalidateQueries({ queryKey: ['workspace'] });
 
 			// Also call our API to persist the change
 			await api.post('/v1/workspaces/set-active', {
