@@ -154,7 +154,6 @@ export function CreateWorkspace() {
 					</div>
 				</div>
 
-				{/* Main Content */}
 				<div className="flex flex-col items-center justify-center px-4 py-16">
 					<div className="w-full max-w-lg">
 						<div className="mb-8 text-center">

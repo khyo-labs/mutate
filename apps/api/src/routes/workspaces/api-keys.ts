@@ -4,11 +4,12 @@ import { FastifyInstance } from 'fastify';
 import { ulid } from 'ulid';
 import { z } from 'zod';
 
-import { db } from '../db/connection.js';
-import { apiKeys } from '../db/schema.js';
-import { requireRole } from '../middleware/auth.js';
-import '../types/fastify.js';
-import { logError } from '../utils/logger.js';
+import { db } from '../../db/connection.js';
+import { apiKeys } from '../../db/schema.js';
+import { requireRole } from '../../middleware/auth.js';
+import { validateWorkspaceAccess } from '../../middleware/workspace-access.js';
+import '../../types/fastify.js';
+import { logError } from '../../utils/logger.js';
 
 const createApiKeySchema = z.object({
 	name: z.string().min(1, 'Name is required').max(255, 'Name too long'),
@@ -43,13 +44,18 @@ function generateApiKey(): string {
 }
 
 export async function apiKeyRoutes(fastify: FastifyInstance) {
+	// All API key routes now require workspace access
 	fastify.addHook('preHandler', async (request, reply) => {
 		await fastify.authenticate(request, reply);
 		await fastify.requireVerifiedEmail(request, reply);
+		await validateWorkspaceAccess(request, reply);
 	});
 
 	fastify.get('/', async (request, reply) => {
 		try {
+			// Workspace is always available from validateWorkspaceAccess middleware
+			const organizationId = request.workspace!.id;
+
 			const keys = await db
 				.select({
 					id: apiKeys.id,
@@ -60,7 +66,7 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 					expiresAt: apiKeys.expiresAt,
 				})
 				.from(apiKeys)
-				.where(eq(apiKeys.organizationId, request.currentUser!.organizationId))
+				.where(eq(apiKeys.organizationId, organizationId))
 				.orderBy(apiKeys.createdAt);
 
 			return {
@@ -107,6 +113,7 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 			const { name, permissions, expiresAt } = validationResult.data;
 
 			try {
+				const organizationId = request.workspace!.id;
 				const apiKey = generateApiKey();
 				const keyHash = await bcrypt.hash(apiKey, 10);
 
@@ -114,7 +121,7 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 					.insert(apiKeys)
 					.values({
 						id: ulid(),
-						organizationId: request.currentUser!.organizationId,
+						organizationId,
 						keyHash,
 						name,
 						permissions,
@@ -177,14 +184,13 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 			}
 
 			try {
+				const organizationId = request.workspace!.id;
+
 				const [updatedKey] = await db
 					.update(apiKeys)
 					.set(validationResult.data)
 					.where(
-						and(
-							eq(apiKeys.id, id),
-							eq(apiKeys.organizationId, request.currentUser!.organizationId),
-						),
+						and(eq(apiKeys.id, id), eq(apiKeys.organizationId, organizationId)),
 					)
 					.returning({
 						id: apiKeys.id,
@@ -231,13 +237,12 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 			const { id } = request.params as { id: string };
 
 			try {
+				const organizationId = request.workspace!.id;
+
 				const [deletedKey] = await db
 					.delete(apiKeys)
 					.where(
-						and(
-							eq(apiKeys.id, id),
-							eq(apiKeys.organizationId, request.currentUser!.organizationId),
-						),
+						and(eq(apiKeys.id, id), eq(apiKeys.organizationId, organizationId)),
 					)
 					.returning({ id: apiKeys.id });
 

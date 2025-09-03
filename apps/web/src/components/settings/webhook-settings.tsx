@@ -19,17 +19,24 @@ export function WebhookSettings() {
 	const { data: webhooks = [], isLoading } = useQuery<Webhook[]>({
 		queryKey: [...queryKey, activeWorkspace?.id],
 		queryFn: async () => {
+			if (!activeWorkspace) {
+				throw new Error('No active workspace selected');
+			}
 			const response = await api.get<SuccessResponse<Webhook[]>>(
-				'/v1/workspaces/webhooks?includeSecrets=true',
+				`/v1/workspaces/${activeWorkspace.id}/webhooks?includeSecrets=true`,
 			);
 			return response.data;
 		},
+		enabled: !!activeWorkspace,
 	});
 
 	const deleteWebhook = useMutation({
 		mutationFn: async (id: string) => {
+			if (!activeWorkspace) {
+				throw new Error('No active workspace selected');
+			}
 			const response = await api.delete<SuccessResponse<void>>(
-				`/v1/workspaces/webhooks/${id}`,
+				`/v1/workspaces/${activeWorkspace.id}/webhooks/${id}`,
 			);
 			if (!response.success) {
 				toast.error('Failed to delete webhook');

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { Save } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -28,12 +28,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type {
 	Configuration,
 	ConversionType,
+	InputFormat,
 	TransformationRule,
 } from '@/types';
-
-export const Route = createFileRoute('/mutations/new')({
-	component: NewConfigurationComponent,
-});
 
 const configurationSchema = z.object({
 	name: z.string().min(1, 'Configuration name is required'),
@@ -87,7 +84,7 @@ export function NewConfigurationComponent() {
 			mutApi.create({
 				...data,
 				conversionType,
-				inputFormat: conversionType.split('_TO_')[0] as any,
+				inputFormat: conversionType.split('_TO_')[0] as InputFormat,
 				rules,
 				outputFormat: getDefaultOutputFormat(conversionType),
 			}),
@@ -124,7 +121,7 @@ export function NewConfigurationComponent() {
 				name: data.name.trim(),
 				description: data.description.trim(),
 				conversionType,
-				inputFormat: conversionType.split('_TO_')[0] as any,
+				inputFormat: conversionType.split('_TO_')[0] as InputFormat,
 				outputFormat: getDefaultOutputFormat(conversionType),
 				rules,
 			};
@@ -167,7 +164,6 @@ export function NewConfigurationComponent() {
 					</p>
 				</div>
 
-				{/* Conversion Type Selection */}
 				<div className="mb-8">
 					<ConversionTypeSelector
 						selectedType={conversionType}
@@ -175,11 +171,8 @@ export function NewConfigurationComponent() {
 					/>
 				</div>
 
-				{/* Main Content Grid */}
 				<div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
-					{/* Left Column - Main Content Area */}
 					<div className="space-y-8 xl:col-span-8">
-						{/* Transformation Rules Card - Larger Space */}
 						<Card>
 							<CardHeader>
 								<CardTitle>Transformation Rules</CardTitle>
@@ -192,7 +185,6 @@ export function NewConfigurationComponent() {
 							</CardContent>
 						</Card>
 
-						{/* Data Preview Tabs */}
 						<Tabs defaultValue="preview">
 							<Card>
 								<CardHeader>
@@ -229,7 +221,6 @@ export function NewConfigurationComponent() {
 							</Card>
 						</Tabs>
 
-						{/* Output Preview Card */}
 						<Card>
 							<CardHeader>
 								<CardTitle>Output Preview</CardTitle>
@@ -252,9 +243,7 @@ export function NewConfigurationComponent() {
 						</Card>
 					</div>
 
-					{/* Right Column - Configuration Sidebar */}
 					<div className="space-y-8 xl:col-span-4">
-						{/* Configuration Details Card */}
 						<Card>
 							<CardHeader>
 								<CardTitle>Configuration</CardTitle>
@@ -289,7 +278,6 @@ export function NewConfigurationComponent() {
 							</CardContent>
 						</Card>
 
-						{/* JSON Configuration Card */}
 						<Card>
 							<CardHeader>
 								<CardTitle>JSON Configuration</CardTitle>
@@ -315,7 +303,6 @@ export function NewConfigurationComponent() {
 					</div>
 				</div>
 
-				{/* Action Bar */}
 				<div className="border-t pt-6">
 					<div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
 						<div className="text-muted-foreground text-sm">
@@ -330,7 +317,6 @@ export function NewConfigurationComponent() {
 									No file uploaded
 								</span>
 							)}
-							{/* Rules count */}
 							<span className="text-muted-foreground ml-4">
 								{rules.length} transformation rule
 								{rules.length !== 1 ? 's' : ''} configured

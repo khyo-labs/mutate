@@ -2,19 +2,25 @@ import { and, count, desc, eq, ilike } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 import { ulid } from 'ulid';
 
-import { db } from '../db/connection.js';
-import { configurationVersions, configurations } from '../db/schema.js';
-import { requireRole } from '../middleware/auth.js';
+import { db } from '../../db/connection.js';
+import { configurationVersions, configurations } from '../../db/schema.js';
+import { requireRole } from '../../middleware/auth.js';
+import { validateWorkspaceAccess } from '../../middleware/workspace-access.js';
 import {
 	configurationQuerySchema,
 	createSchema,
 	updateSchema,
-} from '../schemas/configuration.js';
-import '../types/fastify.js';
-import { logError } from '../utils/logger.js';
+} from '../../schemas/configuration.js';
+import '../../types/fastify.js';
+import { logError } from '../../utils/logger.js';
 
 export async function configRoutes(fastify: FastifyInstance) {
-	fastify.addHook('preHandler', fastify.authenticate);
+	// All configuration routes now require workspace access
+	fastify.addHook('preHandler', async (request, reply) => {
+		await fastify.authenticate(request, reply);
+		await validateWorkspaceAccess(request, reply);
+	});
+
 	fastify.post(
 		'/',
 		{
@@ -51,11 +57,14 @@ export async function configRoutes(fastify: FastifyInstance) {
 			} = validationResult.data;
 
 			try {
+				// Workspace is always available from validateWorkspaceAccess middleware
+				const organizationId = request.workspace!.id;
+
 				const [configuration] = await db
 					.insert(configurations)
 					.values({
 						id: ulid(),
-						organizationId: request.currentUser!.organizationId,
+						organizationId,
 						name,
 						description,
 						conversionType,
@@ -130,6 +139,8 @@ export async function configRoutes(fastify: FastifyInstance) {
 		const { page, limit, search } = validationResult.data;
 
 		try {
+			// Workspace is always available from validateWorkspaceAccess middleware
+			const organizationId = request.workspace!.id;
 			const offset = (page - 1) * limit;
 
 			let query = db
@@ -150,18 +161,12 @@ export async function configRoutes(fastify: FastifyInstance) {
 				.where(
 					search
 						? and(
-								eq(
-									configurations.organizationId,
-									request.currentUser!.organizationId,
-								),
+								eq(configurations.organizationId, organizationId),
 								eq(configurations.isActive, true),
 								ilike(configurations.name, `%${search}%`),
 							)
 						: and(
-								eq(
-									configurations.organizationId,
-									request.currentUser!.organizationId,
-								),
+								eq(configurations.organizationId, organizationId),
 								eq(configurations.isActive, true),
 							),
 				)
@@ -178,18 +183,12 @@ export async function configRoutes(fastify: FastifyInstance) {
 				.where(
 					search
 						? and(
-								eq(
-									configurations.organizationId,
-									request.currentUser!.organizationId,
-								),
+								eq(configurations.organizationId, organizationId),
 								eq(configurations.isActive, true),
 								ilike(configurations.name, `%${search}%`),
 							)
 						: and(
-								eq(
-									configurations.organizationId,
-									request.currentUser!.organizationId,
-								),
+								eq(configurations.organizationId, organizationId),
 								eq(configurations.isActive, true),
 							),
 				);
@@ -224,16 +223,15 @@ export async function configRoutes(fastify: FastifyInstance) {
 		const { id } = request.params as { id: string };
 
 		try {
+			const organizationId = request.workspace!.id;
+
 			const [configuration] = await db
 				.select()
 				.from(configurations)
 				.where(
 					and(
 						eq(configurations.id, id),
-						eq(
-							configurations.organizationId,
-							request.currentUser!.organizationId,
-						),
+						eq(configurations.organizationId, organizationId),
 						eq(configurations.isActive, true),
 					),
 				)
@@ -297,6 +295,9 @@ export async function configRoutes(fastify: FastifyInstance) {
 			const updateData = validationResult.data;
 
 			try {
+				const organizationId =
+					request.workspace?.id || request.currentUser!.organizationId;
+
 				// Check if configuration exists and user has access
 				const [existingConfig] = await db
 					.select()
@@ -304,10 +305,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 					.where(
 						and(
 							eq(configurations.id, id),
-							eq(
-								configurations.organizationId,
-								request.currentUser!.organizationId,
-							),
+							eq(configurations.organizationId, organizationId),
 							eq(configurations.isActive, true),
 						),
 					)
@@ -375,6 +373,9 @@ export async function configRoutes(fastify: FastifyInstance) {
 			const { id } = request.params as { id: string };
 
 			try {
+				const organizationId =
+					request.workspace?.id || request.currentUser!.organizationId;
+
 				const [deletedConfig] = await db
 					.update(configurations)
 					.set({
@@ -384,10 +385,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 					.where(
 						and(
 							eq(configurations.id, id),
-							eq(
-								configurations.organizationId,
-								request.currentUser!.organizationId,
-							),
+							eq(configurations.organizationId, organizationId),
 							eq(configurations.isActive, true),
 						),
 					)
@@ -427,6 +425,9 @@ export async function configRoutes(fastify: FastifyInstance) {
 			const { id } = request.params as { id: string };
 
 			try {
+				const organizationId =
+					request.workspace?.id || request.currentUser!.organizationId;
+
 				// Get original configuration
 				const [originalConfig] = await db
 					.select()
@@ -434,10 +435,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 					.where(
 						and(
 							eq(configurations.id, id),
-							eq(
-								configurations.organizationId,
-								request.currentUser!.organizationId,
-							),
+							eq(configurations.organizationId, organizationId),
 							eq(configurations.isActive, true),
 						),
 					)

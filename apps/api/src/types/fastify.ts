@@ -19,5 +19,11 @@ declare module 'fastify' {
 			role: string;
 			isPlatformAdmin: boolean;
 		};
+		workspace?: {
+			id: string;
+			name: string;
+			slug: string | null;
+			memberRole: string;
+		};
 	}
 }

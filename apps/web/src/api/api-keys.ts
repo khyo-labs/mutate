@@ -1,6 +1,7 @@
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { useWorkspaceStore } from '@/stores/workspace-store';
 import type { SuccessResponse } from '@/types';
 
 import { api } from './client';
@@ -31,32 +32,50 @@ export type ApiKeyCreate = {
 
 export const apiKeysApi = {
 	list: async (): Promise<ApiKey[]> => {
-		const response = await api.get<SuccessResponse<ApiKey[]>>('/v1/api-keys');
+		const workspace = useWorkspaceStore.getState().activeWorkspace;
+		if (!workspace) {
+			throw new Error('No active workspace selected');
+		}
+
+		const url = `/v1/workspaces/${workspace.id}/api-keys`;
+		const response = await api.get<SuccessResponse<ApiKey[]>>(url);
 		return response.data;
 	},
 
 	create: async (data: ApiKeyFormData): Promise<ApiKey> => {
-		const response = await api.post<SuccessResponse<ApiKey>>(
-			'/v1/api-keys',
-			data,
-		);
+		const workspace = useWorkspaceStore.getState().activeWorkspace;
+		if (!workspace) {
+			throw new Error('No active workspace selected');
+		}
+
+		const url = `/v1/workspaces/${workspace.id}/api-keys`;
+		const response = await api.post<SuccessResponse<ApiKey>>(url, data);
 
 		toast.success('API key created successfully');
 		return response.data;
 	},
 
 	update: async (id: string, data: ApiKeyFormData): Promise<ApiKey> => {
-		const response = await api.put<SuccessResponse<ApiKey>>(
-			`/v1/api-keys/${id}`,
-			data,
-		);
+		const workspace = useWorkspaceStore.getState().activeWorkspace;
+		if (!workspace) {
+			throw new Error('No active workspace selected');
+		}
+
+		const url = `/v1/workspaces/${workspace.id}/api-keys/${id}`;
+		const response = await api.put<SuccessResponse<ApiKey>>(url, data);
 
 		toast.success('API key updated successfully');
 		return response.data;
 	},
 
 	delete: async (id: string): Promise<void> => {
-		await api.delete<void>(`/v1/api-keys/${id}`);
+		const workspace = useWorkspaceStore.getState().activeWorkspace;
+		if (!workspace) {
+			throw new Error('No active workspace selected');
+		}
+
+		const url = `/v1/workspaces/${workspace.id}/api-keys/${id}`;
+		await api.delete<void>(url);
 		toast.success('API key deleted successfully');
 	},
 };

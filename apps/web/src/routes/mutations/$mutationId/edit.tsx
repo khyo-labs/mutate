@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { mutApi } from '@/api/mutations';
+import { workspaceApi } from '@/api/workspaces';
 import { CsvOutputPreview } from '@/components/csv-output-preview';
 import { FileUpload, type UploadedFile } from '@/components/file-upload';
 import { JsonConfigPanel } from '@/components/json-config-panel';
@@ -30,9 +31,10 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 import type { Configuration, TransformationRule, Webhook } from '@/types';
 
-export const Route = createFileRoute('/mutations/$configId/edit')({
+export const Route = createFileRoute('/mutations/$mutationId/edit')({
 	component: ConfigurationEditComponent,
 });
 
@@ -44,7 +46,7 @@ interface FormData {
 }
 
 export function ConfigurationEditComponent() {
-	const { configId } = Route.useParams();
+	const { mutationId } = Route.useParams();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
@@ -55,21 +57,17 @@ export function ConfigurationEditComponent() {
 		isLoading,
 		error,
 	} = useQuery({
-		queryKey: ['configurations', configId],
-		queryFn: async () => mutApi.get(configId),
-		enabled: !!configId,
+		queryKey: ['mutations', mutationId],
+		queryFn: async () => mutApi.get(mutationId),
+		enabled: !!mutationId,
 	});
 
+	const { activeWorkspace } = useWorkspaceStore();
+
 	const { data: webhooks = [] } = useQuery({
-		queryKey: ['workspace', 'webhooks'],
-		queryFn: async () => {
-			const response = await fetch('/api/v1/workspaces/webhooks', {
-				credentials: 'include',
-			});
-			if (!response.ok) throw new Error('Failed to fetch webhooks');
-			const data = await response.json();
-			return data.data || [];
-		},
+		queryKey: ['workspace', 'webhooks', activeWorkspace?.id],
+		queryFn: async () => workspaceApi.getWebhooks(activeWorkspace!.id),
+		enabled: !!activeWorkspace,
 	});
 
 	const form = useForm<FormData>({
@@ -139,7 +137,7 @@ export function ConfigurationEditComponent() {
 
 			console.log('Sending update request:', configurationData);
 
-			const updatedConfig = await mutApi.update(configId, configurationData);
+			const updatedConfig = await mutApi.update(mutationId, configurationData);
 
 			console.log('Update response:', updatedConfig);
 
@@ -147,8 +145,13 @@ export function ConfigurationEditComponent() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['configurations'] });
-			queryClient.invalidateQueries({ queryKey: ['configurations', configId] });
-			navigate({ to: '/mutations/$configId', params: { configId } });
+			queryClient.invalidateQueries({
+				queryKey: ['configurations', mutationId],
+			});
+			navigate({
+				to: '/mutations/$mutationId',
+				params: { mutationId: mutationId },
+			});
 		},
 		onError: (error) => {
 			console.error('Failed to update configuration:', error);
@@ -168,7 +171,7 @@ export function ConfigurationEditComponent() {
 	};
 
 	function handleCancel() {
-		navigate({ to: '/mutations/$configId', params: { configId } });
+		navigate({ to: '/mutations/$mutationId', params: { mutationId } });
 	}
 
 	function handleImportConfig(importedConfig: {
@@ -256,8 +259,8 @@ export function ConfigurationEditComponent() {
 								variant="outline"
 								onClick={() =>
 									navigate({
-										to: '/mutations/$configId',
-										params: { configId },
+										to: '/mutations/$mutationId',
+										params: { mutationId },
 									})
 								}
 							>

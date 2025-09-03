@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { api } from '@/api/client';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 import type { ApiResponse, Webhook } from '@/types';
 
 import { Button } from '../ui/button';
@@ -25,6 +26,7 @@ type FormData = z.infer<typeof schema>;
 
 export function WebhookDrawer({ webhook }: { webhook?: Webhook }) {
 	const queryClient = useQueryClient();
+	const { activeWorkspace } = useWorkspaceStore();
 	const [showSecret, setShowSecret] = useState<boolean>(!webhook);
 	const [copied, setCopied] = useState(false);
 	const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -41,8 +43,11 @@ export function WebhookDrawer({ webhook }: { webhook?: Webhook }) {
 
 	const createWebhook = useMutation({
 		mutationFn: async (data: FormData) => {
+			if (!activeWorkspace) {
+				throw new Error('No active workspace selected');
+			}
 			const response = await api.post<ApiResponse<Webhook>>(
-				'/v1/workspaces/webhooks',
+				`/v1/workspaces/${activeWorkspace.id}/webhooks`,
 				data,
 			);
 			if (response.success) {
@@ -66,8 +71,11 @@ export function WebhookDrawer({ webhook }: { webhook?: Webhook }) {
 			id: string;
 			data: Partial<FormData>;
 		}) => {
+			if (!activeWorkspace) {
+				throw new Error('No active workspace selected');
+			}
 			const response = await api.patch<ApiResponse<Webhook>>(
-				`/v1/workspaces/webhooks/${id}`,
+				`/v1/workspaces/${activeWorkspace.id}/webhooks/${id}`,
 				data,
 			);
 			if (response.success) {
