@@ -1,26 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router';
 import {
-	Bug,
 	Database,
 	Download,
 	FileCode,
 	Key,
 	Loader2,
 	RefreshCw,
-	Search,
-	Send,
-	Settings,
 	Terminal,
 	Trash2,
 	Upload,
 	User,
-	Wrench,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { api } from '@/api/client';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
@@ -79,10 +73,11 @@ function SupportTools() {
 				`/v1/admin/support/impersonate/${impersonateUserId}`,
 			);
 
-			if (response.data.sessionToken) {
+			const data = response.data as { sessionToken?: string };
+			if (data.sessionToken) {
 				sessionStorage.setItem(
 					'impersonation_token',
-					response.data.sessionToken,
+					data.sessionToken,
 				);
 				sessionStorage.setItem('impersonation_user', impersonateUserId);
 				toast.success('Impersonation started - redirecting...');
@@ -107,13 +102,11 @@ function SupportTools() {
 			setLoading(true);
 			const response = await api.get(
 				`/v1/admin/support/export/workspace/${workspaceId}?format=${exportFormat}`,
-				{
-					responseType: 'blob',
-				},
 			);
 
 			// Create download link
-			const url = window.URL.createObjectURL(new Blob([response.data]));
+			const blob = response.data as Blob;
+			const url = window.URL.createObjectURL(blob);
 			const link = document.createElement('a');
 			link.href = url;
 			link.setAttribute(
@@ -201,7 +194,8 @@ function SupportTools() {
 			const response = await api.post('/v1/admin/support/query', {
 				query: queryInput,
 			});
-			setQueryResult(JSON.stringify(response.data.result, null, 2));
+			const data = response.data as { result: any };
+			setQueryResult(JSON.stringify(data.result, null, 2));
 			toast.success('Query executed successfully');
 		} catch (error: any) {
 			setQueryResult(

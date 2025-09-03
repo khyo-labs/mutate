@@ -2,17 +2,13 @@ import { createFileRoute } from '@tanstack/react-router';
 import {
 	AlertCircle,
 	Building2,
-	Calendar,
-	ChevronRight,
 	CreditCard,
-	Filter,
 	Loader2,
 	MoreVertical,
 	Pause,
 	Play,
 	Search,
 	Settings,
-	TrendingDown,
 	TrendingUp,
 	Users,
 } from 'lucide-react';
@@ -25,7 +21,6 @@ import { Button } from '@/components/ui/button';
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
@@ -61,7 +56,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const Route = createFileRoute('/admin/workspaces/')({
 	component: WorkspaceManagement,
@@ -117,7 +111,7 @@ function WorkspaceManagement() {
 		try {
 			setLoading(true);
 			const response = await api.get('/v1/admin/workspaces');
-			setWorkspaces(response.data);
+			setWorkspaces(response.data as Workspace[]);
 		} catch (error) {
 			console.error('Failed to fetch workspaces:', error);
 			toast.error('Failed to load workspaces');

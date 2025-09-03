@@ -19,10 +19,7 @@ import { useEffect, useState } from 'react';
 import {
 	Area,
 	AreaChart,
-	Bar,
-	BarChart,
 	CartesianGrid,
-	Cell,
 	Line,
 	LineChart,
 	ResponsiveContainer,
@@ -103,8 +100,8 @@ function SystemHealthMonitoring() {
 	const [health, setHealth] = useState<SystemHealth | null>(null);
 	const [metricHistory, setMetricHistory] = useState<MetricHistory[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [autoRefresh, setAutoRefresh] = useState(true);
-	const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
+	const [autoRefresh] = useState(true);
+	const [refreshInterval] = useState(30000); // 30 seconds
 
 	useEffect(() => {
 		fetchSystemHealth();
@@ -123,7 +120,7 @@ function SystemHealthMonitoring() {
 	async function fetchSystemHealth() {
 		try {
 			const response = await api.get('/v1/admin/health/status');
-			setHealth(response.data);
+			setHealth(response.data as SystemHealth);
 		} catch (error) {
 			console.error('Failed to fetch system health:', error);
 			toast.error('Failed to load system health');
@@ -135,7 +132,8 @@ function SystemHealthMonitoring() {
 	async function fetchMetricHistory() {
 		try {
 			const response = await api.get('/v1/admin/health/metrics?period=1h');
-			setMetricHistory(response.data.metrics);
+			const data = response.data as { metrics: MetricHistory[] };
+			setMetricHistory(data.metrics);
 		} catch (error) {
 			console.error('Failed to fetch metric history:', error);
 		}

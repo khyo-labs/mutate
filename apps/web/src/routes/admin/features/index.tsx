@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
 import {
-	ChevronRight,
 	Code,
 	Copy,
 	Edit,
@@ -23,7 +22,6 @@ import { Button } from '@/components/ui/button';
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
@@ -102,7 +100,7 @@ function FeatureFlagsManagement() {
 		try {
 			setLoading(true);
 			const response = await api.get('/v1/admin/features');
-			setFlags(response.data);
+			setFlags(response.data as FeatureFlag[]);
 		} catch (error) {
 			console.error('Failed to fetch feature flags:', error);
 			toast.error('Failed to load feature flags');
@@ -147,17 +145,6 @@ function FeatureFlagsManagement() {
 		}
 	}
 
-	async function updateRollout(flagId: string, percentage: number) {
-		try {
-			await api.patch(`/v1/admin/features/${flagId}`, {
-				rolloutPercentage: percentage,
-			});
-			toast.success('Rollout percentage updated');
-			fetchFeatureFlags();
-		} catch (error) {
-			toast.error('Failed to update rollout percentage');
-		}
-	}
 
 	async function deleteFlag(flagId: string) {
 		if (!confirm('Are you sure you want to delete this feature flag?')) {

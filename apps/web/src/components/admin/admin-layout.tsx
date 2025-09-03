@@ -1,7 +1,6 @@
 import { Outlet } from '@tanstack/react-router';
 import { Shield } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 import { api } from '@/api/client';
 import { Badge } from '@/components/ui/badge';
@@ -36,12 +35,17 @@ export function AdminLayout() {
 		try {
 			// Check if user is a platform admin
 			const response = await api.get('/v1/admin/check-access');
+			const data = response.data as {
+				isAdmin: boolean;
+				requires2FA?: boolean;
+				has2FAEnabled?: boolean;
+			};
 
-			if (response.data.isAdmin) {
+			if (data.isAdmin) {
 				setIsAdmin(true);
 
 				// Check 2FA status
-				if (response.data.requires2FA && !response.data.has2FAEnabled) {
+				if (data.requires2FA && !data.has2FAEnabled) {
 					setNeeds2FA(true);
 				}
 			}

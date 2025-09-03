@@ -1,8 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import {
-	Ban,
 	CheckCircle,
-	ChevronRight,
 	Key,
 	Loader2,
 	Mail,
@@ -24,7 +22,6 @@ import { Button } from '@/components/ui/button';
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
@@ -105,7 +102,7 @@ function UserManagement() {
 		try {
 			setLoading(true);
 			const response = await api.get('/v1/admin/users');
-			setUsers(response.data);
+			setUsers(response.data as UserDetails[]);
 		} catch (error) {
 			console.error('Failed to fetch users:', error);
 			toast.error('Failed to load users');
@@ -117,11 +114,12 @@ function UserManagement() {
 	async function impersonateUser(userId: string) {
 		try {
 			const response = await api.post(`/v1/admin/users/${userId}/impersonate`);
-			if (response.data.sessionToken) {
+			const data = response.data as { sessionToken?: string };
+			if (data.sessionToken) {
 				// Store the impersonation token and redirect
 				sessionStorage.setItem(
 					'impersonation_token',
-					response.data.sessionToken,
+					data.sessionToken,
 				);
 				toast.success('Impersonation started');
 				window.location.href = '/';

@@ -3,7 +3,6 @@ import {
 	Calendar,
 	Download,
 	FileText,
-	Filter,
 	Loader2,
 	RefreshCw,
 	Search,
@@ -91,8 +90,12 @@ function AuditLogViewer() {
 			if (searchTerm) params.append('search', searchTerm);
 
 			const response = await api.get(`/v1/admin/audit/logs?${params}`);
-			setLogs(response.data.logs);
-			setTotalPages(response.data.totalPages);
+			const data = response.data as {
+				logs: AuditLog[];
+				totalPages: number;
+			};
+			setLogs(data.logs);
+			setTotalPages(data.totalPages);
 		} catch (error) {
 			console.error('Failed to fetch audit logs:', error);
 			toast.error('Failed to load audit logs');
@@ -113,12 +116,11 @@ function AuditLogViewer() {
 			if (dateFrom) params.append('from', dateFrom);
 			if (dateTo) params.append('to', dateTo);
 
-			const response = await api.get(`/v1/admin/audit/export?${params}`, {
-				responseType: 'blob',
-			});
+			const response = await api.get(`/v1/admin/audit/export?${params}`);
 
 			// Create download link
-			const url = window.URL.createObjectURL(new Blob([response.data]));
+			const blob = response.data as Blob;
+			const url = window.URL.createObjectURL(blob);
 			const link = document.createElement('a');
 			link.href = url;
 			link.setAttribute('download', `audit-logs-${Date.now()}.csv`);
