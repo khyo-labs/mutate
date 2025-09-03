@@ -98,7 +98,7 @@ Used for programmatic access:
 Platform admins are special users with elevated privileges. To check if a user is a platform admin:
 
 ```javascript
-request.currentUser?.isPlatformAdmin;
+request.currentUser?.isAdmin;
 ```
 
 Platform admin status is stored in the `platform_admin` table and linked to user accounts.

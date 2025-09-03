@@ -90,4 +90,11 @@ const env = {
 	SENDGRID_FROM_EMAIL: process.env.SENDGRID_FROM_EMAIL,
 };
 
-export const config = configSchema.parse(env);
+// For CLI generation, we need to handle missing env vars gracefully
+const isCliGeneration = process.argv.some((arg) =>
+	arg.includes('@better-auth/cli'),
+);
+
+export const config = isCliGeneration
+	? ({} as z.infer<typeof configSchema>) // Return empty config for CLI generation
+	: configSchema.parse(env); // Strict parsing for runtime

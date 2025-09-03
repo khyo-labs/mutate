@@ -15,11 +15,12 @@ import { Route as JoinRouteImport } from './routes/join';
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password';
 import { Route as CreateMutationRouteImport } from './routes/create-mutation';
 import { Route as CheckEmailRouteImport } from './routes/check-email';
-import { Route as AdminRouteImport } from './routes/admin';
 import { Route as SettingsRouteRouteImport } from './routes/settings/route';
+import { Route as AdminRouteRouteImport } from './routes/admin/route';
 import { Route as IndexRouteImport } from './routes/index';
 import { Route as SettingsIndexRouteImport } from './routes/settings/index';
 import { Route as MutationsIndexRouteImport } from './routes/mutations/index';
+import { Route as AdminIndexRouteImport } from './routes/admin/index';
 import { Route as AuthVerifyEmailRouteImport } from './routes/auth/verify-email';
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password';
 import { Route as SettingsWorkspaceRouteRouteImport } from './routes/settings/workspace/route';
@@ -27,6 +28,12 @@ import { Route as SettingsAccountRouteRouteImport } from './routes/settings/acco
 import { Route as SettingsWorkspaceIndexRouteImport } from './routes/settings/workspace/index';
 import { Route as SettingsAccountIndexRouteImport } from './routes/settings/account/index';
 import { Route as MutationsMutationIdIndexRouteImport } from './routes/mutations/$mutationId/index';
+import { Route as AdminWorkspacesIndexRouteImport } from './routes/admin/workspaces/index';
+import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index';
+import { Route as AdminSupportIndexRouteImport } from './routes/admin/support/index';
+import { Route as AdminHealthIndexRouteImport } from './routes/admin/health/index';
+import { Route as AdminFeaturesIndexRouteImport } from './routes/admin/features/index';
+import { Route as AdminAuditIndexRouteImport } from './routes/admin/audit/index';
 import { Route as SettingsWorkspaceWebhooksRouteImport } from './routes/settings/workspace/webhooks';
 import { Route as SettingsWorkspaceMembersRouteImport } from './routes/settings/workspace/members';
 import { Route as SettingsWorkspaceApiKeysRouteImport } from './routes/settings/workspace/api-keys';
@@ -65,14 +72,14 @@ const CheckEmailRoute = CheckEmailRouteImport.update({
   path: '/check-email',
   getParentRoute: () => rootRouteImport,
 } as any);
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any);
 const SettingsRouteRoute = SettingsRouteRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any);
 const IndexRoute = IndexRouteImport.update({
@@ -89,6 +96,11 @@ const MutationsIndexRoute = MutationsIndexRouteImport.update({
   id: '/mutations/',
   path: '/mutations/',
   getParentRoute: () => rootRouteImport,
+} as any);
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
 } as any);
 const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
   id: '/auth/verify-email',
@@ -126,6 +138,36 @@ const MutationsMutationIdIndexRoute =
     path: '/mutations/$mutationId/',
     getParentRoute: () => rootRouteImport,
   } as any);
+const AdminWorkspacesIndexRoute = AdminWorkspacesIndexRouteImport.update({
+  id: '/workspaces/',
+  path: '/workspaces/',
+  getParentRoute: () => AdminRouteRoute,
+} as any);
+const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => AdminRouteRoute,
+} as any);
+const AdminSupportIndexRoute = AdminSupportIndexRouteImport.update({
+  id: '/support/',
+  path: '/support/',
+  getParentRoute: () => AdminRouteRoute,
+} as any);
+const AdminHealthIndexRoute = AdminHealthIndexRouteImport.update({
+  id: '/health/',
+  path: '/health/',
+  getParentRoute: () => AdminRouteRoute,
+} as any);
+const AdminFeaturesIndexRoute = AdminFeaturesIndexRouteImport.update({
+  id: '/features/',
+  path: '/features/',
+  getParentRoute: () => AdminRouteRoute,
+} as any);
+const AdminAuditIndexRoute = AdminAuditIndexRouteImport.update({
+  id: '/audit/',
+  path: '/audit/',
+  getParentRoute: () => AdminRouteRoute,
+} as any);
 const SettingsWorkspaceWebhooksRoute =
   SettingsWorkspaceWebhooksRouteImport.update({
     id: '/webhooks',
@@ -168,8 +210,8 @@ const MutationsMutationIdEditRoute = MutationsMutationIdEditRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute;
+  '/admin': typeof AdminRouteRouteWithChildren;
   '/settings': typeof SettingsRouteRouteWithChildren;
-  '/admin': typeof AdminRoute;
   '/check-email': typeof CheckEmailRoute;
   '/create-mutation': typeof CreateMutationRoute;
   '/forgot-password': typeof ForgotPasswordRoute;
@@ -180,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/settings/workspace': typeof SettingsWorkspaceRouteRouteWithChildren;
   '/auth/reset-password': typeof AuthResetPasswordRoute;
   '/auth/verify-email': typeof AuthVerifyEmailRoute;
+  '/admin/': typeof AdminIndexRoute;
   '/mutations': typeof MutationsIndexRoute;
   '/settings/': typeof SettingsIndexRoute;
   '/mutations/$mutationId/edit': typeof MutationsMutationIdEditRoute;
@@ -189,13 +232,18 @@ export interface FileRoutesByFullPath {
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
+  '/admin/audit': typeof AdminAuditIndexRoute;
+  '/admin/features': typeof AdminFeaturesIndexRoute;
+  '/admin/health': typeof AdminHealthIndexRoute;
+  '/admin/support': typeof AdminSupportIndexRoute;
+  '/admin/users': typeof AdminUsersIndexRoute;
+  '/admin/workspaces': typeof AdminWorkspacesIndexRoute;
   '/mutations/$mutationId': typeof MutationsMutationIdIndexRoute;
   '/settings/account/': typeof SettingsAccountIndexRoute;
   '/settings/workspace/': typeof SettingsWorkspaceIndexRoute;
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute;
-  '/admin': typeof AdminRoute;
   '/check-email': typeof CheckEmailRoute;
   '/create-mutation': typeof CreateMutationRoute;
   '/forgot-password': typeof ForgotPasswordRoute;
@@ -204,6 +252,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute;
   '/auth/reset-password': typeof AuthResetPasswordRoute;
   '/auth/verify-email': typeof AuthVerifyEmailRoute;
+  '/admin': typeof AdminIndexRoute;
   '/mutations': typeof MutationsIndexRoute;
   '/settings': typeof SettingsIndexRoute;
   '/mutations/$mutationId/edit': typeof MutationsMutationIdEditRoute;
@@ -213,6 +262,12 @@ export interface FileRoutesByTo {
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
+  '/admin/audit': typeof AdminAuditIndexRoute;
+  '/admin/features': typeof AdminFeaturesIndexRoute;
+  '/admin/health': typeof AdminHealthIndexRoute;
+  '/admin/support': typeof AdminSupportIndexRoute;
+  '/admin/users': typeof AdminUsersIndexRoute;
+  '/admin/workspaces': typeof AdminWorkspacesIndexRoute;
   '/mutations/$mutationId': typeof MutationsMutationIdIndexRoute;
   '/settings/account': typeof SettingsAccountIndexRoute;
   '/settings/workspace': typeof SettingsWorkspaceIndexRoute;
@@ -220,8 +275,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   '/': typeof IndexRoute;
+  '/admin': typeof AdminRouteRouteWithChildren;
   '/settings': typeof SettingsRouteRouteWithChildren;
-  '/admin': typeof AdminRoute;
   '/check-email': typeof CheckEmailRoute;
   '/create-mutation': typeof CreateMutationRoute;
   '/forgot-password': typeof ForgotPasswordRoute;
@@ -232,6 +287,7 @@ export interface FileRoutesById {
   '/settings/workspace': typeof SettingsWorkspaceRouteRouteWithChildren;
   '/auth/reset-password': typeof AuthResetPasswordRoute;
   '/auth/verify-email': typeof AuthVerifyEmailRoute;
+  '/admin/': typeof AdminIndexRoute;
   '/mutations/': typeof MutationsIndexRoute;
   '/settings/': typeof SettingsIndexRoute;
   '/mutations/$mutationId/edit': typeof MutationsMutationIdEditRoute;
@@ -241,6 +297,12 @@ export interface FileRoutesById {
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
+  '/admin/audit/': typeof AdminAuditIndexRoute;
+  '/admin/features/': typeof AdminFeaturesIndexRoute;
+  '/admin/health/': typeof AdminHealthIndexRoute;
+  '/admin/support/': typeof AdminSupportIndexRoute;
+  '/admin/users/': typeof AdminUsersIndexRoute;
+  '/admin/workspaces/': typeof AdminWorkspacesIndexRoute;
   '/mutations/$mutationId/': typeof MutationsMutationIdIndexRoute;
   '/settings/account/': typeof SettingsAccountIndexRoute;
   '/settings/workspace/': typeof SettingsWorkspaceIndexRoute;
@@ -249,8 +311,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | '/'
-    | '/settings'
     | '/admin'
+    | '/settings'
     | '/check-email'
     | '/create-mutation'
     | '/forgot-password'
@@ -261,6 +323,7 @@ export interface FileRouteTypes {
     | '/settings/workspace'
     | '/auth/reset-password'
     | '/auth/verify-email'
+    | '/admin/'
     | '/mutations'
     | '/settings/'
     | '/mutations/$mutationId/edit'
@@ -270,13 +333,18 @@ export interface FileRouteTypes {
     | '/settings/workspace/api-keys'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
+    | '/admin/audit'
+    | '/admin/features'
+    | '/admin/health'
+    | '/admin/support'
+    | '/admin/users'
+    | '/admin/workspaces'
     | '/mutations/$mutationId'
     | '/settings/account/'
     | '/settings/workspace/';
   fileRoutesByTo: FileRoutesByTo;
   to:
     | '/'
-    | '/admin'
     | '/check-email'
     | '/create-mutation'
     | '/forgot-password'
@@ -285,6 +353,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/auth/reset-password'
     | '/auth/verify-email'
+    | '/admin'
     | '/mutations'
     | '/settings'
     | '/mutations/$mutationId/edit'
@@ -294,14 +363,20 @@ export interface FileRouteTypes {
     | '/settings/workspace/api-keys'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
+    | '/admin/audit'
+    | '/admin/features'
+    | '/admin/health'
+    | '/admin/support'
+    | '/admin/users'
+    | '/admin/workspaces'
     | '/mutations/$mutationId'
     | '/settings/account'
     | '/settings/workspace';
   id:
     | '__root__'
     | '/'
-    | '/settings'
     | '/admin'
+    | '/settings'
     | '/check-email'
     | '/create-mutation'
     | '/forgot-password'
@@ -312,6 +387,7 @@ export interface FileRouteTypes {
     | '/settings/workspace'
     | '/auth/reset-password'
     | '/auth/verify-email'
+    | '/admin/'
     | '/mutations/'
     | '/settings/'
     | '/mutations/$mutationId/edit'
@@ -321,6 +397,12 @@ export interface FileRouteTypes {
     | '/settings/workspace/api-keys'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
+    | '/admin/audit/'
+    | '/admin/features/'
+    | '/admin/health/'
+    | '/admin/support/'
+    | '/admin/users/'
+    | '/admin/workspaces/'
     | '/mutations/$mutationId/'
     | '/settings/account/'
     | '/settings/workspace/';
@@ -328,8 +410,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren;
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren;
-  AdminRoute: typeof AdminRoute;
   CheckEmailRoute: typeof CheckEmailRoute;
   CreateMutationRoute: typeof CreateMutationRoute;
   ForgotPasswordRoute: typeof ForgotPasswordRoute;
@@ -387,18 +469,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckEmailRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    '/admin': {
-      id: '/admin';
-      path: '/admin';
-      fullPath: '/admin';
-      preLoaderRoute: typeof AdminRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
     '/settings': {
       id: '/settings';
       path: '/settings';
       fullPath: '/settings';
       preLoaderRoute: typeof SettingsRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/admin': {
+      id: '/admin';
+      path: '/admin';
+      fullPath: '/admin';
+      preLoaderRoute: typeof AdminRouteRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     '/': {
@@ -421,6 +503,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/mutations';
       preLoaderRoute: typeof MutationsIndexRouteImport;
       parentRoute: typeof rootRouteImport;
+    };
+    '/admin/': {
+      id: '/admin/';
+      path: '/';
+      fullPath: '/admin/';
+      preLoaderRoute: typeof AdminIndexRouteImport;
+      parentRoute: typeof AdminRouteRoute;
     };
     '/auth/verify-email': {
       id: '/auth/verify-email';
@@ -470,6 +559,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/mutations/$mutationId';
       preLoaderRoute: typeof MutationsMutationIdIndexRouteImport;
       parentRoute: typeof rootRouteImport;
+    };
+    '/admin/workspaces/': {
+      id: '/admin/workspaces/';
+      path: '/workspaces';
+      fullPath: '/admin/workspaces';
+      preLoaderRoute: typeof AdminWorkspacesIndexRouteImport;
+      parentRoute: typeof AdminRouteRoute;
+    };
+    '/admin/users/': {
+      id: '/admin/users/';
+      path: '/users';
+      fullPath: '/admin/users';
+      preLoaderRoute: typeof AdminUsersIndexRouteImport;
+      parentRoute: typeof AdminRouteRoute;
+    };
+    '/admin/support/': {
+      id: '/admin/support/';
+      path: '/support';
+      fullPath: '/admin/support';
+      preLoaderRoute: typeof AdminSupportIndexRouteImport;
+      parentRoute: typeof AdminRouteRoute;
+    };
+    '/admin/health/': {
+      id: '/admin/health/';
+      path: '/health';
+      fullPath: '/admin/health';
+      preLoaderRoute: typeof AdminHealthIndexRouteImport;
+      parentRoute: typeof AdminRouteRoute;
+    };
+    '/admin/features/': {
+      id: '/admin/features/';
+      path: '/features';
+      fullPath: '/admin/features';
+      preLoaderRoute: typeof AdminFeaturesIndexRouteImport;
+      parentRoute: typeof AdminRouteRoute;
+    };
+    '/admin/audit/': {
+      id: '/admin/audit/';
+      path: '/audit';
+      fullPath: '/admin/audit';
+      preLoaderRoute: typeof AdminAuditIndexRouteImport;
+      parentRoute: typeof AdminRouteRoute;
     };
     '/settings/workspace/webhooks': {
       id: '/settings/workspace/webhooks';
@@ -522,6 +653,30 @@ declare module '@tanstack/react-router' {
     };
   }
 }
+
+interface AdminRouteRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute;
+  AdminAuditIndexRoute: typeof AdminAuditIndexRoute;
+  AdminFeaturesIndexRoute: typeof AdminFeaturesIndexRoute;
+  AdminHealthIndexRoute: typeof AdminHealthIndexRoute;
+  AdminSupportIndexRoute: typeof AdminSupportIndexRoute;
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute;
+  AdminWorkspacesIndexRoute: typeof AdminWorkspacesIndexRoute;
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+  AdminAuditIndexRoute: AdminAuditIndexRoute,
+  AdminFeaturesIndexRoute: AdminFeaturesIndexRoute,
+  AdminHealthIndexRoute: AdminHealthIndexRoute,
+  AdminSupportIndexRoute: AdminSupportIndexRoute,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
+  AdminWorkspacesIndexRoute: AdminWorkspacesIndexRoute,
+};
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+);
 
 interface SettingsAccountRouteRouteChildren {
   SettingsAccountAppearanceRoute: typeof SettingsAccountAppearanceRoute;
@@ -578,8 +733,8 @@ const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
-  AdminRoute: AdminRoute,
   CheckEmailRoute: CheckEmailRoute,
   CreateMutationRoute: CreateMutationRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,

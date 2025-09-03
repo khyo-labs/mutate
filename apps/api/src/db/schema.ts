@@ -26,6 +26,9 @@ export const user = pgTable('user', {
 		.$defaultFn(() => new Date())
 		.notNull(),
 	activeOrganizationId: text('active_organization_id'),
+	twoFactorEnabled: boolean('two_factor_enabled')
+		.$defaultFn(() => false)
+		.notNull(),
 });
 
 export const session = pgTable('session', {
@@ -308,6 +311,15 @@ export const billingEvents = pgTable('billing_event', {
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const twoFactor = pgTable('two_factor', {
+	id: text('id').primaryKey(),
+	secret: text('secret').notNull(),
+	backupCodes: text('backup_codes').notNull(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade' }),
+});
+
 // Platform admin table for app-level admin access
 export const platformAdmins = pgTable('platform_admin', {
 	id: text('id').primaryKey(),
@@ -317,9 +329,46 @@ export const platformAdmins = pgTable('platform_admin', {
 		.unique(),
 	role: varchar('role', { length: 50 }).default('admin').notNull(), // admin, support, etc.
 	permissions: jsonb('permissions'), // Optional: granular permissions
+	require2fa: boolean('require_2fa').default(true).notNull(),
+	last2faVerifiedAt: timestamp('last_2fa_verified_at'),
+	trustedIps: text('trusted_ips').array(), // Array of trusted IP addresses
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 	createdBy: text('created_by').references(() => user.id),
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Platform audit logs for admin actions
+export const platformAuditLogs = pgTable('platform_audit_logs', {
+	id: text('id').primaryKey(),
+	adminId: text('admin_id').references(() => platformAdmins.id),
+	action: varchar('action', { length: 100 }).notNull(),
+	resourceType: varchar('resource_type', { length: 50 }),
+	resourceId: text('resource_id'),
+	changes: jsonb('changes'),
+	ipAddress: inet('ip_address'),
+	userAgent: text('user_agent'),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Feature flags management
+export const featureFlags = pgTable('feature_flags', {
+	id: text('id').primaryKey(),
+	name: varchar('name', { length: 100 }).unique().notNull(),
+	description: text('description'),
+	enabled: boolean('enabled').default(false).notNull(),
+	rolloutPercentage: integer('rollout_percentage').default(0),
+	workspaceOverrides: jsonb('workspace_overrides'), // {workspace_id: boolean}
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// System health metrics
+export const systemMetrics = pgTable('system_metrics', {
+	id: text('id').primaryKey(),
+	metricType: varchar('metric_type', { length: 50 }).notNull(), // api_latency, error_rate, etc
+	value: integer('value').notNull(),
+	metadata: jsonb('metadata'),
+	recordedAt: timestamp('recorded_at').defaultNow().notNull(),
 });
 
 export const organizationRelations = relations(
@@ -545,13 +594,27 @@ export const billingEventsRelations = relations(billingEvents, ({ one }) => ({
 	}),
 }));
 
-export const platformAdminsRelations = relations(platformAdmins, ({ one }) => ({
-	user: one(user, {
-		fields: [platformAdmins.userId],
-		references: [user.id],
+export const platformAdminsRelations = relations(
+	platformAdmins,
+	({ one, many }) => ({
+		user: one(user, {
+			fields: [platformAdmins.userId],
+			references: [user.id],
+		}),
+		createdByUser: one(user, {
+			fields: [platformAdmins.createdBy],
+			references: [user.id],
+		}),
+		auditLogs: many(platformAuditLogs),
 	}),
-	createdByUser: one(user, {
-		fields: [platformAdmins.createdBy],
-		references: [user.id],
+);
+
+export const platformAuditLogsRelations = relations(
+	platformAuditLogs,
+	({ one }) => ({
+		admin: one(platformAdmins, {
+			fields: [platformAuditLogs.adminId],
+			references: [platformAdmins.id],
+		}),
 	}),
-}));
+);

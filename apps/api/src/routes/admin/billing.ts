@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 
+import { requireAdmin } from '../../middleware/auth.js';
 import {
 	QuotaEnforcementService,
 	SubscriptionService,
@@ -9,17 +10,7 @@ import { logError } from '../../utils/logger.js';
 
 export async function adminBillingRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
-	fastify.addHook('preHandler', async (request, reply) => {
-		if (!request.currentUser?.isPlatformAdmin) {
-			return reply.code(403).send({
-				success: false,
-				error: {
-					code: 'FORBIDDEN',
-					message: 'Platform admin access required',
-				},
-			});
-		}
-	});
+	fastify.addHook('preHandler', requireAdmin);
 
 	const subscriptionService = new SubscriptionService();
 	const quotaService = new QuotaEnforcementService();

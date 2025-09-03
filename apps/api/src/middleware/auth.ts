@@ -3,8 +3,16 @@ import { eq } from 'drizzle-orm';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { db } from '../db/connection.js';
-import { apiKeys, member, organization, platformAdmins } from '../db/schema.js';
+import {
+	apiKeys,
+	member,
+	organization,
+	platformAdmins,
+	user,
+} from '../db/schema.js';
 import { auth } from '../lib/auth.js';
+import { adminAuditService } from '../services/admin/audit-service.js';
+import { adminService } from '../services/admin/index.js';
 import '../types/fastify.js';
 
 export async function authenticateSession(
@@ -31,8 +39,8 @@ export async function authenticateSession(
 				return reply.code(401).send({
 					success: false,
 					error: {
-						code: 'NOT_AUTHENTICATED',
-						message: 'No valid session found',
+						code: 'UNAUTHORIZED',
+						message: 'Authentication required',
 					},
 				});
 			} else {
@@ -53,8 +61,11 @@ export async function authenticateSession(
 
 		const userOrgInfo = membership[0];
 
-		const platformAdmin = await db
-			.select({ role: platformAdmins.role })
+		const admin = await db
+			.select({
+				role: platformAdmins.role,
+				permissions: platformAdmins.permissions,
+			})
 			.from(platformAdmins)
 			.where(eq(platformAdmins.userId, session.user.id))
 			.limit(1)
@@ -64,7 +75,8 @@ export async function authenticateSession(
 			id: session.user.id,
 			organizationId: userOrgInfo?.organizationId || '',
 			role: userOrgInfo?.role || 'member',
-			isPlatformAdmin: !!platformAdmin,
+			isAdmin: !!admin,
+			adminPermissions: admin?.permissions || undefined,
 		};
 	} catch (err) {
 		return reply.code(401).send({
@@ -158,7 +170,7 @@ export async function authenticateAPIKey(
 			id: validKey.createdBy,
 			organizationId: validKey.organizationId,
 			role: 'api',
-			isPlatformAdmin: false,
+			isAdmin: false,
 		};
 	} catch (err) {
 		return reply.code(500).send({
@@ -205,7 +217,7 @@ export function requireRole(requiredRole: string) {
 	};
 }
 
-export async function requirePlatformAdmin(
+export async function requireAdmin(
 	request: FastifyRequest,
 	reply: FastifyReply,
 ) {
@@ -219,7 +231,7 @@ export async function requirePlatformAdmin(
 		});
 	}
 
-	if (!request.currentUser.isPlatformAdmin) {
+	if (!request.currentUser.isAdmin) {
 		return reply.code(403).send({
 			success: false,
 			error: {
@@ -228,4 +240,19 @@ export async function requirePlatformAdmin(
 			},
 		});
 	}
+
+	const clientIP =
+		request.ip || (request.headers['x-forwarded-for'] as string) || '';
+	const userAgent = request.headers['user-agent'] || '';
+
+	await adminAuditService.logAdminAction(
+		request.currentUser.id,
+		'ADMIN_ACCESS',
+		{
+			resourceType: 'API_ENDPOINT',
+			resourceId: request.url,
+			ipAddress: clientIP,
+			userAgent: userAgent,
+		},
+	);
 }
