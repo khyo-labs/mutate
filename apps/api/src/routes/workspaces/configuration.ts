@@ -15,7 +15,6 @@ import '../../types/fastify.js';
 import { logError } from '../../utils/logger.js';
 
 export async function configRoutes(fastify: FastifyInstance) {
-	// All configuration routes now require workspace access
 	fastify.addHook('preHandler', async (request, reply) => {
 		await fastify.authenticate(request, reply);
 		await validateWorkspaceAccess(request, reply);

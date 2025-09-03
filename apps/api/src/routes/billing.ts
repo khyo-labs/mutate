@@ -39,7 +39,7 @@ export async function billingRoutes(fastify: FastifyInstance) {
 	// Get subscription plans (public only for regular users, all for admins)
 	fastify.get('/plans', async (request, reply) => {
 		try {
-			const includePrivate = request.currentUser?.isPlatformAdmin || false;
+			const includePrivate = request.currentUser?.isAdmin || false;
 			const plans = await subscriptionService.getAllPlans(includePrivate);
 
 			return {

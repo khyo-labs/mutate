@@ -1,9 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/create-mutation')({
-  component: RouteComponent,
-});
+import { CreateMutation } from '@/components/mutations/create-mutation';
 
-function RouteComponent() {
-  return <div>Hello "/create-mutation"!</div>;
-}
+export const Route = createFileRoute('/create-mutation')({
+	component: CreateMutation,
+});
