@@ -99,8 +99,8 @@ function FeatureFlagsManagement() {
 	async function fetchFeatureFlags() {
 		try {
 			setLoading(true);
-			const response = await api.get('/v1/admin/features');
-			setFlags(response.data as FeatureFlag[]);
+			const flags = await api.get<FeatureFlag[]>('/v1/admin/features');
+			setFlags(flags);
 		} catch (error) {
 			console.error('Failed to fetch feature flags:', error);
 			toast.error('Failed to load feature flags');

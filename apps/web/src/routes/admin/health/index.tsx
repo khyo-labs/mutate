@@ -119,8 +119,8 @@ function SystemHealthMonitoring() {
 
 	async function fetchSystemHealth() {
 		try {
-			const response = await api.get('/v1/admin/health/status');
-			setHealth(response.data as SystemHealth);
+			const healthData = await api.get<SystemHealth>('/v1/admin/health/status');
+			setHealth(healthData);
 		} catch (error) {
 			console.error('Failed to fetch system health:', error);
 			toast.error('Failed to load system health');
@@ -131,8 +131,7 @@ function SystemHealthMonitoring() {
 
 	async function fetchMetricHistory() {
 		try {
-			const response = await api.get('/v1/admin/health/metrics?period=1h');
-			const data = response.data as { metrics: MetricHistory[] };
+			const data = await api.get<{ metrics: MetricHistory[] }>('/v1/admin/health/metrics?period=1h');
 			setMetricHistory(data.metrics);
 		} catch (error) {
 			console.error('Failed to fetch metric history:', error);

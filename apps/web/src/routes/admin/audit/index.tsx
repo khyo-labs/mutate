@@ -89,11 +89,10 @@ function AuditLogViewer() {
 			if (dateTo) params.append('to', dateTo);
 			if (searchTerm) params.append('search', searchTerm);
 
-			const response = await api.get(`/v1/admin/audit/logs?${params}`);
-			const data = response.data as {
+			const data = await api.get<{
 				logs: AuditLog[];
 				totalPages: number;
-			};
+			}>(`/v1/admin/audit/logs?${params}`);
 			setLogs(data.logs);
 			setTotalPages(data.totalPages);
 		} catch (error) {
@@ -116,10 +115,9 @@ function AuditLogViewer() {
 			if (dateFrom) params.append('from', dateFrom);
 			if (dateTo) params.append('to', dateTo);
 
-			const response = await api.get(`/v1/admin/audit/export?${params}`);
+			const blob = await api.get<Blob>(`/v1/admin/audit/export?${params}`);
 
 			// Create download link
-			const blob = response.data as Blob;
 			const url = window.URL.createObjectURL(blob);
 			const link = document.createElement('a');
 			link.href = url;

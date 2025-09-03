@@ -69,11 +69,10 @@ function SupportTools() {
 
 		try {
 			setLoading(true);
-			const response = await api.post(
+			const data = await api.post<{ sessionToken?: string }>(
 				`/v1/admin/support/impersonate/${impersonateUserId}`,
 			);
 
-			const data = response.data as { sessionToken?: string };
 			if (data.sessionToken) {
 				sessionStorage.setItem(
 					'impersonation_token',
@@ -100,12 +99,11 @@ function SupportTools() {
 
 		try {
 			setLoading(true);
-			const response = await api.get(
+			const blob = await api.get<Blob>(
 				`/v1/admin/support/export/workspace/${workspaceId}?format=${exportFormat}`,
 			);
 
 			// Create download link
-			const blob = response.data as Blob;
 			const url = window.URL.createObjectURL(blob);
 			const link = document.createElement('a');
 			link.href = url;
@@ -191,10 +189,9 @@ function SupportTools() {
 
 		try {
 			setLoading(true);
-			const response = await api.post('/v1/admin/support/query', {
+			const data = await api.post<{ result: any }>('/v1/admin/support/query', {
 				query: queryInput,
 			});
-			const data = response.data as { result: any };
 			setQueryResult(JSON.stringify(data.result, null, 2));
 			toast.success('Query executed successfully');
 		} catch (error: any) {

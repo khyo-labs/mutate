@@ -101,8 +101,8 @@ function UserManagement() {
 	async function fetchUsers() {
 		try {
 			setLoading(true);
-			const response = await api.get('/v1/admin/users');
-			setUsers(response.data as UserDetails[]);
+			const users = await api.get<UserDetails[]>('/v1/admin/users');
+			setUsers(users);
 		} catch (error) {
 			console.error('Failed to fetch users:', error);
 			toast.error('Failed to load users');
@@ -113,8 +113,7 @@ function UserManagement() {
 
 	async function impersonateUser(userId: string) {
 		try {
-			const response = await api.post(`/v1/admin/users/${userId}/impersonate`);
-			const data = response.data as { sessionToken?: string };
+			const data = await api.post<{ sessionToken?: string }>(`/v1/admin/users/${userId}/impersonate`);
 			if (data.sessionToken) {
 				// Store the impersonation token and redirect
 				sessionStorage.setItem(

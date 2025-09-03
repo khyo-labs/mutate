@@ -13,6 +13,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { useSession } from '@/stores/auth-store';
+import type { SuccessResponse } from '@/types';
 
 import { AdminSidebar } from './admin-sidebar';
 
@@ -34,12 +35,15 @@ export function AdminLayout() {
 
 		try {
 			// Check if user is a platform admin
-			const response = await api.get('/v1/admin/check-access');
-			const data = response.data as {
-				isAdmin: boolean;
-				requires2FA?: boolean;
-				has2FAEnabled?: boolean;
-			};
+			const response = await api.get<
+				SuccessResponse<{
+					isAdmin: boolean;
+					requires2FA?: boolean;
+					has2FAEnabled?: boolean;
+				}>
+			>('/v1/admin/check-access');
+
+			const data = response.data;
 
 			if (data.isAdmin) {
 				setIsAdmin(true);

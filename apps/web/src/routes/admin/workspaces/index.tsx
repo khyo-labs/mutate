@@ -110,8 +110,8 @@ function WorkspaceManagement() {
 	async function fetchWorkspaces() {
 		try {
 			setLoading(true);
-			const response = await api.get('/v1/admin/workspaces');
-			setWorkspaces(response.data as Workspace[]);
+			const workspaces = await api.get<Workspace[]>('/v1/admin/workspaces');
+			setWorkspaces(workspaces);
 		} catch (error) {
 			console.error('Failed to fetch workspaces:', error);
 			toast.error('Failed to load workspaces');
