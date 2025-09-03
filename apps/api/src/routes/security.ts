@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 
-import { auth } from '../lib/auth';
+import { auth } from '../lib/auth.js';
 
 const enableTwoFactorSchema = z.object({
 	password: z.string(),
