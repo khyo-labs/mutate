@@ -22,3 +22,28 @@ export function getInitials(name: string) {
 	}
 	return name.substring(0, 2).toUpperCase();
 }
+
+export function getErrorMessage(error: unknown, defaultMessage?: string) {
+	if (typeof error === 'string') {
+		return error;
+	}
+	if (error && typeof error === 'object' && 'message' in error) {
+		if (
+			'response' in error &&
+			error.response &&
+			typeof error.response === 'object' &&
+			'data' in error.response &&
+			error.response.data &&
+			typeof error.response.data === 'object' &&
+			'error' in error.response.data &&
+			error.response.data.error &&
+			typeof error.response.data.error === 'object' &&
+			'message' in error.response.data.error &&
+			typeof error.response.data.error.message === 'string'
+		) {
+			return error.response.data.error.message;
+		}
+		return String(error.message);
+	}
+	return defaultMessage ?? 'An unknown error occurred.';
+}

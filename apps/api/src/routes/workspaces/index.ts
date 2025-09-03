@@ -2,12 +2,53 @@ import { APIError } from 'better-auth/api';
 import { FastifyInstance } from 'fastify';
 
 import { auth } from '../../lib/auth.js';
+import { workspaceAccess } from '../../middleware/workspace-access.js';
 import { createWorkspaceSchema } from '../../schemas/workspace.js';
+import { deleteWorkspace } from '../../services/workspace.js';
 import '../../types/fastify.js';
-import { getErrorMessage } from '../../utils/error.js';
+import { AppError, getErrorMessage } from '../../utils/error.js';
 
 export async function workspaceRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
+
+	fastify.delete(
+		'/:workspaceId',
+		{ preHandler: [workspaceAccess] },
+		async (request, reply) => {
+			try {
+				const { workspaceId } = request.params as { workspaceId: string };
+				const result = await deleteWorkspace(
+					workspaceId,
+					request.currentUser.id,
+				);
+				return reply.send(result);
+			} catch (error) {
+				fastify.log.error(error);
+				if (error instanceof AppError) {
+					const statusCode =
+						error.code === 'FORBIDDEN'
+							? 403
+							: error.code === 'PRECONDITION_FAILED'
+							? 412
+							: 500;
+					return reply.status(statusCode).send({
+						success: false,
+						error: {
+							code: error.code,
+							message: error.message,
+						},
+					});
+				}
+				return reply.status(500).send({
+					success: false,
+					error: {
+						code: 'FAILED_TO_DELETE_WORKSPACE',
+						message: getErrorMessage(error, 'Failed to delete workspace'),
+					},
+				});
+			}
+		},
+	);
 
 	fastify.get('/', async (request, reply) => {
 		try {

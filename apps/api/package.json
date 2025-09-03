@@ -14,7 +14,8 @@
 		"db:migrate:prod": "node scripts/migrate.js",
 		"db:studio": "drizzle-kit studio",
 		"lint": "eslint src --ext .ts --fix",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.878.0",
@@ -52,6 +53,7 @@
 		"eslint": "^9.34.0",
 		"pino-pretty": "^13.1.1",
 		"tsup": "^8.5.0",
-		"tsx": "^4.20.5"
+		"tsx": "^4.20.5",
+		"vitest": "^3.2.4"
 	}
 }
