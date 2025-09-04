@@ -15,7 +15,7 @@ import {
 	organizationWebhooks,
 	transformationJobs,
 	usageRecords,
-} from '../db/schema';
+} from '../db/schema.js';
 import { AppError } from '../utils/error.js';
 
 export async function deleteWorkspace(workspaceId: string, userId: string) {
