@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull } from 'drizzle-orm';
 
 import { db } from '../db/connection';
 import {
@@ -6,6 +6,7 @@ import {
 	apiKeys,
 	auditLogs,
 	billingEvents,
+	configurationVersions,
 	configurations,
 	invitation,
 	member,
@@ -55,6 +56,7 @@ export async function deleteWorkspace(workspaceId: string, userId: string) {
 				and(
 					eq(organizationSubscriptions.organizationId, workspaceId),
 					eq(organizationSubscriptions.status, 'active'),
+					isNotNull(organizationSubscriptions.stripeSubscriptionId),
 				),
 			);
 
@@ -75,6 +77,16 @@ export async function deleteWorkspace(workspaceId: string, userId: string) {
 		await tx
 			.delete(transformationJobs)
 			.where(eq(transformationJobs.organizationId, workspaceId));
+		const configurationsToDelete = await tx
+			.select()
+			.from(configurations)
+			.where(eq(configurations.organizationId, workspaceId));
+		await tx.delete(configurationVersions).where(
+			inArray(
+				configurationVersions.configurationId,
+				configurationsToDelete.map((c) => c.id),
+			),
+		);
 		await tx
 			.delete(configurations)
 			.where(eq(configurations.organizationId, workspaceId));
@@ -86,9 +98,7 @@ export async function deleteWorkspace(workspaceId: string, userId: string) {
 		// Deleting audit logs is a destructive action. For compliance,
 		// it might be better to soft-delete or archive them.
 		// For this implementation, we will hard delete as per requirements.
-		await tx
-			.delete(auditLogs)
-			.where(eq(auditLogs.organizationId, workspaceId));
+		await tx.delete(auditLogs).where(eq(auditLogs.organizationId, workspaceId));
 		await tx
 			.delete(usageRecords)
 			.where(eq(usageRecords.organizationId, workspaceId));

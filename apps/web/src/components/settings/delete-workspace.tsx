@@ -1,5 +1,10 @@
 'use client';
 
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from '@tanstack/react-router';
+import * as React from 'react';
+import { toast } from 'sonner';
+
 import { workspaceApi } from '@/api/workspaces';
 import {
 	AlertDialog,
@@ -15,15 +20,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useWorkspace } from '@/hooks/use-workspaces';
 import { getErrorMessage } from '@/lib/utils';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from '@tanstack/react-router';
-import * as React from 'react';
-import { toast } from 'sonner';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 
 export function DeleteWorkspace() {
-	const { data: workspace } = useWorkspace();
+	const { activeWorkspace } = useWorkspaceStore();
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const [confirmation, setConfirmation] = React.useState('');
@@ -42,16 +43,16 @@ export function DeleteWorkspace() {
 		},
 	});
 
-	const isConfirmationMatching = confirmation === workspace?.name;
+	const isConfirmationMatching = confirmation === activeWorkspace?.name;
 
 	function handleDelete() {
-		if (!isConfirmationMatching || !workspace) return;
-		mutate(workspace.id);
+		if (!isConfirmationMatching || !activeWorkspace) return;
+		mutate(activeWorkspace.id);
 	}
 
 	return (
 		<AlertDialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-			<div className="flex items-center justify-between rounded-md border border-input p-4">
+			<div className="border-input flex items-center justify-between rounded-md border p-4">
 				<div>
 					<p className="font-semibold">Delete this workspace</p>
 					<p className="text-muted-foreground text-sm">
@@ -66,17 +67,19 @@ export function DeleteWorkspace() {
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-					<AlertDialogDescription>
-						This action cannot be undone. This will permanently delete the{' '}
-						<strong>{workspace?.name}</strong> workspace and all associated
-						data.
-						<ul className="my-2 list-inside list-disc">
-							<li>API keys</li>
-							<li>Webhooks</li>
-							<li>Configurations</li>
-							<li>Members and invitations</li>
-						</ul>
-						Please type <strong>{workspace?.name}</strong> to confirm.
+					<AlertDialogDescription asChild>
+						<div>
+							This action cannot be undone. This will permanently delete the{' '}
+							<strong>{activeWorkspace?.name}</strong> workspace and all
+							associated data.
+							<ul className="my-2 list-inside list-disc">
+								<li>API keys</li>
+								<li>Webhooks</li>
+								<li>Configurations</li>
+								<li>Members and invitations</li>
+							</ul>
+							Please type <strong>{activeWorkspace?.name}</strong> to confirm.
+						</div>
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<div className="grid gap-2">
@@ -87,17 +90,19 @@ export function DeleteWorkspace() {
 						id="workspace-name-confirmation"
 						value={confirmation}
 						onChange={(e) => setConfirmation(e.target.value)}
-						placeholder={workspace?.name}
+						placeholder={activeWorkspace?.name}
 					/>
 				</div>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction
-						variant="destructive"
-						disabled={!isConfirmationMatching || isPending}
-						onClick={handleDelete}
-					>
-						{isPending ? 'Deleting...' : 'Delete Workspace'}
+					<AlertDialogAction asChild>
+						<Button
+							variant="destructive"
+							disabled={!isConfirmationMatching || isPending}
+							onClick={handleDelete}
+						>
+							{isPending ? 'Deleting...' : 'Delete Workspace'}
+						</Button>
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

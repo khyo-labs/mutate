@@ -2,7 +2,7 @@ import { APIError } from 'better-auth/api';
 import { FastifyInstance } from 'fastify';
 
 import { auth } from '../../lib/auth.js';
-import { workspaceAccess } from '../../middleware/workspace-access.js';
+import { validateWorkspaceAccess } from '../../middleware/workspace-access.js';
 import { createWorkspaceSchema } from '../../schemas/workspace.js';
 import { deleteWorkspace } from '../../services/workspace.js';
 import '../../types/fastify.js';
@@ -28,13 +28,13 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 
 	fastify.delete(
 		'/:workspaceId',
-		{ preHandler: [workspaceAccess] },
+		{ preHandler: [validateWorkspaceAccess] },
 		async (request, reply) => {
 			try {
 				const { workspaceId } = request.params as { workspaceId: string };
 				const result = await deleteWorkspace(
 					workspaceId,
-					request.currentUser.id,
+					request.currentUser!.id,
 				);
 				return reply.send(result);
 			} catch (error) {
