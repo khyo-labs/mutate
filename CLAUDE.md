@@ -223,3 +223,4 @@ VITE_API_URL=http://localhost:3000
   	message: 'Authentication required',
   }
   ```
+- do not chain ternary operators

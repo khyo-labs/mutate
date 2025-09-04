@@ -35,7 +35,20 @@ export async function deleteWorkspace(workspaceId: string, userId: string) {
 			);
 		}
 
-		// 2. Check if there are other members in the workspace
+		// 2. Check if this is the user's last workspace
+		const userWorkspaces = await tx
+			.select()
+			.from(member)
+			.where(eq(member.userId, userId));
+
+		if (userWorkspaces.length === 1) {
+			throw new AppError(
+				'LAST_WORKSPACE',
+				'You cannot delete your last workspace. Please create a new workspace first.',
+			);
+		}
+
+		// 3. Check if there are other members in the workspace
 		const allMembers = await tx
 			.select()
 			.from(member)
@@ -48,7 +61,7 @@ export async function deleteWorkspace(workspaceId: string, userId: string) {
 			);
 		}
 
-		// 3. Check for active subscriptions
+		// 4. Check for active subscriptions
 		const [activeSubscription] = await tx
 			.select()
 			.from(organizationSubscriptions)
@@ -67,7 +80,7 @@ export async function deleteWorkspace(workspaceId: string, userId: string) {
 			);
 		}
 
-		// 4. Delete all related data in the correct order
+		// 5. Delete all related data in the correct order
 		// Note: Some of these could be handled by CASCADE deletes in the DB,
 		// but explicit deletion is safer and clearer.
 
@@ -113,7 +126,7 @@ export async function deleteWorkspace(workspaceId: string, userId: string) {
 			.where(eq(invitation.organizationId, workspaceId));
 		await tx.delete(member).where(eq(member.organizationId, workspaceId));
 
-		// 5. Finally, delete the workspace itself
+		// 6. Finally, delete the workspace itself
 		await tx.delete(organization).where(eq(organization.id, workspaceId));
 
 		return {

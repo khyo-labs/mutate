@@ -40,12 +40,14 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 			} catch (error) {
 				fastify.log.error(error);
 				if (error instanceof AppError) {
-					const statusCode =
-						error.code === 'FORBIDDEN'
-							? 403
-							: error.code === 'PRECONDITION_FAILED'
-							? 412
-							: 500;
+					let statusCode = 500;
+					if (error.code === 'FORBIDDEN') {
+						statusCode = 403;
+					} else if (error.code === 'PRECONDITION_FAILED') {
+						statusCode = 412;
+					} else if (error.code === 'LAST_WORKSPACE') {
+						statusCode = 400;
+					}
 					return reply.status(statusCode).send({
 						success: false,
 						error: {
