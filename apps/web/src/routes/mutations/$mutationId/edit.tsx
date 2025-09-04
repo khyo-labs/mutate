@@ -372,7 +372,7 @@ export function ConfigurationEditComponent() {
 								<CardContent className="space-y-5">
 									<div>
 										<Label htmlFor="name">
-											Name <span className="text-red-500">*</span>
+											Name <span className="text-destructive">*</span>
 										</Label>
 										<Controller
 											name="name"
@@ -387,7 +387,7 @@ export function ConfigurationEditComponent() {
 											)}
 										/>
 										{errors.name && (
-											<p className="mt-2 text-sm text-red-600">
+											<p className="text-destructive mt-2 text-sm">
 												{errors.name.message}
 											</p>
 										)}
@@ -480,7 +480,7 @@ export function ConfigurationEditComponent() {
 							<div className="text-muted-foreground text-sm">
 								{uploadedFile ? (
 									<span className="flex items-center">
-										<span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
+										<span className="bg-success mr-2 h-2 w-2 rounded-full"></span>
 										File uploaded: {uploadedFile.name}
 									</span>
 								) : (

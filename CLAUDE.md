@@ -215,3 +215,11 @@ VITE_API_URL=http://localhost:3000
 - Database migrations are handled by Drizzle
 - The frontend uses TanStack Router for type-safe routing
 - Do not add one line comments unless absolutely needed
+- Always use the api-client when you can instead of native fetch.
+- When returning errors from the api use this format:
+  ```json
+  error: {
+  	code: 'NOT_AUTHENTICATED',
+  	message: 'Authentication required',
+  }
+  ```

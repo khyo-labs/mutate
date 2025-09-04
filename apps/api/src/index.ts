@@ -8,14 +8,14 @@ import { config } from './config.js';
 import { errorHandler } from './middleware/error-handler.js';
 import requireVerifiedEmail from './middleware/require-verified-email.js';
 import authPlugin from './plugins/auth.js';
-import { adminBillingRoutes } from './routes/admin/billing.js';
+import { adminRoutes } from './routes/admin/index.js';
 import { authRoutes } from './routes/auth.js';
 import { billingRoutes } from './routes/billing.js';
 import { fileRoutes } from './routes/files.js';
 import { healthRoutes } from './routes/health.js';
 import { mutateRoutes } from './routes/mutate.js';
+import { securityRoutes } from './routes/security.js';
 import { userRoutes } from './routes/user.js';
-import { configRoutes } from './routes/workspaces/configuration.js';
 import { workspaceRoutes } from './routes/workspaces/index.js';
 import { transformationQueue } from './services/queue.js';
 import './types/fastify.js';
@@ -86,27 +86,12 @@ fastify.setErrorHandler(errorHandler);
 
 await fastify.register(healthRoutes, { prefix: '/v1/health' });
 await fastify.register(authRoutes, { prefix: '/v1/auth' });
-
-// Workspace management routes (list, create, set-active)
+await fastify.register(securityRoutes, { prefix: '/v1/security' });
 await fastify.register(workspaceRoutes, { prefix: '/v1/workspaces' });
-
-// Workspace-scoped routes
-await fastify.register(configRoutes, {
-	prefix: '/v1/workspaces/:workspaceId/configurations',
-});
-const { apiKeyRoutes } = await import('./routes/workspaces/api-keys.js');
-await fastify.register(apiKeyRoutes, {
-	prefix: '/v1/workspaces/:workspaceId/api-keys',
-});
-const { webhookRoutes } = await import('./routes/workspaces/webhooks.js');
-await fastify.register(webhookRoutes, {
-	prefix: '/v1/workspaces/:workspaceId/webhooks',
-});
-
 await fastify.register(mutateRoutes, { prefix: '/v1/mutate' });
 await fastify.register(fileRoutes, { prefix: '/v1/files' });
 await fastify.register(billingRoutes, { prefix: '/v1/billing' });
-await fastify.register(adminBillingRoutes, { prefix: '/v1/admin/billing' });
+await fastify.register(adminRoutes, { prefix: '/v1/admin' });
 await fastify.register(userRoutes, { prefix: '/v1/user' });
 
 const start = async () => {

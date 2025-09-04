@@ -74,7 +74,7 @@ function getDefaultOutputFormat(conversionType: ConversionType) {
 	}
 }
 
-export function NewConfigurationComponent() {
+export function CreateMutation() {
 	const navigate = useNavigate();
 	const [conversionType, setConversionType] =
 		useState<ConversionType>('XLSX_TO_CSV');
@@ -254,7 +254,7 @@ export function NewConfigurationComponent() {
 							<CardContent className="space-y-5">
 								<div>
 									<Label htmlFor="name">
-										Name <span className="text-red-500">*</span>
+										Name <span className="text-destructive">*</span>
 									</Label>
 									<Input
 										{...register('name')}
@@ -262,7 +262,7 @@ export function NewConfigurationComponent() {
 										placeholder="Enter configuration name"
 									/>
 									{errors.name && (
-										<p className="mt-2 text-sm text-red-600">
+										<p className="text-destructive mt-2 text-sm">
 											{errors.name.message}
 										</p>
 									)}
@@ -308,7 +308,7 @@ export function NewConfigurationComponent() {
 						<div className="text-muted-foreground text-sm">
 							{uploadedFile ? (
 								<span className="flex items-center">
-									<span className="mr-2 h-2 w-2 rounded-full bg-green-500"></span>
+									<span className="bg-success mr-2 h-2 w-2 rounded-full"></span>
 									File uploaded: {uploadedFile.name}
 								</span>
 							) : (

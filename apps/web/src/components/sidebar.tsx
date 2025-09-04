@@ -1,5 +1,14 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import { ChevronDown, Home, LogOut, Menu, X } from 'lucide-react';
+import {
+	ChevronDown,
+	Home,
+	LogOut,
+	Menu,
+	Palette,
+	Shield,
+	User,
+	X,
+} from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -23,6 +32,12 @@ interface NavigationItem {
 	icon: React.ComponentType<{ className?: string }>;
 	badge?: string;
 }
+
+const accountNavigation: NavigationItem[] = [
+	{ name: 'Profile', href: '/settings/account/profile', icon: User },
+	{ name: 'Security', href: '/settings/account/security', icon: Shield },
+	{ name: 'Appearance', href: '/settings/account/appearance', icon: Palette },
+];
 
 export function Sidebar() {
 	const { activeWorkspace } = useWorkspaceStore();
@@ -78,14 +93,18 @@ export function Sidebar() {
 									<DropdownMenuContent>
 										<DropdownMenuLabel>My Account</DropdownMenuLabel>
 										<DropdownMenuSeparator />
-										<DropdownMenuItem asChild>
-											<Link to="/settings/account/profile">Profile</Link>
-										</DropdownMenuItem>
-										<DropdownMenuItem asChild>
-											<Link to="/settings/account/appearance">Appearance</Link>
-										</DropdownMenuItem>
-										<DropdownMenuItem onClick={handleLogout}>
+										{accountNavigation.map((item) => (
+											<DropdownMenuItem key={item.name} asChild>
+												<Link to={item.href}>{item.name}</Link>
+											</DropdownMenuItem>
+										))}
+										<DropdownMenuSeparator />
+										<DropdownMenuItem
+											onClick={handleLogout}
+											className="flex justify-between"
+										>
 											Logout
+											<LogOut className="size-4" />
 										</DropdownMenuItem>
 									</DropdownMenuContent>
 								</DropdownMenu>

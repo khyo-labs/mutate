@@ -30,37 +30,31 @@ import {
 } from 'recharts';
 import { toast } from 'sonner';
 
-import type { SuccessResponse } from '@/types';
-
-import { api } from '../api/client';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
+import { api } from '@/api/client';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '../components/ui/select';
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
-} from '../components/ui/tabs';
-import { useSession } from '../stores/auth-store';
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useSession } from '@/stores/auth-store';
+import type { SuccessResponse } from '@/types';
 
-export const Route = createFileRoute('/admin')({
-	component: AdminDashboard,
+export const Route = createFileRoute('/admin/')({
+	component: PlatformOverview,
 });
 
 interface SubscriptionPlan {
@@ -109,7 +103,7 @@ interface UsageHistory {
 	conversionTypeBreakdown: Record<string, number>;
 }
 
-function AdminDashboard() {
+function PlatformOverview() {
 	const { data: session } = useSession();
 	const [organizations, setOrganizations] = useState<Organization[]>([]);
 	const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
@@ -419,11 +413,26 @@ function AdminDashboard() {
 
 	return (
 		<div className="container mx-auto max-w-7xl p-6">
-			<div className="mb-6">
-				<h1 className="mb-2 text-3xl font-bold">Platform Admin Dashboard</h1>
-				<p className="text-muted-foreground">
-					Manage workspaces, subscriptions, and billing
-				</p>
+			<div className="mb-6 flex items-center justify-between">
+				<div>
+					<h1 className="mb-2 text-3xl font-bold">Platform Overview</h1>
+					<p className="text-muted-foreground">
+						Real-time platform metrics and system status
+					</p>
+				</div>
+				<div className="flex gap-2">
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => {
+							fetchOrganizations();
+							fetchPlans();
+						}}
+					>
+						<Activity className="mr-2 h-4 w-4" />
+						Refresh
+					</Button>
+				</div>
 			</div>
 
 			{/* Tab Navigation */}
@@ -527,7 +536,7 @@ function AdminDashboard() {
 										>
 											{planChartData.map((_entry, index) => (
 												<Cell
-													key={`cell-${index}`}
+													key={'cell-${index}'}
 													fill={COLORS[index % COLORS.length]}
 												/>
 											))}
@@ -656,7 +665,7 @@ function AdminDashboard() {
 														<span className="font-medium">
 															{org.currentUsage}
 															{org.plan?.monthlyConversionLimit
-																? ` / ${org.plan.monthlyConversionLimit}`
+																? ' / ${org.plan.monthlyConversionLimit}'
 																: ''}
 														</span>
 													</div>
@@ -723,7 +732,7 @@ function AdminDashboard() {
 														<p className="text-sm">
 															{org.currentUsage}
 															{org.plan?.monthlyConversionLimit
-																? ` / ${org.plan.monthlyConversionLimit}`
+																? ' / ${org.plan.monthlyConversionLimit}'
 																: ' conversions'}
 														</p>
 													</div>

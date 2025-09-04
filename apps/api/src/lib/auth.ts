@@ -1,7 +1,8 @@
-import { betterAuth } from 'better-auth';
+import { type BetterAuthOptions, betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAuthMiddleware, organization } from 'better-auth/plugins';
 import { passkey } from 'better-auth/plugins/passkey';
+import { twoFactor } from 'better-auth/plugins/two-factor';
 import { eq } from 'drizzle-orm';
 
 import { config } from '../config.js';
@@ -11,6 +12,7 @@ import { subscriptionService } from '../services/billing/subscription-service.js
 import { EmailArgs, sendEmail } from '../services/email/index.js';
 
 export const auth = betterAuth({
+	appName: 'Mutate',
 	secret:
 		process.env.BETTER_AUTH_SECRET ||
 		'fallback-secret-for-development-only-minimum-32-chars',
@@ -75,9 +77,12 @@ export const auth = betterAuth({
 					: 'localhost',
 			origin: process.env.BASE_URL || 'http://localhost:5173',
 		}),
+		twoFactor({
+			issuer: 'Mutate',
+		}),
 		organization({
 			allowUserToCreateOrganization: true,
-			organizationLimit: 1, // TODO: Remove once we fix issues with multiple organizations
+			organizationLimit: 10,
 			organizationCreation: {
 				disabled: false,
 				afterCreate: async ({ organization, member, user }) => {
@@ -134,6 +139,16 @@ export const auth = betterAuth({
 			activeOrganizationId: {
 				type: 'string',
 				required: false,
+			},
+		},
+	},
+	user: {
+		additionalFields: {
+			twoFactorEnabled: {
+				type: 'boolean',
+				required: false,
+				defaultValue: false,
+				input: false,
 			},
 		},
 	},

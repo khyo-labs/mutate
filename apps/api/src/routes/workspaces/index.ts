@@ -7,8 +7,23 @@ import { createWorkspaceSchema } from '../../schemas/workspace.js';
 import { deleteWorkspace } from '../../services/workspace.js';
 import '../../types/fastify.js';
 import { AppError, getErrorMessage } from '../../utils/error.js';
+import { apiKeyRoutes } from './api-keys.js';
+import { configRoutes } from './configuration.js';
+import { webhookRoutes } from './webhooks.js';
 
 export async function workspaceRoutes(fastify: FastifyInstance) {
+	fastify.register(configRoutes, {
+		prefix: '/:workspaceId/configurations',
+	});
+
+	fastify.register(apiKeyRoutes, {
+		prefix: '/:workspaceId/api-keys',
+	});
+
+	fastify.register(webhookRoutes, {
+		prefix: '/:workspaceId/webhooks',
+	});
+
 	fastify.addHook('preHandler', fastify.authenticate);
 
 	fastify.delete(
