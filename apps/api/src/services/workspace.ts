@@ -1,6 +1,6 @@
 import { and, eq, inArray, isNotNull } from 'drizzle-orm';
 
-import { db } from '../db/connection';
+import { db } from '../db/connection.js';
 import {
 	activeConversions,
 	apiKeys,
@@ -16,7 +16,7 @@ import {
 	transformationJobs,
 	usageRecords,
 } from '../db/schema';
-import { AppError } from '../utils/error';
+import { AppError } from '../utils/error.js';
 
 export async function deleteWorkspace(workspaceId: string, userId: string) {
 	return await db.transaction(async (tx) => {
