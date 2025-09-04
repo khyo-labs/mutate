@@ -1,7 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { db } from '../db/connection';
-import { AppError } from '../utils/error';
 import { deleteWorkspace } from './workspace';
 
 // Mock the database connection
@@ -33,11 +32,11 @@ vi.mock('../utils/error', () => ({
 }));
 
 const mockDb = db as unknown as {
-	transaction: vi.Mock;
-	select: vi.Mock;
-	from: vi.Mock;
-	where: vi.Mock;
-	delete: vi.Mock;
+	transaction: Mock;
+	select: Mock;
+	from: Mock;
+	where: Mock;
+	delete: Mock;
 };
 
 describe('deleteWorkspace', () => {
