@@ -111,4 +111,11 @@ export const workspaceApi = {
 		}
 		return response.data.status;
 	},
+
+	delete: async function (workspaceId: string): Promise<SuccessResponse<null>> {
+		const response = await api.delete<SuccessResponse<null>>(
+			`/v1/workspaces/${workspaceId}`,
+		);
+		return response;
+	},
 };
