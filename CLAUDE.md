@@ -48,7 +48,9 @@ mutate/
 ### Current Implementation Status
 
 - ✅ User authentication with Better Auth (email/password, GitHub, Google)
-- ✅ Workspace-based multi-tenancy
+- ✅ Passkey authentication support (WebAuthn/FIDO2)
+- ✅ Two-factor authentication (2FA) with QR codes and backup codes
+- ✅ Workspace-based multi-tenancy with active workspace tracking in database
 - ✅ Configuration management (CRUD operations)
 - ✅ Visual rule builder with drag & drop
 - ✅ File upload and processing
@@ -60,6 +62,13 @@ mutate/
 - ✅ Webhook system with retry logic
 - ✅ File storage (AWS S3 & Cloudflare R2 support)
 - ✅ Settings UI (theme, webhooks, API keys)
+- ✅ User profile management (name, email, avatar)
+- ✅ Workspace deletion with cascade data removal
+- ✅ Admin panel with platform administration features
+- ✅ Admin audit logging for platform operations
+- ✅ Feature flags management system
+- ✅ System health monitoring
+- ✅ Organization member management
 - 🚧 Rule processing improvements (ongoing)
 
 ### Supported Transformation Rules
@@ -95,6 +104,14 @@ mutate/
 - Use Drizzle ORM with PostgreSQL
 - All migrations are version controlled in `apps/api/src/db/migrations/`
 - Database connection and schema defined in `apps/api/src/db/`
+- Key tables include:
+  - `user`, `session`, `account` - Authentication and user management
+  - `organization`, `member`, `invitation` - Multi-tenancy
+  - `configuration`, `transformation_job` - Core business logic
+  - `api_key`, `organization_webhook` - Integration features
+  - `platform_admin`, `platform_audit_logs` - Admin functionality
+  - `feature_flags`, `system_metrics` - Platform management
+  - `passkey`, `two_factor` - Enhanced security features
 
 ### Authentication
 
@@ -106,15 +123,21 @@ mutate/
 
 ### Key Endpoints
 
-- `GET /v1/auth/*` - Better Auth endpoints
-- `GET /v1/mutations` - List user configurations
-- `POST /v1/mutations` - Create new configuration
+- `GET /v1/auth/*` - Better Auth endpoints (including passkey and 2FA)
+- `GET /v1/workspace/:id/configuration` - List user configurations
+- `POST /v1/workspace/:id/configuration` - Create new configuration
 - `POST /v1/mutate` - Execute file transformation (async & sync support)
 - `GET /v1/jobs/:jobId` - Check transformation job status
-- `GET /v1/api-keys` - API key management
-- `GET /v1/workspace/webhooks` - Webhook management
+- `GET /v1/workspace/:id/api-keys` - API key management
+- `GET /v1/workspace/:id/webhooks` - Webhook management
+- `DELETE /v1/workspace/:id` - Delete workspace and all related data
 - `GET /v1/files/:key` - Download transformed files
 - `GET /v1/health` - Health check
+- `GET /v1/admin/*` - Admin panel endpoints (users, workspaces, billing, audit)
+- `GET /v1/admin/check-access` - Check admin access and 2FA requirements
+- `GET /v1/admin/workspaces/:id/stats` - Get workspace statistics
+- `GET /v1/admin/features` - Feature flags management
+- `GET /v1/admin/health` - System health monitoring
 
 ### Response Format
 
@@ -198,14 +221,21 @@ VITE_API_URL=http://localhost:3000
 
 ## Recent Changes
 
-- ✅ Implemented async job processing with Bull/Redis queue system
-- ✅ Added webhook system with signature verification and retry logic
-- ✅ Integrated file storage support (AWS S3 & Cloudflare R2)
-- ✅ Built comprehensive settings UI (API keys, webhooks, themes)
-- ✅ Enhanced transformation engine with better error handling
-- ✅ Added presigned URL generation for secure file downloads
-- ✅ Implemented organization webhook management
-- ✅ Added job status tracking and monitoring
+- ✅ Added passkey authentication (WebAuthn/FIDO2) for passwordless login
+- ✅ Implemented two-factor authentication (2FA) with QR codes and backup codes
+- ✅ Added user profile management with avatar, name, and email updates
+- ✅ Moved active workspace tracking from local storage to database
+- ✅ Implemented complete workspace deletion with cascade data removal
+- ✅ Built comprehensive admin panel with platform administration features
+- ✅ Added admin audit logging for tracking all administrative actions
+- ✅ Implemented feature flags management for controlled feature rollouts
+- ✅ Added system health monitoring and metrics tracking
+- ✅ Enhanced workspace navigation with improved UI/UX
+- ✅ Added redirect logic for authenticated users on auth pages
+- ✅ Improved mutations pages with shadcn/tailwind theme integration
+- ✅ Enhanced API key management with new UI design
+- ✅ Added workspace member management and invitations
+- ✅ Implemented organization limits and quota enforcement
 
 ## Development Notes
 

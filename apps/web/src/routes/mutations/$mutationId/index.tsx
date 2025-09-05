@@ -32,7 +32,7 @@ export function ConfigurationDetailComponent() {
 			}
 			return response.data;
 		},
-		enabled: !!mutationId,
+		enabled: !!mutationId && !!activeWorkspace,
 	});
 
 	function getRuleTypeLabel(ruleType: string) {
