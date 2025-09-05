@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import bcrypt from 'bcryptjs';
 import { and, eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { and, eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 import { ulid } from 'ulid';

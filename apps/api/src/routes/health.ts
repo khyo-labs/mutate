@@ -1,3 +1,4 @@
+
 import { FastifyInstance } from 'fastify';
 
 import { db } from '../db/connection.js';

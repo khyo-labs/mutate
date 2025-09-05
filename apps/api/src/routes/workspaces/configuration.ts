@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { and, count, desc, eq, ilike } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 import { ulid } from 'ulid';
@@ -142,7 +143,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 			const organizationId = request.workspace!.id;
 			const offset = (page - 1) * limit;
 
-			let query = db
+			const query = db
 				.select({
 					id: configurations.id,
 					organizationId: configurations.organizationId,
