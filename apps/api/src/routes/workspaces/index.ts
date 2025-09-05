@@ -13,7 +13,7 @@ import { webhookRoutes } from './webhooks.js';
 
 export async function workspaceRoutes(fastify: FastifyInstance) {
 	fastify.register(configRoutes, {
-		prefix: '/:workspaceId/configurations',
+		prefix: '/:workspaceId/configuration',
 	});
 
 	fastify.register(apiKeyRoutes, {
@@ -189,5 +189,5 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 		}
 	});
 
-	// Note: Webhook routes have been moved to /v1/workspaces/:workspaceId/webhooks
+	// Note: Webhook routes have been moved to /v1/workspace/:workspaceId/webhooks
 }

@@ -41,7 +41,7 @@ interface ConfigurationQuery {
 export const workspaceApi = {
 	create: async function (data: CreateWorkspaceRequest): Promise<Workspace> {
 		const response = await api.post<SuccessResponse<Workspace>>(
-			'/v1/workspaces/create',
+			'/v1/workspace/create',
 			data,
 		);
 		return response.data;
@@ -49,13 +49,13 @@ export const workspaceApi = {
 
 	list: async function (): Promise<Workspace[]> {
 		const response =
-			await api.get<SuccessResponse<Workspace[]>>('/v1/workspaces');
+			await api.get<SuccessResponse<Workspace[]>>('/v1/workspace');
 		return response.data;
 	},
 
 	get: async function (workspaceId: string): Promise<Workspace> {
 		const response = await api.get<SuccessResponse<Workspace>>(
-			`/v1/workspaces/${workspaceId}`,
+			`/v1/workspace/${workspaceId}`,
 		);
 		return response.data;
 	},
@@ -70,7 +70,7 @@ export const workspaceApi = {
 		if (params?.limit) searchParams.append('limit', params.limit.toString());
 		if (params?.search) searchParams.append('search', params.search);
 
-		let url = `/v1/workspaces/${workspaceId}/configurations`;
+		let url = `/v1/workspace/${workspaceId}/configuration`;
 
 		if (searchParams.toString()) {
 			url += `?${searchParams.toString()}`;
@@ -86,21 +86,21 @@ export const workspaceApi = {
 
 	getApiKeys: async function (workspaceId: string): Promise<ApiKey[]> {
 		const response = await api.get<SuccessResponse<ApiKey[]>>(
-			`/v1/workspaces/${workspaceId}/api-keys`,
+			`/v1/workspace/${workspaceId}/api-keys`,
 		);
 		return response.data;
 	},
 
 	getWebhooks: async function (workspaceId: string): Promise<Webhook[]> {
 		const response = await api.get<SuccessResponse<Webhook[]>>(
-			`/v1/workspaces/${workspaceId}/webhooks`,
+			`/v1/workspace/${workspaceId}/webhooks`,
 		);
 		return response.data;
 	},
 
 	isSlugAvailable: async function (slug: string): Promise<boolean> {
 		const response = await api.post<ApiResponse<SlugStatus>>(
-			'/v1/workspaces/exists',
+			'/v1/workspace/exists',
 			{
 				slug,
 			},
@@ -114,7 +114,7 @@ export const workspaceApi = {
 
 	delete: async function (workspaceId: string): Promise<SuccessResponse<null>> {
 		const response = await api.delete<SuccessResponse<null>>(
-			`/v1/workspaces/${workspaceId}`,
+			`/v1/workspace/${workspaceId}`,
 		);
 		return response;
 	},

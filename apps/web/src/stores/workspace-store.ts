@@ -33,7 +33,7 @@ export const useWorkspaceStore = create<WorkspaceStore>((set, get) => ({
 			await queryClient.invalidateQueries({ queryKey: ['workspace'] });
 
 			// Also call our API to persist the change
-			await api.post('/v1/workspaces/set-active', {
+			await api.post('/v1/workspace/set-active', {
 				organizationId: organization.id,
 			});
 		} catch (error) {

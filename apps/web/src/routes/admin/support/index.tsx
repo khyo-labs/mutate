@@ -584,7 +584,7 @@ function SupportTools() {
 							</p>
 							<ul className="text-muted-foreground mt-2 space-y-1 text-xs">
 								<li>• Workspace configuration</li>
-								<li>• All mutations/configurations</li>
+								<li>• All mutations/configuration</li>
 								<li>• Member list and roles</li>
 								<li>• Usage history</li>
 								<li>• API keys (hashed)</li>

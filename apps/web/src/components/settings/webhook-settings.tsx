@@ -23,7 +23,7 @@ export function WebhookSettings() {
 				throw new Error('No active workspace selected');
 			}
 			const response = await api.get<SuccessResponse<Webhook[]>>(
-				`/v1/workspaces/${activeWorkspace.id}/webhooks?includeSecrets=true`,
+				`/v1/workspace/${activeWorkspace.id}/webhooks?includeSecrets=true`,
 			);
 			return response.data;
 		},
@@ -36,7 +36,7 @@ export function WebhookSettings() {
 				throw new Error('No active workspace selected');
 			}
 			const response = await api.delete<SuccessResponse<void>>(
-				`/v1/workspaces/${activeWorkspace.id}/webhooks/${id}`,
+				`/v1/workspace/${activeWorkspace.id}/webhooks/${id}`,
 			);
 			if (!response.success) {
 				toast.error('Failed to delete webhook');

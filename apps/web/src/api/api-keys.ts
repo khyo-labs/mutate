@@ -37,7 +37,7 @@ export const apiKeysApi = {
 			throw new Error('No active workspace selected');
 		}
 
-		const url = `/v1/workspaces/${workspace.id}/api-keys`;
+		const url = `/v1/workspace/${workspace.id}/api-keys`;
 		const response = await api.get<SuccessResponse<ApiKey[]>>(url);
 		return response.data;
 	},
@@ -48,7 +48,7 @@ export const apiKeysApi = {
 			throw new Error('No active workspace selected');
 		}
 
-		const url = `/v1/workspaces/${workspace.id}/api-keys`;
+		const url = `/v1/workspace/${workspace.id}/api-keys`;
 		const response = await api.post<SuccessResponse<ApiKey>>(url, data);
 
 		toast.success('API key created successfully');
@@ -61,7 +61,7 @@ export const apiKeysApi = {
 			throw new Error('No active workspace selected');
 		}
 
-		const url = `/v1/workspaces/${workspace.id}/api-keys/${id}`;
+		const url = `/v1/workspace/${workspace.id}/api-keys/${id}`;
 		const response = await api.put<SuccessResponse<ApiKey>>(url, data);
 
 		toast.success('API key updated successfully');
@@ -74,7 +74,7 @@ export const apiKeysApi = {
 			throw new Error('No active workspace selected');
 		}
 
-		const url = `/v1/workspaces/${workspace.id}/api-keys/${id}`;
+		const url = `/v1/workspace/${workspace.id}/api-keys/${id}`;
 		await api.delete<void>(url);
 		toast.success('API key deleted successfully');
 	},

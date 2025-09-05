@@ -47,7 +47,7 @@ export function WebhookDrawer({ webhook }: { webhook?: Webhook }) {
 				throw new Error('No active workspace selected');
 			}
 			const response = await api.post<ApiResponse<Webhook>>(
-				`/v1/workspaces/${activeWorkspace.id}/webhooks`,
+				`/v1/workspace/${activeWorkspace.id}/webhooks`,
 				data,
 			);
 			if (response.success) {
@@ -75,7 +75,7 @@ export function WebhookDrawer({ webhook }: { webhook?: Webhook }) {
 				throw new Error('No active workspace selected');
 			}
 			const response = await api.patch<ApiResponse<Webhook>>(
-				`/v1/workspaces/${activeWorkspace.id}/webhooks/${id}`,
+				`/v1/workspace/${activeWorkspace.id}/webhooks/${id}`,
 				data,
 			);
 			if (response.success) {

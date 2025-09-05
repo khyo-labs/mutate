@@ -16,7 +16,7 @@ export const mutApi = {
 			throw new Error('No active workspace selected');
 		}
 
-		const url = `/v1/workspaces/${workspace.id}/configurations/${id}`;
+		const url = `/v1/workspace/${workspace.id}/configuration/${id}`;
 
 		const response = await api.get<SuccessResponse<Configuration>>(url);
 
@@ -34,7 +34,7 @@ export const mutApi = {
 			throw new Error('No active workspace selected');
 		}
 
-		const url = `/v1/workspaces/${workspace.id}/configurations`;
+		const url = `/v1/workspace/${workspace.id}/configuration`;
 
 		return api.post<Configuration>(url, data);
 	},
@@ -48,7 +48,7 @@ export const mutApi = {
 			throw new Error('No active workspace selected');
 		}
 
-		const url = `/v1/workspaces/${workspace.id}/configurations/${id}`;
+		const url = `/v1/workspace/${workspace.id}/configuration/${id}`;
 
 		console.log('mutApi.update - Sending data:', data);
 		const response = await api.put<SuccessResponse<Configuration>>(url, data);
@@ -63,7 +63,7 @@ export const mutApi = {
 			throw new Error('No active workspace selected');
 		}
 
-		const url = `/v1/workspaces/${workspace.id}/configurations/${id}`;
+		const url = `/v1/workspace/${workspace.id}/configuration/${id}`;
 
 		return api.delete<void>(url);
 	},
@@ -74,7 +74,7 @@ export const mutApi = {
 			throw new Error('No active workspace selected');
 		}
 
-		const url = `/v1/workspaces/${workspace.id}/configurations/${id}/clone`;
+		const url = `/v1/workspace/${workspace.id}/configuration/${id}/clone`;
 
 		const response = await api.post<SuccessResponse<Configuration>>(url);
 		return response.data;

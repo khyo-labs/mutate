@@ -87,7 +87,7 @@ fastify.setErrorHandler(errorHandler);
 await fastify.register(healthRoutes, { prefix: '/v1/health' });
 await fastify.register(authRoutes, { prefix: '/v1/auth' });
 await fastify.register(securityRoutes, { prefix: '/v1/security' });
-await fastify.register(workspaceRoutes, { prefix: '/v1/workspaces' });
+await fastify.register(workspaceRoutes, { prefix: '/v1/workspace' });
 await fastify.register(mutateRoutes, { prefix: '/v1/mutate' });
 await fastify.register(fileRoutes, { prefix: '/v1/files' });
 await fastify.register(billingRoutes, { prefix: '/v1/billing' });

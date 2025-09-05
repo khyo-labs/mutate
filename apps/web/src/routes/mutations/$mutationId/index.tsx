@@ -6,6 +6,7 @@ import { api } from '@/api/client';
 import { Layout } from '@/components/layouts';
 import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
 import { formatDate } from '@/lib/utils';
+import { useWorkspaceStore } from '@/stores/workspace-store';
 import type { ApiResponse, Configuration } from '@/types';
 
 export const Route = createFileRoute('/mutations/$mutationId/')({
@@ -15,6 +16,7 @@ export const Route = createFileRoute('/mutations/$mutationId/')({
 export function ConfigurationDetailComponent() {
 	const { mutationId } = Route.useParams();
 	const navigate = useNavigate();
+	const { activeWorkspace } = useWorkspaceStore();
 	const {
 		data: config,
 		isLoading,
@@ -23,7 +25,7 @@ export function ConfigurationDetailComponent() {
 		queryKey: ['mutations', mutationId],
 		queryFn: async () => {
 			const response = await api.get<ApiResponse<Configuration>>(
-				`/v1/configurations/${mutationId}`,
+				`/v1/workspace/${activeWorkspace?.id}/configuration/${mutationId}`,
 			);
 			if (!response.success) {
 				throw new Error(response.error.message);

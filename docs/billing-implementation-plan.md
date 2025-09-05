@@ -183,18 +183,18 @@ CREATE TABLE active_conversions (
 
 ```typescript
 // Usage tracking
-GET /v1/workspaces/{id}/usage - Get current usage
-GET /v1/workspaces/{id}/usage/history - Get usage history
+GET /v1/workspace/{id}/usage - Get current usage
+GET /v1/workspace/{id}/usage/history - Get usage history
 
 // Subscription management
-GET /v1/workspaces/{id}/subscription - Get current subscription
-POST /v1/workspaces/{id}/subscription - Create/update subscription
-DELETE /v1/workspaces/{id}/subscription - Cancel subscription
+GET /v1/workspace/{id}/subscription - Get current subscription
+POST /v1/workspace/{id}/subscription - Create/update subscription
+DELETE /v1/workspace/{id}/subscription - Cancel subscription
 
 // Billing
-GET /v1/workspaces/{id}/billing - Get billing info
-POST /v1/workspaces/{id}/billing/payment-method - Update payment method
-GET /v1/workspaces/{id}/billing/invoices - Get billing history
+GET /v1/workspace/{id}/billing - Get billing info
+POST /v1/workspace/{id}/billing/payment-method - Update payment method
+GET /v1/workspace/{id}/billing/invoices - Get billing history
 ```
 
 ## Services Architecture

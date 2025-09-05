@@ -112,7 +112,7 @@ mutate/
 - `POST /v1/mutate` - Execute file transformation (async & sync support)
 - `GET /v1/jobs/:jobId` - Check transformation job status
 - `GET /v1/api-keys` - API key management
-- `GET /v1/workspaces/webhooks` - Webhook management
+- `GET /v1/workspace/webhooks` - Webhook management
 - `GET /v1/files/:key` - Download transformed files
 - `GET /v1/health` - Health check
 

@@ -34,11 +34,11 @@ These endpoints require a valid user session or API key:
 
 #### Configuration Endpoints
 
-- All `/v1/configurations/*` endpoints
+- All `/v1/configuration/*` endpoints
 
 #### Workspace Endpoints
 
-- All `/v1/workspaces/*` endpoints
+- All `/v1/workspace/*` endpoints
 
 #### Mutation Endpoints
 
