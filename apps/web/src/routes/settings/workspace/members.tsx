@@ -26,7 +26,7 @@ import {
 	Users,
 	X,
 } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -52,13 +52,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogClose,
@@ -103,7 +97,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
 	Tooltip,
 	TooltipContent,
@@ -152,7 +146,7 @@ function getRoleBadgeVariant(
 const inviteSchema = z.object({
 	email: z.string().email({ message: 'Please enter a valid email address.' }),
 	role: z.enum(['admin', 'member']),
-	sendEmail: z.boolean().default(true),
+	sendEmail: z.boolean(),
 });
 
 const updateRoleSchema = z.object({
@@ -180,7 +174,7 @@ function InviteDialog({ workspaceId }: { workspaceId: string }) {
 			form.reset();
 			toast.success('Invitation sent successfully');
 		},
-		onError: (error: any) => {
+		onError: (error: Error) => {
 			toast.error(error.message || 'Failed to send invitation');
 		},
 	});
@@ -339,7 +333,7 @@ function UpdateRoleDialog({
 			setIsOpen(false);
 			toast.success('Role updated successfully');
 		},
-		onError: (error: any) => {
+		onError: (error: Error) => {
 			toast.error(error.message || 'Failed to update role');
 		},
 	});
@@ -446,7 +440,7 @@ function MembersTable({
 			queryClient.invalidateQueries({ queryKey: ['members', workspaceId] });
 			toast.success('Invitation cancelled');
 		},
-		onError: (error: any) => {
+		onError: (error: Error) => {
 			toast.error(error.message || 'Failed to cancel invitation');
 		},
 	});
@@ -458,7 +452,7 @@ function MembersTable({
 			queryClient.invalidateQueries({ queryKey: ['members', workspaceId] });
 			toast.success('Invitation resent');
 		},
-		onError: (error: any) => {
+		onError: (error: Error) => {
 			toast.error(error.message || 'Failed to resend invitation');
 		},
 	});
@@ -469,7 +463,7 @@ function MembersTable({
 			queryClient.invalidateQueries({ queryKey: ['members', workspaceId] });
 			toast.success('Member removed');
 		},
-		onError: (error: any) => {
+		onError: (error: Error) => {
 			toast.error(error.message || 'Failed to remove member');
 		},
 	});
@@ -479,12 +473,15 @@ function MembersTable({
 		toast.success('Invitation link copied to clipboard');
 	}
 
-	function canManageUser(targetRole: 'admin' | 'member' | 'owner'): boolean {
-		if (!currentUserRole) return false;
-		if (currentUserRole === 'owner') return true;
-		if (currentUserRole === 'admin' && targetRole === 'member') return true;
-		return false;
-	}
+	const canManageUser = useCallback(
+		function (targetRole: 'admin' | 'member' | 'owner'): boolean {
+			if (!currentUserRole) return false;
+			if (currentUserRole === 'owner') return true;
+			if (currentUserRole === 'admin' && targetRole === 'member') return true;
+			return false;
+		},
+		[currentUserRole],
+	);
 
 	const columns: ColumnDef<MemberOrInvitation>[] = useMemo(
 		() => [
@@ -761,6 +758,7 @@ function MembersTable({
 			cancelMutation,
 			resendMutation,
 			removeMutation,
+			canManageUser,
 		],
 	);
 
@@ -1115,7 +1113,9 @@ function MembersComponent() {
 						<CardTitle>Workspace Members</CardTitle>
 						<Tabs
 							value={activeTab}
-							onValueChange={(v) => setActiveTab(v as any)}
+							onValueChange={(v) =>
+								setActiveTab(v as 'all' | 'members' | 'invitations')
+							}
 						>
 							<TabsList>
 								<TabsTrigger value="all">All ({data?.length || 0})</TabsTrigger>

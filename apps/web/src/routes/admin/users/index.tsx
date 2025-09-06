@@ -19,12 +19,7 @@ import { toast } from 'sonner';
 import { api } from '@/api/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogContent,
@@ -113,13 +108,12 @@ function UserManagement() {
 
 	async function impersonateUser(userId: string) {
 		try {
-			const data = await api.post<{ sessionToken?: string }>(`/v1/admin/users/${userId}/impersonate`);
+			const data = await api.post<{ sessionToken?: string }>(
+				`/v1/admin/users/${userId}/impersonate`,
+			);
 			if (data.sessionToken) {
 				// Store the impersonation token and redirect
-				sessionStorage.setItem(
-					'impersonation_token',
-					data.sessionToken,
-				);
+				sessionStorage.setItem('impersonation_token', data.sessionToken);
 				toast.success('Impersonation started');
 				window.location.href = '/';
 			}

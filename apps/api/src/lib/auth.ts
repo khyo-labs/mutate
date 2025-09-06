@@ -91,6 +91,14 @@ export const auth = betterAuth({
 					await subscriptionService.assignDefaultPlan(organization.id);
 				},
 			},
+			async sendInvitationEmail(data) {
+				const inviteLink = `${config.BASE_URL}/join?invitation=${data.id}`;
+				await sendEmail({
+					to: data.email,
+					subject: `You're invited to join ${data.organization.name}`,
+					html: `<p>You have been invited to join the ${data.organization.name} workspace by ${data.inviter.user.name}. Click <a href="${inviteLink}">here</a> to accept.</p><p>Link: ${inviteLink}</p>`,
+				});
+			},
 		}),
 	],
 	databaseHooks: {

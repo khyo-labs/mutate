@@ -75,9 +75,7 @@ export const billingApi = {
 		return api.get('/v1/billing/usage');
 	},
 
-	getUsageHistory: async (
-		limit = 12,
-	): Promise<ApiResponse<UsageHistory[]>> => {
+	getUsageHistory: async (limit = 12): Promise<ApiResponse<UsageHistory[]>> => {
 		return api.get(`/v1/billing/usage/history?limit=${limit}`);
 	},
 

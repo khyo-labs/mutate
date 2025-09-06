@@ -74,10 +74,7 @@ function SupportTools() {
 			);
 
 			if (data.sessionToken) {
-				sessionStorage.setItem(
-					'impersonation_token',
-					data.sessionToken,
-				);
+				sessionStorage.setItem('impersonation_token', data.sessionToken);
 				sessionStorage.setItem('impersonation_user', impersonateUserId);
 				toast.success('Impersonation started - redirecting...');
 				setTimeout(() => {

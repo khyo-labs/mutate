@@ -107,15 +107,16 @@ export function QuotaCard() {
 					</div>
 				</div>
 
-				{quota?.usage?.currentMonthOverage && quota?.usage?.currentMonthOverage > 0 && (
-					<div className="bg-warning/10 text-warning rounded-md p-3">
-						<p className="text-xs font-medium">Overage Charges</p>
-						<p className="mt-1 text-xs">
-							{quota?.usage?.currentMonthOverage} additional mutations used this
-							month
-						</p>
-					</div>
-				)}
+				{quota?.usage?.currentMonthOverage &&
+					quota?.usage?.currentMonthOverage > 0 && (
+						<div className="bg-warning/10 text-warning rounded-md p-3">
+							<p className="text-xs font-medium">Overage Charges</p>
+							<p className="mt-1 text-xs">
+								{quota?.usage?.currentMonthOverage} additional mutations used
+								this month
+							</p>
+						</div>
+					)}
 
 				<div className="border-t pt-4">
 					<div className="grid grid-cols-2 gap-4 text-sm">

@@ -19,12 +19,7 @@ import { toast } from 'sonner';
 import { api } from '@/api/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogContent,
@@ -144,7 +139,6 @@ function FeatureFlagsManagement() {
 			toast.error('Failed to toggle feature flag');
 		}
 	}
-
 
 	async function deleteFlag(flagId: string) {
 		if (!confirm('Are you sure you want to delete this feature flag?')) {
