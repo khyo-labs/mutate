@@ -1,3 +1,4 @@
+import { FastifyInstance, FastifyRequest } from 'fastify';
 import { FromSchema } from 'json-schema-to-ts';
 import { auth } from '../../lib/auth.js';
 import { validateWorkspaceAccess } from '../../middleware/workspace-access.js';
@@ -49,11 +50,6 @@ const updateRoleSchema = {
   required: ['role'],
 } as const;
 
-type RequestWithHeaders = FastifyRequest & {
-    headers: {
-        authorization?: string;
-    }
-}
 
 export async function memberRoutes(fastify: FastifyInstance) {
   fastify.addHook('preHandler', fastify.authenticate);
@@ -69,11 +65,11 @@ export async function memberRoutes(fastify: FastifyInstance) {
         const [membersResponse, invitationsResponse] = await Promise.all([
           auth.api.listMembers({
             query: { organizationId: workspaceId },
-            headers: (request as RequestWithHeaders).headers,
+            headers: request.headers as any,
           }),
           auth.api.listInvitations({
             query: { organizationId: workspaceId },
-            headers: (request as RequestWithHeaders).headers,
+            headers: request.headers as any,
           }),
         ]);
 
@@ -118,7 +114,7 @@ export async function memberRoutes(fastify: FastifyInstance) {
             email,
             role,
           },
-          headers: (request as RequestWithHeaders).headers,
+          headers: request.headers as any,
         });
 
         const invitationLink = `${config.BASE_URL}/join?invitation=${invitation.id}`;
@@ -155,7 +151,7 @@ export async function memberRoutes(fastify: FastifyInstance) {
                     organizationId: workspaceId,
                     memberIdOrEmail: memberId,
                 },
-                headers: (request as RequestWithHeaders).headers,
+                headers: request.headers as any,
             });
             return reply.send({ success: true });
         } catch (error) {
@@ -185,7 +181,7 @@ export async function memberRoutes(fastify: FastifyInstance) {
                     memberId,
                     role,
                 },
-                headers: (request as RequestWithHeaders).headers,
+                headers: request.headers as any,
             });
             return reply.send({ success: true });
         } catch (error) {
@@ -212,7 +208,7 @@ export async function memberRoutes(fastify: FastifyInstance) {
                 body: {
                     invitationId,
                 },
-                headers: (request as RequestWithHeaders).headers,
+                headers: request.headers as any,
             });
             return reply.send({ success: true });
         } catch (error) {
@@ -238,7 +234,7 @@ export async function memberRoutes(fastify: FastifyInstance) {
           try {
               const invitation = await auth.api.getInvitation({
                   query: { id: invitationId },
-                  headers: (request as RequestWithHeaders).headers,
+                  headers: request.headers as any,
               });
 
               if (!invitation) {
@@ -252,7 +248,7 @@ export async function memberRoutes(fastify: FastifyInstance) {
                       role: invitation.role,
                       resend: true,
                   },
-                  headers: (request as RequestWithHeaders).headers,
+                  headers: request.headers as any,
               });
 
               const invitationLink = `${config.BASE_URL}/join?invitation=${newInvitation.id}`;
