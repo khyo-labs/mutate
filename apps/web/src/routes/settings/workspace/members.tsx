@@ -80,7 +80,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { useAuth, useCurrentUser } from '@/hooks/use-auth';
+import { useCurrentUser } from '@/hooks/use-auth';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 
 export const Route = createFileRoute('/settings/workspace/members')({
@@ -581,7 +581,7 @@ function MembersTable({
 
 function MembersComponent() {
 	const { workspaceId } = useParams({ from: '/settings/workspace/members' });
-	const { activeWorkspace } = useActiveWorkspace();
+	const { activeWorkspace } = useWorkspaceStore();
 
 	const { data, isLoading, isError } = useQuery({
 		queryKey: ['members', workspaceId],
