@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { APIError } from 'better-auth/api';
 import { FastifyInstance } from 'fastify';
 

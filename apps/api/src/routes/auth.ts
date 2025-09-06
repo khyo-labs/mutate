@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FastifyInstance } from 'fastify';
 
 import { config } from '../config.js';

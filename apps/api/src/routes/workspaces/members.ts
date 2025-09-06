@@ -1,4 +1,3 @@
-import { FastifyInstance, FastifyRequest } from 'fastify';
 import { FromSchema } from 'json-schema-to-ts';
 import { auth } from '../../lib/auth.js';
 import { validateWorkspaceAccess } from '../../middleware/workspace-access.js';
