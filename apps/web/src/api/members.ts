@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import type { ApiResponse, SuccessResponse } from '@/types';
+import type { SuccessResponse } from '@/types';
 import { api } from './client';
 
 export type Member = {

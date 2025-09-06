@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, useParams } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 import {
-	ColumnDef,
-	SortingState,
+	type ColumnDef,
+	type SortingState,
 	flexRender,
 	getCoreRowModel,
 	getFilteredRowModel,
@@ -97,15 +97,11 @@ function getInitials(name: string) {
 
 const inviteSchema = z.object({
 	email: z.string().email({ message: 'Please enter a valid email address.' }),
-	role: z.enum(['admin', 'member'], {
-		required_error: 'Please select a role.',
-	}),
+	role: z.enum(['admin', 'member']),
 });
 
 const updateRoleSchema = z.object({
-	role: z.enum(['admin', 'member'], {
-		required_error: 'Please select a role.',
-	}),
+	role: z.enum(['admin', 'member']),
 });
 
 function InviteDialog({ workspaceId }: { workspaceId: string }) {
@@ -215,7 +211,7 @@ function UpdateRoleDialog({
 	const form = useForm<z.infer<typeof updateRoleSchema>>({
 		resolver: zodResolver(updateRoleSchema),
 		defaultValues: {
-			role: member.role,
+			role: member.role === 'owner' ? 'admin' : member.role,
 		},
 	});
 
@@ -294,10 +290,17 @@ function MembersTable({
 }) {
 	const queryClient = useQueryClient();
 	const { data: user } = useCurrentUser();
-	const { activeWorkspace } = useWorkspaceStore();
-	const currentUserRole = activeWorkspace?.role;
 	const [globalFilter, setGlobalFilter] = useState('');
 	const [sorting, setSorting] = useState<SortingState>([]);
+
+	// Find current user's role from the members list
+	const currentUserRole = useMemo(() => {
+		if (!user || !data) return undefined;
+		const currentMember = data.find(
+			(item) => item.type === 'member' && item.userId === user.id,
+		) as Member | undefined;
+		return currentMember?.role;
+	}, [data, user]);
 
 	const cancelMutation = useMutation({
 		mutationFn: (invitationId: string) =>
@@ -354,7 +357,9 @@ function MembersTable({
 								<div className="font-medium">
 									{item.type === 'member' ? name : ''}
 								</div>
-								<div className="text-muted-foreground">{item.email}</div>
+								<div className="text-muted-foreground">
+									{item.type === 'member' ? item.user.email : item.email}
+								</div>
 							</div>
 						</div>
 					);
@@ -479,7 +484,14 @@ function MembersTable({
 				},
 			},
 		],
-		[currentUserRole, user, workspaceId],
+		[
+			currentUserRole,
+			user,
+			workspaceId,
+			cancelMutation,
+			resendMutation,
+			removeMutation,
+		],
 	);
 
 	const table = useReactTable({
@@ -580,13 +592,24 @@ function MembersTable({
 }
 
 function MembersComponent() {
-	const { workspaceId } = useParams({ from: '/settings/workspace/members' });
 	const { activeWorkspace } = useWorkspaceStore();
+	const workspaceId = activeWorkspace?.id || '';
+	const { data: user } = useCurrentUser();
 
 	const { data, isLoading, isError } = useQuery({
 		queryKey: ['members', workspaceId],
 		queryFn: () => membersApi.list(workspaceId),
+		enabled: !!workspaceId,
 	});
+
+	// Find current user's role from the members list
+	const currentUserRole = useMemo(() => {
+		if (!user || !data) return undefined;
+		const currentMember = data.find(
+			(item) => item.type === 'member' && item.userId === user.id,
+		) as Member | undefined;
+		return currentMember?.role;
+	}, [data, user]);
 
 	if (isLoading || !activeWorkspace) {
 		return (
@@ -627,8 +650,7 @@ function MembersComponent() {
 						Manage who has access to this workspace.
 					</p>
 				</div>
-				{(activeWorkspace.role === 'admin' ||
-					activeWorkspace.role === 'owner') && (
+				{(currentUserRole === 'admin' || currentUserRole === 'owner') && (
 					<InviteDialog workspaceId={workspaceId} />
 				)}
 			</div>
