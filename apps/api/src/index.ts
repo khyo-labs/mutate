@@ -10,6 +10,7 @@ import requireVerifiedEmail from './middleware/require-verified-email.js';
 import authPlugin from './plugins/auth.js';
 import { adminRoutes } from './routes/admin/index.js';
 import { authRoutes } from './routes/auth.js';
+import { betterAuthRoutes } from './routes/better-auth.js';
 import { billingRoutes } from './routes/billing.js';
 import { fileRoutes } from './routes/files.js';
 import { healthRoutes } from './routes/health.js';
@@ -85,7 +86,8 @@ await fastify.register(requireVerifiedEmail);
 fastify.setErrorHandler(errorHandler);
 
 await fastify.register(healthRoutes, { prefix: '/v1/health' });
-await fastify.register(authRoutes, { prefix: '/v1/auth' });
+await fastify.register(betterAuthRoutes, { prefix: '/v1/auth' });
+await fastify.register(authRoutes, { prefix: '/v1/auth/custom' });
 await fastify.register(securityRoutes, { prefix: '/v1/security' });
 await fastify.register(workspaceRoutes, { prefix: '/v1/workspace' });
 await fastify.register(mutateRoutes, { prefix: '/v1/mutate' });
@@ -94,7 +96,7 @@ await fastify.register(billingRoutes, { prefix: '/v1/billing' });
 await fastify.register(adminRoutes, { prefix: '/v1/admin' });
 await fastify.register(userRoutes, { prefix: '/v1/user' });
 
-const start = async () => {
+async function start() {
 	try {
 		const address = await fastify.listen({
 			port: config.PORT,
@@ -105,9 +107,9 @@ const start = async () => {
 		fastify.log.error(err);
 		process.exit(1);
 	}
-};
+}
 
-const gracefulShutdown = async (signal: string) => {
+async function gracefulShutdown(signal: string) {
 	fastify.log.info(`Received ${signal}, shutting down gracefully`);
 	try {
 		await transformationQueue.close();
@@ -117,7 +119,7 @@ const gracefulShutdown = async (signal: string) => {
 		fastify.log.error({ err }, 'Error during shutdown');
 		process.exit(1);
 	}
-};
+}
 
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

@@ -142,7 +142,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 			const organizationId = request.workspace!.id;
 			const offset = (page - 1) * limit;
 
-			let query = db
+			const query = db
 				.select({
 					id: configurations.id,
 					organizationId: configurations.organizationId,

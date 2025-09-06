@@ -131,7 +131,9 @@ function SystemHealthMonitoring() {
 
 	async function fetchMetricHistory() {
 		try {
-			const data = await api.get<{ metrics: MetricHistory[] }>('/v1/admin/health/metrics?period=1h');
+			const data = await api.get<{ metrics: MetricHistory[] }>(
+				'/v1/admin/health/metrics?period=1h',
+			);
 			setMetricHistory(data.metrics);
 		} catch (error) {
 			console.error('Failed to fetch metric history:', error);

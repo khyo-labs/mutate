@@ -1,8 +1,9 @@
-import { type BetterAuthOptions, betterAuth } from 'better-auth';
+import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAuthMiddleware, organization } from 'better-auth/plugins';
 import { passkey } from 'better-auth/plugins/passkey';
 import { twoFactor } from 'better-auth/plugins/two-factor';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { eq } from 'drizzle-orm';
 
 import { config } from '../config.js';
@@ -89,6 +90,14 @@ export const auth = betterAuth({
 					console.log('Organization created:', organization);
 					await subscriptionService.assignDefaultPlan(organization.id);
 				},
+			},
+			async sendInvitationEmail(data) {
+				const inviteLink = `${config.BASE_URL}/join?invitation=${data.id}`;
+				await sendEmail({
+					to: data.email,
+					subject: `You're invited to join ${data.organization.name}`,
+					html: `<p>You have been invited to join the ${data.organization.name} workspace by ${data.inviter.user.name}. Click <a href="${inviteLink}">here</a> to accept.</p><p>Link: ${inviteLink}</p>`,
+				});
 			},
 		}),
 	],

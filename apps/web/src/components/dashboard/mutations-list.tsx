@@ -35,10 +35,7 @@ export function MutationsList() {
 				<CardContent>
 					<div className="space-y-3">
 						{[...Array(3)].map((_, i) => (
-							<div
-								key={i}
-								className="bg-muted h-16 animate-pulse rounded-lg"
-							/>
+							<div key={i} className="bg-muted h-16 animate-pulse rounded-lg" />
 						))}
 					</div>
 				</CardContent>

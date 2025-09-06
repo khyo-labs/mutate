@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import {
 	Card,
 	CardContent,
@@ -5,7 +7,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import * as React from 'react';
 
 interface DangerZoneProps {
 	title: string;
@@ -13,11 +14,7 @@ interface DangerZoneProps {
 	children: React.ReactNode;
 }
 
-export function DangerZone({
-	title,
-	description,
-	children,
-}: DangerZoneProps) {
+export function DangerZone({ title, description, children }: DangerZoneProps) {
 	return (
 		<Card className="border-destructive">
 			<CardHeader>

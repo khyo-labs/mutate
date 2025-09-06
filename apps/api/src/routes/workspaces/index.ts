@@ -9,6 +9,7 @@ import '../../types/fastify.js';
 import { AppError, getErrorMessage } from '../../utils/error.js';
 import { apiKeyRoutes } from './api-keys.js';
 import { configRoutes } from './configuration.js';
+import { memberRoutes } from './members.js';
 import { webhookRoutes } from './webhooks.js';
 
 export async function workspaceRoutes(fastify: FastifyInstance) {
@@ -22,6 +23,10 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 
 	fastify.register(webhookRoutes, {
 		prefix: '/:workspaceId/webhooks',
+	});
+
+	fastify.register(memberRoutes, {
+		prefix: '/:workspaceId/members',
 	});
 
 	fastify.addHook('preHandler', fastify.authenticate);

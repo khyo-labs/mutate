@@ -9,11 +9,34 @@ export interface AuthResponse {
 
 export const authApi = {
 	register: async (data: RegisterFormData): Promise<AuthResponse> => {
-		return api.post<AuthResponse>('/v1/auth/register', data);
+		const response = await api.post<{ user: User; session: { token: string } }>(
+			'/v1/auth/sign-up/email',
+			{
+				email: data.email,
+				password: data.password,
+				name: data.name,
+			},
+		);
+		return {
+			user: response.user,
+			accessToken: response.session?.token || '',
+			refreshToken: response.session?.token || '',
+		};
 	},
 
 	login: async (data: LoginFormData): Promise<AuthResponse> => {
-		return api.post<AuthResponse>('/v1/auth/login', data);
+		const response = await api.post<{ user: User; session: { token: string } }>(
+			'/v1/auth/sign-in/email',
+			{
+				email: data.email,
+				password: data.password,
+			},
+		);
+		return {
+			user: response.user,
+			accessToken: response.session?.token || '',
+			refreshToken: response.session?.token || '',
+		};
 	},
 
 	refresh: async (refreshToken: string): Promise<{ accessToken: string }> => {
@@ -23,10 +46,14 @@ export const authApi = {
 	},
 
 	me: async (): Promise<User> => {
-		return api.get<User>('/v1/auth/me');
+		const response = await api.get<{ success: boolean; data: User }>(
+			'/v1/user/me',
+		);
+		return response.data;
 	},
 
 	logout: async (): Promise<{ message: string }> => {
-		return api.post<{ message: string }>('/v1/auth/logout');
+		await api.post('/v1/auth/sign-out');
+		return { message: 'Logged out successfully' };
 	},
 };
