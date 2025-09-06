@@ -82,9 +82,9 @@ function validateFileType(
 export async function mutateRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
 
-	fastify.post('/', async (request, reply) => {
+	fastify.post('/:mutationId', async (request, reply) => {
 		try {
-			// Parse multipart form data
+			const { mutationId } = request.params as { mutationId: string };
 			const data = await request.file();
 
 			if (!data) {
@@ -97,8 +97,8 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				});
 			}
 
+			const configId = mutationId;
 			const fields = data.fields as any;
-			const configId = fields?.configId?.value;
 			const callbackUrl = fields?.callbackUrl?.value;
 			const uid = fields?.uid?.value;
 			const options = fields?.options ? JSON.parse(fields.options.value) : {};
@@ -308,8 +308,11 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 	});
 
 	// Get job status
-	fastify.get('/jobs/:jobId', async (request, reply) => {
-		const { jobId } = request.params as { jobId: string };
+	fastify.get('/:mutationId/jobs/:jobId', async (request, reply) => {
+		const { mutationId, jobId } = request.params as {
+			mutationId: string;
+			jobId: string;
+		};
 
 		try {
 			const [job] = await db
@@ -318,6 +321,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				.where(
 					and(
 						eq(transformationJobs.id, jobId),
+						eq(transformationJobs.configurationId, mutationId),
 						eq(
 							transformationJobs.organizationId,
 							request.currentUser!.organizationId,
@@ -338,6 +342,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 
 			// Get queue job status for more accurate progress
 			let queueStatus;
+
 			try {
 				queueStatus = await QueueService.getJobStatus(jobId);
 			} catch (error) {
@@ -345,15 +350,21 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				console.log(`Queue job ${jobId} not found, using database status`);
 			}
 
-			const progress =
-				queueStatus?.progress ||
-				(job.status === 'completed'
-					? 100
-					: job.status === 'processing'
-						? 50
-						: job.status === 'failed'
-							? 0
-							: 0);
+			let progress = queueStatus?.progress;
+			if (progress === undefined) {
+				switch (job.status) {
+					case 'completed':
+						progress = 100;
+						break;
+					case 'processing':
+						progress = 50;
+						break;
+					case 'failed':
+					default:
+						progress = 0;
+						break;
+				}
+			}
 
 			return {
 				success: true,
@@ -385,9 +396,11 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 		}
 	});
 
-	// Generate fresh download URL
-	fastify.post('/jobs/:jobId/download', async (request, reply) => {
-		const { jobId } = request.params as { jobId: string };
+	fastify.post('/:mutationId/jobs/:jobId/download', async (request, reply) => {
+		const { mutationId, jobId } = request.params as {
+			mutationId: string;
+			jobId: string;
+		};
 
 		try {
 			const [job] = await db
@@ -396,6 +409,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				.where(
 					and(
 						eq(transformationJobs.id, jobId),
+						eq(transformationJobs.configurationId, mutationId),
 						eq(
 							transformationJobs.organizationId,
 							request.currentUser!.organizationId,
@@ -425,7 +439,6 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			// Generate fresh presigned URL
 			const downloadUrl = await storageService.generateFreshPresignedUrl(
 				job.outputFileKey,
 				config.FILE_TTL,
@@ -454,7 +467,6 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 		}
 	});
 
-	// Queue health and statistics
 	fastify.get('/queue/stats', async (request, reply) => {
 		try {
 			const stats = await QueueService.getQueueStats();

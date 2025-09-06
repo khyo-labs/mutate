@@ -126,8 +126,9 @@ mutate/
 - `GET /v1/auth/*` - Better Auth endpoints (including passkey and 2FA)
 - `GET /v1/workspace/:id/configuration` - List user configurations
 - `POST /v1/workspace/:id/configuration` - Create new configuration
-- `POST /v1/mutate` - Execute file transformation (async & sync support)
-- `GET /v1/jobs/:jobId` - Check transformation job status
+- `POST /v1/mutate/:mutationId` - Execute file transformation (async & sync support)
+- `GET /v1/mutate/:mutationId/jobs/:jobId` - Check transformation job status
+- `POST /v1/mutate/:mutationId/jobs/:jobId/download` - Download transformed file
 - `GET /v1/workspace/:id/api-keys` - API key management
 - `GET /v1/workspace/:id/webhooks` - Webhook management
 - `DELETE /v1/workspace/:id` - Delete workspace and all related data

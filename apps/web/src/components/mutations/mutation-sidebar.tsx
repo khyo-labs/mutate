@@ -29,17 +29,15 @@ export function MutationSidebar({ config }: MutationSidebarProps) {
 		2,
 	);
 
-	const curlExample = `curl -X POST ${window.location.origin}/api/v1/mutate \\
+	const curlExample = `curl -X POST ${window.location.origin}/v1/mutate/${config.id} \\
   -H "Content-Type: multipart/form-data" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
-  -F "file=@your-file.xlsx" \\
-  -F "configId=${config.id}"`;
+  -F "file=@your-file.xlsx"`;
 
 	const jsExample = `const formData = new FormData();
 formData.append('file', fileInput.files[0]);
-formData.append('configId', '${config.id}');
 
-const response = await fetch('/api/v1/mutate', {
+const response = await fetch('${window.location.origin}/v1/mutate/${config.id}', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY'
@@ -52,13 +50,11 @@ const result = await response.json();`;
 	const pythonExample = `import requests
 
 files = {'file': open('your-file.xlsx', 'rb')}
-data = {'configId': '${config.id}'}
 headers = {'Authorization': 'Bearer YOUR_API_KEY'}
 
 response = requests.post(
-    '${window.location.origin}/api/v1/mutate',
+    '${window.location.origin}/v1/mutate/${config.id}',
     files=files,
-    data=data,
     headers=headers
 )
 
