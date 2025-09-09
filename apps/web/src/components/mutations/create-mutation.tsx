@@ -153,7 +153,7 @@ export function CreateMutation() {
 
 	return (
 		<Layout>
-			<div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+			<div className="mx-auto space-y-8 px-4 py-6 sm:px-6 lg:px-8">
 				{/* Header Section */}
 				<div className="border-b pb-6">
 					<h1 className="text-foreground text-3xl font-bold">

@@ -89,10 +89,10 @@ export function ConversionTypeSelector({
 	return (
 		<div className={`space-y-4 ${className}`}>
 			<div>
-				<h3 className="text-lg font-semibold text-gray-900">
+				<h3 className="text-foreground text-lg font-semibold">
 					Choose Conversion Type
 				</h3>
-				<p className="mt-1 text-sm text-gray-600">
+				<p className="text-muted-foreground mt-1 text-sm">
 					Select what type of file transformation you want to create
 				</p>
 			</div>
@@ -113,17 +113,17 @@ export function ConversionTypeSelector({
 							}}
 							className={`relative cursor-pointer rounded-lg border-2 p-4 transition-all ${
 								isSelected
-									? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
-									: 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+									? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+									: 'border-border hover:border-border/80 hover:bg-muted/50'
 							} ${
 								isDisabled
-									? 'cursor-not-allowed bg-gray-100 opacity-50'
+									? 'cursor-not-allowed bg-muted opacity-50'
 									: 'hover:shadow-md'
 							} `}
 						>
 							{isDisabled && (
 								<div className="absolute right-2 top-2">
-									<span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
+									<span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">
 										Coming Soon
 									</span>
 								</div>
@@ -131,26 +131,26 @@ export function ConversionTypeSelector({
 
 							<div className="flex items-start space-x-3">
 								<div
-									className={`flex-shrink-0 rounded-lg p-2 ${isSelected ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'} `}
+									className={`flex-shrink-0 rounded-lg p-2 ${isSelected ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'} `}
 								>
 									<Icon className="h-6 w-6" />
 								</div>
 
 								<div className="min-w-0 flex-1">
 									<h4
-										className={`text-sm font-medium ${isSelected ? 'text-blue-900' : 'text-gray-900'} `}
+										className={`text-sm font-medium ${isSelected ? 'text-primary' : 'text-foreground'} `}
 									>
 										{conversion.name}
 									</h4>
-									<p className="mt-1 text-xs text-gray-500">
+									<p className="mt-1 text-xs text-muted-foreground">
 										{conversion.description}
 									</p>
 									<div className="mt-2 flex items-center space-x-2">
-										<span className="inline-flex items-center rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+										<span className="inline-flex items-center rounded bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
 											{conversion.inputFormat}
 										</span>
-										<span className="text-gray-400">→</span>
-										<span className="inline-flex items-center rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+										<span className="text-muted-foreground">→</span>
+										<span className="inline-flex items-center rounded bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
 											{conversion.outputFormat}
 										</span>
 									</div>
@@ -158,7 +158,7 @@ export function ConversionTypeSelector({
 							</div>
 
 							{isSelected && (
-								<div className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-inset ring-blue-500"></div>
+								<div className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-inset ring-primary"></div>
 							)}
 						</div>
 					);
