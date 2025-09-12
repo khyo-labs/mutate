@@ -95,12 +95,12 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 				isDragging ? 'opacity-50' : ''
 			}`}
 		>
-			<div className="flex items-start justify-between gap-2">
-				<div className="flex items-start gap-3 flex-1 overflow-hidden">
+			<div className="flex items-center justify-between">
+				<div className="flex items-center space-x-3">
 					<Button
 						variant="ghost"
 						size="sm"
-						className="text-muted-foreground hover:text-foreground cursor-grab p-1 flex-shrink-0"
+						className="text-muted-foreground hover:text-foreground cursor-grab"
 						{...attributes}
 						{...listeners}
 					>
@@ -113,7 +113,7 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 						<h4 className="text-foreground text-sm font-medium truncate">
 							{rule.type.replace(/_/g, ' ')}
 						</h4>
-						<p className="text-muted-foreground text-xs whitespace-normal">
+						<p className="text-muted-foreground text-xs">
 							{ruleDescriptions[rule.type]}
 						</p>
 					</div>
@@ -122,7 +122,7 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 					<span className="text-muted-foreground text-xs">#{index + 1}</span>
 					<Button
 						variant="ghost"
-						size="sm"
+						size="icon"
 						onClick={() => onRemove(rule.id)}
 						className="text-destructive hover:text-destructive/80 p-1"
 					>
@@ -257,12 +257,12 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 						</SortableContext>
 					</DndContext>
 				) : (
-					<div className="border-border rounded-lg border-2 border-dashed p-12 text-center">
-						<Plus className="text-muted-foreground mx-auto h-12 w-12" />
-						<h4 className="text-foreground mt-2 text-sm font-medium">
+					<div className="rounded-lg border-2 border-dashed border-border p-12 text-center">
+						<Plus className="mx-auto h-12 w-12 text-muted-foreground" />
+						<h4 className="mt-2 text-sm font-medium text-foreground">
 							No rules added
 						</h4>
-						<p className="text-muted-foreground mt-1 text-sm">
+						<p className="mt-1 text-sm text-muted-foreground">
 							Add transformation rules from the left panel to build your
 							pipeline.
 						</p>
