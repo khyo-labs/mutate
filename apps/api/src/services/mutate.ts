@@ -608,42 +608,122 @@ export class MutationService {
 		return { success: true, workbook };
 	}
 
-	private applyCombineWorksheets(
-		workbook: XLSX.WorkBook,
-		rule: TransformationRule,
-	): {
-		success: boolean;
+        private applyCombineWorksheets(
+                workbook: XLSX.WorkBook,
+                rule: TransformationRule,
+        ): {
+                success: boolean;
 		workbook: XLSX.WorkBook;
 		selectedSheet?: string;
 		error?: string;
 	} {
-		const params = rule.params as {
-			sourceSheets: string[];
-			operation: 'merge' | 'combine';
-		};
+                const params = rule.params as {
+                        sourceSheets: string[];
+                        operation: 'append' | 'merge';
+                };
 
-		this.addLog(`Combining worksheets: ${params.sourceSheets.join(', ')}`);
-		this.addLog(`Operation: ${params.operation}`);
+                this.addLog(
+                        `Combining worksheets: ${params.sourceSheets.join(', ')}`,
+                );
+                this.addLog(`Operation: ${params.operation}`);
 
-		// Check that all source sheets exist
-		for (const sheetName of params.sourceSheets) {
-			if (!workbook.Sheets[sheetName]) {
-				return {
-					success: false,
-					workbook,
-					error: `Source sheet "${sheetName}" not found`,
-				};
-			}
-		}
+                for (const sheetName of params.sourceSheets) {
+                        if (!workbook.Sheets[sheetName]) {
+                                return {
+                                        success: false,
+                                        workbook,
+                                        error: `Source sheet "${sheetName}" not found`,
+                                };
+                        }
+                }
 
-		// Simplified implementation - in production, you'd implement actual sheet combination
-		// For now, just select the first sheet
-		return {
-			success: true,
-			workbook,
-			selectedSheet: params.sourceSheets[0],
-		};
-	}
+                const combinedSheetName = this.generateSheetName(
+                        workbook,
+                        'Combined',
+                );
+
+                try {
+                        if (params.operation === 'append') {
+                                const [first, ...rest] = params.sourceSheets;
+                                const base = XLSX.utils.sheet_to_json(
+                                        workbook.Sheets[first],
+                                        { header: 1, blankrows: false },
+                                ) as (string | number | null)[][];
+
+                                const combined = [...base];
+                                for (const name of rest) {
+                                        const rows = XLSX.utils.sheet_to_json(
+                                                workbook.Sheets[name],
+                                                { header: 1, blankrows: false },
+                                        ) as (string | number | null)[][];
+                                        combined.push(...rows.slice(1));
+                                }
+
+                                workbook.Sheets[combinedSheetName] =
+                                        XLSX.utils.aoa_to_sheet(combined);
+                                workbook.SheetNames.push(combinedSheetName);
+                        } else {
+                                const sheetsData = params.sourceSheets.map((name) =>
+                                        XLSX.utils.sheet_to_json(workbook.Sheets[name], {
+                                                defval: '',
+                                        }) as Record<string, any>[]
+                                );
+
+                                const headerSet = new Set<string>();
+                                sheetsData.forEach((rows) => {
+                                        rows.forEach((row) =>
+                                                Object.keys(row).forEach((h) =>
+                                                        headerSet.add(h),
+                                                ),
+                                        );
+                                });
+                                const headers = Array.from(headerSet);
+
+                                const aoa: any[][] = [headers];
+                                sheetsData.forEach((rows) => {
+                                        rows.forEach((row) => {
+                                                aoa.push(headers.map((h) => row[h] ?? null));
+                                        });
+                                });
+
+                                workbook.Sheets[combinedSheetName] =
+                                        XLSX.utils.aoa_to_sheet(aoa);
+                                workbook.SheetNames.push(combinedSheetName);
+                        }
+
+                        this.addLog(
+                                `Created combined worksheet "${combinedSheetName}"`,
+                        );
+
+                        return {
+                                success: true,
+                                workbook,
+                                selectedSheet: combinedSheetName,
+                        };
+                } catch (error) {
+                        return {
+                                success: false,
+                                workbook,
+                                error:
+                                        error instanceof Error
+                                                ? error.message
+                                                : 'Failed to combine worksheets',
+                        };
+                }
+        }
+
+        private generateSheetName(
+                workbook: XLSX.WorkBook,
+                base: string,
+        ): string {
+                let name = base;
+                let counter = 1;
+                while (workbook.SheetNames.includes(name)) {
+                        name = `${base}_${counter}`;
+                        counter++;
+                }
+                return name;
+        }
 
 	private applyEvaluateFormulas(
 		workbook: XLSX.WorkBook,

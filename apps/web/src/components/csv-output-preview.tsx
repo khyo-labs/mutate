@@ -461,15 +461,93 @@ function simulateTransformations(
 				}
 				break;
 
-			case 'COMBINE_WORKSHEETS':
-				// This would require more complex logic to combine multiple worksheets
-				appliedRules.push('Combined worksheets');
-				warnings.push(
-					'Worksheet combination is simulated - actual results may vary',
-				);
-				break;
-		}
-	});
+                        case 'COMBINE_WORKSHEETS': {
+                                const params = rule.params as {
+                                        sourceSheets?: string[];
+                                        operation?: 'append' | 'merge';
+                                };
+
+                                const sheets = params.sourceSheets || [];
+                                const operation = params.operation || 'append';
+
+                                if (sheets.length === 0) {
+                                        warnings.push('No source sheets provided for combination');
+                                        break;
+                                }
+
+                                const missing = sheets.filter(
+                                        (s) => !file.workbook.Sheets[s],
+                                );
+                                if (missing.length > 0) {
+                                        warnings.push(
+                                                `Source sheet(s) not found: ${missing.join(', ')}`,
+                                        );
+                                        break;
+                                }
+
+                                if (operation === 'append') {
+                                        const [first, ...rest] = sheets;
+                                        const base = XLSX.utils.sheet_to_json(
+                                                file.workbook.Sheets[first],
+                                                { header: 1, blankrows: false },
+                                        ) as (string | number | null)[][];
+
+                                        const combined = [...base];
+                                        for (const name of rest) {
+                                                const rows = XLSX.utils.sheet_to_json(
+                                                        file.workbook.Sheets[name],
+                                                        { header: 1, blankrows: false },
+                                                ) as (string | number | null)[][];
+                                                combined.push(...rows.slice(1));
+                                        }
+                                        data = combined;
+                                        headers =
+                                                combined.length > 0
+                                                        ? combined[0].map(
+                                                                  (cell, index) =>
+                                                                          cell?.toString() ||
+                                                                          `Column ${index + 1}`,
+                                                          )
+                                                        : [];
+                                } else {
+                                        const sheetsData = sheets.map((name) =>
+                                                XLSX.utils.sheet_to_json(
+                                                        file.workbook.Sheets[name],
+                                                        { defval: '' },
+                                                ) as Record<string, any>[]
+                                        );
+
+                                        const headerSet = new Set<string>();
+                                        sheetsData.forEach((rows) => {
+                                                rows.forEach((row) =>
+                                                        Object.keys(row).forEach((h) =>
+                                                                headerSet.add(h),
+                                                        ),
+                                                );
+                                        });
+                                        const headerArr = Array.from(headerSet);
+
+                                        const aoa: any[][] = [headerArr];
+                                        sheetsData.forEach((rows) => {
+                                                rows.forEach((row) => {
+                                                        aoa.push(
+                                                                headerArr.map((h) => row[h] ?? null),
+                                                        );
+                                                });
+                                        });
+                                        data = aoa;
+                                        headers = headerArr;
+                                }
+
+                                appliedRules.push(
+                                        `Combined ${sheets.length} worksheet${
+                                                sheets.length !== 1 ? 's' : ''
+                                        } (${operation})`,
+                                );
+                                break;
+                        }
+                }
+        });
 
 	return {
 		data,
