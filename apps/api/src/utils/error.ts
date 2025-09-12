@@ -9,11 +9,14 @@ export class AppError extends Error {
 }
 
 export function getErrorMessage(error: unknown, defaultMessage: string) {
-	if (error instanceof AppError) {
-		return error.message;
-	}
-	if (error instanceof Error) {
-		return error.message;
-	}
-	return defaultMessage;
+        if (error instanceof AppError) {
+                return error.message;
+        }
+        if (error instanceof Error) {
+                return error.message;
+        }
+        if (typeof error === 'string') {
+                return error;
+        }
+        return defaultMessage;
 }
