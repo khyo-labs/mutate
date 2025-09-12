@@ -1,5 +1,5 @@
 import { ChevronDown, Eye, EyeOff } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
 import type { TransformationRule } from '../types';
@@ -57,11 +57,82 @@ export function SpreadsheetPreview({
 
 		return { data, range };
 	}, [file, activeWorksheet]);
+	const shouldDeleteRow = useCallback(
+		function (
+			rowData: (string | number | null)[],
+			condition: unknown,
+		): boolean {
+			if (!condition) return false;
+
+			const cond = condition as {
+				type: string;
+				column?: string;
+				value?: string;
+			};
+			switch (cond.type) {
+				case 'empty':
+					if (cond.column !== undefined && cond.column.trim() !== '') {
+						// Check if specific column is empty
+						const headers =
+							worksheetData?.data[0]?.map((cell) => cell?.toString() || '') ||
+							[];
+						const colIndex = parseColumnIdentifier(cond.column, headers);
+						if (colIndex === -1) return false; // Column not found
+						const cellValue = rowData[colIndex];
+						return !cellValue || cellValue.toString().trim() === '';
+					} else {
+						// Check if entire row is empty (all columns)
+						return rowData.every(
+							(cell) => !cell || cell.toString().trim() === '',
+						);
+					}
+
+				case 'contains':
+					if (cond.column !== undefined && cond.column.trim() !== '') {
+						const headers =
+							worksheetData?.data[0]?.map((cell) => cell?.toString() || '') ||
+							[];
+						const colIndex = parseColumnIdentifier(cond.column, headers);
+						if (colIndex === -1) return false; // Column not found
+						const cellValue = rowData[colIndex];
+						return Boolean(
+							cellValue && cellValue.toString().includes(cond.value || ''),
+						);
+					}
+					return rowData.some(
+						(cell) => cell && cell.toString().includes(cond.value || ''),
+					);
+
+				case 'pattern': {
+					const regex = new RegExp(cond.value || '', 'i');
+					if (cond.column !== undefined && cond.column.trim() !== '') {
+						const headers =
+							worksheetData?.data[0]?.map((cell) => cell?.toString() || '') ||
+							[];
+						const colIndex = parseColumnIdentifier(cond.column, headers);
+						if (colIndex === -1) return false; // Column not found
+						const cellValue = rowData[colIndex];
+						return Boolean(cellValue && regex.test(cellValue.toString()));
+					}
+					return rowData.some((cell) => cell && regex.test(cell.toString()));
+				}
+				default:
+					return false;
+			}
+		},
+		[worksheetData],
+	);
 
 	const cellHighlights = useMemo<CellHighlight[]>(() => {
 		if (!worksheetData || !showHighlights) return [];
 
 		const highlights: CellHighlight[] = [];
+		const headers: string[] =
+			worksheetData.data.length > 0
+				? worksheetData.data[0].map(
+						(cell, index) => cell?.toString() || `Column ${index + 1}`,
+					)
+				: [];
 
 		rules.forEach((rule) => {
 			switch (rule.type) {
@@ -84,12 +155,40 @@ export function SpreadsheetPreview({
 					}
 					break;
 
-				case 'DELETE_COLUMNS':
+				case 'DELETE_COLUMNS': {
+					const columnsToRemove = rule.params.columns || [];
+					const removedIndices: number[] = [];
+
+					columnsToRemove.forEach((colIdentifier: string) => {
+						const colIndex = parseColumnIdentifier(colIdentifier, headers);
+						if (colIndex !== -1 && !removedIndices.includes(colIndex)) {
+							removedIndices.push(colIndex);
+						}
+					});
+
+					removedIndices.sort((a, b) => b - a);
+					removedIndices.forEach((colIndex) => {
+						for (
+							let row = worksheetData.range.s.r;
+							row <= worksheetData.range.e.r;
+							row++
+						) {
+							const colIdentifier = headers[colIndex];
+							highlights.push({
+								row,
+								col: colIndex,
+								type: 'delete',
+								reason: `Column will be deleted: ${colIdentifier}`,
+								ruleId: rule.id,
+							});
+						}
+					});
+
 					rule.params.columns?.forEach((colIdentifier: string) => {
-						const colIndex = parseColumnIdentifier(
-							colIdentifier,
-							worksheetData.data[0] || [],
-						);
+						const headers =
+							worksheetData.data[0]?.map((cell) => cell?.toString() || '') ||
+							[];
+						const colIndex = parseColumnIdentifier(colIdentifier, headers);
 						if (colIndex !== -1) {
 							for (
 								let row = worksheetData.range.s.r;
@@ -107,8 +206,8 @@ export function SpreadsheetPreview({
 						}
 					});
 					break;
-
-				case 'DELETE_ROWS':
+				}
+				case 'DELETE_ROWS': {
 					const method = rule.params.method || 'condition';
 
 					if (method === 'rows' && rule.params.rows) {
@@ -152,13 +251,14 @@ export function SpreadsheetPreview({
 						});
 					}
 					break;
+				}
 
 				case 'UNMERGE_AND_FILL':
 					rule.params.columns?.forEach((colIdentifier: string) => {
-						const colIndex = parseColumnIdentifier(
-							colIdentifier,
-							worksheetData.data[0] || [],
-						);
+						const headers =
+							worksheetData.data[0]?.map((cell) => cell?.toString() || '') ||
+							[];
+						const colIndex = parseColumnIdentifier(colIdentifier, headers);
 						if (colIndex !== -1) {
 							for (
 								let row = worksheetData.range.s.r;
@@ -177,7 +277,7 @@ export function SpreadsheetPreview({
 					});
 					break;
 
-				case 'VALIDATE_COLUMNS':
+				case 'VALIDATE_COLUMNS': {
 					const numOfColumns = rule.params.numOfColumns;
 					const actualCount =
 						worksheetData.range.e.c - worksheetData.range.s.c + 1;
@@ -197,90 +297,35 @@ export function SpreadsheetPreview({
 						}
 					}
 					break;
+				}
 			}
 		});
 
 		return highlights;
-	}, [worksheetData, rules, activeWorksheet, showHighlights]);
+	}, [worksheetData, rules, activeWorksheet, showHighlights, shouldDeleteRow]);
 
 	function parseColumnIdentifier(
 		identifier: string,
-		headerRow: (string | number | null)[],
+		headers: string[],
 	): number {
-		// Try parsing as column index (0-based)
-		const index = parseInt(identifier);
-		if (!isNaN(index)) {
-			return index;
+		const asNumber = Number(identifier);
+		if (!isNaN(asNumber) && Number.isInteger(asNumber)) {
+			return asNumber;
 		}
 
-		// Try parsing as column letter (A, B, C, etc.)
-		if (identifier.match(/^[A-Z]+$/i)) {
+		const headerIndex = headers.findIndex(
+			(header) => header?.toLowerCase() === identifier.toLowerCase(),
+		);
+
+		if (headerIndex !== -1) {
+			return headerIndex;
+		}
+
+		if (/^[A-Z]+$/i.test(identifier)) {
 			return XLSX.utils.decode_col(identifier.toUpperCase());
 		}
 
-		// Try finding by header name
-		return headerRow.findIndex(
-			(cell) =>
-				cell && cell.toString().toLowerCase() === identifier.toLowerCase(),
-		);
-	}
-
-	function shouldDeleteRow(
-		rowData: (string | number | null)[],
-		condition: any,
-	): boolean {
-		if (!condition) return false;
-
-		switch (condition.type) {
-			case 'empty':
-				if (condition.column !== undefined && condition.column.trim() !== '') {
-					// Check if specific column is empty
-					const colIndex = parseColumnIdentifier(
-						condition.column,
-						worksheetData?.data[0] || [],
-					);
-					if (colIndex === -1) return false; // Column not found
-					const cellValue = rowData[colIndex];
-					return !cellValue || cellValue.toString().trim() === '';
-				} else {
-					// Check if entire row is empty (all columns)
-					return rowData.every(
-						(cell) => !cell || cell.toString().trim() === '',
-					);
-				}
-
-			case 'contains':
-				if (condition.column !== undefined && condition.column.trim() !== '') {
-					const colIndex = parseColumnIdentifier(
-						condition.column,
-						worksheetData?.data[0] || [],
-					);
-					if (colIndex === -1) return false; // Column not found
-					const cellValue = rowData[colIndex];
-					return Boolean(
-						cellValue && cellValue.toString().includes(condition.value || ''),
-					);
-				}
-				return rowData.some(
-					(cell) => cell && cell.toString().includes(condition.value || ''),
-				);
-
-			case 'pattern':
-				const regex = new RegExp(condition.value || '', 'i');
-				if (condition.column !== undefined && condition.column.trim() !== '') {
-					const colIndex = parseColumnIdentifier(
-						condition.column,
-						worksheetData?.data[0] || [],
-					);
-					if (colIndex === -1) return false; // Column not found
-					const cellValue = rowData[colIndex];
-					return Boolean(cellValue && regex.test(cellValue.toString()));
-				}
-				return rowData.some((cell) => cell && regex.test(cell.toString()));
-
-			default:
-				return false;
-		}
+		throw new Error(`Invalid column identifier: ${identifier}`);
 	}
 
 	function getCellHighlight(

@@ -570,8 +570,11 @@ function CombineWorksheetsForm({
 			</div>
 			<div>
 				<label className="block text-xs font-medium text-gray-700">
-					Source Sheets
+					Source Sheets (optional)
 				</label>
+				<div className="mt-1 text-xs text-gray-500">
+					Leave blank to use worksheets selected by prior SELECT_WORKSHEET rules.
+				</div>
 				<div className="mt-1 flex space-x-1">
 					<input
 						type="text"
