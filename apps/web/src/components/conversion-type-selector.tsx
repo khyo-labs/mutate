@@ -113,11 +113,11 @@ export function ConversionTypeSelector({
 							}}
 							className={`relative cursor-pointer rounded-lg border-2 p-4 transition-all ${
 								isSelected
-									? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+									? 'border-primary bg-primary/10 ring-primary/20 ring-2'
 									: 'border-border hover:border-border/80 hover:bg-muted/50'
 							} ${
 								isDisabled
-									? 'cursor-not-allowed bg-muted opacity-50'
+									? 'bg-muted cursor-not-allowed opacity-50'
 									: 'hover:shadow-md'
 							} `}
 						>
@@ -142,15 +142,15 @@ export function ConversionTypeSelector({
 									>
 										{conversion.name}
 									</h4>
-									<p className="mt-1 text-xs text-muted-foreground">
+									<p className="text-muted-foreground mt-1 text-xs">
 										{conversion.description}
 									</p>
 									<div className="mt-2 flex items-center space-x-2">
-										<span className="inline-flex items-center rounded bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+										<span className="bg-muted text-muted-foreground inline-flex items-center rounded px-2 py-1 text-xs font-medium">
 											{conversion.inputFormat}
 										</span>
 										<span className="text-muted-foreground">→</span>
-										<span className="inline-flex items-center rounded bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+										<span className="bg-muted text-muted-foreground inline-flex items-center rounded px-2 py-1 text-xs font-medium">
 											{conversion.outputFormat}
 										</span>
 									</div>
@@ -158,7 +158,7 @@ export function ConversionTypeSelector({
 							</div>
 
 							{isSelected && (
-								<div className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-inset ring-primary"></div>
+								<div className="ring-primary pointer-events-none absolute inset-0 rounded-lg ring-2 ring-inset"></div>
 							)}
 						</div>
 					);

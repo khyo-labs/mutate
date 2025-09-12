@@ -113,11 +113,11 @@ export interface DeleteColumnsRule extends BaseTransformationRule {
 }
 
 export interface CombineWorksheetsRule extends BaseTransformationRule {
-	type: 'COMBINE_WORKSHEETS';
-	params: {
-		sourceSheets: string[];
-		operation: 'append' | 'merge';
-	};
+    type: 'COMBINE_WORKSHEETS';
+    params: {
+        sourceSheets?: string[]; // Optional; defaults to previously selected sheets
+        operation: 'append' | 'merge';
+    };
 }
 
 export interface EvaluateFormulasRule extends BaseTransformationRule {

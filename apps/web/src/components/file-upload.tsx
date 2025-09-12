@@ -2,6 +2,8 @@ import { File, Upload, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import * as XLSX from 'xlsx';
 
+import { Button } from './ui/button';
+
 export interface UploadedFile {
 	name: string;
 	size: number;
@@ -119,13 +121,15 @@ export function FileUpload({ onFileUploaded, currentFile }: FileUploadProps) {
 							</p>
 						</div>
 					</div>
-					<button
+					<Button
+						variant="ghost"
+						size="sm"
 						onClick={handleRemoveFile}
-						className="text-gray-400 hover:text-red-500"
+						className="text-gray-400 hover:text-red-500 p-1"
 						title="Remove file"
 					>
 						<X className="h-5 w-5" />
-					</button>
+					</Button>
 				</div>
 			</div>
 		);
@@ -170,12 +174,9 @@ export function FileUpload({ onFileUploaded, currentFile }: FileUploadProps) {
 					</div>
 
 					{!isProcessing && (
-						<button
-							type="button"
-							className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-						>
+						<Button variant="default">
 							Choose File
-						</button>
+						</Button>
 					)}
 				</div>
 			</div>

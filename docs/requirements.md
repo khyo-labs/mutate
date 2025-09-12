@@ -141,7 +141,8 @@ configurations
 
 6. **COMBINE_WORKSHEETS**
    - Append or merge multiple worksheets
-   - Parameters: `sourceSheets[]`, `operation` (append/merge)
+   - Parameters: `sourceSheets[]` (optional), `operation` (append/merge)
+   - Default behavior: if `sourceSheets` is not provided, combines the worksheets selected by prior `SELECT_WORKSHEET` rules.
 
 7. **EVALUATE_FORMULAS**
    - Calculate and replace formulas with values

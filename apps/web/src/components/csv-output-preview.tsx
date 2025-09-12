@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 
 import type { Configuration, TransformationRule } from '../types';
 import type { UploadedFile } from './file-upload';
+import { Button } from './ui/button';
 
 interface CsvOutputPreviewProps {
 	file: UploadedFile | null;
@@ -149,13 +150,10 @@ export function CsvOutputPreview({
 						)}
 					</div>
 					<div className="flex items-center space-x-3">
-						<button
+						<Button
+							size="sm"
+							variant="outline"
 							onClick={() => setShowRawCsv(!showRawCsv)}
-							className={`inline-flex items-center rounded px-2 py-1 text-xs font-medium ${
-								showRawCsv
-									? 'bg-blue-100 text-blue-700'
-									: 'bg-gray-100 text-gray-600'
-							}`}
 						>
 							{showRawCsv ? (
 								<Eye className="mr-1 h-3 w-3" />
@@ -163,21 +161,18 @@ export function CsvOutputPreview({
 								<EyeOff className="mr-1 h-3 w-3" />
 							)}
 							Raw CSV
-						</button>
-						<button
-							onClick={handleDownload}
-							disabled={!csvOutput}
-							className="inline-flex items-center rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-						>
+						</Button>
+						<Button size="sm" onClick={handleDownload} disabled={!csvOutput}>
 							<Download className="mr-1 h-3 w-3" />
 							Download
-						</button>
-						<button
+						</Button>
+						<Button
 							onClick={() => setIsCollapsed(true)}
-							className="text-gray-400 hover:text-gray-600"
+							variant="ghost"
+							size="sm"
 						>
 							<ChevronDown className="h-5 w-5 rotate-180" />
-						</button>
+						</Button>
 					</div>
 				</div>
 
@@ -300,10 +295,13 @@ function simulateTransformations(
 			? data[0].map((cell, index) => cell?.toString() || `Column ${index + 1}`)
 			: [];
 
+	// Track selected worksheets to support defaults in COMBINE_WORKSHEETS
+	const selectedSheetsHistory: string[] = [];
+
 	// Apply transformations in order
 	rules.forEach((rule) => {
 		switch (rule.type) {
-			case 'SELECT_WORKSHEET':
+			case 'SELECT_WORKSHEET': {
 				let targetWorksheet: string | null = null;
 
 				switch (rule.params.type) {
@@ -346,12 +344,16 @@ function simulateTransformations(
 							: [];
 
 					appliedRules.push(`Selected worksheet: ${targetWorksheet}`);
+					if (!selectedSheetsHistory.includes(targetWorksheet)) {
+						selectedSheetsHistory.push(targetWorksheet);
+					}
 				} else {
 					warnings.push(`Worksheet "${targetWorksheet}" not found`);
 				}
 				break;
+			}
 
-			case 'VALIDATE_COLUMNS':
+			case 'VALIDATE_COLUMNS': {
 				const numOfColumns = rule.params.numOfColumns;
 				const actualCount = data.length > 0 ? data[0].length : 0;
 				if (actualCount !== numOfColumns) {
@@ -374,8 +376,9 @@ function simulateTransformations(
 				}
 				appliedRules.push(`Validated ${actualCount} columns`);
 				break;
+			}
 
-			case 'DELETE_COLUMNS':
+			case 'DELETE_COLUMNS': {
 				const columnsToDelete = rule.params.columns || [];
 				const deleteIndices: number[] = [];
 
@@ -386,7 +389,6 @@ function simulateTransformations(
 					}
 				});
 
-				// Sort indices in descending order to delete from right to left
 				deleteIndices.sort((a, b) => b - a);
 
 				deleteIndices.forEach((colIndex) => {
@@ -396,16 +398,33 @@ function simulateTransformations(
 					headers = headers.filter((_, index) => index !== colIndex);
 				});
 
+				// Also apply the delete to the underlying worksheet so later rules (e.g., COMBINE_WORKSHEETS)
+				// that read directly from workbook.Sheets see the modified sheet
+				if (deleteIndices.length > 0 && activeWorksheet) {
+					const ws = file.workbook.Sheets[activeWorksheet];
+					if (ws) {
+						const sortedAsc = [...deleteIndices].sort((a, b) => a - b);
+						const newWs = deleteColumnsFromWorksheet(ws, sortedAsc);
+						file.workbook.Sheets[activeWorksheet] = newWs;
+					}
+				}
+
 				if (deleteIndices.length > 0) {
 					appliedRules.push(
 						`Deleted ${deleteIndices.length} column${deleteIndices.length !== 1 ? 's' : ''}`,
 					);
 				}
 				break;
-
-			case 'DELETE_ROWS':
+			}
+			case 'DELETE_ROWS': {
 				const method = rule.params.method || 'condition';
 				const initialRowCount = data.length;
+
+				console.log('method', {
+					initialRowCount,
+					method,
+					rules: JSON.stringify(rules),
+				});
 
 				if (method === 'rows' && rule.params.rows) {
 					// Delete specific row numbers (1-based, convert to 0-based)
@@ -435,8 +454,8 @@ function simulateTransformations(
 					}
 				}
 				break;
-
-			case 'UNMERGE_AND_FILL':
+			}
+			case 'UNMERGE_AND_FILL': {
 				const fillColumns = rule.params.columns || [];
 				const fillDirection = rule.params.fillDirection || 'down';
 
@@ -453,101 +472,96 @@ function simulateTransformations(
 					);
 				}
 				break;
-
-			case 'EVALUATE_FORMULAS':
+			}
+			case 'EVALUATE_FORMULAS': {
 				if (rule.params.enabled) {
 					// This is a simplified simulation - in reality, you'd evaluate Excel formulas
 					appliedRules.push('Evaluated formulas');
 				}
 				break;
+			}
+			case 'COMBINE_WORKSHEETS': {
+				const params = rule.params as {
+					sourceSheets?: string[];
+					operation?: 'append' | 'merge';
+				};
 
-                        case 'COMBINE_WORKSHEETS': {
-                                const params = rule.params as {
-                                        sourceSheets?: string[];
-                                        operation?: 'append' | 'merge';
-                                };
+				const sheets =
+					params.sourceSheets && params.sourceSheets.length
+						? params.sourceSheets
+						: selectedSheetsHistory;
+				const operation = params.operation || 'append';
 
-                                const sheets = params.sourceSheets || [];
-                                const operation = params.operation || 'append';
+				if (sheets.length === 0) {
+					warnings.push(
+						'No source sheets provided and no prior SELECT_WORKSHEET selections found',
+					);
+					break;
+				}
 
-                                if (sheets.length === 0) {
-                                        warnings.push('No source sheets provided for combination');
-                                        break;
-                                }
+				const missing = sheets.filter((s) => !file.workbook.Sheets[s]);
+				if (missing.length > 0) {
+					warnings.push(`Source sheet(s) not found: ${missing.join(', ')}`);
+					break;
+				}
 
-                                const missing = sheets.filter(
-                                        (s) => !file.workbook.Sheets[s],
-                                );
-                                if (missing.length > 0) {
-                                        warnings.push(
-                                                `Source sheet(s) not found: ${missing.join(', ')}`,
-                                        );
-                                        break;
-                                }
+				if (operation === 'append') {
+					const [first, ...rest] = sheets;
+					const base = XLSX.utils.sheet_to_json(file.workbook.Sheets[first], {
+						header: 1,
+						blankrows: false,
+					}) as (string | number | null)[][];
 
-                                if (operation === 'append') {
-                                        const [first, ...rest] = sheets;
-                                        const base = XLSX.utils.sheet_to_json(
-                                                file.workbook.Sheets[first],
-                                                { header: 1, blankrows: false },
-                                        ) as (string | number | null)[][];
+					const combined = [...base];
+					for (const name of rest) {
+						const rows = XLSX.utils.sheet_to_json(file.workbook.Sheets[name], {
+							header: 1,
+							blankrows: false,
+						}) as (string | number | null)[][];
+						combined.push(...rows.slice(1));
+					}
+					data = combined;
+					headers =
+						combined.length > 0
+							? combined[0].map(
+									(cell, index) => cell?.toString() || `Column ${index + 1}`,
+								)
+							: [];
+				} else {
+					const sheetsData = sheets.map(
+						(name) =>
+							XLSX.utils.sheet_to_json(file.workbook.Sheets[name], {
+								defval: '',
+							}) as Record<string, unknown>[],
+					);
 
-                                        const combined = [...base];
-                                        for (const name of rest) {
-                                                const rows = XLSX.utils.sheet_to_json(
-                                                        file.workbook.Sheets[name],
-                                                        { header: 1, blankrows: false },
-                                                ) as (string | number | null)[][];
-                                                combined.push(...rows.slice(1));
-                                        }
-                                        data = combined;
-                                        headers =
-                                                combined.length > 0
-                                                        ? combined[0].map(
-                                                                  (cell, index) =>
-                                                                          cell?.toString() ||
-                                                                          `Column ${index + 1}`,
-                                                          )
-                                                        : [];
-                                } else {
-                                        const sheetsData = sheets.map((name) =>
-                                                XLSX.utils.sheet_to_json(
-                                                        file.workbook.Sheets[name],
-                                                        { defval: '' },
-                                                ) as Record<string, any>[]
-                                        );
+					const headerSet = new Set<string>();
+					sheetsData.forEach((rows) => {
+						rows.forEach((row) =>
+							Object.keys(row).forEach((h) => headerSet.add(h)),
+						);
+					});
+					const headerArr = Array.from(headerSet);
 
-                                        const headerSet = new Set<string>();
-                                        sheetsData.forEach((rows) => {
-                                                rows.forEach((row) =>
-                                                        Object.keys(row).forEach((h) =>
-                                                                headerSet.add(h),
-                                                        ),
-                                                );
-                                        });
-                                        const headerArr = Array.from(headerSet);
+					const aoa: unknown[][] = [headerArr];
+					sheetsData.forEach((rows) => {
+						rows.forEach((row) => {
+							aoa.push(headerArr.map((h) => row[h] ?? null));
+						});
+					});
+					data = aoa as (string | number | null)[][];
+					headers = headerArr;
+				}
 
-                                        const aoa: any[][] = [headerArr];
-                                        sheetsData.forEach((rows) => {
-                                                rows.forEach((row) => {
-                                                        aoa.push(
-                                                                headerArr.map((h) => row[h] ?? null),
-                                                        );
-                                                });
-                                        });
-                                        data = aoa;
-                                        headers = headerArr;
-                                }
-
-                                appliedRules.push(
-                                        `Combined ${sheets.length} worksheet${
-                                                sheets.length !== 1 ? 's' : ''
-                                        } (${operation})`,
-                                );
-                                break;
-                        }
-                }
-        });
+				appliedRules.push(
+					`Combined ${sheets.length} worksheet${
+						sheets.length !== 1 ? 's' : ''
+					} (${operation})`,
+				);
+				break;
+			}
+		}
+	});
 
 	return {
 		data,
@@ -560,64 +574,128 @@ function simulateTransformations(
 }
 
 function parseColumnIdentifier(identifier: string, headers: string[]): number {
-	// Try parsing as column index (0-based)
-	const index = parseInt(identifier);
-	if (!isNaN(index)) {
-		return index;
+	const asNumber = Number(identifier);
+	if (!isNaN(asNumber) && Number.isInteger(asNumber)) {
+		return asNumber;
 	}
 
-	// Try parsing as column letter (A, B, C, etc.)
-	if (identifier.match(/^[A-Z]+$/i)) {
+	const headerIndex = headers.findIndex(
+		(header) => header?.toLowerCase() === identifier.toLowerCase(),
+	);
+
+	if (headerIndex !== -1) {
+		return headerIndex;
+	}
+
+	if (/^[A-Z]+$/i.test(identifier)) {
 		return XLSX.utils.decode_col(identifier.toUpperCase());
 	}
 
-	// Try finding by header name
-	return headers.findIndex(
-		(header) => header && header.toLowerCase() === identifier.toLowerCase(),
-	);
+	throw new Error(`Invalid column identifier: ${identifier}`);
+}
+
+// Mutate a worksheet to delete specified 0-based column indices (sorted ascending)
+function deleteColumnsFromWorksheet(
+	worksheet: XLSX.WorkSheet,
+	colsToDelete: number[],
+): XLSX.WorkSheet {
+	const ref = (worksheet as any)['!ref'] as string | undefined;
+	const range = XLSX.utils.decode_range(ref || 'A1:A1');
+	if (colsToDelete.length === 0) return worksheet;
+
+	const toDelete = colsToDelete
+		.filter((c) => c >= range.s.c && c <= range.e.c)
+		.sort((a, b) => a - b);
+	if (toDelete.length === 0) return worksheet;
+
+	const countDeletedBefore = (c: number) =>
+		toDelete.filter((d) => d < c).length;
+	const newSheet: XLSX.WorkSheet = {} as any;
+	const props = ['!merges', '!cols', '!rows', '!protect', '!autofilter'];
+	for (const p of props)
+		if ((worksheet as any)[p] !== undefined)
+			(newSheet as any)[p] = (worksheet as any)[p];
+
+	Object.keys(worksheet)
+		.filter((k) => !k.startsWith('!'))
+		.forEach((addr) => {
+			const { c, r } = XLSX.utils.decode_cell(addr);
+			if (toDelete.includes(c)) return;
+			const shift = countDeletedBefore(c);
+			const newAddr = XLSX.utils.encode_cell({ c: c - shift, r });
+			(newSheet as any)[newAddr] = (worksheet as any)[addr];
+		});
+
+	const newEndC = range.e.c - toDelete.length;
+	if (newEndC >= range.s.c) {
+		(newSheet as any)['!ref'] = XLSX.utils.encode_range({
+			s: range.s,
+			e: { c: newEndC, r: range.e.r },
+		});
+	} else {
+		(newSheet as any)['!ref'] = 'A1:A1';
+	}
+
+	return newSheet;
 }
 
 function shouldDeleteRow(
 	row: (string | number | null)[],
-	condition: any,
+	condition: unknown,
 	headers: string[],
 ): boolean {
 	if (!condition) return false;
-
-	switch (condition.type) {
-		case 'empty':
-			if (condition.column !== undefined && condition.column.trim() !== '') {
+	const cond = condition as { type: string; column?: string; value?: string };
+	switch (cond.type) {
+		case 'empty': {
+			if (cond.column !== undefined && cond.column.trim() !== '') {
 				// Check if specific column is empty
-				const colIndex = parseColumnIdentifier(condition.column, headers);
+				const colIndex = parseColumnIdentifier(cond.column, headers);
+
 				if (colIndex === -1) return false; // Column not found
 				const cellValue = row[colIndex];
-				return !cellValue || cellValue.toString().trim() === '';
+				if (
+					cellValue === null ||
+					cellValue === undefined ||
+					cellValue.toString().trim() === ''
+				) {
+					console.log('colIndex', {
+						cond,
+						headers,
+						row,
+						colIndex,
+					});
+				}
+				return (
+					!cellValue || cellValue === null || cellValue.toString().trim() === ''
+				);
 			} else {
 				// Check if entire row is empty (all columns)
 				return row.every((cell) => !cell || cell.toString().trim() === '');
 			}
+		}
 
 		case 'contains':
-			if (condition.column !== undefined && condition.column.trim() !== '') {
-				const colIndex = parseColumnIdentifier(condition.column, headers);
+			if (cond.column !== undefined && cond.column.trim() !== '') {
+				const colIndex = parseColumnIdentifier(cond.column, headers);
 				if (colIndex === -1) return false; // Column not found
 				const cellValue = row[colIndex];
-				return cellValue?.toString().includes(condition.value || '') ?? false;
+				return cellValue?.toString().includes(cond.value || '') ?? false;
 			}
 			return row.some(
-				(cell) => cell && cell.toString().includes(condition.value || ''),
+				(cell) => cell && cell.toString().includes(cond.value || ''),
 			);
 
-		case 'pattern':
-			const regex = new RegExp(condition.value || '', 'i');
-			if (condition.column !== undefined && condition.column.trim() !== '') {
-				const colIndex = parseColumnIdentifier(condition.column, headers);
+		case 'pattern': {
+			const regex = new RegExp(cond.value || '', 'i');
+			if (cond.column !== undefined && cond.column.trim() !== '') {
+				const colIndex = parseColumnIdentifier(cond.column, headers);
 				if (colIndex === -1) return false; // Column not found
 				const cellValue = row[colIndex];
 				return Boolean(cellValue && regex.test(cellValue.toString()));
 			}
 			return row.some((cell) => cell && regex.test(cell.toString()));
-
+		}
 		default:
 			return false;
 	}
