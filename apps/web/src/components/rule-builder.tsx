@@ -39,7 +39,10 @@ interface RuleBuilderProps {
 	onChange: (rules: TransformationRule[]) => void;
 }
 
-const ruleIcons: Record<XlsxToCsvRuleType, React.ComponentType<{ className?: string }>> = {
+const ruleIcons: Record<
+	XlsxToCsvRuleType,
+	React.ComponentType<{ className?: string }>
+> = {
 	SELECT_WORKSHEET: FileText,
 	VALIDATE_COLUMNS: CheckCircle,
 	UNMERGE_AND_FILL: Merge,
@@ -87,14 +90,14 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 		<div
 			ref={setNodeRef}
 			style={style}
-			className={`rounded-lg border bg-card p-4 ${
+			className={`bg-card rounded-lg border p-4 ${
 				isDragging ? 'opacity-50' : ''
 			}`}
 		>
 			<div className="flex items-center justify-between">
 				<div className="flex items-center space-x-3">
 					<button
-						className="cursor-grab text-muted-foreground hover:text-foreground"
+						className="text-muted-foreground hover:text-foreground cursor-grab"
 						{...attributes}
 						{...listeners}
 					>
@@ -104,16 +107,16 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 						<Icon className="text-primary h-4 w-4" />
 					</div>
 					<div>
-						<h4 className="text-sm font-medium text-foreground">
+						<h4 className="text-foreground text-sm font-medium">
 							{rule.type.replace(/_/g, ' ')}
 						</h4>
-						<p className="text-xs text-muted-foreground">
+						<p className="text-muted-foreground text-xs">
 							{ruleDescriptions[rule.type]}
 						</p>
 					</div>
 				</div>
 				<div className="flex items-center space-x-2">
-					<span className="text-xs text-muted-foreground">#{index + 1}</span>
+					<span className="text-muted-foreground text-xs">#{index + 1}</span>
 					<button
 						onClick={() => onRemove(rule.id)}
 						className="text-destructive hover:text-destructive/80"
@@ -181,7 +184,7 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 		<div className="grid grid-cols-12 gap-6">
 			{/* Available Rules */}
 			<div className="col-span-4">
-				<h3 className="mb-4 text-lg font-medium text-foreground">
+				<h3 className="text-foreground mb-4 text-lg font-medium">
 					Available Operations
 				</h3>
 				<div className="space-y-2">
@@ -191,17 +194,17 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 							<button
 								key={rule.id}
 								onClick={() => addRule(rule)}
-								className="w-full rounded-lg border bg-card p-3 text-left transition-colors hover:bg-accent hover:text-accent-foreground"
+								className="bg-card hover:bg-accent hover:text-accent-foreground w-full rounded-lg border p-3 text-left transition-colors"
 							>
 								<div className="flex items-center space-x-3">
-									<div className="rounded-lg bg-muted p-2">
-										<Icon className="h-4 w-4 text-muted-foreground" />
+									<div className="bg-muted rounded-lg p-2">
+										<Icon className="text-muted-foreground h-4 w-4" />
 									</div>
 									<div>
-										<div className="text-sm font-medium text-foreground">
+										<div className="text-foreground text-sm font-medium">
 											{rule.type.replace(/_/g, ' ')}
 										</div>
-										<div className="text-xs text-muted-foreground">
+										<div className="text-muted-foreground text-xs">
 											{ruleDescriptions[rule.type]}
 										</div>
 									</div>
@@ -215,10 +218,10 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 			{/* Active Rules */}
 			<div className="col-span-8">
 				<div className="mb-4 flex items-center justify-between">
-					<h3 className="text-lg font-medium text-foreground">
+					<h3 className="text-foreground text-lg font-medium">
 						Mutation Pipeline
 					</h3>
-					<span className="text-sm text-muted-foreground">
+					<span className="text-muted-foreground text-sm">
 						{rules.length} rule{rules.length !== 1 ? 's' : ''}
 					</span>
 				</div>
@@ -248,12 +251,12 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 						</SortableContext>
 					</DndContext>
 				) : (
-					<div className="rounded-lg border-2 border-dashed border-border p-12 text-center">
-						<Plus className="mx-auto h-12 w-12 text-muted-foreground" />
-						<h4 className="mt-2 text-sm font-medium text-foreground">
+					<div className="border-border rounded-lg border-2 border-dashed p-12 text-center">
+						<Plus className="text-muted-foreground mx-auto h-12 w-12" />
+						<h4 className="text-foreground mt-2 text-sm font-medium">
 							No rules added
 						</h4>
-						<p className="mt-1 text-sm text-muted-foreground">
+						<p className="text-muted-foreground mt-1 text-sm">
 							Add transformation rules from the left panel to build your
 							pipeline.
 						</p>
