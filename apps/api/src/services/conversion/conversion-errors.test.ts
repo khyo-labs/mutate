@@ -23,11 +23,9 @@ describe('ConversionErrors', () => {
 
 	describe('WorksheetNotFoundError', () => {
 		it('creates error with worksheet details', () => {
-			const error = new WorksheetNotFoundError(
-				'Sheet2',
-				['Sheet1', 'Sheet3'],
-				{ operation: 'select' },
-			);
+			const error = new WorksheetNotFoundError('Sheet2', ['Sheet1', 'Sheet3'], {
+				operation: 'select',
+			});
 			expect(error.code).toBe('WORKSHEET_NOT_FOUND');
 			expect(error.message).toContain('Sheet2');
 			expect(error.message).toContain('Sheet1, Sheet3');
@@ -71,7 +69,7 @@ describe('ConversionErrorHandler', () => {
 			const error = new FileReadError('Read failed', { size: 2048 });
 			const context = { configurationName: 'Test Config' };
 			const result = ConversionErrorHandler.formatError(error, context);
-			
+
 			expect(result.code).toBe('FILE_READ_ERROR');
 			expect(result.message).toBe('Read failed');
 			expect(result.details).toEqual({ size: 2048 });
@@ -82,7 +80,7 @@ describe('ConversionErrorHandler', () => {
 		it('formats generic Error correctly', () => {
 			const error = new Error('Generic error');
 			const result = ConversionErrorHandler.formatError(error);
-			
+
 			expect(result.code).toBe('CONVERSION_ERROR');
 			expect(result.message).toBe('Generic error');
 			expect(result.context?.timestamp).toBeDefined();
@@ -91,7 +89,7 @@ describe('ConversionErrorHandler', () => {
 		it('formats unknown error types', () => {
 			const error = 'String error';
 			const result = ConversionErrorHandler.formatError(error);
-			
+
 			expect(result.code).toBe('UNKNOWN_ERROR');
 			expect(result.message).toBe('String error');
 		});
@@ -104,7 +102,7 @@ describe('ConversionErrorHandler', () => {
 				message: 'Rule failed',
 				context: { ruleType: 'DELETE_ROWS', ruleIndex: 1 },
 			};
-			
+
 			const message = ConversionErrorHandler.createUserFriendlyMessage(error);
 			expect(message).toContain('Rule failed');
 			expect(message).toContain('Rule 2: DELETE_ROWS');
@@ -116,7 +114,7 @@ describe('ConversionErrorHandler', () => {
 				message: 'Sheet not found',
 				details: { availableSheets: ['Sheet1', 'Sheet2'] },
 			};
-			
+
 			const message = ConversionErrorHandler.createUserFriendlyMessage(error);
 			expect(message).toContain('Available sheets: Sheet1, Sheet2');
 		});
@@ -127,7 +125,7 @@ describe('ConversionErrorHandler', () => {
 				message: 'Validation failed',
 				details: { expected: 5, actual: 3 },
 			};
-			
+
 			const message = ConversionErrorHandler.createUserFriendlyMessage(error);
 			expect(message).toContain('Expected: 5, Actual: 3');
 		});

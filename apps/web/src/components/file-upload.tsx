@@ -125,7 +125,7 @@ export function FileUpload({ onFileUploaded, currentFile }: FileUploadProps) {
 						variant="ghost"
 						size="sm"
 						onClick={handleRemoveFile}
-						className="text-gray-400 hover:text-red-500 p-1"
+						className="p-1 text-gray-400 hover:text-red-500"
 						title="Remove file"
 					>
 						<X className="h-5 w-5" />
@@ -173,11 +173,7 @@ export function FileUpload({ onFileUploaded, currentFile }: FileUploadProps) {
 						</p>
 					</div>
 
-					{!isProcessing && (
-						<Button variant="default">
-							Choose File
-						</Button>
-					)}
+					{!isProcessing && <Button variant="default">Choose File</Button>}
 				</div>
 			</div>
 

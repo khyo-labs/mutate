@@ -8,8 +8,8 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { Button } from './ui/button';
 import type { Configuration, TransformationRule } from '../types';
+import { Button } from './ui/button';
 
 interface JsonConfigPanelProps {
 	name: string;
@@ -229,10 +229,7 @@ export function JsonConfigPanel({
 						)}
 
 						<div className="flex justify-end space-x-3">
-							<Button
-								variant="outline"
-								onClick={handleImportCancel}
-							>
+							<Button variant="outline" onClick={handleImportCancel}>
 								Cancel
 							</Button>
 							<Button
@@ -269,11 +266,7 @@ export function JsonConfigPanel({
 							<Upload className="mr-1 h-3 w-3" />
 							Import
 						</Button>
-						<Button
-							variant="secondary"
-							size="sm"
-							onClick={handleCopy}
-						>
+						<Button variant="secondary" size="sm" onClick={handleCopy}>
 							<Copy className="mr-1 h-3 w-3" />
 							Copy
 						</Button>
