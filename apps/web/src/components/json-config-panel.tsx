@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import { Button } from './ui/button';
 import type { Configuration, TransformationRule } from '../types';
 
 interface JsonConfigPanelProps {
@@ -156,7 +157,8 @@ export function JsonConfigPanel({
 	if (isCollapsed) {
 		return (
 			<div className="rounded-lg border border-gray-200 bg-white">
-				<button
+				<Button
+					variant="ghost"
 					onClick={() => setIsCollapsed(false)}
 					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
 				>
@@ -166,7 +168,7 @@ export function JsonConfigPanel({
 						</p>
 					</div>
 					<ChevronDown className="h-5 w-5 text-gray-400" />
-				</button>
+				</Button>
 			</div>
 		);
 	}
@@ -184,12 +186,14 @@ export function JsonConfigPanel({
 								Paste your JSON configuration below
 							</p>
 						</div>
-						<button
+						<Button
+							variant="ghost"
+							size="sm"
 							onClick={() => setIsCollapsed(true)}
 							className="text-gray-400 hover:text-gray-600"
 						>
 							<ChevronDown className="h-5 w-5 rotate-180" />
-						</button>
+						</Button>
 					</div>
 				</div>
 
@@ -225,20 +229,19 @@ export function JsonConfigPanel({
 						)}
 
 						<div className="flex justify-end space-x-3">
-							<button
+							<Button
+								variant="outline"
 								onClick={handleImportCancel}
-								className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 							>
 								Cancel
-							</button>
-							<button
+							</Button>
+							<Button
 								onClick={handleImport}
 								disabled={!importText.trim() || importSuccess}
-								className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								<Upload className="mr-2 h-4 w-4" />
 								Import Configuration
-							</button>
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -257,33 +260,40 @@ export function JsonConfigPanel({
 						</p>
 					</div>
 					<div className="flex items-center space-x-3">
-						<button
+						<Button
+							variant="secondary"
+							size="sm"
 							onClick={() => setShowImport(true)}
-							className="inline-flex items-center rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-200"
+							className="bg-green-100 text-green-700 hover:bg-green-200"
 						>
 							<Upload className="mr-1 h-3 w-3" />
 							Import
-						</button>
-						<button
+						</Button>
+						<Button
+							variant="secondary"
+							size="sm"
 							onClick={handleCopy}
-							className="inline-flex items-center rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200"
 						>
 							<Copy className="mr-1 h-3 w-3" />
 							Copy
-						</button>
-						<button
+						</Button>
+						<Button
+							variant="secondary"
+							size="sm"
 							onClick={handleDownload}
-							className="inline-flex items-center rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200"
+							className="bg-blue-100 text-blue-700 hover:bg-blue-200"
 						>
 							<Download className="mr-1 h-3 w-3" />
 							Download
-						</button>
-						<button
+						</Button>
+						<Button
+							variant="ghost"
+							size="sm"
 							onClick={() => setIsCollapsed(true)}
 							className="text-gray-400 hover:text-gray-600"
 						>
 							<ChevronDown className="h-5 w-5 rotate-180" />
-						</button>
+						</Button>
 					</div>
 				</div>
 			</div>
