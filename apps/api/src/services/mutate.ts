@@ -15,21 +15,21 @@ export interface MutationResult {
 }
 
 export class MutationService {
-    private log: string[] = [];
-    private selectedSheetsHistory: string[] = [];
+	private log: string[] = [];
+	private selectedSheetsHistory: string[] = [];
 
 	private addLog(message: string) {
 		this.log.push(`${new Date().toISOString()}: ${message}`);
 		console.log(message);
 	}
 
-    async transformFile(
-        fileBuffer: Buffer,
-        configuration: Configuration,
-        options: MutationOptions = {},
-    ): Promise<MutationResult> {
-        this.log = [];
-        this.selectedSheetsHistory = [];
+	async transformFile(
+		fileBuffer: Buffer,
+		configuration: Configuration,
+		options: MutationOptions = {},
+	): Promise<MutationResult> {
+		this.log = [];
+		this.selectedSheetsHistory = [];
 		this.addLog(
 			`Starting transformation with configuration: ${configuration.name}`,
 		);
@@ -65,8 +65,8 @@ export class MutationService {
 				);
 			});
 
-            let currentWorkbook = workbook;
-            let selectedSheet: string | null = null;
+			let currentWorkbook = workbook;
+			let selectedSheet: string | null = null;
 
 			for (let i = 0; i < configuration.rules.length; i++) {
 				const rule = configuration.rules[i];
@@ -90,13 +90,13 @@ export class MutationService {
 				}
 
 				currentWorkbook = result.workbook!;
-                if (result.selectedSheet) {
-                    selectedSheet = result.selectedSheet;
-                    // Track unique history of selected worksheets
-                    if (!this.selectedSheetsHistory.includes(result.selectedSheet)) {
-                        this.selectedSheetsHistory.push(result.selectedSheet);
-                    }
-                }
+				if (result.selectedSheet) {
+					selectedSheet = result.selectedSheet;
+					// Track unique history of selected worksheets
+					if (!this.selectedSheetsHistory.includes(result.selectedSheet)) {
+						this.selectedSheetsHistory.push(result.selectedSheet);
+					}
+				}
 
 				this.addLog(`Rule completed successfully`);
 			}
@@ -191,15 +191,15 @@ export class MutationService {
 		}
 	}
 
-    private applySelectWorksheet(
-        workbook: XLSX.WorkBook,
-        rule: TransformationRule,
-    ): {
-        success: boolean;
-        workbook: XLSX.WorkBook;
-        selectedSheet?: string;
-        error?: string;
-    } {
+	private applySelectWorksheet(
+		workbook: XLSX.WorkBook,
+		rule: TransformationRule,
+	): {
+		success: boolean;
+		workbook: XLSX.WorkBook;
+		selectedSheet?: string;
+		error?: string;
+	} {
 		if (rule.type !== 'SELECT_WORKSHEET') {
 			return {
 				success: false,
@@ -247,17 +247,17 @@ export class MutationService {
 			targetSheet = workbook.SheetNames[0];
 		}
 
-        this.addLog(`Selected worksheet: "${targetSheet}"`);
-        // Maintain selection history for downstream rules (e.g., COMBINE_WORKSHEETS defaults)
-        if (!this.selectedSheetsHistory.includes(targetSheet)) {
-            this.selectedSheetsHistory.push(targetSheet);
-        }
-        return {
-            success: true,
-            workbook,
-            selectedSheet: targetSheet,
-        };
-    }
+		this.addLog(`Selected worksheet: "${targetSheet}"`);
+		// Maintain selection history for downstream rules (e.g., COMBINE_WORKSHEETS defaults)
+		if (!this.selectedSheetsHistory.includes(targetSheet)) {
+			this.selectedSheetsHistory.push(targetSheet);
+		}
+		return {
+			success: true,
+			workbook,
+			selectedSheet: targetSheet,
+		};
+	}
 
 	private applyValidateColumns(
 		workbook: XLSX.WorkBook,
@@ -593,175 +593,186 @@ export class MutationService {
 		}
 	}
 
-    private applyDeleteColumns(
-        workbook: XLSX.WorkBook,
-        rule: TransformationRule,
-        currentSheet: string | null,
-    ): { success: boolean; workbook: XLSX.WorkBook; error?: string } {
-        const params = rule.params as {
-            columns: string[];
-        };
-        const sheetName = currentSheet || workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
+	private applyDeleteColumns(
+		workbook: XLSX.WorkBook,
+		rule: TransformationRule,
+		currentSheet: string | null,
+	): { success: boolean; workbook: XLSX.WorkBook; error?: string } {
+		const params = rule.params as {
+			columns: string[];
+		};
+		const sheetName = currentSheet || workbook.SheetNames[0];
+		const worksheet = workbook.Sheets[sheetName];
 
-        if (!worksheet) {
-            return {
-                success: false,
-                workbook,
-                error: `Worksheet "${sheetName}" not found`,
-            };
-        }
+		if (!worksheet) {
+			return {
+				success: false,
+				workbook,
+				error: `Worksheet "${sheetName}" not found`,
+			};
+		}
 
-        if (!params.columns || params.columns.length === 0) {
-            this.addLog('DELETE_COLUMNS: No columns specified, skipping');
-            return { success: true, workbook };
-        }
+		if (!params.columns || params.columns.length === 0) {
+			this.addLog('DELETE_COLUMNS: No columns specified, skipping');
+			return { success: true, workbook };
+		}
 
-        try {
-            const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+		try {
+			const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
 
-            const parseCol = (identifier: string): number | null => {
-                const trimmed = String(identifier).trim();
-                // Letter(s) like 'A', 'AA'
-                if (/^[A-Za-z]+$/.test(trimmed)) {
-                    return XLSX.utils.decode_col(trimmed);
-                }
-                // Numeric (1-based) string or number
-                const asNum = Number.parseInt(trimmed, 10);
-                if (!Number.isNaN(asNum)) {
-                    return Math.max(0, asNum - 1);
-                }
-                return null;
-            };
+			const parseCol = (identifier: string): number | null => {
+				const trimmed = String(identifier).trim();
+				// Letter(s) like 'A', 'AA'
+				if (/^[A-Za-z]+$/.test(trimmed)) {
+					return XLSX.utils.decode_col(trimmed);
+				}
+				// Numeric (1-based) string or number
+				const asNum = Number.parseInt(trimmed, 10);
+				if (!Number.isNaN(asNum)) {
+					return Math.max(0, asNum - 1);
+				}
+				return null;
+			};
 
-            const deleteSet = new Set<number>();
-            for (const col of params.columns) {
-                const idx = parseCol(col);
-                if (idx !== null) deleteSet.add(idx);
-            }
+			const deleteSet = new Set<number>();
+			for (const col of params.columns) {
+				const idx = parseCol(col);
+				if (idx !== null) deleteSet.add(idx);
+			}
 
-            if (deleteSet.size === 0) {
-                this.addLog('DELETE_COLUMNS: No valid columns resolved, skipping');
-                return { success: true, workbook };
-            }
+			if (deleteSet.size === 0) {
+				this.addLog('DELETE_COLUMNS: No valid columns resolved, skipping');
+				return { success: true, workbook };
+			}
 
-            // Build a sorted list (ascending) for index remapping
-            const toDelete = Array.from(deleteSet).filter((c) => c >= range.s.c && c <= range.e.c).sort((a, b) => a - b);
+			// Build a sorted list (ascending) for index remapping
+			const toDelete = Array.from(deleteSet)
+				.filter((c) => c >= range.s.c && c <= range.e.c)
+				.sort((a, b) => a - b);
 
-            if (toDelete.length === 0) {
-                this.addLog('DELETE_COLUMNS: Specified columns are outside current range, skipping');
-                return { success: true, workbook };
-            }
+			if (toDelete.length === 0) {
+				this.addLog(
+					'DELETE_COLUMNS: Specified columns are outside current range, skipping',
+				);
+				return { success: true, workbook };
+			}
 
-            const countDeletedBefore = (c: number) => toDelete.filter((d) => d < c).length;
+			const countDeletedBefore = (c: number) =>
+				toDelete.filter((d) => d < c).length;
 
-            const newSheet: XLSX.WorkSheet = {} as any;
-            // Copy known properties if present
-            const props = ['!merges', '!cols', '!rows', '!protect', '!autofilter'];
-            for (const p of props) if ((worksheet as any)[p] !== undefined) (newSheet as any)[p] = (worksheet as any)[p];
+			const newSheet: XLSX.WorkSheet = {} as any;
+			// Copy known properties if present
+			const props = ['!merges', '!cols', '!rows', '!protect', '!autofilter'];
+			for (const p of props)
+				if ((worksheet as any)[p] !== undefined)
+					(newSheet as any)[p] = (worksheet as any)[p];
 
-            // Remap all cell addresses except metadata keys starting with '!'
-            Object.keys(worksheet)
-                .filter((k) => !k.startsWith('!'))
-                .forEach((addr) => {
-                    const { c, r } = XLSX.utils.decode_cell(addr);
-                    if (toDelete.includes(c)) return; // skip deleted columns
-                    const shift = countDeletedBefore(c);
-                    const newAddr = XLSX.utils.encode_cell({ c: c - shift, r });
-                    (newSheet as any)[newAddr] = (worksheet as any)[addr];
-                });
+			// Remap all cell addresses except metadata keys starting with '!'
+			Object.keys(worksheet)
+				.filter((k) => !k.startsWith('!'))
+				.forEach((addr) => {
+					const { c, r } = XLSX.utils.decode_cell(addr);
+					if (toDelete.includes(c)) return; // skip deleted columns
+					const shift = countDeletedBefore(c);
+					const newAddr = XLSX.utils.encode_cell({ c: c - shift, r });
+					(newSheet as any)[newAddr] = (worksheet as any)[addr];
+				});
 
-            // Update range
-            const newEndC = range.e.c - toDelete.length;
-            if (newEndC >= range.s.c) {
-                newSheet['!ref'] = XLSX.utils.encode_range({ s: range.s, e: { c: newEndC, r: range.e.r } });
-            } else {
-                newSheet['!ref'] = 'A1:A1';
-            }
+			// Update range
+			const newEndC = range.e.c - toDelete.length;
+			if (newEndC >= range.s.c) {
+				newSheet['!ref'] = XLSX.utils.encode_range({
+					s: range.s,
+					e: { c: newEndC, r: range.e.r },
+				});
+			} else {
+				newSheet['!ref'] = 'A1:A1';
+			}
 
-            // Replace sheet
-            workbook.Sheets[sheetName] = newSheet;
+			// Replace sheet
+			workbook.Sheets[sheetName] = newSheet;
 
-            this.addLog(`Deleted ${toDelete.length} column(s) from "${sheetName}"`);
-            return { success: true, workbook };
-        } catch (error) {
-            return {
-                success: false,
-                workbook,
-                error: `Failed to delete columns: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            };
-        }
-    }
+			this.addLog(`Deleted ${toDelete.length} column(s) from "${sheetName}"`);
+			return { success: true, workbook };
+		} catch (error) {
+			return {
+				success: false,
+				workbook,
+				error: `Failed to delete columns: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			};
+		}
+	}
 
-    private applyCombineWorksheets(
-        workbook: XLSX.WorkBook,
-        rule: TransformationRule,
-    ): {
-        success: boolean;
-        workbook: XLSX.WorkBook;
-        selectedSheet?: string;
-        error?: string;
-    } {
-        const params = rule.params as {
-            sourceSheets?: string[];
-            operation: 'append' | 'merge';
-        };
+	private applyCombineWorksheets(
+		workbook: XLSX.WorkBook,
+		rule: TransformationRule,
+	): {
+		success: boolean;
+		workbook: XLSX.WorkBook;
+		selectedSheet?: string;
+		error?: string;
+	} {
+		const params = rule.params as {
+			sourceSheets?: string[];
+			operation: 'append' | 'merge';
+		};
 
-        const sourceSheets = (params.sourceSheets && params.sourceSheets.length)
-            ? params.sourceSheets
-            : this.selectedSheetsHistory;
+		const sourceSheets =
+			params.sourceSheets && params.sourceSheets.length
+				? params.sourceSheets
+				: this.selectedSheetsHistory;
 
-        if (!sourceSheets || sourceSheets.length === 0) {
-            return {
-                success: false,
-                workbook,
-                error:
-                    'No source sheets provided and no prior SELECT_WORKSHEET selections found',
-            };
-        }
+		if (!sourceSheets || sourceSheets.length === 0) {
+			return {
+				success: false,
+				workbook,
+				error:
+					'No source sheets provided and no prior SELECT_WORKSHEET selections found',
+			};
+		}
 
-        this.addLog(
-            `Combining worksheets: ${sourceSheets.join(', ')} (operation: ${params.operation})`,
-        );
+		this.addLog(
+			`Combining worksheets: ${sourceSheets.join(', ')} (operation: ${params.operation})`,
+		);
 
-        for (const sheetName of sourceSheets) {
-            if (!workbook.Sheets[sheetName]) {
-                return {
-                    success: false,
-                    workbook,
-                    error: `Source sheet "${sheetName}" not found`,
-                };
-            }
-        }
+		for (const sheetName of sourceSheets) {
+			if (!workbook.Sheets[sheetName]) {
+				return {
+					success: false,
+					workbook,
+					error: `Source sheet "${sheetName}" not found`,
+				};
+			}
+		}
 
-        const combinedSheetName = this.generateSheetName(workbook, 'Combined');
+		const combinedSheetName = this.generateSheetName(workbook, 'Combined');
 
-        try {
-            if (params.operation === 'append') {
-                const [first, ...rest] = sourceSheets;
-                const base = XLSX.utils.sheet_to_json(workbook.Sheets[first], {
-                    header: 1,
-                    blankrows: false,
-                }) as (string | number | null)[][];
+		try {
+			if (params.operation === 'append') {
+				const [first, ...rest] = sourceSheets;
+				const base = XLSX.utils.sheet_to_json(workbook.Sheets[first], {
+					header: 1,
+					blankrows: false,
+				}) as (string | number | null)[][];
 
-                const combined = [...base];
-                for (const name of rest) {
-                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], {
-                        header: 1,
-                        blankrows: false,
-                    }) as (string | number | null)[][];
-                    combined.push(...rows.slice(1));
-                }
+				const combined = [...base];
+				for (const name of rest) {
+					const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], {
+						header: 1,
+						blankrows: false,
+					}) as (string | number | null)[][];
+					combined.push(...rows.slice(1));
+				}
 
-                workbook.Sheets[combinedSheetName] = XLSX.utils.aoa_to_sheet(combined);
-                workbook.SheetNames.push(combinedSheetName);
-            } else {
-                const sheetsData = sourceSheets.map(
-                    (name) =>
-                        XLSX.utils.sheet_to_json(workbook.Sheets[name], {
-                            defval: '',
-                        }) as Record<string, any>[],
-                );
+				workbook.Sheets[combinedSheetName] = XLSX.utils.aoa_to_sheet(combined);
+				workbook.SheetNames.push(combinedSheetName);
+			} else {
+				const sheetsData = sourceSheets.map(
+					(name) =>
+						XLSX.utils.sheet_to_json(workbook.Sheets[name], {
+							defval: '',
+						}) as Record<string, any>[],
+				);
 
 				const headerSet = new Set<string>();
 				sheetsData.forEach((rows) => {

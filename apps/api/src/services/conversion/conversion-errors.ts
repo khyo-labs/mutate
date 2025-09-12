@@ -95,12 +95,15 @@ export class CellOperationError extends ConversionError {
 }
 
 export class EncodingError extends ConversionError {
-	constructor(encoding: string, message: string, details?: Record<string, any>) {
-		super(
-			'ENCODING_ERROR',
-			`Encoding error with ${encoding}: ${message}`,
-			{ encoding, ...details },
-		);
+	constructor(
+		encoding: string,
+		message: string,
+		details?: Record<string, any>,
+	) {
+		super('ENCODING_ERROR', `Encoding error with ${encoding}: ${message}`, {
+			encoding,
+			...details,
+		});
 		this.name = 'EncodingError';
 	}
 }

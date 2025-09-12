@@ -17,19 +17,19 @@ import {
 	InvalidConfigurationError,
 	RuleExecutionError,
 	RuleValidationError,
-	WorksheetNotFoundError
+	WorksheetNotFoundError,
 } from './conversion-errors.js';
 import { ConversionErrorHandler, type ErrorContext } from './error-handler.js';
 
 export class XlsxToCsvService extends BaseConversionService {
-    private selectedSheetsHistory: string[] = [];
-    async convert(
-        fileBuffer: Buffer,
-        configuration: Configuration,
-        options: ConversionOptions = {},
-    ): Promise<ConversionResult> {
-        this.clearLog();
-        this.selectedSheetsHistory = [];
+	private selectedSheetsHistory: string[] = [];
+	async convert(
+		fileBuffer: Buffer,
+		configuration: Configuration,
+		options: ConversionOptions = {},
+	): Promise<ConversionResult> {
+		this.clearLog();
+		this.selectedSheetsHistory = [];
 		this.addLog(
 			`Starting XLSX to CSV conversion with configuration: ${configuration.name}`,
 		);
@@ -40,7 +40,10 @@ export class XlsxToCsvService extends BaseConversionService {
 			if (configuration.conversionType !== 'XLSX_TO_CSV') {
 				throw new InvalidConfigurationError(
 					`Invalid conversion type for XlsxToCsvService: ${configuration.conversionType}`,
-					{ expectedType: 'XLSX_TO_CSV', actualType: configuration.conversionType },
+					{
+						expectedType: 'XLSX_TO_CSV',
+						actualType: configuration.conversionType,
+					},
 				);
 			}
 
@@ -89,13 +92,13 @@ export class XlsxToCsvService extends BaseConversionService {
 					};
 				}
 
-            currentWorkbook = result.workbook!;
-            if (result.selectedSheet) {
-                selectedSheet = result.selectedSheet;
-                if (!this.selectedSheetsHistory.includes(result.selectedSheet)) {
-                    this.selectedSheetsHistory.push(result.selectedSheet);
-                }
-            }
+				currentWorkbook = result.workbook!;
+				if (result.selectedSheet) {
+					selectedSheet = result.selectedSheet;
+					if (!this.selectedSheetsHistory.includes(result.selectedSheet)) {
+						this.selectedSheetsHistory.push(result.selectedSheet);
+					}
+				}
 
 				this.addLog(`Rule completed successfully`);
 			}
@@ -115,13 +118,10 @@ export class XlsxToCsvService extends BaseConversionService {
 			const outputFormat = configuration.outputFormat as CsvOutputFormat;
 			let csvData: string;
 			try {
-				csvData = XLSX.utils.sheet_to_csv(
-					currentWorkbook.Sheets[sheetName],
-					{
-						blankrows: false,
-						FS: outputFormat.delimiter,
-					},
-				);
+				csvData = XLSX.utils.sheet_to_csv(currentWorkbook.Sheets[sheetName], {
+					blankrows: false,
+					FS: outputFormat.delimiter,
+				});
 			} catch (csvError) {
 				throw new RuleExecutionError(
 					'CSV_CONVERSION',
@@ -175,7 +175,8 @@ export class XlsxToCsvService extends BaseConversionService {
 			);
 
 			ConversionErrorHandler.logError(detailedError);
-			const userMessage = ConversionErrorHandler.createUserFriendlyMessage(detailedError);
+			const userMessage =
+				ConversionErrorHandler.createUserFriendlyMessage(detailedError);
 
 			this.addLog(`Conversion failed: ${userMessage}`);
 			return {
@@ -225,13 +226,24 @@ export class XlsxToCsvService extends BaseConversionService {
 						(rule as any).type,
 						`Unknown rule type: ${(rule as any).type}`,
 						{
-							availableTypes: ['SELECT_WORKSHEET', 'VALIDATE_COLUMNS', 'UNMERGE_AND_FILL', 'DELETE_ROWS', 'DELETE_COLUMNS', 'COMBINE_WORKSHEETS', 'EVALUATE_FORMULAS'],
+							availableTypes: [
+								'SELECT_WORKSHEET',
+								'VALIDATE_COLUMNS',
+								'UNMERGE_AND_FILL',
+								'DELETE_ROWS',
+								'DELETE_COLUMNS',
+								'COMBINE_WORKSHEETS',
+								'EVALUATE_FORMULAS',
+							],
 							ruleIndex,
 						},
 					);
 			}
 		} catch (error) {
-			if (error instanceof RuleExecutionError || error instanceof RuleValidationError) {
+			if (
+				error instanceof RuleExecutionError ||
+				error instanceof RuleValidationError
+			) {
 				if (!error.details) error.details = {};
 				if (ruleIndex !== undefined) error.details.ruleIndex = ruleIndex;
 				error.details.ruleType = rule.type;
@@ -299,16 +311,16 @@ export class XlsxToCsvService extends BaseConversionService {
 			targetSheet = workbook.SheetNames[0];
 		}
 
-        this.addLog(`Selected worksheet: "${targetSheet}"`);
-        if (!this.selectedSheetsHistory.includes(targetSheet)) {
-            this.selectedSheetsHistory.push(targetSheet);
-        }
-        return {
-            success: true,
-            workbook,
-            selectedSheet: targetSheet,
-        };
-    }
+		this.addLog(`Selected worksheet: "${targetSheet}"`);
+		if (!this.selectedSheetsHistory.includes(targetSheet)) {
+			this.selectedSheetsHistory.push(targetSheet);
+		}
+		return {
+			success: true,
+			workbook,
+			selectedSheet: targetSheet,
+		};
+	}
 
 	private applyValidateColumns(
 		workbook: XLSX.WorkBook,
@@ -323,10 +335,7 @@ export class XlsxToCsvService extends BaseConversionService {
 		const worksheet = workbook.Sheets[sheetName];
 
 		if (!worksheet) {
-			throw new WorksheetNotFoundError(
-				sheetName,
-				workbook.SheetNames,
-			);
+			throw new WorksheetNotFoundError(sheetName, workbook.SheetNames);
 		}
 
 		const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
@@ -341,11 +350,10 @@ export class XlsxToCsvService extends BaseConversionService {
 
 			switch (params.onFailure) {
 				case 'stop':
-					throw new ColumnValidationError(
-						params.numOfColumns,
-						actualColumns,
-						{ sheetName, onFailure: params.onFailure },
-					);
+					throw new ColumnValidationError(params.numOfColumns, actualColumns, {
+						sheetName,
+						onFailure: params.onFailure,
+					});
 
 				case 'notify':
 					this.addLog(`WARNING: ${message}`);
@@ -376,10 +384,7 @@ export class XlsxToCsvService extends BaseConversionService {
 		const worksheet = workbook.Sheets[sheetName];
 
 		if (!worksheet) {
-			throw new WorksheetNotFoundError(
-				sheetName,
-				workbook.SheetNames,
-			);
+			throw new WorksheetNotFoundError(sheetName, workbook.SheetNames);
 		}
 
 		this.addLog(`Unmerging and filling columns: ${params.columns.join(', ')}`);
@@ -455,10 +460,7 @@ export class XlsxToCsvService extends BaseConversionService {
 		const worksheet = workbook.Sheets[sheetName];
 
 		if (!worksheet) {
-			throw new WorksheetNotFoundError(
-				sheetName,
-				workbook.SheetNames,
-			);
+			throw new WorksheetNotFoundError(sheetName, workbook.SheetNames);
 		}
 
 		const rowsToDelete: number[] = [];
@@ -639,10 +641,7 @@ export class XlsxToCsvService extends BaseConversionService {
 		const worksheet = workbook.Sheets[sheetName];
 
 		if (!worksheet) {
-			throw new WorksheetNotFoundError(
-				sheetName,
-				workbook.SheetNames,
-			);
+			throw new WorksheetNotFoundError(sheetName, workbook.SheetNames);
 		}
 
 		if (!params.columns || params.columns.length === 0) {
@@ -654,11 +653,17 @@ export class XlsxToCsvService extends BaseConversionService {
 			const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
 
 			// Normalize helper for header matching
-			const norm = (v: unknown) => String(v ?? '').trim().toLowerCase();
+			const norm = (v: unknown) =>
+				String(v ?? '')
+					.trim()
+					.toLowerCase();
 
 			// Try to resolve provided identifiers to zero-based column indices.
 			// Supports: column letters (e.g. "A"), 1-based numbers (e.g. "3"), and header names (e.g. "Debtor").
-			const parseCol = (identifier: string, headerLookup?: Map<string, number>): number | null => {
+			const parseCol = (
+				identifier: string,
+				headerLookup?: Map<string, number>,
+			): number | null => {
 				const trimmed = String(identifier).trim();
 				// Numeric (assume 1-based like Excel UI)
 				const asNum = Number.parseInt(trimmed, 10);
@@ -721,11 +726,14 @@ export class XlsxToCsvService extends BaseConversionService {
 				.sort((a, b) => a - b);
 
 			if (toDelete.length === 0) {
-				this.addLog('DELETE_COLUMNS: Specified columns are outside current range, skipping');
+				this.addLog(
+					'DELETE_COLUMNS: Specified columns are outside current range, skipping',
+				);
 				return { success: true, workbook };
 			}
 
-			const countDeletedBefore = (c: number) => toDelete.filter((d) => d < c).length;
+			const countDeletedBefore = (c: number) =>
+				toDelete.filter((d) => d < c).length;
 
 			const newSheet: XLSX.WorkSheet = {} as any;
 			const props = ['!merges', '!cols', '!rows', '!protect', '!autofilter'];
@@ -767,75 +775,74 @@ export class XlsxToCsvService extends BaseConversionService {
 		}
 	}
 
-    private applyCombineWorksheets(
-        workbook: XLSX.WorkBook,
-        rule: TransformationRule,
-    ): {
-        success: boolean;
-        workbook: XLSX.WorkBook;
-        selectedSheet?: string;
-        error?: string;
-    } {
-        const params = rule.params as {
-            sourceSheets?: string[];
-            operation: 'append' | 'merge';
-        };
+	private applyCombineWorksheets(
+		workbook: XLSX.WorkBook,
+		rule: TransformationRule,
+	): {
+		success: boolean;
+		workbook: XLSX.WorkBook;
+		selectedSheet?: string;
+		error?: string;
+	} {
+		const params = rule.params as {
+			sourceSheets?: string[];
+			operation: 'append' | 'merge';
+		};
 
-        const sourceSheets = (params.sourceSheets && params.sourceSheets.length)
-            ? params.sourceSheets
-            : this.selectedSheetsHistory;
+		const sourceSheets =
+			params.sourceSheets && params.sourceSheets.length
+				? params.sourceSheets
+				: this.selectedSheetsHistory;
 
-        if (!sourceSheets || sourceSheets.length === 0) {
-            return {
-                success: false,
-                workbook,
-                error:
-                    'No source sheets provided and no prior SELECT_WORKSHEET selections found',
-            };
-        }
+		if (!sourceSheets || sourceSheets.length === 0) {
+			return {
+				success: false,
+				workbook,
+				error:
+					'No source sheets provided and no prior SELECT_WORKSHEET selections found',
+			};
+		}
 
-        this.addLog(
-            `Combining worksheets: ${sourceSheets.join(', ')} (operation: ${params.operation})`,
-        );
+		this.addLog(
+			`Combining worksheets: ${sourceSheets.join(', ')} (operation: ${params.operation})`,
+		);
 
-        for (const sheetName of sourceSheets) {
-            if (!workbook.Sheets[sheetName]) {
-                throw new WorksheetNotFoundError(
-                    sheetName,
-                    workbook.SheetNames,
-                    { operation: params.operation },
-                );
-            }
-        }
+		for (const sheetName of sourceSheets) {
+			if (!workbook.Sheets[sheetName]) {
+				throw new WorksheetNotFoundError(sheetName, workbook.SheetNames, {
+					operation: params.operation,
+				});
+			}
+		}
 
 		const combinedSheetName = this.generateSheetName(workbook, 'Combined');
 
 		try {
-            if (params.operation === 'append') {
-                const [first, ...rest] = sourceSheets;
-                const base = XLSX.utils.sheet_to_json(workbook.Sheets[first], {
-                    header: 1,
-                    blankrows: false,
-                }) as (string | number | null)[][];
+			if (params.operation === 'append') {
+				const [first, ...rest] = sourceSheets;
+				const base = XLSX.utils.sheet_to_json(workbook.Sheets[first], {
+					header: 1,
+					blankrows: false,
+				}) as (string | number | null)[][];
 
 				const combined = [...base];
-                for (const name of rest) {
-                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], {
-                        header: 1,
-                        blankrows: false,
-                    }) as (string | number | null)[][];
-                    combined.push(...rows.slice(1));
-                }
+				for (const name of rest) {
+					const rows = XLSX.utils.sheet_to_json(workbook.Sheets[name], {
+						header: 1,
+						blankrows: false,
+					}) as (string | number | null)[][];
+					combined.push(...rows.slice(1));
+				}
 
 				workbook.Sheets[combinedSheetName] = XLSX.utils.aoa_to_sheet(combined);
 				workbook.SheetNames.push(combinedSheetName);
-            } else {
-                const sheetsData = sourceSheets.map(
-                    (name) =>
-                        XLSX.utils.sheet_to_json(workbook.Sheets[name], {
-                            defval: '',
-                        }) as Record<string, any>[],
-                );
+			} else {
+				const sheetsData = sourceSheets.map(
+					(name) =>
+						XLSX.utils.sheet_to_json(workbook.Sheets[name], {
+							defval: '',
+						}) as Record<string, any>[],
+				);
 
 				const headerSet = new Set<string>();
 				sheetsData.forEach((rows) => {

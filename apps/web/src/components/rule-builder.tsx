@@ -106,11 +106,11 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 					>
 						<GripVertical className="h-4 w-4" />
 					</Button>
-					<div className="bg-primary/10 rounded-lg p-2 flex-shrink-0">
+					<div className="bg-primary/10 flex-shrink-0 rounded-lg p-2">
 						<Icon className="text-primary h-4 w-4" />
 					</div>
 					<div className="flex-1 overflow-hidden">
-						<h4 className="text-foreground text-sm font-medium truncate">
+						<h4 className="text-foreground truncate text-sm font-medium">
 							{rule.type.replace(/_/g, ' ')}
 						</h4>
 						<p className="text-muted-foreground text-xs">
@@ -118,7 +118,7 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 						</p>
 					</div>
 				</div>
-				<div className="flex items-center gap-2 flex-shrink-0">
+				<div className="flex flex-shrink-0 items-center gap-2">
 					<span className="text-muted-foreground text-xs">#{index + 1}</span>
 					<Button
 						variant="ghost"
@@ -200,17 +200,17 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 								key={rule.id}
 								variant="outline"
 								onClick={() => addRule(rule)}
-								className="h-auto w-full justify-start p-3 text-left overflow-hidden"
+								className="h-auto w-full justify-start overflow-hidden p-3 text-left"
 							>
-								<div className="flex items-start gap-3 w-full">
-									<div className="bg-muted rounded-lg p-2 flex-shrink-0">
+								<div className="flex w-full items-start gap-3">
+									<div className="bg-muted flex-shrink-0 rounded-lg p-2">
 										<Icon className="text-muted-foreground h-4 w-4" />
 									</div>
 									<div className="flex-1 overflow-hidden">
-										<div className="text-foreground text-sm font-medium truncate">
+										<div className="text-foreground truncate text-sm font-medium">
 											{rule.type.replace(/_/g, ' ')}
 										</div>
-										<div className="text-muted-foreground text-xs whitespace-normal leading-relaxed">
+										<div className="text-muted-foreground whitespace-normal text-xs leading-relaxed">
 											{ruleDescriptions[rule.type]}
 										</div>
 									</div>
@@ -257,12 +257,12 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 						</SortableContext>
 					</DndContext>
 				) : (
-					<div className="rounded-lg border-2 border-dashed border-border p-12 text-center">
-						<Plus className="mx-auto h-12 w-12 text-muted-foreground" />
-						<h4 className="mt-2 text-sm font-medium text-foreground">
+					<div className="border-border rounded-lg border-2 border-dashed p-12 text-center">
+						<Plus className="text-muted-foreground mx-auto h-12 w-12" />
+						<h4 className="text-foreground mt-2 text-sm font-medium">
 							No rules added
 						</h4>
-						<p className="mt-1 text-sm text-muted-foreground">
+						<p className="text-muted-foreground mt-1 text-sm">
 							Add transformation rules from the left panel to build your
 							pipeline.
 						</p>

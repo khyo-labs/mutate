@@ -52,11 +52,11 @@ const deleteColumnsRuleSchema = baseRuleSchema.extend({
 });
 
 const combineWorksheetsRuleSchema = baseRuleSchema.extend({
-    type: z.literal('COMBINE_WORKSHEETS'),
-    params: z.object({
-        sourceSheets: z.array(z.string()).optional(),
-        operation: z.enum(['append', 'merge']),
-    }),
+	type: z.literal('COMBINE_WORKSHEETS'),
+	params: z.object({
+		sourceSheets: z.array(z.string()).optional(),
+		operation: z.enum(['append', 'merge']),
+	}),
 });
 
 const evaluateFormulasRuleSchema = baseRuleSchema.extend({
