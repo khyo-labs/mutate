@@ -1,4 +1,5 @@
 // Shared types between frontend and backend
+import type * as XLSX from 'xlsx';
 
 export type UserRole = 'admin' | 'member' | 'viewer';
 export type JobStatus = 'pending' | 'processing' | 'completed' | 'failed';
@@ -88,17 +89,19 @@ export interface UnmergeAndFillRule extends BaseTransformationRule {
 	};
 }
 
+export type DeleteRowsParams = {
+	method: 'condition' | 'rows';
+	condition?: {
+		type: 'contains' | 'empty' | 'pattern';
+		column?: string;
+		value?: string;
+	};
+	rows?: number[];
+};
+
 export interface DeleteRowsRule extends BaseTransformationRule {
 	type: 'DELETE_ROWS';
-	params: {
-		method: 'condition' | 'rows';
-		condition?: {
-			type: 'contains' | 'empty' | 'pattern';
-			column?: string;
-			value?: string;
-		};
-		rows?: number[]; // 1-based row numbers
-	};
+	params: DeleteRowsParams;
 }
 
 export interface DeleteColumnsRule extends BaseTransformationRule {
@@ -277,3 +280,28 @@ export type Webhook = {
 	createdAt: string;
 	updatedAt: string;
 };
+
+export interface ProcessedData {
+	data: (string | number | null)[][];
+	headers: string[];
+	rowCount: number;
+	colCount: number;
+	appliedRules: string[];
+	warnings: string[];
+}
+
+export interface UploadedFile {
+	name: string;
+	size: number;
+	data: File;
+	workbook: XLSX.WorkBook;
+	worksheets: string[];
+}
+
+export interface CellHighlight {
+	row: number;
+	col: number;
+	type: 'select' | 'delete' | 'modify' | 'warning';
+	reason: string;
+	ruleId: string;
+}

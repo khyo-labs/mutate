@@ -84,9 +84,9 @@ export function DeleteWorkspace() {
 
 	return (
 		<AlertDialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-			<div className="border-input flex items-center justify-between rounded-md border p-4">
+			<div className="flex items-center justify-between py-4 pb-0">
 				<div>
-					<p className="font-semibold">Delete this workspace</p>
+					<p className="font-semibold">Danger Zone</p>
 					<p className="text-muted-foreground text-sm">
 						{isLastWorkspace
 							? 'You cannot delete your last workspace.'

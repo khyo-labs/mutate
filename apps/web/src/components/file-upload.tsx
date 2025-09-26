@@ -2,17 +2,11 @@ import { File, Upload, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import * as XLSX from 'xlsx';
 
+import type { UploadedFile } from '@/types';
+
 import { Button } from './ui/button';
 
-export interface UploadedFile {
-	name: string;
-	size: number;
-	data: File;
-	workbook: XLSX.WorkBook;
-	worksheets: string[];
-}
-
-interface FileUploadProps {
+export interface FileUploadProps {
 	onFileUploaded: (file: UploadedFile | null) => void;
 	currentFile: UploadedFile | null;
 }

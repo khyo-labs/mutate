@@ -16,7 +16,7 @@ export function SettingsTabs({ navigationItems }: Props) {
 	const location = useLocation();
 
 	return (
-		<div className="border-border bg-background mt-16 border-b border-t lg:mt-0 lg:border-t-0">
+		<div className="border-border bg-background mt-16 border-b border-t py-1.5 lg:mt-0 lg:border-t-0">
 			<nav className="max-w-4xl px-8">
 				<div className="flex space-x-8">
 					{navigationItems.map((item) => {

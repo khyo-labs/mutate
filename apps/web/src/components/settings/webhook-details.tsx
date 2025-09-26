@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 
 import { cn } from '@/lib/utils';
 import type { Webhook } from '@/types';
-import { formatRelativeTime } from '@/utils/dates';
+import { formatRelativeTime } from '@/lib/dates';
 
 import {
 	AlertDialog,

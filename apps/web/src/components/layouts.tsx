@@ -1,59 +1,49 @@
-import React, { useState } from 'react';
-import { toast } from 'sonner';
+import React from 'react';
 
-import { api } from '@/api/client';
 import { useSession } from '@/stores/auth-store';
-import type { SuccessResponse } from '@/types';
 
 import { ProtectedRoute } from './protected-route';
 import { Sidebar } from './sidebar';
-import { Button } from './ui/button';
+import { VerificationBanner } from './verification-banner';
 
 type LayoutProps = {
+	title?: string;
+	description?: string;
+	buttons?: React.ReactNode[];
 	children: React.ReactNode;
 };
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ title, description, buttons, children }: LayoutProps) {
 	const { data: session } = useSession();
-	const [isSending, setIsSending] = useState(false);
-
 	const showBanner = !session?.user?.emailVerified;
-
-	async function handleResendVerificationEmail() {
-		setIsSending(true);
-		try {
-			await api.post<SuccessResponse>('/v1/auth/resend-verification-email');
-			toast.success('Verification email sent. Please check your inbox.');
-		} finally {
-			setIsSending(false);
-		}
-	}
 
 	return (
 		<ProtectedRoute>
 			<div className="bg-background flex h-screen flex-col">
-				{showBanner && (
-					<div className="bg-primary text-primary-foreground p-4">
-						<div className="container mx-auto flex items-center justify-between">
-							<p>
-								Your email address has not been verified. Please check your
-								inbox for a verification link.
-							</p>
-							<Button
-								variant="secondary"
-								onClick={handleResendVerificationEmail}
-								disabled={isSending}
-							>
-								{isSending ? 'Sending...' : 'Resend verification email'}
-							</Button>
-						</div>
-					</div>
-				)}
+				{showBanner && <VerificationBanner />}
 
-				<div className="flex flex-1 overflow-hidden pt-10 lg:pt-0">
+				<div className="flex flex-1 overflow-auto pt-10 lg:pt-0">
 					<Sidebar />
-					<main className="flex-1 overflow-auto">
-						<div className="container mx-auto px-6 py-8">{children}</div>
+					<main className="flex flex-1 flex-col max-w-7xl">
+						<div className="bg-background mt-16 p-8 pb-0 lg:mt-0">
+							<div className="flex flex-col items-start">
+								<div className="flex w-full items-center justify-between">
+									{title && (
+										<h1 className="text-foreground text-2xl font-bold tracking-tight">
+											{title}
+										</h1>
+									)}
+									{buttons &&
+										buttons.map((button, index) => (
+											<React.Fragment key={index}>{button}</React.Fragment>
+										))}
+								</div>
+								{description && (
+									<p className="text-muted-foreground text-sm">{description}</p>
+								)}
+							</div>
+						</div>
+						<div className="container">{children}</div>
 					</main>
 				</div>
 			</div>

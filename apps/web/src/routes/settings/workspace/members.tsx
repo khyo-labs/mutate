@@ -38,6 +38,7 @@ import {
 	type UpdateMemberRoleRequest,
 	membersApi,
 } from '@/api/members';
+import { SettingsHeader } from '@/components/settings/header';
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -154,7 +155,6 @@ const updateRoleSchema = z.object({
 });
 
 function InviteDialog({ workspaceId }: { workspaceId: string }) {
-	const [isOpen, setIsOpen] = useState(false);
 	const queryClient = useQueryClient();
 	const form = useForm<z.infer<typeof inviteSchema>>({
 		resolver: zodResolver(inviteSchema),
@@ -170,7 +170,6 @@ function InviteDialog({ workspaceId }: { workspaceId: string }) {
 			membersApi.invite(workspaceId, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['members', workspaceId] });
-			setIsOpen(false);
 			form.reset();
 			toast.success('Invitation sent successfully');
 		},
@@ -187,123 +186,103 @@ function InviteDialog({ workspaceId }: { workspaceId: string }) {
 	}
 
 	return (
-		<Dialog open={isOpen} onOpenChange={setIsOpen}>
-			<DialogTrigger asChild>
-				<Button>
-					<UserPlus className="mr-2 h-4 w-4" />
-					Invite Member
-				</Button>
-			</DialogTrigger>
-			<DialogContent className="sm:max-w-[425px]">
-				<DialogHeader>
-					<DialogTitle>Invite a new member</DialogTitle>
-					<DialogDescription>
-						Send an invitation to join your workspace. They'll receive an email
-						with instructions.
-					</DialogDescription>
-				</DialogHeader>
-				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-						<FormField
-							control={form.control}
-							name="email"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Email Address</FormLabel>
-									<FormControl>
-										<Input
-											placeholder="colleague@company.com"
-											type="email"
-											{...field}
-										/>
-									</FormControl>
-									<FormDescription>
-										We'll send an invitation to this email address.
-									</FormDescription>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="role"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Role</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}
-									>
-										<FormControl>
-											<SelectTrigger>
-												<SelectValue placeholder="Select a role" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectItem value="member">
-												<div className="flex items-center gap-2">
-													<User className="h-4 w-4" />
-													<div>
-														<div className="font-medium">Member</div>
-														<div className="text-muted-foreground text-xs">
-															Can view and use workspace resources
-														</div>
-													</div>
+		<Form {...form}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+				<FormField
+					control={form.control}
+					name="email"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Email Address</FormLabel>
+							<FormControl>
+								<Input
+									placeholder="colleague@company.com"
+									type="email"
+									{...field}
+								/>
+							</FormControl>
+							<FormDescription>
+								We'll send an invitation to this email address.
+							</FormDescription>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="role"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Role</FormLabel>
+							<Select onValueChange={field.onChange} defaultValue={field.value}>
+								<FormControl>
+									<SelectTrigger>
+										<SelectValue placeholder="Select a role" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectItem value="member">
+										<div className="flex items-center gap-2">
+											<User className="h-4 w-4" />
+											<div>
+												<div className="font-medium">Member</div>
+												<div className="text-muted-foreground text-xs">
+													Can view and use workspace resources
 												</div>
-											</SelectItem>
-											<SelectItem value="admin">
-												<div className="flex items-center gap-2">
-													<Users className="h-4 w-4" />
-													<div>
-														<div className="font-medium">Admin</div>
-														<div className="text-muted-foreground text-xs">
-															Can manage workspace and members
-														</div>
-													</div>
+											</div>
+										</div>
+									</SelectItem>
+									<SelectItem value="admin">
+										<div className="flex items-center gap-2">
+											<Users className="h-4 w-4" />
+											<div>
+												<div className="font-medium">Admin</div>
+												<div className="text-muted-foreground text-xs">
+													Can manage workspace and members
 												</div>
-											</SelectItem>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="sendEmail"
-							render={({ field }) => (
-								<FormItem className="flex flex-row items-start space-x-3 space-y-0">
-									<FormControl>
-										<input
-											type="checkbox"
-											checked={field.value}
-											onChange={field.onChange}
-											className="mt-1"
-										/>
-									</FormControl>
-									<div className="space-y-1 leading-none">
-										<FormLabel>Send invitation email</FormLabel>
-										<FormDescription>
-											Send an email notification with the invitation link
-										</FormDescription>
-									</div>
-								</FormItem>
-							)}
-						/>
-						<DialogFooter>
-							<DialogClose asChild>
-								<Button type="button" variant="outline">
-									Cancel
-								</Button>
-							</DialogClose>
-							<Button type="submit" disabled={mutation.isPending}>
-								{mutation.isPending ? 'Sending...' : 'Send Invitation'}
-							</Button>
-						</DialogFooter>
-					</form>
-				</Form>
-			</DialogContent>
-		</Dialog>
+											</div>
+										</div>
+									</SelectItem>
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="sendEmail"
+					render={({ field }) => (
+						<FormItem className="flex flex-row items-start space-x-3 space-y-0">
+							<FormControl>
+								<input
+									type="checkbox"
+									checked={field.value}
+									onChange={field.onChange}
+									className="mt-1"
+								/>
+							</FormControl>
+							<div className="space-y-1 leading-none">
+								<FormLabel>Send invitation email</FormLabel>
+								<FormDescription>
+									Send an email notification with the invitation link
+								</FormDescription>
+							</div>
+						</FormItem>
+					)}
+				/>
+				<DialogFooter>
+					<DialogClose asChild>
+						<Button type="button" variant="outline">
+							Cancel
+						</Button>
+					</DialogClose>
+					<Button type="submit" disabled={mutation.isPending}>
+						{mutation.isPending ? 'Sending...' : 'Send Invitation'}
+					</Button>
+				</DialogFooter>
+			</form>
+		</Form>
 	);
 }
 
@@ -1095,15 +1074,22 @@ function MembersComponent() {
 
 	return (
 		<div className="space-y-6">
-			<div className="flex items-center justify-between">
-				<div>
-					<h2 className="text-3xl font-bold tracking-tight">Members</h2>
-					<p className="text-muted-foreground">
-						Manage who has access to {activeWorkspace.name}
-					</p>
-				</div>
-				{canInvite && <InviteDialog workspaceId={workspaceId} />}
-			</div>
+			<SettingsHeader
+				title="Members"
+				description={`Manage who has access to ${activeWorkspace.name}`}
+				button={
+					canInvite
+						? {
+								label: 'Invite Member',
+								icon: UserPlus,
+								title: 'Invite a new member',
+								description:
+									"Send an invitation to join your workspace. They'll receive an email with instructions.",
+								dialog: () => <InviteDialog workspaceId={workspaceId} />,
+							}
+						: undefined
+				}
+			/>
 
 			<MembersStats data={data || []} />
 

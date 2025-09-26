@@ -1,7 +1,5 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router';
 
-import { DangerZone } from '@/components/settings/danger-zone';
-import { DeleteWorkspace } from '@/components/settings/delete-workspace';
 import { SettingsTabs } from '@/components/settings/settings-tabs';
 
 export const Route = createFileRoute('/settings/workspace')({
@@ -9,6 +7,11 @@ export const Route = createFileRoute('/settings/workspace')({
 });
 
 const navigationItems = [
+	{
+		name: 'Workspace',
+		href: '/settings/workspace',
+		description: 'Manage workspace settings',
+	},
 	{
 		name: 'Webhooks',
 		href: '/settings/workspace/webhooks',
@@ -34,15 +37,6 @@ function LayoutComponent() {
 			<main className="flex-1 overflow-y-auto">
 				<div className="max-w-4xl p-8">
 					<Outlet />
-
-					<div className="mt-8">
-						<DangerZone
-							title="Danger Zone"
-							description="These actions are permanent and cannot be undone."
-						>
-							<DeleteWorkspace />
-						</DangerZone>
-					</div>
 				</div>
 			</main>
 		</div>

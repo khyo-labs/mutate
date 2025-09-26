@@ -23,6 +23,8 @@ type Props = {
 		icon?: React.ElementType;
 		label: string;
 		dialog?: React.ElementType;
+		title?: string;
+		description?: string;
 		drawer?: React.ElementType;
 		disabled?: boolean;
 	};
@@ -32,7 +34,7 @@ export function SettingsHeader({ title, description, button }: Props) {
 	return (
 		<div className="flex flex-col gap-1">
 			<div className="flex items-center justify-between">
-				<h1 className="text-2xl">{title}</h1>
+				<h1 className="text-2xl font-bold tracking-tight">{title}</h1>
 				{button?.dialog && (
 					<Dialog>
 						<DialogTrigger asChild>
@@ -43,9 +45,10 @@ export function SettingsHeader({ title, description, button }: Props) {
 						</DialogTrigger>
 						<DialogContent>
 							<DialogHeader>
-								<DialogTitle>{button?.label}</DialogTitle>
-								<DialogDescription className="sr-only">
-									Dialog for {button?.label}
+								<DialogTitle>{button?.title || button?.label}</DialogTitle>
+								<DialogDescription>
+									<span className="sr-only">Dialog for {button?.label}</span>
+									{button?.description}
 								</DialogDescription>
 							</DialogHeader>
 							<button.dialog />
@@ -73,7 +76,7 @@ export function SettingsHeader({ title, description, button }: Props) {
 					</Drawer>
 				)}
 			</div>
-			<p className="text-foreground mt-1">{description}</p>
+			<p className="text-muted-foreground">{description}</p>
 		</div>
 	);
 }
