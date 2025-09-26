@@ -1,22 +1,16 @@
 import { ChevronDown, Eye, EyeOff } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
-import type { TransformationRule } from '../types';
-import type { UploadedFile } from './file-upload';
+import { parseColumnIdentifier } from '@/lib/xlsx/column-utils';
+import { shouldDeleteRow } from '@/lib/xlsx/row-utils';
+
+import type { CellHighlight, TransformationRule, UploadedFile } from '../types';
 
 interface SpreadsheetPreviewProps {
 	file: UploadedFile | null;
 	rules: TransformationRule[];
 	selectedWorksheet?: string;
-}
-
-interface CellHighlight {
-	row: number;
-	col: number;
-	type: 'select' | 'delete' | 'modify' | 'warning';
-	reason: string;
-	ruleId: string;
 }
 
 interface WorksheetData {
@@ -57,71 +51,71 @@ export function SpreadsheetPreview({
 
 		return { data, range };
 	}, [file, activeWorksheet]);
-	const shouldDeleteRow = useCallback(
-		function (
-			rowData: (string | number | null)[],
-			condition: unknown,
-		): boolean {
-			if (!condition) return false;
+	// const shouldDeleteRow = useCallback(
+	// 	function (
+	// 		rowData: (string | number | null)[],
+	// 		condition: unknown,
+	// 	): boolean {
+	// 		if (!condition) return false;
 
-			const cond = condition as {
-				type: string;
-				column?: string;
-				value?: string;
-			};
-			switch (cond.type) {
-				case 'empty':
-					if (cond.column !== undefined && cond.column.trim() !== '') {
-						// Check if specific column is empty
-						const headers =
-							worksheetData?.data[0]?.map((cell) => cell?.toString() || '') ||
-							[];
-						const colIndex = parseColumnIdentifier(cond.column, headers);
-						if (colIndex === -1) return false; // Column not found
-						const cellValue = rowData[colIndex];
-						return !cellValue || cellValue.toString().trim() === '';
-					} else {
-						// Check if entire row is empty (all columns)
-						return rowData.every(
-							(cell) => !cell || cell.toString().trim() === '',
-						);
-					}
+	// 		const cond = condition as {
+	// 			type: string;
+	// 			column?: string;
+	// 			value?: string;
+	// 		};
+	// 		switch (cond.type) {
+	// 			case 'empty':
+	// 				if (cond.column !== undefined && cond.column.trim() !== '') {
+	// 					// Check if specific column is empty
+	// 					const headers =
+	// 						worksheetData?.data[0]?.map((cell) => cell?.toString() || '') ||
+	// 						[];
+	// 					const colIndex = parseColumnIdentifier(cond.column, headers);
+	// 					if (colIndex === -1) return false; // Column not found
+	// 					const cellValue = rowData[colIndex];
+	// 					return !cellValue || cellValue.toString().trim() === '';
+	// 				} else {
+	// 					// Check if entire row is empty (all columns)
+	// 					return rowData.every(
+	// 						(cell) => !cell || cell.toString().trim() === '',
+	// 					);
+	// 				}
 
-				case 'contains':
-					if (cond.column !== undefined && cond.column.trim() !== '') {
-						const headers =
-							worksheetData?.data[0]?.map((cell) => cell?.toString() || '') ||
-							[];
-						const colIndex = parseColumnIdentifier(cond.column, headers);
-						if (colIndex === -1) return false; // Column not found
-						const cellValue = rowData[colIndex];
-						return Boolean(
-							cellValue && cellValue.toString().includes(cond.value || ''),
-						);
-					}
-					return rowData.some(
-						(cell) => cell && cell.toString().includes(cond.value || ''),
-					);
+	// 			case 'contains':
+	// 				if (cond.column !== undefined && cond.column.trim() !== '') {
+	// 					const headers =
+	// 						worksheetData?.data[0]?.map((cell) => cell?.toString() || '') ||
+	// 						[];
+	// 					const colIndex = parseColumnIdentifier(cond.column, headers);
+	// 					if (colIndex === -1) return false; // Column not found
+	// 					const cellValue = rowData[colIndex];
+	// 					return Boolean(
+	// 						cellValue && cellValue.toString().includes(cond.value || ''),
+	// 					);
+	// 				}
+	// 				return rowData.some(
+	// 					(cell) => cell && cell.toString().includes(cond.value || ''),
+	// 				);
 
-				case 'pattern': {
-					const regex = new RegExp(cond.value || '', 'i');
-					if (cond.column !== undefined && cond.column.trim() !== '') {
-						const headers =
-							worksheetData?.data[0]?.map((cell) => cell?.toString() || '') ||
-							[];
-						const colIndex = parseColumnIdentifier(cond.column, headers);
-						if (colIndex === -1) return false; // Column not found
-						const cellValue = rowData[colIndex];
-						return Boolean(cellValue && regex.test(cellValue.toString()));
-					}
-					return rowData.some((cell) => cell && regex.test(cell.toString()));
-				}
-				default:
-					return false;
-			}
-		},
-		[worksheetData],
-	);
+	// 			case 'pattern': {
+	// 				const regex = new RegExp(cond.value || '', 'i');
+	// 				if (cond.column !== undefined && cond.column.trim() !== '') {
+	// 					const headers =
+	// 						worksheetData?.data[0]?.map((cell) => cell?.toString() || '') ||
+	// 						[];
+	// 					const colIndex = parseColumnIdentifier(cond.column, headers);
+	// 					if (colIndex === -1) return false; // Column not found
+	// 					const cellValue = rowData[colIndex];
+	// 					return Boolean(cellValue && regex.test(cellValue.toString()));
+	// 				}
+	// 				return rowData.some((cell) => cell && regex.test(cell.toString()));
+	// 			}
+	// 			default:
+	// 				return false;
+	// 		}
+	// 	},
+	// 	[worksheetData],
+	// );
 
 	const cellHighlights = useMemo<CellHighlight[]>(() => {
 		if (!worksheetData || !showHighlights) return [];
@@ -233,7 +227,15 @@ export function SpreadsheetPreview({
 					} else if (method === 'condition' && rule.params.condition) {
 						// Highlight rows matching condition
 						worksheetData.data.forEach((rowData, rowIndex) => {
-							if (shouldDeleteRow(rowData, rule.params.condition)) {
+							const headers: string[] =
+								worksheetData.data.length > 0
+									? worksheetData.data[0].map(
+											(cell, index) =>
+												cell?.toString() || `Column ${index + 1}`,
+										)
+									: [];
+
+							if (shouldDeleteRow(rowData, rule.params.condition, headers)) {
 								for (
 									let col = worksheetData.range.s.c;
 									col <= worksheetData.range.e.c;
@@ -302,31 +304,7 @@ export function SpreadsheetPreview({
 		});
 
 		return highlights;
-	}, [worksheetData, rules, activeWorksheet, showHighlights, shouldDeleteRow]);
-
-	function parseColumnIdentifier(
-		identifier: string,
-		headers: string[],
-	): number {
-		const asNumber = Number(identifier);
-		if (!isNaN(asNumber) && Number.isInteger(asNumber)) {
-			return asNumber;
-		}
-
-		const headerIndex = headers.findIndex(
-			(header) => header?.toLowerCase() === identifier.toLowerCase(),
-		);
-
-		if (headerIndex !== -1) {
-			return headerIndex;
-		}
-
-		if (/^[A-Z]+$/i.test(identifier)) {
-			return XLSX.utils.decode_col(identifier.toUpperCase());
-		}
-
-		throw new Error(`Invalid column identifier: ${identifier}`);
-	}
+	}, [worksheetData, rules, activeWorksheet, showHighlights]);
 
 	function getCellHighlight(
 		row: number,

@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Eye, Save } from 'lucide-react';
+import { Eye, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { mutApi } from '@/api/mutations';
 import { workspaceApi } from '@/api/workspaces';
 import { CsvOutputPreview } from '@/components/csv-output-preview';
-import { FileUpload, type UploadedFile } from '@/components/file-upload';
+import { FileUpload } from '@/components/file-upload';
 import { JsonConfigPanel } from '@/components/json-config-panel';
 import { Layout } from '@/components/layouts';
 import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
@@ -33,7 +33,12 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useWorkspaceStore } from '@/stores/workspace-store';
-import type { Configuration, TransformationRule, Webhook } from '@/types';
+import type {
+	Configuration,
+	TransformationRule,
+	UploadedFile,
+	Webhook,
+} from '@/types';
 
 export const Route = createFileRoute('/mutations/$mutationId/edit')({
 	component: ConfigurationEditComponent,
@@ -255,44 +260,25 @@ export function ConfigurationEditComponent() {
 	}
 
 	return (
-		<Layout>
-			<div className="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
-				{/* Header Section */}
-				<div className="border-b pb-6">
-					<div className="mb-4 flex items-center space-x-4">
-						<Button variant="outline" onClick={handleCancel}>
-							<ArrowLeft className="mr-2 h-4 w-4" />
-							Back to Mutation
-						</Button>
-					</div>
-
-					<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-						<div>
-							<h1 className="text-foreground text-3xl font-bold">
-								Edit Mutation
-							</h1>
-							<p className="text-muted-foreground mt-2 text-lg">
-								Modify your data transformation mutation
-							</p>
-						</div>
-
-						<div className="mt-4 flex space-x-3 sm:mt-0">
-							<Button
-								variant="outline"
-								onClick={() =>
-									navigate({
-										to: '/mutations/$mutationId',
-										params: { mutationId },
-									})
-								}
-							>
-								<Eye className="mr-2 h-4 w-4" />
-								Preview
-							</Button>
-						</div>
-					</div>
-				</div>
-
+		<Layout
+			title="Edit Mutation"
+			description="Modify your data transformation mutation"
+			buttons={[
+				<Button
+					variant="outline"
+					onClick={() =>
+						navigate({
+							to: '/mutations/$mutationId',
+							params: { mutationId },
+						})
+					}
+				>
+					<Eye className="mr-2 h-4 w-4" />
+					Preview
+				</Button>,
+			]}
+		>
+			<div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
 				<Form {...form}>
 					<form onSubmit={handleSubmit(onSubmit)}>
 						{/* Main Content Grid */}
