@@ -29,24 +29,24 @@ export type Workspace = {
 };
 
 export type SlugStatus = {
-        status: boolean;
+	status: boolean;
 };
 
 export type NameAvailabilityStatus = {
-        available: boolean;
+	available: boolean;
 };
 
 export type UpdateWorkspaceRequest = {
-        name?: string;
-        slug?: string;
-        logo?: string;
-        metadata?: Record<string, string>;
+	name?: string;
+	slug?: string;
+	logo?: string;
+	metadata?: Record<string, string>;
 };
 
 interface ConfigurationQuery {
-        page?: number;
-        limit?: number;
-        search?: string;
+	page?: number;
+	limit?: number;
+	search?: string;
 }
 
 export const workspaceApi = {
@@ -109,55 +109,55 @@ export const workspaceApi = {
 		return response.data;
 	},
 
-        isSlugAvailable: async function (slug: string): Promise<boolean> {
-                const response = await api.post<ApiResponse<SlugStatus>>(
-                        '/v1/workspace/exists',
-                        {
-                                slug,
-                        },
-                );
-                if (!response.success) {
-                        toast.error(response.error.message);
-                        return false;
-                }
-                return response.data.status;
-        },
+	isSlugAvailable: async function (slug: string): Promise<boolean> {
+		const response = await api.post<ApiResponse<SlugStatus>>(
+			'/v1/workspace/exists',
+			{
+				slug,
+			},
+		);
+		if (!response.success) {
+			toast.error(response.error.message);
+			return false;
+		}
+		return response.data.status;
+	},
 
-        isNameAvailable: async function (
-                name: string,
-                workspaceId?: string,
-        ): Promise<boolean> {
-                const response = await api.post<ApiResponse<NameAvailabilityStatus>>(
-                        '/v1/workspace/name-exists',
-                        {
-                                name,
-                                workspaceId,
-                        },
-                );
+	isNameAvailable: async function (
+		name: string,
+		workspaceId?: string,
+	): Promise<boolean> {
+		const response = await api.post<ApiResponse<NameAvailabilityStatus>>(
+			'/v1/workspace/name-exists',
+			{
+				name,
+				workspaceId,
+			},
+		);
 
-                if (!response.success) {
-                        toast.error(response.error.message);
-                        return false;
-                }
+		if (!response.success) {
+			toast.error(response.error.message);
+			return false;
+		}
 
-                return response.data.available;
-        },
+		return response.data.available;
+	},
 
-        update: async function (
-                workspaceId: string,
-                data: UpdateWorkspaceRequest,
-        ): Promise<Workspace> {
-                const response = await api.patch<SuccessResponse<Workspace>>(
-                        `/v1/workspace/${workspaceId}`,
-                        data,
-                );
-                return response.data;
-        },
+	update: async function (
+		workspaceId: string,
+		data: UpdateWorkspaceRequest,
+	): Promise<Workspace> {
+		const response = await api.patch<SuccessResponse<Workspace>>(
+			`/v1/workspace/${workspaceId}`,
+			data,
+		);
+		return response.data;
+	},
 
-        delete: async function (workspaceId: string): Promise<SuccessResponse<null>> {
-                const response = await api.delete<SuccessResponse<null>>(
-                        `/v1/workspace/${workspaceId}`,
-                );
+	delete: async function (workspaceId: string): Promise<SuccessResponse<null>> {
+		const response = await api.delete<SuccessResponse<null>>(
+			`/v1/workspace/${workspaceId}`,
+		);
 		return response;
 	},
 };

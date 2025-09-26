@@ -5,15 +5,15 @@ import { auth } from '../../lib/auth.js';
 import { workspaceRoutes } from './index.js';
 
 vi.mock('../../lib/auth.js', () => ({
-        auth: {
-                api: {
-                        listOrganizations: vi.fn(),
-                        createOrganization: vi.fn(),
-                        checkOrganizationSlug: vi.fn(),
-                        updateOrganization: vi.fn(),
-                        setActiveOrganization: vi.fn(),
-                },
-        },
+	auth: {
+		api: {
+			listOrganizations: vi.fn(),
+			createOrganization: vi.fn(),
+			checkOrganizationSlug: vi.fn(),
+			updateOrganization: vi.fn(),
+			setActiveOrganization: vi.fn(),
+		},
+	},
 }));
 
 describe('workspaceRoutes', () => {

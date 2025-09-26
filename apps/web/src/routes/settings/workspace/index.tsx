@@ -11,18 +11,18 @@ export const Route = createFileRoute('/settings/workspace/')({
 
 export function RouteComponent() {
 	return (
-                <div className="space-y-6">
-                        <SettingsHeader
-                                title="Workspace"
-                                description="Manage your workspace settings."
-                        />
+		<div className="space-y-6">
+			<SettingsHeader
+				title="Workspace"
+				description="Manage your workspace settings."
+			/>
 
-                        <WorkspaceDetailsForm />
+			<WorkspaceDetailsForm />
 
-                        <Card className="border-destructive">
-                                <CardContent>
-                                        <DeleteWorkspace />
-                                </CardContent>
+			<Card className="border-destructive">
+				<CardContent>
+					<DeleteWorkspace />
+				</CardContent>
 			</Card>
 		</div>
 	);
