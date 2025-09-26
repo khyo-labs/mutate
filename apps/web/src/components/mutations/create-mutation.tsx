@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { mutApi } from '@/api/mutations';
 import { ConversionTypeSelector } from '@/components/conversion-type-selector';
 import { CsvOutputPreview } from '@/components/csv-output-preview';
-import { FileUpload, type UploadedFile } from '@/components/file-upload';
+import { FileUpload } from '@/components/file-upload';
 import { JsonConfigPanel } from '@/components/json-config-panel';
 import { Layout } from '@/components/layouts';
 import { RuleBuilder } from '@/components/rule-builder';
@@ -30,6 +30,7 @@ import type {
 	ConversionType,
 	InputFormat,
 	TransformationRule,
+	UploadedFile,
 } from '@/types';
 
 const configurationSchema = z.object({
