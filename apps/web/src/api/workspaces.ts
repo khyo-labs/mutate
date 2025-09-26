@@ -32,6 +32,17 @@ export type SlugStatus = {
 	status: boolean;
 };
 
+export type NameAvailabilityStatus = {
+	available: boolean;
+};
+
+export type UpdateWorkspaceRequest = {
+	name?: string;
+	slug?: string;
+	logo?: string;
+	metadata?: Record<string, string>;
+};
+
 interface ConfigurationQuery {
 	page?: number;
 	limit?: number;
@@ -110,6 +121,37 @@ export const workspaceApi = {
 			return false;
 		}
 		return response.data.status;
+	},
+
+	isNameAvailable: async function (
+		name: string,
+		workspaceId?: string,
+	): Promise<boolean> {
+		const response = await api.post<ApiResponse<NameAvailabilityStatus>>(
+			'/v1/workspace/name-exists',
+			{
+				name,
+				workspaceId,
+			},
+		);
+
+		if (!response.success) {
+			toast.error(response.error.message);
+			return false;
+		}
+
+		return response.data.available;
+	},
+
+	update: async function (
+		workspaceId: string,
+		data: UpdateWorkspaceRequest,
+	): Promise<Workspace> {
+		const response = await api.patch<SuccessResponse<Workspace>>(
+			`/v1/workspace/${workspaceId}`,
+			data,
+		);
+		return response.data;
 	},
 
 	delete: async function (workspaceId: string): Promise<SuccessResponse<null>> {

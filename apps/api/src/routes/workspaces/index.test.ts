@@ -10,6 +10,7 @@ vi.mock('../../lib/auth.js', () => ({
 			listOrganizations: vi.fn(),
 			createOrganization: vi.fn(),
 			checkOrganizationSlug: vi.fn(),
+			updateOrganization: vi.fn(),
 			setActiveOrganization: vi.fn(),
 		},
 	},

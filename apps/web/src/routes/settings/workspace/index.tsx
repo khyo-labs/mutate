@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { DeleteWorkspace } from '@/components/settings/delete-workspace';
 import { SettingsHeader } from '@/components/settings/header';
+import { WorkspaceDetailsForm } from '@/components/settings/workspace-details-form';
 import { Card, CardContent } from '@/components/ui/card';
 
 export const Route = createFileRoute('/settings/workspace/')({
@@ -15,6 +16,8 @@ export function RouteComponent() {
 				title="Workspace"
 				description="Manage your workspace settings."
 			/>
+
+			<WorkspaceDetailsForm />
 
 			<Card className="border-destructive">
 				<CardContent>

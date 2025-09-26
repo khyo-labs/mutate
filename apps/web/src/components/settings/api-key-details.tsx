@@ -2,8 +2,8 @@ import type { UseMutationResult } from '@tanstack/react-query';
 import { CircleSmall, Clock, Edit, Trash2 } from 'lucide-react';
 
 import type { ApiKey } from '@/api/api-keys';
-import { cn } from '@/lib/utils';
 import { formatRelativeTime } from '@/lib/dates';
+import { cn } from '@/lib/utils';
 
 import {
 	AlertDialog,

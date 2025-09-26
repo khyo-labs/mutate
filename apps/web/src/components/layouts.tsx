@@ -24,7 +24,7 @@ export function Layout({ title, description, buttons, children }: LayoutProps) {
 
 				<div className="flex flex-1 overflow-auto pt-10 lg:pt-0">
 					<Sidebar />
-					<main className="flex flex-1 flex-col max-w-7xl">
+					<main className="flex max-w-7xl flex-1 flex-col">
 						<div className="bg-background mt-16 p-8 pb-0 lg:mt-0">
 							<div className="flex flex-col items-start">
 								<div className="flex w-full items-center justify-between">

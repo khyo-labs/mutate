@@ -14,9 +14,9 @@ import {
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { formatRelativeTime } from '@/lib/dates';
 import { cn } from '@/lib/utils';
 import type { Webhook } from '@/types';
-import { formatRelativeTime } from '@/lib/dates';
 
 import {
 	AlertDialog,
