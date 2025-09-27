@@ -53,8 +53,11 @@ export function AdminLayout() {
 					setNeeds2FA(true);
 				}
 			}
-		} catch (error: any) {
-			if (error.response?.data?.error?.code === '2FA_VERIFICATION_REQUIRED') {
+		} catch (error: unknown) {
+			const err = error as {
+				response?: { data?: { error?: { code?: string } } };
+			};
+			if (err.response?.data?.error?.code === '2FA_VERIFICATION_REQUIRED') {
 				setNeeds2FA(true);
 				setIsAdmin(true);
 			} else {

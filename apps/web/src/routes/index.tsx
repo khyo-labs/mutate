@@ -1,7 +1,9 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
+import { Plus } from 'lucide-react';
 
 import { Dashboard } from '@/components/dashboard';
 import { Layout } from '@/components/layouts';
+import { Button } from '@/components/ui/button';
 import { useListWorkspace } from '@/hooks/use-workspaces';
 import { useSession } from '@/stores/auth-store';
 
@@ -48,7 +50,15 @@ export function RouteComponent() {
 	}
 
 	return (
-		<Layout>
+		<Layout
+			title="Dashboard"
+			buttons={[
+				<Button>
+					<Plus className="mr-2 h-4 w-4" />
+					New Mutation
+				</Button>,
+			]}
+		>
 			<Dashboard />
 		</Layout>
 	);

@@ -28,7 +28,15 @@ export function FileUpload({ onFileUploaded, currentFile }: FileUploadProps) {
 
 			try {
 				const arrayBuffer = await file.arrayBuffer();
-				const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+				const workbook = XLSX.read(arrayBuffer, {
+					type: 'array',
+					cellFormula: true,
+					sheetStubs: true,
+					cellDates: true,
+					cellNF: true,
+					cellText: true,
+					raw: false,
+				});
 				const worksheets = workbook.SheetNames;
 
 				const uploadedFile: UploadedFile = {

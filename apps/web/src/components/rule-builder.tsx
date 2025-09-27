@@ -24,6 +24,7 @@ import {
 	GripVertical,
 	Merge,
 	Plus,
+	Replace,
 	Trash2,
 	X,
 } from 'lucide-react';
@@ -51,6 +52,7 @@ const ruleIcons: Record<
 	DELETE_COLUMNS: Columns,
 	COMBINE_WORKSHEETS: Combine,
 	EVALUATE_FORMULAS: Calculator,
+	REPLACE_CHARACTERS: Replace,
 };
 
 const ruleDescriptions: Record<XlsxToCsvRuleType, string> = {
@@ -61,6 +63,7 @@ const ruleDescriptions: Record<XlsxToCsvRuleType, string> = {
 	DELETE_COLUMNS: 'Remove specific columns',
 	COMBINE_WORKSHEETS: 'Merge multiple sheets together',
 	EVALUATE_FORMULAS: 'Calculate formula values',
+	REPLACE_CHARACTERS: 'Replace specific characters in cell values',
 };
 
 interface SortableRuleProps {

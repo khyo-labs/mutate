@@ -78,7 +78,7 @@ export function JsonConfigPanel({
 		}
 
 		try {
-			const parsed = JSON.parse(importText.trim());
+			const parsed = JSON.parse(importText.trim()) as Record<string, unknown>;
 
 			// Validate required fields
 			if (!parsed.name || typeof parsed.name !== 'string') {
@@ -96,14 +96,19 @@ export function JsonConfigPanel({
 			}
 
 			// Validate each rule has required fields
-			parsed.rules.forEach((rule: any, index: number) => {
-				if (!rule.id || typeof rule.id !== 'string') {
+			(parsed.rules as unknown[]).forEach((rule: unknown, index: number) => {
+				const r = rule as {
+					id?: unknown;
+					type?: unknown;
+					params?: unknown;
+				};
+				if (!r.id || typeof r.id !== 'string') {
 					throw new Error(`Rule ${index + 1} must have a valid "id" field`);
 				}
-				if (!rule.type || typeof rule.type !== 'string') {
+				if (!r.type || typeof r.type !== 'string') {
 					throw new Error(`Rule ${index + 1} must have a valid "type" field`);
 				}
-				if (!rule.params || typeof rule.params !== 'object') {
+				if (!r.params || typeof r.params !== 'object') {
 					throw new Error(
 						`Rule ${index + 1} must have a valid "params" object`,
 					);
@@ -111,19 +116,20 @@ export function JsonConfigPanel({
 			});
 
 			// Validate output format
-			if (parsed.outputFormat.type !== 'CSV') {
+			if ((parsed.outputFormat as { type?: string }).type !== 'CSV') {
 				throw new Error('Output format type must be "CSV"');
 			}
 
+			const outputFormatObj = parsed.outputFormat as Record<string, unknown>;
 			const validConfig: ConfigurationJSON = {
-				name: parsed.name,
-				description: parsed.description || '',
-				rules: parsed.rules,
+				name: parsed.name as string,
+				description: (parsed.description as string) || '',
+				rules: parsed.rules as TransformationRule[],
 				outputFormat: {
 					type: 'CSV',
-					delimiter: parsed.outputFormat.delimiter || ',',
-					encoding: parsed.outputFormat.encoding || 'UTF-8',
-					includeHeaders: parsed.outputFormat.includeHeaders !== false,
+					delimiter: (outputFormatObj.delimiter as string) || ',',
+					encoding: ((outputFormatObj.encoding as string) || 'UTF-8') as 'UTF-8' | 'UTF-16' | 'ASCII',
+					includeHeaders: outputFormatObj.includeHeaders !== false,
 				},
 			};
 

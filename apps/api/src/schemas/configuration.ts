@@ -66,6 +66,24 @@ const evaluateFormulasRuleSchema = baseRuleSchema.extend({
 	}),
 });
 
+const replaceCharactersRuleSchema = baseRuleSchema.extend({
+	type: z.literal('REPLACE_CHARACTERS'),
+	params: z.object({
+		replacements: z.array(
+			z.object({
+				find: z.string(),
+				replace: z.string(),
+				scope: z
+					.enum(['all', 'specific_columns', 'specific_rows'])
+					.optional()
+					.default('all'),
+				columns: z.array(z.string()).optional(),
+				rows: z.array(z.number().min(1)).optional(), // 1-based row numbers
+			}),
+		),
+	}),
+});
+
 const transformationRuleSchema = z.discriminatedUnion('type', [
 	selectWorksheetRuleSchema,
 	validateColumnsRuleSchema,
@@ -74,6 +92,7 @@ const transformationRuleSchema = z.discriminatedUnion('type', [
 	deleteColumnsRuleSchema,
 	combineWorksheetsRuleSchema,
 	evaluateFormulasRuleSchema,
+	replaceCharactersRuleSchema,
 ]);
 
 const csvOutputFormatSchema = z.object({
@@ -158,8 +177,8 @@ export const updateSchema = z.object({
 		.array(transformationRuleSchema)
 		.min(1, 'At least one rule is required')
 		.optional(),
-	callbackUrl: z.string().url('Invalid callback URL').optional(),
-	webhookUrlId: z.string().optional(),
+	callbackUrl: z.url('Invalid callback URL').optional().nullable(),
+	webhookUrlId: z.string().optional().nullable(),
 });
 
 export const configurationQuerySchema = z.object({

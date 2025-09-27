@@ -3,7 +3,51 @@ import * as XLSX from 'xlsx';
 import type { ProcessedData, TransformationRule, UploadedFile } from '@/types';
 
 import { parseColumnIdentifier } from './column-utils';
+import { evaluateFormula } from './formula-evaluator';
 import { shouldDeleteRow } from './row-utils';
+
+/**
+ * Convert JavaScript Date to Excel serial number
+ */
+function dateToExcelSerial(date: Date): number {
+	// Excel epoch is December 30, 1899
+	const excelEpoch = new Date(1899, 11, 30);
+	const msPerDay = 24 * 60 * 60 * 1000;
+	const serial = Math.floor((date.getTime() - excelEpoch.getTime()) / msPerDay);
+	// Add 1 to account for Excel's leap year bug (1900 is treated as a leap year)
+	return serial + (serial > 59 ? 1 : 0);
+}
+
+/**
+ * Extract cell value with proper formatting handling
+ */
+function getCellValue(
+	cell: XLSX.CellObject | undefined,
+	options: { convertDatesToSerial?: boolean } = {},
+): string | number | null {
+	if (!cell) return null;
+
+	const { convertDatesToSerial = true } = options;
+
+	// Get the base value
+	let value = null;
+
+	if (cell.v !== undefined) {
+		// Handle dates
+		if (cell.v instanceof Date) {
+			value = convertDatesToSerial
+				? dateToExcelSerial(cell.v)
+				: cell.v.toISOString();
+		} else {
+			value = cell.v;
+		}
+	} else if (cell.w !== undefined) {
+		// Use formatted text as fallback
+		value = cell.w;
+	}
+
+	return value as string | number | null;
+}
 
 export function fillColumn(
 	data: (string | number | null)[][],
@@ -104,6 +148,13 @@ export function simulateTransformations(
 	const appliedRules: string[] = [];
 	const warnings: string[] = [];
 
+	// Check if any EVALUATE_FORMULAS rule specifies date conversion preference
+	const evaluateFormulaRule = rules.find(
+		(r) => r.type === 'EVALUATE_FORMULAS',
+	) as import('@/types').EvaluateFormulasRule | undefined;
+	const convertDatesToSerial =
+		evaluateFormulaRule?.params?.convertDatesToSerial ?? true;
+
 	// Start with the first worksheet by default
 	let activeWorksheet = file.worksheets[0];
 	let worksheet = file.workbook.Sheets[activeWorksheet];
@@ -116,7 +167,8 @@ export function simulateTransformations(
 		for (let col = range.s.c; col <= range.e.c; col++) {
 			const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
 			const cell = worksheet[cellAddress];
-			rowData.push(cell ? (cell.v ?? null) : null);
+			const value = getCellValue(cell, { convertDatesToSerial });
+			rowData.push(value);
 		}
 		data.push(rowData);
 	}
@@ -164,7 +216,8 @@ export function simulateTransformations(
 						for (let col = range.s.c; col <= range.e.c; col++) {
 							const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
 							const cell = worksheet[cellAddress];
-							rowData.push(cell ? (cell.v ?? null) : null);
+							const value = getCellValue(cell, { convertDatesToSerial });
+							rowData.push(value);
 						}
 						data.push(rowData);
 					}
@@ -307,8 +360,104 @@ export function simulateTransformations(
 			}
 			case 'EVALUATE_FORMULAS': {
 				if (rule.params.enabled) {
-					// This is a simplified simulation - in reality, you'd evaluate Excel formulas
-					appliedRules.push('Evaluated formulas');
+					// Get the current worksheet
+					const ws = file.workbook.Sheets[activeWorksheet];
+					if (ws) {
+						const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
+						let formulaCount = 0;
+						let evaluatedCount = 0;
+
+						// Iterate through all cells to find formulas
+						for (let row = range.s.r; row <= range.e.r; row++) {
+							for (let col = range.s.c; col <= range.e.c; col++) {
+								const cellAddr = XLSX.utils.encode_cell({ c: col, r: row });
+								const cell = ws[cellAddr];
+
+								if (cell && cell.f) {
+									// Cell has a formula
+									formulaCount++;
+
+									// Try to evaluate the formula (pass cell format for percentage handling)
+									const evaluatedValue = evaluateFormula(cell.f, ws, cell.z);
+
+									// If we successfully evaluated the formula, use that value
+									// Otherwise fall back to cached value
+									let value = evaluatedValue;
+
+									if (value === null || value === undefined) {
+										// Fall back to cached value if evaluation failed
+										if (cell.v !== undefined && cell.v !== null) {
+											value = cell.v;
+										} else if (cell.w !== undefined && cell.w !== null) {
+											// Try to parse the formatted text as a number if possible
+											const parsed = Number(cell.w);
+											value = !isNaN(parsed) ? parsed : cell.w;
+										}
+									}
+
+									// Store the evaluated value back in the cell
+									if (value !== null && value !== undefined) {
+										cell.v = value;
+										// Remove the formula since we've evaluated it
+										delete cell.f;
+										evaluatedCount++;
+									}
+								}
+							}
+						}
+
+						if (formulaCount > 0) {
+							appliedRules.push(
+								`Found ${formulaCount} formula${formulaCount !== 1 ? 's' : ''}, evaluated ${evaluatedCount}`,
+							);
+							if (evaluatedCount < formulaCount) {
+								warnings.push(
+									`${formulaCount - evaluatedCount} formula${formulaCount - evaluatedCount !== 1 ? 's' : ''} could not be evaluated`,
+								);
+							}
+
+							// Re-extract data from the worksheet after evaluating formulas
+							// This ensures the data array reflects the evaluated values
+							const updatedRange = XLSX.utils.decode_range(
+								ws['!ref'] || 'A1:A1',
+							);
+							const updatedData: (string | number | null)[][] = [];
+
+							for (let row = updatedRange.s.r; row <= updatedRange.e.r; row++) {
+								const rowData: (string | number | null)[] = [];
+								for (
+									let col = updatedRange.s.c;
+									col <= updatedRange.e.c;
+									col++
+								) {
+									const cellAddress = XLSX.utils.encode_cell({
+										r: row,
+										c: col,
+									});
+									const cell = ws[cellAddress];
+									const value = getCellValue(cell, { convertDatesToSerial });
+									rowData.push(value);
+								}
+								updatedData.push(rowData);
+							}
+
+							// Update the data array with the re-extracted values
+							data = updatedData;
+
+							// Update headers if they might have changed
+							headers =
+								data.length > 0
+									? data[0].map(
+											(cell, index) =>
+												cell?.toString() || `Column ${index + 1}`,
+										)
+									: [];
+						} else {
+							appliedRules.push('No formulas found to evaluate');
+						}
+					}
+				} else {
+					appliedRules.push('Formula evaluation disabled');
 				}
 				break;
 			}
@@ -390,6 +539,65 @@ export function simulateTransformations(
 						sheets.length !== 1 ? 's' : ''
 					} (${operation})`,
 				);
+				break;
+			}
+			case 'REPLACE_CHARACTERS': {
+				const replacements = rule.params.replacements || [];
+				let totalReplacements = 0;
+
+				replacements.forEach((replacement) => {
+					const { find, replace, scope = 'all', columns, rows } = replacement;
+
+					// Convert column letters to indices
+					const columnIndices = columns?.map((col) => {
+						const colIndex = col.charCodeAt(0) - 65; // A=0, B=1, etc.
+						return colIndex;
+					});
+
+					data = data.map((row, rowIndex) => {
+						// Check if this row should be processed
+						if (
+							scope === 'specific_rows' &&
+							rows &&
+							!rows.includes(rowIndex + 1)
+						) {
+							return row;
+						}
+
+						return row.map((cell, colIndex) => {
+							// Check if this column should be processed
+							if (
+								scope === 'specific_columns' &&
+								columnIndices &&
+								!columnIndices.includes(colIndex)
+							) {
+								return cell;
+							}
+
+							// Convert cell to string for replacement
+							if (cell !== null && cell !== undefined) {
+								const cellStr = String(cell);
+								const newValue = cellStr.split(find).join(replace);
+
+								if (cellStr !== newValue) {
+									totalReplacements++;
+									// Try to preserve number type if possible
+									const numValue = Number(newValue);
+									return !isNaN(numValue) && cellStr === String(Number(cellStr))
+										? numValue
+										: newValue;
+								}
+							}
+							return cell;
+						});
+					});
+				});
+
+				if (totalReplacements > 0) {
+					appliedRules.push(
+						`Replaced characters in ${totalReplacements} cell${totalReplacements !== 1 ? 's' : ''}`,
+					);
+				}
 				break;
 			}
 		}

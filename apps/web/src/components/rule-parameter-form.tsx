@@ -18,7 +18,7 @@ interface RuleParameterFormProps {
 export function RuleParameterForm({ rule, onChange }: RuleParameterFormProps) {
 	const [isExpanded, setIsExpanded] = useState(false);
 
-	function updateParams(newParams: Record<string, any>) {
+	function updateParams(newParams: Record<string, unknown>) {
 		onChange({
 			...rule,
 			params: { ...rule.params, ...newParams },
@@ -66,6 +66,8 @@ export function RuleParameterForm({ rule, onChange }: RuleParameterFormProps) {
 				return <CombineWorksheetsForm rule={rule} onChange={updateParams} />;
 			case 'EVALUATE_FORMULAS':
 				return <EvaluateFormulasForm rule={rule} onChange={updateParams} />;
+			case 'REPLACE_CHARACTERS':
+				return <ReplaceCharactersForm rule={rule} onChange={updateParams} />;
 			default:
 				return <div className="text-sm text-gray-500">No parameters</div>;
 		}
@@ -100,7 +102,7 @@ function SelectWorksheetForm({
 	onChange,
 }: {
 	rule: SelectWorksheetRule;
-	onChange: (params: any) => void;
+	onChange: (params: SelectWorksheetRule['params']) => void;
 }) {
 	return (
 		<div className="space-y-3">
@@ -110,7 +112,12 @@ function SelectWorksheetForm({
 				</label>
 				<select
 					value={rule.params.type || 'name'}
-					onChange={(e) => onChange({ type: e.target.value as any })}
+					onChange={(e) =>
+						onChange({
+							...rule.params,
+							type: e.target.value as SelectWorksheetRule['params']['type'],
+						})
+					}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
 					<option value="name">By Name</option>
@@ -125,7 +132,7 @@ function SelectWorksheetForm({
 				<input
 					type="text"
 					value={rule.params.value || ''}
-					onChange={(e) => onChange({ value: e.target.value })}
+					onChange={(e) => onChange({ ...rule.params, value: e.target.value })}
 					placeholder={
 						rule.params.type === 'index'
 							? 'e.g., 0'
@@ -145,7 +152,7 @@ function ValidateColumnsForm({
 	onChange,
 }: {
 	rule: ValidateColumnsRule;
-	onChange: (params: any) => void;
+	onChange: (params: ValidateColumnsRule['params']) => void;
 }) {
 	return (
 		<div className="space-y-3">
@@ -157,7 +164,7 @@ function ValidateColumnsForm({
 					type="number"
 					value={rule.params.numOfColumns || 0}
 					onChange={(e) =>
-						onChange({ numOfColumns: parseInt(e.target.value) || 0 })
+						onChange({ ...rule.params, numOfColumns: parseInt(e.target.value) || 0 })
 					}
 					min="1"
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
@@ -169,7 +176,13 @@ function ValidateColumnsForm({
 				</label>
 				<select
 					value={rule.params.onFailure || 'stop'}
-					onChange={(e) => onChange({ onFailure: e.target.value as any })}
+					onChange={(e) =>
+						onChange({
+							...rule.params,
+							onFailure: e.target
+								.value as ValidateColumnsRule['params']['onFailure'],
+						})
+					}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
 					<option value="stop">Stop Processing</option>
@@ -186,7 +199,7 @@ function UnmergeAndFillForm({
 	onChange,
 }: {
 	rule: UnmergeAndFillRule;
-	onChange: (params: any) => void;
+	onChange: (params: UnmergeAndFillRule['params']) => void;
 }) {
 	const [columnInput, setColumnInput] = useState('');
 
@@ -194,6 +207,7 @@ function UnmergeAndFillForm({
 		if (columnInput.trim()) {
 			const currentColumns = rule.params.columns || [];
 			onChange({
+				...rule.params,
 				columns: [...currentColumns, columnInput.trim()],
 			});
 			setColumnInput('');
@@ -203,6 +217,7 @@ function UnmergeAndFillForm({
 	function removeColumn(index: number) {
 		const currentColumns = rule.params.columns || [];
 		onChange({
+			...rule.params,
 			columns: currentColumns.filter((_, i) => i !== index),
 		});
 	}
@@ -215,7 +230,13 @@ function UnmergeAndFillForm({
 				</label>
 				<select
 					value={rule.params.fillDirection || 'down'}
-					onChange={(e) => onChange({ fillDirection: e.target.value as any })}
+					onChange={(e) =>
+						onChange({
+							...rule.params,
+							fillDirection: e.target
+								.value as UnmergeAndFillRule['params']['fillDirection'],
+						})
+					}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
 					<option value="down">Fill Down</option>
@@ -271,7 +292,7 @@ function DeleteRowsForm({
 	onChange,
 }: {
 	rule: DeleteRowsRule;
-	onChange: (params: any) => void;
+	onChange: (params: DeleteRowsRule['params']) => void;
 }) {
 	const [rowInput, setRowInput] = useState('');
 	const method = rule.params.method || 'condition';
@@ -282,6 +303,7 @@ function DeleteRowsForm({
 			const currentRows = rule.params.rows || [];
 			if (!currentRows.includes(rowNumber)) {
 				onChange({
+					...rule.params,
 					rows: [...currentRows, rowNumber].sort((a, b) => a - b),
 				});
 			}
@@ -292,6 +314,7 @@ function DeleteRowsForm({
 	function removeRow(rowNumber: number) {
 		const currentRows = rule.params.rows || [];
 		onChange({
+			...rule.params,
 			rows: currentRows.filter((row) => row !== rowNumber),
 		});
 	}
@@ -330,9 +353,12 @@ function DeleteRowsForm({
 							value={rule.params.condition?.type || 'contains'}
 							onChange={(e) =>
 								onChange({
+									...rule.params,
 									condition: {
 										...rule.params.condition,
-										type: e.target.value as any,
+										type: e.target.value as NonNullable<
+											DeleteRowsRule['params']['condition']
+										>['type'],
 									},
 								})
 							}
@@ -353,7 +379,9 @@ function DeleteRowsForm({
 							value={rule.params.condition?.column || ''}
 							onChange={(e) =>
 								onChange({
+									...rule.params,
 									condition: {
+										type: rule.params.condition?.type || 'contains',
 										...rule.params.condition,
 										column: e.target.value,
 									},
@@ -383,7 +411,9 @@ function DeleteRowsForm({
 								value={rule.params.condition?.value || ''}
 								onChange={(e) =>
 									onChange({
+										...rule.params,
 										condition: {
+											type: rule.params.condition?.type || 'contains',
 											...rule.params.condition,
 											value: e.target.value,
 										},
@@ -460,7 +490,7 @@ function DeleteColumnsForm({
 	onChange,
 }: {
 	rule: DeleteColumnsRule;
-	onChange: (params: any) => void;
+	onChange: (params: DeleteColumnsRule['params']) => void;
 }) {
 	const [columnInput, setColumnInput] = useState('');
 
@@ -531,8 +561,10 @@ function CombineWorksheetsForm({
 	rule,
 	onChange,
 }: {
-	rule: any;
-	onChange: (params: any) => void;
+	rule: import('../types').CombineWorksheetsRule;
+	onChange: (
+		params: import('../types').CombineWorksheetsRule['params'],
+	) => void;
 }) {
 	const [sheetInput, setSheetInput] = useState('');
 
@@ -540,6 +572,7 @@ function CombineWorksheetsForm({
 		if (sheetInput.trim()) {
 			const currentSheets = rule.params.sourceSheets || [];
 			onChange({
+				...rule.params,
 				sourceSheets: [...currentSheets, sheetInput.trim()],
 			});
 			setSheetInput('');
@@ -549,7 +582,10 @@ function CombineWorksheetsForm({
 	function removeSheet(index: number) {
 		const currentSheets = rule.params.sourceSheets || [];
 		onChange({
-			sourceSheets: currentSheets.filter((_: any, i: number) => i !== index),
+			...rule.params,
+			sourceSheets: currentSheets.filter(
+				(_: unknown, i: number) => i !== index,
+			),
 		});
 	}
 
@@ -561,7 +597,7 @@ function CombineWorksheetsForm({
 				</label>
 				<select
 					value={rule.params.operation || 'append'}
-					onChange={(e) => onChange({ operation: e.target.value })}
+					onChange={(e) => onChange({ ...rule.params, operation: e.target.value as 'append' | 'merge' })}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
 					<option value="append">Append Rows</option>
@@ -620,8 +656,8 @@ function EvaluateFormulasForm({
 	rule,
 	onChange,
 }: {
-	rule: any;
-	onChange: (params: any) => void;
+	rule: import('../types').EvaluateFormulasRule;
+	onChange: (params: import('../types').EvaluateFormulasRule['params']) => void;
 }) {
 	return (
 		<div>
@@ -636,6 +672,169 @@ function EvaluateFormulasForm({
 					Evaluate and replace formulas with calculated values
 				</span>
 			</label>
+		</div>
+	);
+}
+
+function ReplaceCharactersForm({
+	rule,
+	onChange,
+}: {
+	rule: import('../types').ReplaceCharactersRule;
+	onChange: (
+		params: import('../types').ReplaceCharactersRule['params'],
+	) => void;
+}) {
+	const [replacements, setReplacements] = useState(
+		rule.params.replacements || [{ find: '', replace: '', scope: 'all' }],
+	);
+
+	const updateReplacement = (
+		index: number,
+		field: string,
+		value:
+			| string
+			| string[]
+			| number[]
+			| 'all'
+			| 'specific_columns'
+			| 'specific_rows',
+	) => {
+		const updated = [...replacements];
+		updated[index] = { ...updated[index], [field]: value };
+		setReplacements(updated);
+		onChange({ replacements: updated });
+	};
+
+	const addReplacement = () => {
+		const updated = [...replacements, { find: '', replace: '', scope: 'all' as const }];
+		setReplacements(updated as typeof replacements);
+		onChange({ replacements: updated as typeof replacements });
+	};
+
+	const removeReplacement = (index: number) => {
+		const updated = replacements.filter((_: unknown, i: number) => i !== index);
+		setReplacements(updated);
+		onChange({ replacements: updated });
+	};
+
+	const handleColumnsChange = (index: number, value: string) => {
+		const columns = value
+			.split(',')
+			.map((col) => col.trim().toUpperCase())
+			.filter((col) => col);
+		updateReplacement(index, 'columns', columns);
+	};
+
+	const handleRowsChange = (index: number, value: string) => {
+		const rows = value
+			.split(',')
+			.map((row) => parseInt(row.trim()))
+			.filter((row) => !isNaN(row));
+		updateReplacement(index, 'rows', rows);
+	};
+
+	return (
+		<div className="space-y-3">
+			{replacements.map(
+				(
+					replacement: import('../types').ReplaceCharactersRule['params']['replacements'][number],
+					index: number,
+				) => (
+					<div key={index} className="space-y-2 rounded border p-3">
+						<div className="flex gap-2">
+							<div className="flex-1">
+								<label className="block text-xs font-medium text-gray-700">
+									Find
+								</label>
+								<input
+									type="text"
+									value={replacement.find}
+									onChange={(e) =>
+										updateReplacement(index, 'find', e.target.value)
+									}
+									placeholder="Character(s) to find"
+									className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+								/>
+							</div>
+							<div className="flex-1">
+								<label className="block text-xs font-medium text-gray-700">
+									Replace with
+								</label>
+								<input
+									type="text"
+									value={replacement.replace}
+									onChange={(e) =>
+										updateReplacement(index, 'replace', e.target.value)
+									}
+									placeholder="Replace with"
+									className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+								/>
+							</div>
+						</div>
+						<div>
+							<label className="block text-xs font-medium text-gray-700">
+								Scope
+							</label>
+							<select
+								value={replacement.scope}
+								onChange={(e) =>
+									updateReplacement(index, 'scope', e.target.value)
+								}
+								className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+							>
+								<option value="all">All cells</option>
+								<option value="specific_columns">Specific columns</option>
+								<option value="specific_rows">Specific rows</option>
+							</select>
+						</div>
+						{replacement.scope === 'specific_columns' && (
+							<div>
+								<label className="block text-xs font-medium text-gray-700">
+									Columns (comma-separated, e.g., A, B, C)
+								</label>
+								<input
+									type="text"
+									value={replacement.columns?.join(', ') || ''}
+									onChange={(e) => handleColumnsChange(index, e.target.value)}
+									placeholder="A, B, C"
+									className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+								/>
+							</div>
+						)}
+						{replacement.scope === 'specific_rows' && (
+							<div>
+								<label className="block text-xs font-medium text-gray-700">
+									Row numbers (comma-separated, 1-based)
+								</label>
+								<input
+									type="text"
+									value={replacement.rows?.join(', ') || ''}
+									onChange={(e) => handleRowsChange(index, e.target.value)}
+									placeholder="1, 2, 3"
+									className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+								/>
+							</div>
+						)}
+						{replacements.length > 1 && (
+							<button
+								type="button"
+								onClick={() => removeReplacement(index)}
+								className="text-xs text-red-600 hover:text-red-800"
+							>
+								Remove
+							</button>
+						)}
+					</div>
+				),
+			)}
+			<button
+				type="button"
+				onClick={addReplacement}
+				className="rounded bg-blue-500 px-3 py-1 text-xs text-white hover:bg-blue-600"
+			>
+				Add Replacement
+			</button>
 		</div>
 	);
 }

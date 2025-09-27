@@ -105,7 +105,7 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useCurrentUser } from '@/hooks/use-auth';
+import { useSession } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 
 export const Route = createFileRoute('/settings/workspace/members')({
@@ -405,7 +405,7 @@ function MembersTable({
 	currentUserRole?: string;
 }) {
 	const queryClient = useQueryClient();
-	const { data: user } = useCurrentUser();
+	const { data: session } = useSession();
 	const [globalFilter, setGlobalFilter] = useState('');
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [sorting, setSorting] = useState<SortingState>([
@@ -670,7 +670,7 @@ function MembersTable({
 
 					if (
 						item.type === 'member' &&
-						item.userId !== user?.id &&
+						item.userId !== session?.user?.id &&
 						item.role !== 'owner'
 					) {
 						return (
@@ -732,7 +732,7 @@ function MembersTable({
 		],
 		[
 			currentUserRole,
-			user,
+			session?.user?.id,
 			workspaceId,
 			cancelMutation,
 			resendMutation,
@@ -981,7 +981,7 @@ function MembersStats({ data }: { data: MemberOrInvitation[] }) {
 function MembersComponent() {
 	const { activeWorkspace } = useWorkspaceStore();
 	const workspaceId = activeWorkspace?.id || '';
-	const { data: user } = useCurrentUser();
+	const { data: session } = useSession();
 	const [activeTab, setActiveTab] = useState<'all' | 'members' | 'invitations'>(
 		'all',
 	);
@@ -995,12 +995,12 @@ function MembersComponent() {
 
 	// Find current user's role from the members list
 	const currentUserRole = useMemo(() => {
-		if (!user || !data) return undefined;
+		if (!session?.user || !data) return undefined;
 		const currentMember = data.find(
-			(item) => item.type === 'member' && item.userId === user.id,
+			(item) => item.type === 'member' && item.userId === session.user.id,
 		) as Member | undefined;
 		return currentMember?.role;
-	}, [data, user]);
+	}, [data, session]);
 
 	// Filter data based on active tab
 	const filteredData = useMemo(() => {

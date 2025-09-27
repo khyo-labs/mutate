@@ -106,6 +106,19 @@ const defaultRuleTemplates: TransformationRule[] = [
 			enabled: true,
 		},
 	},
+	{
+		id: 'template-replace-characters',
+		type: 'REPLACE_CHARACTERS',
+		params: {
+			replacements: [
+				{
+					find: ',',
+					replace: '|',
+					scope: 'all',
+				},
+			],
+		},
+	},
 ];
 
 export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({

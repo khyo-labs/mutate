@@ -36,6 +36,9 @@ import { Route as AdminFeaturesIndexRouteImport } from './routes/admin/features/
 import { Route as AdminAuditIndexRouteImport } from './routes/admin/audit/index';
 import { Route as SettingsWorkspaceWebhooksRouteImport } from './routes/settings/workspace/webhooks';
 import { Route as SettingsWorkspaceMembersRouteImport } from './routes/settings/workspace/members';
+import { Route as SettingsWorkspaceIntegrationsRouteImport } from './routes/settings/workspace/integrations';
+import { Route as SettingsWorkspaceExportRouteImport } from './routes/settings/workspace/export';
+import { Route as SettingsWorkspaceBillingRouteImport } from './routes/settings/workspace/billing';
 import { Route as SettingsWorkspaceApiKeysRouteImport } from './routes/settings/workspace/api-keys';
 import { Route as SettingsAccountSecurityRouteImport } from './routes/settings/account/security';
 import { Route as SettingsAccountProfileRouteImport } from './routes/settings/account/profile';
@@ -180,6 +183,23 @@ const SettingsWorkspaceMembersRoute =
     path: '/members',
     getParentRoute: () => SettingsWorkspaceRouteRoute,
   } as any);
+const SettingsWorkspaceIntegrationsRoute =
+  SettingsWorkspaceIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => SettingsWorkspaceRouteRoute,
+  } as any);
+const SettingsWorkspaceExportRoute = SettingsWorkspaceExportRouteImport.update({
+  id: '/export',
+  path: '/export',
+  getParentRoute: () => SettingsWorkspaceRouteRoute,
+} as any);
+const SettingsWorkspaceBillingRoute =
+  SettingsWorkspaceBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
+    getParentRoute: () => SettingsWorkspaceRouteRoute,
+  } as any);
 const SettingsWorkspaceApiKeysRoute =
   SettingsWorkspaceApiKeysRouteImport.update({
     id: '/api-keys',
@@ -230,6 +250,9 @@ export interface FileRoutesByFullPath {
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
   '/settings/account/security': typeof SettingsAccountSecurityRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
+  '/settings/workspace/billing': typeof SettingsWorkspaceBillingRoute;
+  '/settings/workspace/export': typeof SettingsWorkspaceExportRoute;
+  '/settings/workspace/integrations': typeof SettingsWorkspaceIntegrationsRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
   '/admin/audit': typeof AdminAuditIndexRoute;
@@ -260,6 +283,9 @@ export interface FileRoutesByTo {
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
   '/settings/account/security': typeof SettingsAccountSecurityRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
+  '/settings/workspace/billing': typeof SettingsWorkspaceBillingRoute;
+  '/settings/workspace/export': typeof SettingsWorkspaceExportRoute;
+  '/settings/workspace/integrations': typeof SettingsWorkspaceIntegrationsRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
   '/admin/audit': typeof AdminAuditIndexRoute;
@@ -295,6 +321,9 @@ export interface FileRoutesById {
   '/settings/account/profile': typeof SettingsAccountProfileRoute;
   '/settings/account/security': typeof SettingsAccountSecurityRoute;
   '/settings/workspace/api-keys': typeof SettingsWorkspaceApiKeysRoute;
+  '/settings/workspace/billing': typeof SettingsWorkspaceBillingRoute;
+  '/settings/workspace/export': typeof SettingsWorkspaceExportRoute;
+  '/settings/workspace/integrations': typeof SettingsWorkspaceIntegrationsRoute;
   '/settings/workspace/members': typeof SettingsWorkspaceMembersRoute;
   '/settings/workspace/webhooks': typeof SettingsWorkspaceWebhooksRoute;
   '/admin/audit/': typeof AdminAuditIndexRoute;
@@ -331,6 +360,9 @@ export interface FileRouteTypes {
     | '/settings/account/profile'
     | '/settings/account/security'
     | '/settings/workspace/api-keys'
+    | '/settings/workspace/billing'
+    | '/settings/workspace/export'
+    | '/settings/workspace/integrations'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
     | '/admin/audit'
@@ -361,6 +393,9 @@ export interface FileRouteTypes {
     | '/settings/account/profile'
     | '/settings/account/security'
     | '/settings/workspace/api-keys'
+    | '/settings/workspace/billing'
+    | '/settings/workspace/export'
+    | '/settings/workspace/integrations'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
     | '/admin/audit'
@@ -395,6 +430,9 @@ export interface FileRouteTypes {
     | '/settings/account/profile'
     | '/settings/account/security'
     | '/settings/workspace/api-keys'
+    | '/settings/workspace/billing'
+    | '/settings/workspace/export'
+    | '/settings/workspace/integrations'
     | '/settings/workspace/members'
     | '/settings/workspace/webhooks'
     | '/admin/audit/'
@@ -616,6 +654,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsWorkspaceMembersRouteImport;
       parentRoute: typeof SettingsWorkspaceRouteRoute;
     };
+    '/settings/workspace/integrations': {
+      id: '/settings/workspace/integrations';
+      path: '/integrations';
+      fullPath: '/settings/workspace/integrations';
+      preLoaderRoute: typeof SettingsWorkspaceIntegrationsRouteImport;
+      parentRoute: typeof SettingsWorkspaceRouteRoute;
+    };
+    '/settings/workspace/export': {
+      id: '/settings/workspace/export';
+      path: '/export';
+      fullPath: '/settings/workspace/export';
+      preLoaderRoute: typeof SettingsWorkspaceExportRouteImport;
+      parentRoute: typeof SettingsWorkspaceRouteRoute;
+    };
+    '/settings/workspace/billing': {
+      id: '/settings/workspace/billing';
+      path: '/billing';
+      fullPath: '/settings/workspace/billing';
+      preLoaderRoute: typeof SettingsWorkspaceBillingRouteImport;
+      parentRoute: typeof SettingsWorkspaceRouteRoute;
+    };
     '/settings/workspace/api-keys': {
       id: '/settings/workspace/api-keys';
       path: '/api-keys';
@@ -697,6 +756,9 @@ const SettingsAccountRouteRouteWithChildren =
 
 interface SettingsWorkspaceRouteRouteChildren {
   SettingsWorkspaceApiKeysRoute: typeof SettingsWorkspaceApiKeysRoute;
+  SettingsWorkspaceBillingRoute: typeof SettingsWorkspaceBillingRoute;
+  SettingsWorkspaceExportRoute: typeof SettingsWorkspaceExportRoute;
+  SettingsWorkspaceIntegrationsRoute: typeof SettingsWorkspaceIntegrationsRoute;
   SettingsWorkspaceMembersRoute: typeof SettingsWorkspaceMembersRoute;
   SettingsWorkspaceWebhooksRoute: typeof SettingsWorkspaceWebhooksRoute;
   SettingsWorkspaceIndexRoute: typeof SettingsWorkspaceIndexRoute;
@@ -705,6 +767,9 @@ interface SettingsWorkspaceRouteRouteChildren {
 const SettingsWorkspaceRouteRouteChildren: SettingsWorkspaceRouteRouteChildren =
   {
     SettingsWorkspaceApiKeysRoute: SettingsWorkspaceApiKeysRoute,
+    SettingsWorkspaceBillingRoute: SettingsWorkspaceBillingRoute,
+    SettingsWorkspaceExportRoute: SettingsWorkspaceExportRoute,
+    SettingsWorkspaceIntegrationsRoute: SettingsWorkspaceIntegrationsRoute,
     SettingsWorkspaceMembersRoute: SettingsWorkspaceMembersRoute,
     SettingsWorkspaceWebhooksRoute: SettingsWorkspaceWebhooksRoute,
     SettingsWorkspaceIndexRoute: SettingsWorkspaceIndexRoute,

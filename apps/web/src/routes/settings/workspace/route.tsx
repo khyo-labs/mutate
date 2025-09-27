@@ -8,14 +8,19 @@ export const Route = createFileRoute('/settings/workspace')({
 
 const navigationItems = [
 	{
-		name: 'Workspace',
+		name: 'General',
 		href: '/settings/workspace',
 		description: 'Manage workspace settings',
 	},
 	{
-		name: 'Webhooks',
-		href: '/settings/workspace/webhooks',
-		description: 'Manage webhook endpoints and configurations',
+		name: 'Members',
+		href: '/settings/workspace/members',
+		description: 'Manage workspace members',
+	},
+	{
+		name: 'Billing',
+		href: '/settings/workspace/billing',
+		description: 'Subscription and usage',
 	},
 	{
 		name: 'API Keys',
@@ -23,9 +28,19 @@ const navigationItems = [
 		description: 'Manage API keys and permissions',
 	},
 	{
-		name: 'Members',
-		href: '/settings/workspace/members',
-		description: 'Manage workspace members',
+		name: 'Webhooks',
+		href: '/settings/workspace/webhooks',
+		description: 'Manage webhook endpoints',
+	},
+	{
+		name: 'Integrations',
+		href: '/settings/workspace/integrations',
+		description: 'Connect external services',
+	},
+	{
+		name: 'Export',
+		href: '/settings/workspace/export',
+		description: 'Export and backup data',
 	},
 ];
 

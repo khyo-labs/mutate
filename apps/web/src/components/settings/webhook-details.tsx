@@ -43,7 +43,7 @@ import { WebhookDrawer } from './webhook-drawer';
 
 type Props = {
 	webhook: Webhook;
-	deleteWebhook: UseMutationResult<any, Error, string, unknown>; // eslint-disable-line @typescript-eslint/no-explicit-any
+	deleteWebhook: UseMutationResult<unknown, Error, string, unknown>;
 };
 
 export function WebhookDetails({ webhook, deleteWebhook }: Props) {

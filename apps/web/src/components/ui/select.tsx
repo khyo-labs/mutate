@@ -14,7 +14,12 @@ const Select = React.forwardRef<
 	// Find the SelectTrigger child and add the ref to it
 	const clonedChildren = React.Children.map(children, (child) => {
 		if (React.isValidElement(child) && child.type === SelectTrigger) {
-			return React.cloneElement(child, { ref } as any);
+			return React.cloneElement(
+				child as React.ReactElement,
+				{ ref } as {
+					ref: React.Ref<React.ElementRef<typeof SelectPrimitive.Trigger>>;
+				},
+			);
 		}
 		return child;
 	});

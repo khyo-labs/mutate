@@ -81,7 +81,7 @@ function SupportTools() {
 					window.location.href = '/';
 				}, 1000);
 			}
-		} catch (error) {
+		} catch {
 			toast.error('Failed to impersonate user');
 		} finally {
 			setLoading(false);
@@ -114,7 +114,7 @@ function SupportTools() {
 
 			toast.success('Workspace data exported successfully');
 			setShowExportModal(false);
-		} catch (error) {
+		} catch {
 			toast.error('Failed to export workspace data');
 		} finally {
 			setLoading(false);
@@ -137,7 +137,7 @@ function SupportTools() {
 			toast.success(
 				`Debug mode ${!debugMode ? 'enabled' : 'disabled'} for workspace`,
 			);
-		} catch (error) {
+		} catch {
 			toast.error('Failed to toggle debug mode');
 		} finally {
 			setLoading(false);
@@ -155,7 +155,7 @@ function SupportTools() {
 			await api.post(`/v1/admin/support/retry-job/${jobId}`);
 			toast.success('Job retry initiated');
 			setJobId('');
-		} catch (error) {
+		} catch {
 			toast.error('Failed to retry job');
 		} finally {
 			setLoading(false);
@@ -171,7 +171,7 @@ function SupportTools() {
 			await api.post(endpoint);
 			toast.success(cacheKey ? 'Cache key cleared' : 'All cache cleared');
 			setCacheKey('');
-		} catch (error) {
+		} catch {
 			toast.error('Failed to clear cache');
 		} finally {
 			setLoading(false);
@@ -186,14 +186,21 @@ function SupportTools() {
 
 		try {
 			setLoading(true);
-			const data = await api.post<{ result: any }>('/v1/admin/support/query', {
-				query: queryInput,
-			});
+			const data = await api.post<{ result: unknown }>(
+				'/v1/admin/support/query',
+				{
+					query: queryInput,
+				},
+			);
 			setQueryResult(JSON.stringify(data.result, null, 2));
 			toast.success('Query executed successfully');
-		} catch (error: any) {
+		} catch (error: unknown) {
+			const err = error as {
+				response?: { data?: { error?: { message?: string } } };
+				message?: string;
+			};
 			setQueryResult(
-				`Error: ${error.response?.data?.error?.message || error.message}`,
+				`Error: ${err.response?.data?.error?.message || err.message}`,
 			);
 			toast.error('Query failed');
 		} finally {

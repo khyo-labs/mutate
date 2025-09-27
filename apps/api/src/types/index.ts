@@ -27,7 +27,8 @@ export type XlsxToCsvRuleType =
 	| 'DELETE_ROWS'
 	| 'DELETE_COLUMNS'
 	| 'COMBINE_WORKSHEETS'
-	| 'EVALUATE_FORMULAS';
+	| 'EVALUATE_FORMULAS'
+	| 'REPLACE_CHARACTERS';
 
 export type DocxToPdfRuleType = 'SET_MARGINS' | 'SET_ORIENTATION' | 'SET_FONT';
 
@@ -127,6 +128,19 @@ export interface EvaluateFormulasRule extends BaseTransformationRule {
 	};
 }
 
+export interface ReplaceCharactersRule extends BaseTransformationRule {
+	type: 'REPLACE_CHARACTERS';
+	params: {
+		replacements: Array<{
+			find: string;
+			replace: string;
+			scope?: 'all' | 'specific_columns' | 'specific_rows';
+			columns?: string[]; // For specific_columns scope
+			rows?: number[]; // For specific_rows scope (1-based)
+		}>;
+	};
+}
+
 export type TransformationRule =
 	| SelectWorksheetRule
 	| ValidateColumnsRule
@@ -134,7 +148,8 @@ export type TransformationRule =
 	| DeleteRowsRule
 	| DeleteColumnsRule
 	| CombineWorksheetsRule
-	| EvaluateFormulasRule;
+	| EvaluateFormulasRule
+	| ReplaceCharactersRule;
 
 // Output format configurations
 export interface CsvOutputFormat {

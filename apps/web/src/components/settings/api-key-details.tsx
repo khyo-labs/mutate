@@ -30,7 +30,7 @@ import { ApiKeyDrawer } from './api-key-drawer';
 
 type Props = {
 	apiKey: ApiKey;
-	deleteApiKey: UseMutationResult<any, Error, string, unknown>; // eslint-disable-line @typescript-eslint/no-explicit-any
+	deleteApiKey: UseMutationResult<unknown, Error, string, unknown>;
 };
 
 export function ApiKeyDetails({ apiKey, deleteApiKey }: Props) {

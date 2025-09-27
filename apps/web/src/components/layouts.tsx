@@ -22,9 +22,9 @@ export function Layout({ title, description, buttons, children }: LayoutProps) {
 			<div className="bg-background flex h-screen flex-col">
 				{showBanner && <VerificationBanner />}
 
-				<div className="flex flex-1 overflow-auto pt-10 lg:pt-0">
+				<div className="flex overflow-auto pt-10 lg:pt-0">
 					<Sidebar />
-					<main className="flex max-w-7xl flex-1 flex-col">
+					<main className="mx-auto flex flex-1 flex-col overflow-auto">
 						<div className="bg-background mt-16 p-8 pb-0 lg:mt-0">
 							<div className="flex flex-col items-start">
 								<div className="flex w-full items-center justify-between">
@@ -43,7 +43,9 @@ export function Layout({ title, description, buttons, children }: LayoutProps) {
 								)}
 							</div>
 						</div>
-						<div className="container">{children}</div>
+						<div className="space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+							{children}
+						</div>
 					</main>
 				</div>
 			</div>

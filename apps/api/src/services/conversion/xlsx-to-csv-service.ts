@@ -54,6 +54,8 @@ export class XlsxToCsvService extends BaseConversionService {
 					cellDates: true,
 					cellNF: false,
 					cellText: false,
+					cellFormula: true,
+					sheetStubs: true,
 				});
 			} catch (readError) {
 				throw new FileReadError(
@@ -121,6 +123,7 @@ export class XlsxToCsvService extends BaseConversionService {
 				csvData = XLSX.utils.sheet_to_csv(currentWorkbook.Sheets[sheetName], {
 					blankrows: false,
 					FS: outputFormat.delimiter,
+					rawNumbers: true,
 				});
 			} catch (csvError) {
 				throw new RuleExecutionError(
@@ -221,6 +224,9 @@ export class XlsxToCsvService extends BaseConversionService {
 				case 'EVALUATE_FORMULAS':
 					return this.applyEvaluateFormulas(workbook, rule, currentSheet);
 
+				case 'REPLACE_CHARACTERS':
+					return this.applyReplaceCharacters(workbook, rule, currentSheet);
+
 				default:
 					throw new RuleValidationError(
 						(rule as any).type,
@@ -234,6 +240,7 @@ export class XlsxToCsvService extends BaseConversionService {
 								'DELETE_COLUMNS',
 								'COMBINE_WORKSHEETS',
 								'EVALUATE_FORMULAS',
+								'REPLACE_CHARACTERS',
 							],
 							ruleIndex,
 						},
@@ -910,12 +917,183 @@ export class XlsxToCsvService extends BaseConversionService {
 
 		if (params.enabled) {
 			this.addLog('Evaluating formulas in worksheet');
-			// XLSX.js automatically evaluates most formulas when reading
-			// This is more of a flag to indicate formula evaluation is desired
+
+			const sheetName = currentSheet || workbook.SheetNames[0];
+			const worksheet = workbook.Sheets[sheetName];
+
+			if (!worksheet) {
+				throw new WorksheetNotFoundError(sheetName, workbook.SheetNames);
+			}
+
+			try {
+				const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+				let formulaCount = 0;
+
+				// Iterate through all cells in the worksheet
+				for (let row = range.s.r; row <= range.e.r; row++) {
+					for (let col = range.s.c; col <= range.e.c; col++) {
+						const cellAddr = XLSX.utils.encode_cell({ c: col, r: row });
+						const cell = worksheet[cellAddr];
+
+						if (cell && cell.f) {
+							// Cell has a formula
+							formulaCount++;
+
+							// If there's a cached value (cell.v), use it
+							// SheetJS reads the cached values from Excel files
+							if (cell.v !== undefined) {
+								// Keep the cached value and remove the formula
+								delete cell.f;
+
+								// Ensure the cell type matches the value type
+								if (typeof cell.v === 'number') {
+									cell.t = 'n';
+								} else if (typeof cell.v === 'boolean') {
+									cell.t = 'b';
+								} else if (cell.v instanceof Date) {
+									cell.t = 'd';
+								} else {
+									cell.t = 's';
+									cell.v = String(cell.v);
+								}
+							} else {
+								// No cached value available, try to get it from the raw value
+								// or set to 0 for numeric formulas as a fallback
+								this.addLog(
+									`Warning: Formula at ${cellAddr} has no cached value`,
+								);
+								cell.v = 0;
+								cell.t = 'n';
+								delete cell.f;
+							}
+						}
+					}
+				}
+
+				this.addLog(
+					`Evaluated ${formulaCount} formulas in worksheet "${sheetName}"`,
+				);
+			} catch (error) {
+				throw new RuleExecutionError(
+					'EVALUATE_FORMULAS',
+					getErrorMessage(error, 'Failed to evaluate formulas'),
+					undefined,
+					{ sheetName },
+				);
+			}
 		} else {
 			this.addLog('Skipping formula evaluation');
 		}
 
 		return { success: true, workbook };
+	}
+
+	private applyReplaceCharacters(
+		workbook: XLSX.WorkBook,
+		rule: TransformationRule,
+		currentSheet: string | null,
+	): { success: boolean; workbook: XLSX.WorkBook; error?: string } {
+		if (rule.type !== 'REPLACE_CHARACTERS') {
+			throw new RuleValidationError(
+				rule.type,
+				`Invalid rule type for REPLACE_CHARACTERS: ${rule.type}`,
+				{ expectedType: 'REPLACE_CHARACTERS' },
+			);
+		}
+
+		const params = rule.params as {
+			replacements: Array<{
+				find: string;
+				replace: string;
+				scope?: 'all' | 'specific_columns' | 'specific_rows';
+				columns?: string[];
+				rows?: number[];
+			}>;
+		};
+
+		const sheetName = currentSheet || workbook.SheetNames[0];
+		const worksheet = workbook.Sheets[sheetName];
+
+		if (!worksheet) {
+			throw new WorksheetNotFoundError(sheetName, workbook.SheetNames);
+		}
+
+		try {
+			const replacements = params.replacements || [];
+			let totalReplacements = 0;
+
+			replacements.forEach((replacement) => {
+				const { find, replace, scope = 'all', columns, rows } = replacement;
+
+				// Convert column letters to indices
+				const columnIndices = columns?.map((col) => {
+					const colIndex = col.charCodeAt(0) - 65; // A=0, B=1, etc.
+					return colIndex;
+				});
+
+				const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
+
+				for (let row = range.s.r; row <= range.e.r; row++) {
+					// Check if this row should be processed
+					if (scope === 'specific_rows' && rows && !rows.includes(row + 1)) {
+						continue;
+					}
+
+					for (let col = range.s.c; col <= range.e.c; col++) {
+						// Check if this column should be processed
+						if (
+							scope === 'specific_columns' &&
+							columnIndices &&
+							!columnIndices.includes(col)
+						) {
+							continue;
+						}
+
+						const cellAddr = XLSX.utils.encode_cell({ c: col, r: row });
+						const cell = worksheet[cellAddr];
+
+						if (cell && cell.v !== undefined && cell.v !== null) {
+							// Convert cell value to string for replacement
+							const cellStr = String(cell.v);
+							const newValue = cellStr.split(find).join(replace);
+
+							if (cellStr !== newValue) {
+								totalReplacements++;
+
+								// Try to preserve number type if possible
+								const numValue = Number(newValue);
+								if (!isNaN(numValue) && cellStr === String(Number(cellStr))) {
+									cell.v = numValue;
+									cell.t = 'n';
+								} else {
+									cell.v = newValue;
+									cell.t = 's';
+								}
+
+								// Update the worksheet text representation if it exists
+								if (cell.w) {
+									cell.w = newValue;
+								}
+							}
+						}
+					}
+				}
+			});
+
+			if (totalReplacements > 0) {
+				this.addLog(
+					`Replaced characters in ${totalReplacements} cell${totalReplacements !== 1 ? 's' : ''} in worksheet "${sheetName}"`,
+				);
+			}
+
+			return { success: true, workbook };
+		} catch (error) {
+			throw new RuleExecutionError(
+				'REPLACE_CHARACTERS',
+				getErrorMessage(error, 'Failed to replace characters'),
+				undefined,
+				{ sheetName },
+			);
+		}
 	}
 }
