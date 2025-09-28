@@ -618,3 +618,53 @@ export const platformAuditLogsRelations = relations(
 		}),
 	}),
 );
+
+// Webhook delivery tracking (idempotency, retries, DLQ)
+export const webhookDeliveries = pgTable('webhook_delivery', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id)
+		.notNull(),
+	configurationId: text('configuration_id')
+		.references(() => configurations.id)
+		.notNull(),
+	targetUrl: text('target_url').notNull(),
+	webhookUrlId: text('webhook_url_id').references(
+		() => organizationWebhooks.id,
+	),
+	eventType: varchar('event_type', { length: 100 }).notNull(),
+	idempotencyKey: varchar('idempotency_key', { length: 128 })
+		.notNull()
+		.unique(),
+	payload: jsonb('payload').notNull(),
+	payloadHash: varchar('payload_hash', { length: 128 }).notNull(),
+	signature: text('signature'),
+	signedAt: timestamp('signed_at'),
+	status: varchar('status', { length: 20 }).default('pending').notNull(),
+	attempts: integer('attempts').default(0).notNull(),
+	lastAttempt: timestamp('last_attempt'),
+	nextAttempt: timestamp('next_attempt'),
+	responseStatus: integer('response_status'),
+	responseBody: text('response_body'),
+	error: text('error'),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const webhookDeliveriesRelations = relations(
+	webhookDeliveries,
+	({ one }) => ({
+		organization: one(organization, {
+			fields: [webhookDeliveries.organizationId],
+			references: [organization.id],
+		}),
+		configuration: one(configurations, {
+			fields: [webhookDeliveries.configurationId],
+			references: [configurations.id],
+		}),
+		webhookUrl: one(organizationWebhooks, {
+			fields: [webhookDeliveries.webhookUrlId],
+			references: [organizationWebhooks.id],
+		}),
+	}),
+);

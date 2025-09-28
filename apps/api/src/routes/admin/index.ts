@@ -17,6 +17,7 @@ import '../../types/fastify.js';
 import { logError } from '../../utils/logger.js';
 import { adminBillingRoutes } from './billing.js';
 import { adminWorkspaceRoutes } from './workspaces.js';
+import { adminWebhookRoutes } from './webhooks.js';
 
 export async function adminRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
@@ -28,6 +29,10 @@ export async function adminRoutes(fastify: FastifyInstance) {
 
 	fastify.register(adminWorkspaceRoutes, {
 		prefix: '/workspaces',
+	});
+
+	fastify.register(adminWebhookRoutes, {
+		prefix: '/webhooks',
 	});
 
 	fastify.get('/check-access', async (request, reply) => {

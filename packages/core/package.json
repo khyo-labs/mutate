@@ -1,0 +1,49 @@
+{
+	"name": "@mutate/core",
+	"version": "0.0.1",
+	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./errors": {
+			"types": "./dist/errors.d.ts",
+			"import": "./dist/errors.js",
+			"default": "./dist/errors.js"
+		},
+		"./transform": {
+			"types": "./dist/transform/index.d.ts",
+			"import": "./dist/transform/index.js",
+			"default": "./dist/transform/index.js"
+		},
+		"./services": {
+			"types": "./dist/services/index.d.ts",
+			"import": "./dist/services/index.js",
+			"default": "./dist/services/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@effect/platform": "^0.91.1",
+		"@effect/schema": "^0.75.5",
+		"effect": "^3.17.14",
+		"nanoid": "^5.1.5",
+		"xlsx": "^0.18.5"
+	},
+	"devDependencies": {
+		"@types/node": "^20.11.0",
+		"typescript": "^5.3.3"
+	},
+	"peerDependencies": {
+		"xlsx": "^0.18.5"
+	}
+}

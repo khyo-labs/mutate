@@ -164,7 +164,10 @@ function ValidateColumnsForm({
 					type="number"
 					value={rule.params.numOfColumns || 0}
 					onChange={(e) =>
-						onChange({ ...rule.params, numOfColumns: parseInt(e.target.value) || 0 })
+						onChange({
+							...rule.params,
+							numOfColumns: parseInt(e.target.value) || 0,
+						})
 					}
 					min="1"
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
@@ -597,7 +600,12 @@ function CombineWorksheetsForm({
 				</label>
 				<select
 					value={rule.params.operation || 'append'}
-					onChange={(e) => onChange({ ...rule.params, operation: e.target.value as 'append' | 'merge' })}
+					onChange={(e) =>
+						onChange({
+							...rule.params,
+							operation: e.target.value as 'append' | 'merge',
+						})
+					}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
 					<option value="append">Append Rows</option>
@@ -707,7 +715,10 @@ function ReplaceCharactersForm({
 	};
 
 	const addReplacement = () => {
-		const updated = [...replacements, { find: '', replace: '', scope: 'all' as const }];
+		const updated = [
+			...replacements,
+			{ find: '', replace: '', scope: 'all' as const },
+		];
 		setReplacements(updated as typeof replacements);
 		onChange({ replacements: updated as typeof replacements });
 	};

@@ -59,6 +59,8 @@ The API will be available at `http://localhost:3000`
 
 - `GET /v1/health` - Basic health check
 - `GET /v1/health/db` - Database health check
+- `GET /v1/health/redis` - Redis health check
+- `GET /v1/health/queue` - Queue health and job counts
 
 ### Authentication Endpoints
 

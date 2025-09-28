@@ -20,7 +20,8 @@ import { userRoutes } from './routes/user.js';
 import { workspaceRoutes } from './routes/workspaces/index.js';
 import { transformationQueue } from './services/queue.js';
 import './types/fastify.js';
-import './workers/mutation-worker.js';
+import './workers/mutation-worker-effect.js';
+import './workers/webhook-delivery-worker.js';
 
 const fastify = Fastify({
 	logger: {

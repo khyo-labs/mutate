@@ -1,24 +1,49 @@
 {
 	"name": "@mutate/webhook-test",
-	"version": "1.0.0",
-	"description": "Simple webhook receiver for testing Mutate callbacks",
-	"type": "module",
-	"main": "src/server.js",
+	"version": "2.0.0",
+	"private": true,
 	"scripts": {
-		"start": "node src/server.js",
-		"dev": "node --watch src/server.js"
+		"dev": "next dev -p 8085",
+		"build": "next build",
+		"start": "next start -p 8085",
+		"lint": "next lint",
+		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@fastify/cors": "^10.0.1",
-		"dotenv": "^17.2.1",
-		"fastify": "^5.1.0",
-		"pino-pretty": "^13.1.1"
+		"@hookform/resolvers": "^3.9.1",
+		"@radix-ui/react-checkbox": "^1.1.2",
+		"@radix-ui/react-dialog": "^1.1.4",
+		"@radix-ui/react-dropdown-menu": "^2.1.4",
+		"@radix-ui/react-label": "^2.1.1",
+		"@radix-ui/react-scroll-area": "^1.2.2",
+		"@radix-ui/react-select": "^2.1.4",
+		"@radix-ui/react-separator": "^1.1.1",
+		"@radix-ui/react-slot": "^1.1.1",
+		"@radix-ui/react-switch": "^1.1.2",
+		"@radix-ui/react-tabs": "^1.1.3",
+		"@radix-ui/react-toast": "^1.2.4",
+		"@tailwindcss/postcss": "^4.1.13",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"dotenv": "^16.4.5",
+		"lucide-react": "^0.456.0",
+		"next": "15.1.4",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"react-hook-form": "^7.54.2",
+		"tailwind-merge": "^2.6.0",
+		"zod": "^3.24.1",
+		"zustand": "^5.0.2"
 	},
-	"keywords": [
-		"webhook",
-		"testing",
-		"mutate"
-	],
-	"author": "Mutate Team",
-	"license": "MIT"
+	"devDependencies": {
+		"@types/node": "^22.10.7",
+		"@types/react": "^19.0.2",
+		"@types/react-dom": "^19.0.1",
+		"autoprefixer": "^10.4.20",
+		"eslint": "^9.18.0",
+		"eslint-config-next": "15.1.4",
+		"postcss": "^8.5.6",
+		"tailwindcss": "^4.1.13",
+		"typescript": "^5.7.3"
+	}
 }

@@ -11,6 +11,7 @@
 		"api": "pnpm --filter @mutate/api",
 		"web": "pnpm --filter @mutate/web",
 		"marketing": "pnpm --filter @mutate/marketing",
+		"webhook-test": "pnpm --filter @mutate/webhook-test-ui dev",
 		"format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
 		"db:migrate": "pnpm --filter @mutate/api db:migrate",
 		"db:studio": "pnpm --filter @mutate/api db:studio",

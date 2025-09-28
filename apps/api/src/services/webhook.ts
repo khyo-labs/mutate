@@ -1,9 +1,14 @@
-import { createHmac } from 'crypto';
+import { createHash, createHmac } from 'crypto';
 import { and, eq } from 'drizzle-orm';
 
 import { config } from '../config.js';
 import { db } from '../db/connection.js';
-import { configurations, organizationWebhooks } from '../db/schema.js';
+import {
+	configurations,
+	organizationWebhooks,
+	webhookDeliveries,
+} from '../db/schema.js';
+import { webhookDeliveryQueue } from './queue.js';
 
 export interface WebhookPayload {
 	jobId: string;
@@ -38,11 +43,27 @@ class WebhookService {
 	private readonly timeout = config.WEBHOOK_TIMEOUT || 30000; // 30 seconds
 	private readonly secret = config.WEBHOOK_SECRET;
 
+	private sha256(input: string): string {
+		return createHash('sha256').update(input).digest('hex');
+	}
+
+	private buildIdempotencyKey(input: {
+		organizationId: string;
+		configurationId: string;
+		eventType: string;
+		jobId: string;
+		targetUrl: string;
+	}): string {
+		const basis = `${input.organizationId}:${input.configurationId}:${input.eventType}:${input.jobId}:${input.targetUrl}`;
+		return this.sha256(basis);
+	}
+
 	async sendWebhook(
 		url: string,
 		payload: WebhookPayload,
 		secret?: string,
 	): Promise<WebhookDelivery> {
+		// Fallback for legacy direct send (kept for compatibility). Prefer queue path below.
 		const delivery: WebhookDelivery = {
 			id: `wh_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 			url,
@@ -135,12 +156,15 @@ class WebhookService {
 			'X-Webhook-Event': 'transformation.completed',
 		};
 
-		console.log('secret', secret);
-
 		if (secret) {
 			const signature = this.generateSignature(body, secret);
 			headers['x-mutate-signature'] = `sha256=${signature}`;
 		}
+
+		// New hardening headers (timestamp + id)
+		const ts = Math.floor(Date.now() / 1000).toString();
+		headers['X-Mutate-Timestamp'] = ts;
+		headers['X-Mutate-Id'] = payload.jobId; // stable per event
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.timeout);
@@ -238,7 +262,51 @@ class WebhookService {
 				const validation =
 					WebhookService.validateWebhookUrl(transformCallbackUrl);
 				if (validation.valid) {
-					return await this.sendWebhook(transformCallbackUrl, payload, secret);
+					// Enqueue delivery for async processing
+					const idempotencyKey = this.buildIdempotencyKey({
+						organizationId,
+						configurationId,
+						eventType: 'transformation.completed',
+						jobId: payload.jobId,
+						targetUrl: transformCallbackUrl,
+					});
+
+					const body = payload;
+					const payloadHash = this.sha256(JSON.stringify(body));
+					const id = `wh_${Date.now()}_${Math.random()
+						.toString(36)
+						.slice(2, 10)}`;
+
+					await db
+						.insert(webhookDeliveries)
+						.values({
+							id,
+							organizationId,
+							configurationId,
+							targetUrl: transformCallbackUrl,
+							webhookUrlId: configuration?.webhookUrlId ?? null,
+							eventType: 'transformation.completed',
+							idempotencyKey,
+							payload: body,
+							payloadHash,
+							status: 'pending',
+							attempts: 0,
+						})
+						.onConflictDoNothing();
+
+					await webhookDeliveryQueue.add(
+						'deliver-webhook',
+						{ deliveryId: id },
+						{ jobId: id },
+					);
+
+					return {
+						id,
+						url: transformCallbackUrl,
+						payload,
+						status: 'pending',
+						attempts: 0,
+					};
 				} else {
 					console.error(`Invalid transform callback URL: ${validation.error}`);
 				}
@@ -259,11 +327,50 @@ class WebhookService {
 						.set({ lastUsedAt: new Date() })
 						.where(eq(organizationWebhooks.id, configuration.webhookUrl.id));
 
-					return await this.sendWebhook(
-						configuration.webhookUrl.url,
-						payload,
-						configuration.webhookUrl.secret || undefined,
+					const idempotencyKey = this.buildIdempotencyKey({
+						organizationId,
+						configurationId,
+						eventType: 'transformation.completed',
+						jobId: payload.jobId,
+						targetUrl: configuration.webhookUrl.url,
+					});
+
+					const body = payload;
+					const payloadHash = this.sha256(JSON.stringify(body));
+					const id = `wh_${Date.now()}_${Math.random()
+						.toString(36)
+						.slice(2, 10)}`;
+
+					await db
+						.insert(webhookDeliveries)
+						.values({
+							id,
+							organizationId,
+							configurationId,
+							targetUrl: configuration.webhookUrl.url,
+							webhookUrlId: configuration.webhookUrl.id,
+							eventType: 'transformation.completed',
+							idempotencyKey,
+							payload: body,
+							payloadHash,
+							status: 'pending',
+							attempts: 0,
+						})
+						.onConflictDoNothing();
+
+					await webhookDeliveryQueue.add(
+						'deliver-webhook',
+						{ deliveryId: id },
+						{ jobId: id },
 					);
+
+					return {
+						id,
+						url: configuration.webhookUrl.url,
+						payload,
+						status: 'pending',
+						attempts: 0,
+					};
 				} else {
 					console.error(
 						`Invalid configuration webhook URL: ${validation.error}`,
@@ -280,11 +387,50 @@ class WebhookService {
 					configuration.callbackUrl,
 				);
 				if (validation.valid) {
-					return await this.sendWebhook(
-						configuration.callbackUrl,
-						payload,
-						secret,
+					const idempotencyKey = this.buildIdempotencyKey({
+						organizationId,
+						configurationId,
+						eventType: 'transformation.completed',
+						jobId: payload.jobId,
+						targetUrl: configuration.callbackUrl,
+					});
+
+					const body = payload;
+					const payloadHash = this.sha256(JSON.stringify(body));
+					const id = `wh_${Date.now()}_${Math.random()
+						.toString(36)
+						.slice(2, 10)}`;
+
+					await db
+						.insert(webhookDeliveries)
+						.values({
+							id,
+							organizationId,
+							configurationId,
+							targetUrl: configuration.callbackUrl,
+							webhookUrlId: configuration?.webhookUrlId ?? null,
+							eventType: 'transformation.completed',
+							idempotencyKey,
+							payload: body,
+							payloadHash,
+							status: 'pending',
+							attempts: 0,
+						})
+						.onConflictDoNothing();
+
+					await webhookDeliveryQueue.add(
+						'deliver-webhook',
+						{ deliveryId: id },
+						{ jobId: id },
 					);
+
+					return {
+						id,
+						url: configuration.callbackUrl,
+						payload,
+						status: 'pending',
+						attempts: 0,
+					};
 				} else {
 					console.error(
 						`Invalid configuration callback URL: ${validation.error}`,

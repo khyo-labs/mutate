@@ -23,7 +23,7 @@ export interface TransformationJobData {
 }
 
 // Internal queue data (Buffer converted to string for serialization)
-interface QueueJobData {
+export interface QueueJobData {
 	jobId: string;
 	organizationId: string;
 	configurationId: string;
@@ -45,9 +45,25 @@ export interface JobResult {
 	fileSize?: number;
 }
 
+// Webhook delivery job
+export interface WebhookDeliveryJobData {
+	deliveryId: string;
+}
+
 // Create Redis connection
+// Upstash URLs start with 'rediss://' and require TLS
+const isUpstash = config.REDIS_URL.startsWith('rediss://');
+const upstashOptions = isUpstash
+	? {
+			enableReadyCheck: false,
+			tls: {},
+			family: 6, // Force IPv6 for better Upstash compatibility
+		}
+	: {};
+
 const redis = new IORedis(config.REDIS_URL, {
 	maxRetriesPerRequest: 3,
+	...upstashOptions,
 });
 
 // Create transformation queue
@@ -72,6 +88,40 @@ export const transformationQueue = new Queue<QueueJobData>(
 		settings: {
 			stalledInterval: 30 * 1000, // 30 seconds
 			retryProcessDelay: 5 * 1000, // 5 seconds
+		},
+	},
+);
+
+// Webhook delivery queue and DLQ
+export const webhookDeliveryQueue = new Queue<WebhookDeliveryJobData>(
+	'webhook-delivery',
+	{
+		redis: {
+			port: redis.options.port || 6379,
+			host: redis.options.host || 'localhost',
+			password: redis.options.password,
+			db: redis.options.db || 0,
+		},
+		defaultJobOptions: {
+			removeOnComplete: 200,
+			removeOnFail: 100,
+			attempts: config.WEBHOOK_MAX_RETRIES ?? 5,
+			backoff: { type: 'exponential', delay: 1000 },
+		},
+	},
+);
+
+export const webhookDeadLetterQueue = new Queue<WebhookDeliveryJobData>(
+	'webhook-dead-letter',
+	{
+		redis: {
+			port: redis.options.port || 6379,
+			host: redis.options.host || 'localhost',
+			password: redis.options.password,
+			db: redis.options.db || 0,
+		},
+		defaultJobOptions: {
+			removeOnComplete: 500,
 		},
 	},
 );

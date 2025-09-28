@@ -1,0 +1,70 @@
+@import 'tailwindcss';
+
+@theme {
+	--color-background: oklch(100% 0 0);
+	--color-foreground: oklch(9.61% 0.071 260.53);
+	--color-card: oklch(100% 0 0);
+	--color-card-foreground: oklch(9.61% 0.071 260.53);
+	--color-popover: oklch(100% 0 0);
+	--color-popover-foreground: oklch(9.61% 0.071 260.53);
+	--color-primary: oklch(21.16% 0.056 260.53);
+	--color-primary-foreground: oklch(98% 0.005 247.32);
+	--color-secondary: oklch(96.1% 0.005 247.32);
+	--color-secondary-foreground: oklch(21.16% 0.056 260.53);
+	--color-muted: oklch(96.1% 0.005 247.32);
+	--color-muted-foreground: oklch(51.88% 0.022 257.7);
+	--color-accent: oklch(96.1% 0.005 247.32);
+	--color-accent-foreground: oklch(21.16% 0.056 260.53);
+	--color-destructive: oklch(62.8% 0.257 29.23);
+	--color-destructive-foreground: oklch(98% 0.005 247.32);
+	--color-border: oklch(91.4% 0.01 256.76);
+	--color-input: oklch(91.4% 0.01 256.76);
+	--color-ring: oklch(9.61% 0.071 260.53);
+
+	--radius-sm: calc(0.5rem - 4px);
+	--radius-md: calc(0.5rem - 2px);
+	--radius-lg: 0.5rem;
+
+	--animate-accordion-down: accordion-down 0.2s ease-out;
+	--animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+@keyframes accordion-down {
+	from {
+		height: 0;
+	}
+	to {
+		height: var(--radix-accordion-content-height);
+	}
+}
+
+@keyframes accordion-up {
+	from {
+		height: var(--radix-accordion-content-height);
+	}
+	to {
+		height: 0;
+	}
+}
+
+.dark {
+	--color-background: oklch(9.61% 0.071 260.53);
+	--color-foreground: oklch(98% 0.005 247.32);
+	--color-card: oklch(9.61% 0.071 260.53);
+	--color-card-foreground: oklch(98% 0.005 247.32);
+	--color-popover: oklch(9.61% 0.071 260.53);
+	--color-popover-foreground: oklch(98% 0.005 247.32);
+	--color-primary: oklch(98% 0.005 247.32);
+	--color-primary-foreground: oklch(21.16% 0.056 260.53);
+	--color-secondary: oklch(25.87% 0.04 257.39);
+	--color-secondary-foreground: oklch(98% 0.005 247.32);
+	--color-muted: oklch(25.87% 0.04 257.39);
+	--color-muted-foreground: oklch(65.08% 0.018 256.39);
+	--color-accent: oklch(25.87% 0.04 257.39);
+	--color-accent-foreground: oklch(98% 0.005 247.32);
+	--color-destructive: oklch(39.53% 0.163 29.23);
+	--color-destructive-foreground: oklch(98% 0.005 247.32);
+	--color-border: oklch(25.87% 0.04 257.39);
+	--color-input: oklch(25.87% 0.04 257.39);
+	--color-ring: oklch(83.91% 0.016 254.36);
+}

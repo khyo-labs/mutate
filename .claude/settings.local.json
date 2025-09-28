@@ -17,7 +17,15 @@
       "Bash(pnpm --filter @mutate/api typecheck)",
       "Bash(pnpm web add:*)",
       "WebSearch",
-      "mcp__shadcn__get_add_command_for_items"
+      "mcp__shadcn__get_add_command_for_items",
+      "Bash(pnpm view:*)",
+      "Bash(pnpm --filter @mutate/api add effect @effect/platform @effect/platform-node @mutate/core@workspace:packages/core)",
+      "Bash(pnpm --filter @mutate/api add effect @effect/platform @effect/platform-node @mutate/core@workspace:*)",
+      "Bash(pnpm:*)",
+      "Read(//Users/alanhoskins/workspace/projects/**)",
+      "Bash(curl:*)",
+      "mcp__shadcn__list_items_in_registries",
+      "mcp__shadcn__view_items_in_registries"
     ],
     "deny": [],
     "ask": []

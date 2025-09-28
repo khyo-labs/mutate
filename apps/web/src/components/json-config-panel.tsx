@@ -128,7 +128,10 @@ export function JsonConfigPanel({
 				outputFormat: {
 					type: 'CSV',
 					delimiter: (outputFormatObj.delimiter as string) || ',',
-					encoding: ((outputFormatObj.encoding as string) || 'UTF-8') as 'UTF-8' | 'UTF-16' | 'ASCII',
+					encoding: ((outputFormatObj.encoding as string) || 'UTF-8') as
+						| 'UTF-8'
+						| 'UTF-16'
+						| 'ASCII',
 					includeHeaders: outputFormatObj.includeHeaders !== false,
 				},
 			};

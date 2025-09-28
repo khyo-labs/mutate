@@ -61,22 +61,6 @@ services:
     networks:
       - mutate_network
 
-  # Adminer - Database management tool
-  adminer:
-    image: adminer:latest
-    container_name: mutate_adminer
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      ADMINER_DEFAULT_SERVER: postgres
-      ADMINER_DESIGN: lucas
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - mutate_network
-
 volumes:
   postgres_data:
     name: mutate_postgres_data
