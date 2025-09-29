@@ -3,7 +3,7 @@
 		"target": "ES2022",
 		"module": "ESNext",
 		"lib": ["ES2022"],
-		"moduleResolution": "bundler",
+		"moduleResolution": "node",
 		"declaration": true,
 		"declarationMap": true,
 		"sourceMap": true,
@@ -24,6 +24,6 @@
 		"exactOptionalPropertyTypes": true,
 		"types": ["node"]
 	},
-	"include": ["src/**/*"],
+	"include": ["src", "src/**/*"],
 	"exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
