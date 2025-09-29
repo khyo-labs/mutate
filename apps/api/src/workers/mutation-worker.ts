@@ -252,34 +252,34 @@ class MutationWorker {
 				downloadUrl ? new Date(Date.now() + config.FILE_TTL * 1000) : undefined,
 			);
 
-            const delivery = await webhookService.sendWebhookWithPriority(
-                jobData.organizationId,
-                jobData.configurationId,
-                payload,
-                jobData.callbackUrl, // Transform request callback URL (highest priority)
-            );
+			const delivery = await webhookService.sendWebhookWithPriority(
+				jobData.organizationId,
+				jobData.configurationId,
+				payload,
+				jobData.callbackUrl, // Transform request callback URL (highest priority)
+			);
 
-            if (delivery?.status === 'success') {
-                await db
-                    .update(transformationJobs)
-                    .set({ webhookDelivered: true })
-                    .where(eq(transformationJobs.id, jobData.jobId));
+			if (delivery?.status === 'success') {
+				await db
+					.update(transformationJobs)
+					.set({ webhookDelivered: true })
+					.where(eq(transformationJobs.id, jobData.jobId));
 
-                console.log(`Webhook delivered successfully for job ${jobData.jobId}`);
-            } else if (delivery?.status === 'pending') {
-                console.log(
-                    `Webhook queued for asynchronous delivery for job ${jobData.jobId}`,
-                );
-            } else if (delivery?.status === 'failed') {
-                console.error(
-                    `Webhook delivery failed for job ${jobData.jobId}:`,
-                    delivery.error,
-                );
-            } else {
-                console.log(
-                    `No webhook configured for organization ${jobData.organizationId}, job ${jobData.jobId}`,
-                );
-            }
+				console.log(`Webhook delivered successfully for job ${jobData.jobId}`);
+			} else if (delivery?.status === 'pending') {
+				console.log(
+					`Webhook queued for asynchronous delivery for job ${jobData.jobId}`,
+				);
+			} else if (delivery?.status === 'failed') {
+				console.error(
+					`Webhook delivery failed for job ${jobData.jobId}:`,
+					delivery.error,
+				);
+			} else {
+				console.log(
+					`No webhook configured for organization ${jobData.organizationId}, job ${jobData.jobId}`,
+				);
+			}
 		} catch (error) {
 			console.error(`Failed to send webhook for job ${jobData.jobId}:`, error);
 		}

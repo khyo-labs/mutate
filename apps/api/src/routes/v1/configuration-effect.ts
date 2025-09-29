@@ -1,4 +1,4 @@
-import { DatabaseService, type Configuration } from '@mutate/core';
+import { type Configuration, DatabaseService } from '@mutate/core';
 import { eq, ilike } from 'drizzle-orm';
 import { Effect } from 'effect';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -281,9 +281,7 @@ export default async function configurationEffectRoutes(
 						.getConfiguration(configurationId)
 						.pipe(
 							Effect.filterOrFail(
-								(
-									config,
-								): config is Configuration =>
+								(config): config is Configuration =>
 									config.organizationId === organizationId,
 								() => ({
 									code: 'NOT_FOUND',
@@ -365,9 +363,7 @@ export default async function configurationEffectRoutes(
 						.getConfiguration(configurationId)
 						.pipe(
 							Effect.filterOrFail(
-								(
-									config,
-								): config is Configuration =>
+								(config): config is Configuration =>
 									config.organizationId === organizationId,
 								() => ({
 									code: 'NOT_FOUND',
@@ -455,9 +451,7 @@ export default async function configurationEffectRoutes(
 					// Check configuration exists and belongs to organization
 					yield* database.getConfiguration(configurationId).pipe(
 						Effect.filterOrFail(
-							(
-								config,
-							): config is Configuration =>
+							(config): config is Configuration =>
 								config.organizationId === organizationId,
 							() => ({
 								code: 'NOT_FOUND',

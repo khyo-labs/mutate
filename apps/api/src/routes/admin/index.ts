@@ -16,8 +16,8 @@ import { adminService } from '../../services/admin/index.js';
 import '../../types/fastify.js';
 import { logError } from '../../utils/logger.js';
 import { adminBillingRoutes } from './billing.js';
-import { adminWorkspaceRoutes } from './workspaces.js';
 import { adminWebhookRoutes } from './webhooks.js';
+import { adminWorkspaceRoutes } from './workspaces.js';
 
 export async function adminRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);

@@ -87,8 +87,9 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 		const transformResult = yield* transformBuffer(fileBuffer, config).pipe(
 			Effect.tapError((error: unknown) =>
 				database.updateJobStatus(jobId, 'failed', {
-					error:
-						isTransformError(error) ? error.reason : 'Transformation failed',
+					error: isTransformError(error)
+						? error.reason
+						: 'Transformation failed',
 					completedAt: new Date(),
 					executionLog: [],
 				}),
