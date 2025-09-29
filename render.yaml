@@ -15,6 +15,7 @@ services:
         description: Allow from anywhere
 
   # API Service (Free tier: 512MB RAM, 0.1 CPU, sleeps after 15min)
+  # Build uses pnpm for monorepo support
   - type: web
     name: mutate-api
     env: node
