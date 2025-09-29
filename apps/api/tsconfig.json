@@ -4,10 +4,6 @@
 		"module": "ESNext",
 		"moduleResolution": "node",
 		"baseUrl": ".",
-		"paths": {
-			"@mutate/core": ["../../packages/core/src/index.ts"],
-			"@mutate/core/*": ["../../packages/core/src/*"]
-		},
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
