@@ -1,12 +1,12 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { adminWorkspaceRoutes } from './workspaces.js';
+import { adminWorkspaceRoutes } from '../workspaces.js';
 
-vi.mock('../../middleware/auth.js', () => ({
+vi.mock('../../../middleware/auth.js', () => ({
 	requireAdmin: vi.fn(async () => {}),
 }));
-vi.mock('../../db/connection.js', () => ({
+vi.mock('../../../db/connection.js', () => ({
 	db: {
 		select: () => ({
 			from: () => ({

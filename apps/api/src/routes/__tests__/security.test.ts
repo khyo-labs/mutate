@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import { describe, expect, it } from 'vitest';
 
-import { securityRoutes } from './security.js';
+import { securityRoutes } from '../security.js';
 
 describe('securityRoutes', () => {
 	it('requires authentication to view backup codes', async () => {

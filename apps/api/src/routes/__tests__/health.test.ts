@@ -2,14 +2,14 @@ import Fastify from 'fastify';
 import type { Mock } from 'vitest';
 import { describe, expect, it, vi } from 'vitest';
 
-import { db } from '../db/connection.js';
-import { healthRoutes } from './health.js';
+import { db } from '../../db/connection.js';
+import { healthRoutes } from '../health.js';
 
-vi.mock('../db/connection.js', () => ({
+vi.mock('../../db/connection.js', () => ({
 	db: { select: vi.fn() },
 }));
 
-vi.mock('../services/queue.js', () => ({
+vi.mock('../../services/queue.js', () => ({
 	redis: { ping: vi.fn().mockResolvedValue('PONG') },
 	transformationQueue: {
 		getJobCounts: vi.fn().mockResolvedValue({
@@ -96,7 +96,7 @@ describe('healthRoutes', () => {
 	});
 
 	it('handles redis connection failures', async () => {
-		const { redis } = await import('../services/queue.js');
+		const { redis } = await import('../../services/queue.js');
 		(redis.ping as unknown as Mock).mockRejectedValueOnce(
 			new Error('redis down'),
 		);
@@ -128,7 +128,7 @@ describe('healthRoutes', () => {
 			delayed: 0,
 			paused: 0,
 		};
-		const { transformationQueue } = await import('../services/queue.js');
+		const { transformationQueue } = await import('../../services/queue.js');
 		(transformationQueue.getJobCounts as unknown as Mock).mockResolvedValueOnce(
 			counts,
 		);
@@ -153,7 +153,7 @@ describe('healthRoutes', () => {
 	});
 
 	it('handles queue failures', async () => {
-		const { transformationQueue } = await import('../services/queue.js');
+		const { transformationQueue } = await import('../../services/queue.js');
 		(transformationQueue.getJobCounts as unknown as Mock).mockRejectedValueOnce(
 			new Error('queue error'),
 		);

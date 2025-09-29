@@ -1,15 +1,15 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { webhookRoutes } from './webhooks.js';
+import { webhookRoutes } from '../webhooks.js';
 
-vi.mock('../../middleware/workspace-access.js', () => ({
+vi.mock('../../../middleware/workspace-access.js', () => ({
 	validateWorkspaceAccess: vi.fn(async (req) => {
 		(req as any).workspace = { id: 'ws1' };
 	}),
 }));
 
-vi.mock('../../services/webhook.js', () => ({
+vi.mock('../../../services/webhook.js', () => ({
 	WebhookService: {
 		validateWebhookUrl: vi.fn(() => ({ valid: false, error: 'invalid' })),
 	},

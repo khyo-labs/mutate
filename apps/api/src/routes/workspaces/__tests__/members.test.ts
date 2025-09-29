@@ -1,20 +1,20 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { auth } from '../../lib/auth.js';
-import { memberRoutes } from './members.js';
+import { auth } from '../../../lib/auth.js';
+import { memberRoutes } from '../members.js';
 
-vi.mock('../../middleware/workspace-access.js', () => ({
+vi.mock('../../../middleware/workspace-access.js', () => ({
 	validateWorkspaceAccess: vi.fn(async (req) => {
 		(req as any).workspace = { id: 'ws1', name: 'WS' };
 	}),
 }));
 
-vi.mock('../../middleware/workspace-admin.js', () => ({
+vi.mock('../../../middleware/workspace-admin.js', () => ({
 	validateWorkspaceAdmin: vi.fn(async () => {}),
 }));
 
-vi.mock('../../lib/auth.js', () => ({
+vi.mock('../../../lib/auth.js', () => ({
 	auth: {
 		api: {
 			listMembers: vi.fn().mockResolvedValue({ members: [] }),

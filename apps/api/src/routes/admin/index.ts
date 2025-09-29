@@ -16,6 +16,7 @@ import { adminService } from '../../services/admin/index.js';
 import '../../types/fastify.js';
 import { logError } from '../../utils/logger.js';
 import { adminBillingRoutes } from './billing.js';
+import { adminHealthRoutes } from './health.js';
 import { adminWebhookRoutes } from './webhooks.js';
 import { adminWorkspaceRoutes } from './workspaces.js';
 
@@ -29,6 +30,10 @@ export async function adminRoutes(fastify: FastifyInstance) {
 
 	fastify.register(adminWorkspaceRoutes, {
 		prefix: '/workspaces',
+	});
+
+	fastify.register(adminHealthRoutes, {
+		prefix: '/health',
 	});
 
 	fastify.register(adminWebhookRoutes, {

@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { adminWebhookRoutes } from './webhooks.js';
+import { adminWebhookRoutes } from '../webhooks.js';
 
 const makeSelectChain = (result: unknown[]) => ({
 	from: vi.fn().mockReturnThis(),
@@ -11,7 +11,7 @@ const makeSelectChain = (result: unknown[]) => ({
 	offset: vi.fn().mockResolvedValue(result),
 });
 
-vi.mock('../../db/connection.js', () => {
+vi.mock('../../../db/connection.js', () => {
 	const selectMock = vi.fn();
 	const findFirstMock = vi.fn();
 	const db = {
@@ -28,12 +28,12 @@ vi.mock('../../db/connection.js', () => {
 	return { db, findFirstMock };
 });
 
-vi.mock('../../services/queue.js', () => ({
+vi.mock('../../../services/queue.js', () => ({
 	webhookDeliveryQueue: { add: vi.fn().mockResolvedValue(undefined) },
 }));
 
-const { db, findFirstMock } = await import('../../db/connection.js');
-const { webhookDeliveryQueue } = await import('../../services/queue.js');
+const { db, findFirstMock } = await import('../../../db/connection.js');
+const { webhookDeliveryQueue } = await import('../../../services/queue.js');
 
 describe('adminWebhookRoutes', () => {
 	beforeEach(() => {

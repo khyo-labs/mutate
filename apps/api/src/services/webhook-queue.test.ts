@@ -17,12 +17,10 @@ vi.mock('../db/connection.js', () => {
 					}),
 				},
 			},
-			insert: vi
-				.fn()
-				.mockReturnValue({
-					values: vi.fn().mockReturnThis(),
-					onConflictDoNothing: vi.fn(),
-				}),
+			insert: vi.fn().mockReturnValue({
+				values: vi.fn().mockReturnThis(),
+				onConflictDoNothing: vi.fn(),
+			}),
 		},
 	};
 });

@@ -1,12 +1,12 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { adminBillingRoutes } from './billing.js';
+import { adminBillingRoutes } from '../billing.js';
 
-vi.mock('../../middleware/auth.js', () => ({
+vi.mock('../../../middleware/auth.js', () => ({
 	requireAdmin: vi.fn(async () => {}),
 }));
-vi.mock('../../services/billing/index.js', () => {
+vi.mock('../../../services/billing/index.js', () => {
 	class SubscriptionService {
 		getAllPlans = vi.fn().mockResolvedValue([{ id: 'p1' }]);
 	}

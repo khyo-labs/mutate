@@ -1,29 +1,26 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { configRoutes } from './configuration.js';
+import { apiKeyRoutes } from '../api-keys.js';
 
-vi.mock('../../middleware/workspace-access.js', () => ({
+vi.mock('../../../middleware/workspace-access.js', () => ({
 	validateWorkspaceAccess: vi.fn(async (req) => {
 		(req as any).workspace = { id: 'ws1' };
 	}),
 }));
 
-vi.mock('../../middleware/auth.js', () => ({
+vi.mock('../../../middleware/auth.js', () => ({
 	requireRole: () => vi.fn(async () => {}),
 }));
 
-describe('configRoutes', () => {
-	it('validates create request', async () => {
+describe('apiKeyRoutes', () => {
+	it('validates create payload', async () => {
 		const app = Fastify();
 		app.decorate('authenticate', async () => {});
-		await app.register(configRoutes, { prefix: '/config' });
+		app.decorate('requireVerifiedEmail', async () => {});
+		await app.register(apiKeyRoutes, { prefix: '/keys' });
 
-		const res = await app.inject({
-			method: 'POST',
-			url: '/config',
-			payload: {},
-		});
+		const res = await app.inject({ method: 'POST', url: '/keys', payload: {} });
 		const body = JSON.parse(res.payload);
 
 		expect(res.statusCode).toBe(400);

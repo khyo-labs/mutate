@@ -1,9 +1,9 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { mutateRoutes } from './mutate.js';
+import { mutateRoutes } from '../mutate.js';
 
-vi.mock('../services/queue.js', () => ({ QueueService: class {} }));
+vi.mock('../../services/queue.js', () => ({ QueueService: class {} }));
 
 describe('mutateRoutes', () => {
 	it('requires file upload', async () => {

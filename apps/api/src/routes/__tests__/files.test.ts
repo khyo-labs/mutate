@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { fileRoutes } from './files.js';
+import { fileRoutes } from '../files.js';
 
 vi.mock('fs/promises', () => ({
 	access: vi.fn().mockRejectedValue(new Error('missing')),

@@ -1,9 +1,9 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { billingRoutes } from './billing.js';
+import { billingRoutes } from '../billing.js';
 
-vi.mock('../services/billing/index.js', () => {
+vi.mock('../../services/billing/index.js', () => {
 	class SubscriptionService {
 		getAllPlans = vi.fn().mockResolvedValue([{ id: 'plan1' }]);
 	}

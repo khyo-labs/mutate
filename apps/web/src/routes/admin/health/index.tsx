@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { SuccessResponse } from '@/types';
 
 export const Route = createFileRoute('/admin/health/')({
 	component: SystemHealthMonitoring,
@@ -117,10 +118,13 @@ function SystemHealthMonitoring() {
 		}
 	}, [autoRefresh, refreshInterval]);
 
+	// Fetch server-composed system health
 	async function fetchSystemHealth() {
 		try {
-			const healthData = await api.get<SystemHealth>('/v1/admin/health/status');
-			setHealth(healthData);
+			const res = await api.get<SuccessResponse<SystemHealth>>(
+				'/v1/admin/health/status',
+			);
+			setHealth(res.data);
 		} catch (error) {
 			console.error('Failed to fetch system health:', error);
 			toast.error('Failed to load system health');
@@ -131,12 +135,12 @@ function SystemHealthMonitoring() {
 
 	async function fetchMetricHistory() {
 		try {
-			const data = await api.get<{ metrics: MetricHistory[] }>(
+			const res = await api.get<SuccessResponse<{ metrics: MetricHistory[] }>>(
 				'/v1/admin/health/metrics?period=1h',
 			);
-			setMetricHistory(data.metrics);
-		} catch (error) {
-			console.error('Failed to fetch metric history:', error);
+			setMetricHistory(res.data.metrics);
+		} catch {
+			setMetricHistory([]);
 		}
 	}
 
@@ -145,7 +149,7 @@ function SystemHealthMonitoring() {
 			await api.post(`/v1/admin/health/alerts/${alertId}/acknowledge`);
 			toast.success('Alert acknowledged');
 			fetchSystemHealth();
-		} catch (error) {
+		} catch {
 			toast.error('Failed to acknowledge alert');
 		}
 	}

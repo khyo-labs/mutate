@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import { describe, expect, it } from 'vitest';
 
-import { userRoutes } from './user.js';
+import { userRoutes } from '../user.js';
 
 describe('userRoutes', () => {
 	it('requires authentication for /me', async () => {

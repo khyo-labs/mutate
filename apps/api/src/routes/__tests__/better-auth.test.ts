@@ -1,10 +1,10 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { auth } from '../lib/auth.js';
-import { betterAuthRoutes } from './better-auth.js';
+import { auth } from '../../lib/auth.js';
+import { betterAuthRoutes } from '../better-auth.js';
 
-vi.mock('../lib/auth.js', () => ({
+vi.mock('../../lib/auth.js', () => ({
 	auth: {
 		handler: vi.fn(),
 	},

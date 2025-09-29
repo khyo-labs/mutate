@@ -1,10 +1,10 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { auth } from '../lib/auth.js';
-import { authRoutes } from './auth.js';
+import { auth } from '../../lib/auth.js';
+import { authRoutes } from '../auth.js';
 
-vi.mock('../lib/auth.js', () => ({
+vi.mock('../../lib/auth.js', () => ({
 	auth: {
 		api: {
 			getSession: vi.fn(),

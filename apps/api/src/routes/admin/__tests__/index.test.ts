@@ -1,11 +1,11 @@
 import Fastify from 'fastify';
 import { describe, expect, it, vi } from 'vitest';
 
-import { adminRoutes } from './index.js';
+import { adminRoutes } from '../index.js';
 
-vi.mock('./billing.js', () => ({ adminBillingRoutes: async () => {} }));
-vi.mock('./workspaces.js', () => ({ adminWorkspaceRoutes: async () => {} }));
-vi.mock('../../middleware/auth.js', () => ({
+vi.mock('../billing.js', () => ({ adminBillingRoutes: async () => {} }));
+vi.mock('../workspaces.js', () => ({ adminWorkspaceRoutes: async () => {} }));
+vi.mock('../../../middleware/auth.js', () => ({
 	requireAdmin: vi.fn(async () => {}),
 }));
 
