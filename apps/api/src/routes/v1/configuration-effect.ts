@@ -1,10 +1,10 @@
-import { DatabaseService } from '@mutate/core';
-import { and, count, desc, eq, ilike } from 'drizzle-orm';
-import { Effect, pipe } from 'effect';
+import { DatabaseService, type Configuration } from '@mutate/core';
+import { eq, ilike } from 'drizzle-orm';
+import { Effect } from 'effect';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { ulid } from 'ulid';
 
-import { configurationVersions, configurations } from '../../db/schema.js';
+import { configurations } from '../../db/schema.js';
 import { effectHandler } from '../../effect/adapters/fastify.js';
 import { requireRole } from '../../middleware/auth.js';
 import { validateWorkspaceAccess } from '../../middleware/workspace-access.js';
@@ -281,7 +281,10 @@ export default async function configurationEffectRoutes(
 						.getConfiguration(configurationId)
 						.pipe(
 							Effect.filterOrFail(
-								(config) => config.organizationId === organizationId,
+								(
+									config,
+								): config is Configuration =>
+									config.organizationId === organizationId,
 								() => ({
 									code: 'NOT_FOUND',
 									message: 'Configuration not found',
@@ -362,7 +365,10 @@ export default async function configurationEffectRoutes(
 						.getConfiguration(configurationId)
 						.pipe(
 							Effect.filterOrFail(
-								(config) => config.organizationId === organizationId,
+								(
+									config,
+								): config is Configuration =>
+									config.organizationId === organizationId,
 								() => ({
 									code: 'NOT_FOUND',
 									message: 'Configuration not found',
@@ -449,7 +455,10 @@ export default async function configurationEffectRoutes(
 					// Check configuration exists and belongs to organization
 					yield* database.getConfiguration(configurationId).pipe(
 						Effect.filterOrFail(
-							(config) => config.organizationId === organizationId,
+							(
+								config,
+							): config is Configuration =>
+								config.organizationId === organizationId,
 							() => ({
 								code: 'NOT_FOUND',
 								message: 'Configuration not found',

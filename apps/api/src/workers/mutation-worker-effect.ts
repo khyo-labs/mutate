@@ -18,6 +18,9 @@ import {
 import { runtime } from '../effect/runtime.js';
 import { type QueueJobData, transformationQueue } from '../services/queue.js';
 
+const isTransformError = (error: unknown): error is TransformError =>
+	error instanceof TransformError;
+
 /**
  * Process a mutation job using Effect
  */
@@ -82,12 +85,10 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 
 		// Transform the file
 		const transformResult = yield* transformBuffer(fileBuffer, config).pipe(
-			Effect.tapError((error) =>
+			Effect.tapError((error: unknown) =>
 				database.updateJobStatus(jobId, 'failed', {
 					error:
-						error instanceof TransformError
-							? error.reason
-							: 'Transformation failed',
+						isTransformError(error) ? error.reason : 'Transformation failed',
 					completedAt: new Date(),
 					executionLog: [],
 				}),
@@ -191,7 +192,7 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 		};
 	}).pipe(
 		Effect.timeout(Duration.minutes(5)),
-		Effect.catchAll((error) => {
+		Effect.catchAll((error: unknown) => {
 			// Capture variables in closure scope
 			const errorJobId = data.jobId;
 			const errorOrgId = data.organizationId;

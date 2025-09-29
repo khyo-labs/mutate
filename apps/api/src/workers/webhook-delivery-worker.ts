@@ -23,6 +23,16 @@ import {
 const MAX_RETRIES = config.WEBHOOK_MAX_RETRIES || 5;
 const TIMEOUT_MS = config.WEBHOOK_TIMEOUT || 30000;
 
+const isSuccessfulDelivery = (
+	result: unknown,
+): result is { delivered: true; status: number } =>
+	typeof result === 'object' &&
+	result !== null &&
+	'delivered' in result &&
+	'status' in result &&
+	(result as { delivered?: unknown }).delivered === true &&
+	typeof (result as { status?: unknown }).status === 'number';
+
 /**
  * Process a webhook delivery job using Effect
  */
@@ -98,6 +108,10 @@ const processWebhookDelivery = (data: WebhookDeliveryJobData, job: any) =>
 			Effect.timeout(Duration.millis(TIMEOUT_MS)),
 			Effect.tap((result) =>
 				Effect.gen(function* () {
+					if (!isSuccessfulDelivery(result)) {
+						return;
+					}
+
 					// Success! Update delivery status
 					yield* Effect.tryPromise({
 						try: () =>
@@ -130,7 +144,7 @@ const processWebhookDelivery = (data: WebhookDeliveryJobData, job: any) =>
 					);
 				}),
 			),
-			Effect.catchAll((error) =>
+			Effect.catchAll((error: unknown) =>
 				Effect.gen(function* () {
 					const errorMessage =
 						error instanceof Error ? error.message : 'Unknown error';

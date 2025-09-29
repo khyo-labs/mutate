@@ -3,6 +3,11 @@
 		"target": "ES2022",
 		"module": "ESNext",
 		"moduleResolution": "node",
+		"baseUrl": ".",
+		"paths": {
+			"@mutate/core": ["../../packages/core/src/index.ts"],
+			"@mutate/core/*": ["../../packages/core/src/*"]
+		},
 		"strict": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
@@ -10,6 +15,7 @@
 		"declaration": false,
 		"outDir": "./dist",
 		"rootDir": "./src",
+		"composite": false,
 		"resolveJsonModule": true,
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
