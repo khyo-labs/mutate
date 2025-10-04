@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 
-import type { Configuration, TransformationRule } from '../types/index.js';
+import type { Configuration, TransformationRule } from '@/types/index.js';
 
 export interface MutationOptions {
 	async?: boolean;

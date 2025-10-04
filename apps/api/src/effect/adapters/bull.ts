@@ -1,7 +1,7 @@
 import type { Job, ProcessCallbackFunction } from 'bull';
 import { Effect } from 'effect';
 
-import { runtime } from '../runtime.js';
+import { runtime } from '@/effect/runtime.js';
 
 /**
  * Adapter to use Effect pipelines as Bull job processors

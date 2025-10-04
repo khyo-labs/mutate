@@ -1,14 +1,14 @@
 import { createHash, createHmac } from 'crypto';
 import { and, eq } from 'drizzle-orm';
 
-import { config } from '../config.js';
-import { db } from '../db/connection.js';
+import { config } from '@/config.js';
+import { db } from '@/db/connection.js';
 import {
 	configurations,
 	organizationWebhooks,
 	webhookDeliveries,
-} from '../db/schema.js';
-import { webhookDeliveryQueue } from './queue.js';
+} from '@/db/schema.js';
+import { webhookDeliveryQueue } from '@/services/queue.js';
 
 export interface WebhookPayload {
 	jobId: string;

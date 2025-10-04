@@ -1,11 +1,11 @@
 import Queue from 'bull';
 import IORedis from 'ioredis';
 
-import { config } from '../config.js';
+import { config } from '@/config.js';
 import {
 	trackConversionComplete,
 	trackConversionFailure,
-} from '../middleware/billing-middleware.js';
+} from '@/middleware/billing-middleware.js';
 
 // Job data interfaces
 export interface TransformationJobData {

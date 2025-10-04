@@ -1,5 +1,5 @@
-import { getErrorMessage } from '../../utils/error.js';
-import { ConversionError } from './conversion-errors.js';
+import { getErrorMessage } from '@/utils/error.js';
+import { ConversionError } from '@/services/conversion/conversion-errors.js';
 
 export interface ErrorContext {
 	configurationId?: string;

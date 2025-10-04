@@ -127,4 +127,5 @@ export interface Configuration {
 	createdBy: string;
 	createdAt: Date;
 	updatedAt: Date;
+	callbackUrl?: string;
 }

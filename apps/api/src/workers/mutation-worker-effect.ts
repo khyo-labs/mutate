@@ -2,21 +2,17 @@ import {
 	DatabaseService,
 	StorageService,
 	TransformError,
-	type WebhookPayload,
-	deliverWebhook,
 	transformBuffer,
 } from '@mutate/core';
-import { eq } from 'drizzle-orm';
-import { Duration, Effect, pipe } from 'effect';
+import { Duration, Effect, Option, pipe } from 'effect';
 
-import { db } from '../db/connection.js';
-import { organizationWebhooks } from '../db/schema.js';
 import {
 	effectBullProcessor,
 	reportProgress,
-} from '../effect/adapters/bull.js';
-import { runtime } from '../effect/runtime.js';
-import { type QueueJobData, transformationQueue } from '../services/queue.js';
+} from '@/effect/adapters/bull.js';
+import { runtime } from '@/effect/runtime.js';
+import { WebhookService } from '@/effect/services/webhook.service.js';
+import { type QueueJobData, transformationQueue } from '@/services/queue.js';
 
 const isTransformError = (error: unknown): error is TransformError =>
 	error instanceof TransformError;
@@ -28,6 +24,7 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 	Effect.gen(function* () {
 		const database = yield* DatabaseService;
 		const storage = yield* StorageService;
+		const webhookService = yield* WebhookService;
 
 		// Convert base64 string back to Buffer
 		const fileBuffer = Buffer.from(data.fileData, 'base64');
@@ -118,68 +115,31 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 			fileSize: outputBuffer.length,
 		});
 
-		// Send webhook if configured
-		if (callbackUrl) {
-			const webhookPayload: WebhookPayload = {
+		// Send webhook using the new priority-based system
+		const webhookPayload = webhookService.createJobCompletedPayload(
+			{
 				jobId,
 				status: 'completed',
 				configurationId,
 				organizationId,
 				uid,
 				downloadUrl: outputResult.url,
-				expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
 				executionLog: transformResult.executionLog,
-				completedAt: new Date().toISOString(),
 				fileSize: outputBuffer.length,
 				originalFileName: fileName,
-			};
+			},
+			new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+		);
 
-			yield* deliverWebhook(callbackUrl, webhookPayload).pipe(
-				Effect.tapError((error) =>
-					Effect.sync(() => console.error('Failed to deliver webhook:', error)),
-				),
-				Effect.ignore, // Don't fail the job if webhook fails
-			);
-		}
+		const webhookResult = yield* webhookService.sendWebhookWithPriority(
+			organizationId,
+			configurationId,
+			webhookPayload,
+			callbackUrl,
+		);
 
-		// Check for organization-wide webhooks
-		const [orgWebhook] = yield* Effect.tryPromise({
-			try: () =>
-				db
-					.select()
-					.from(organizationWebhooks)
-					.where(eq(organizationWebhooks.organizationId, organizationId))
-					.limit(1),
-			catch: () => new Error('Failed to fetch organization webhook'),
-		}).pipe(Effect.orElse(() => Effect.succeed([])));
-
-		if (orgWebhook?.url) {
-			const webhookPayload: WebhookPayload = {
-				jobId,
-				status: 'completed',
-				configurationId,
-				organizationId,
-				uid,
-				downloadUrl: outputResult.url,
-				expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-				executionLog: transformResult.executionLog,
-				completedAt: new Date().toISOString(),
-				fileSize: outputBuffer.length,
-				originalFileName: fileName,
-			};
-
-			yield* deliverWebhook(
-				orgWebhook.url,
-				webhookPayload,
-				orgWebhook.secret || undefined,
-			).pipe(
-				Effect.tapError((error) =>
-					Effect.sync(() =>
-						console.error('Failed to deliver org webhook:', error),
-					),
-				),
-				Effect.ignore,
-			);
+		if (Option.isSome(webhookResult)) {
+			console.log(`Webhook queued for job ${jobId}`);
 		}
 
 		yield* reportProgress(job, 100);
@@ -204,6 +164,7 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 
 			return Effect.gen(function* () {
 				const database = yield* DatabaseService;
+				const webhookService = yield* WebhookService;
 
 				console.error(`[Effect Worker] Job ${errorJobId} failed:`, error);
 
@@ -217,7 +178,7 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 
 				// Send failure webhook if configured
 				if (errorCallbackUrl) {
-					const webhookPayload: WebhookPayload = {
+					const webhookPayload = webhookService.createJobCompletedPayload({
 						jobId: errorJobId,
 						status: 'failed',
 						configurationId: errorConfigId,
@@ -225,13 +186,17 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 						uid: errorUid,
 						error:
 							error instanceof Error ? error.message : 'Job processing failed',
-						completedAt: new Date().toISOString(),
 						originalFileName: errorFileName,
-					};
+					});
 
-					yield* deliverWebhook(errorCallbackUrl, webhookPayload).pipe(
-						Effect.ignore,
-					);
+					yield* webhookService
+						.sendWebhookWithPriority(
+							errorOrgId,
+							errorConfigId,
+							webhookPayload,
+							errorCallbackUrl,
+						)
+						.pipe(Effect.ignore);
 				}
 
 				// Re-throw to let Bull handle retry

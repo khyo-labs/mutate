@@ -6,18 +6,9 @@ import Fastify from 'fastify';
 
 import { config } from './config.js';
 import { errorHandler } from './middleware/error-handler.js';
-import requireVerifiedEmail from './middleware/require-verified-email.js';
 import authPlugin from './plugins/auth.js';
-import { adminRoutes } from './routes/admin/index.js';
-import { authRoutes } from './routes/auth.js';
-import { betterAuthRoutes } from './routes/better-auth.js';
-import { billingRoutes } from './routes/billing.js';
-import { fileRoutes } from './routes/files.js';
-import { healthRoutes } from './routes/health.js';
-import { mutateRoutes } from './routes/mutate.js';
-import { securityRoutes } from './routes/security.js';
-import { userRoutes } from './routes/user.js';
-import { workspaceRoutes } from './routes/workspaces/index.js';
+import requireVerifiedEmail from './plugins/require-verified-email.js';
+import { v1Routes } from './routes/v1/index.js';
 import { transformationQueue } from './services/queue.js';
 import './types/fastify.js';
 import './workers/mutation-worker-effect.js';
@@ -86,16 +77,7 @@ await fastify.register(requireVerifiedEmail);
 
 fastify.setErrorHandler(errorHandler);
 
-await fastify.register(healthRoutes, { prefix: '/v1/health' });
-await fastify.register(betterAuthRoutes, { prefix: '/v1/auth' });
-await fastify.register(authRoutes, { prefix: '/v1/auth/custom' });
-await fastify.register(securityRoutes, { prefix: '/v1/security' });
-await fastify.register(workspaceRoutes, { prefix: '/v1/workspace' });
-await fastify.register(mutateRoutes, { prefix: '/v1/mutate' });
-await fastify.register(fileRoutes, { prefix: '/v1/files' });
-await fastify.register(billingRoutes, { prefix: '/v1/billing' });
-await fastify.register(adminRoutes, { prefix: '/v1/admin' });
-await fastify.register(userRoutes, { prefix: '/v1/user' });
+await fastify.register(v1Routes);
 
 async function start() {
 	try {

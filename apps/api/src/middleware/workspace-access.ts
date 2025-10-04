@@ -1,10 +1,10 @@
 import { and, eq } from 'drizzle-orm';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { db } from '../db/connection.js';
-import { member, organization } from '../db/schema.js';
-import '../types/fastify.js';
-import { logError } from '../utils/logger.js';
+import { db } from '@/db/connection.js';
+import { member, organization } from '@/db/schema.js';
+import '@/types/fastify.js';
+import { logError } from '@/utils/logger.js';
 
 export async function validateWorkspaceAccess(
 	request: FastifyRequest,

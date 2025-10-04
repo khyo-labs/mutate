@@ -1,4 +1,4 @@
-import { AppError } from '../../utils/error.js';
+import { AppError } from '@/utils/error.js';
 
 export class ConversionError extends AppError {
 	constructor(

@@ -6,19 +6,19 @@ import {
 import { eq } from 'drizzle-orm';
 import { Duration, Effect } from 'effect';
 
-import { config } from '../config.js';
-import { db } from '../db/connection.js';
-import { organizationWebhooks, webhookDeliveries } from '../db/schema.js';
+import { config } from '@/config.js';
+import { db } from '@/db/connection.js';
+import { organizationWebhooks, webhookDeliveries } from '@/db/schema.js';
 import {
 	effectBullProcessor,
 	reportProgress,
-} from '../effect/adapters/bull.js';
-import { runtime } from '../effect/runtime.js';
+} from '@/effect/adapters/bull.js';
+import { runtime } from '@/effect/runtime.js';
 import {
 	type WebhookDeliveryJobData,
 	webhookDeadLetterQueue,
 	webhookDeliveryQueue,
-} from '../services/queue.js';
+} from '@/services/queue.js';
 
 const MAX_RETRIES = config.WEBHOOK_MAX_RETRIES || 5;
 const TIMEOUT_MS = config.WEBHOOK_TIMEOUT || 30000;

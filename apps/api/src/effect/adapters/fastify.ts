@@ -5,7 +5,7 @@ import type {
 	RouteGenericInterface,
 } from 'fastify';
 
-import { runtime } from '../runtime.js';
+import { runtime } from '@/effect/runtime.js';
 
 export interface EffectHandlerOptions<A, E> {
 	onSuccess?: (data: A) => { status: number; body: any };
@@ -38,24 +38,102 @@ export function effectHandler<
 		} catch (error) {
 			console.error('Effect handler error:', error);
 
+			const originalError = unwrapEffectError(error);
+
 			if (options?.onError) {
-				const response = options.onError(error as E);
+				const response = options.onError(originalError as E);
 				return res.status(response.status).send(response.body);
 			}
 
 			// Default error response
-			const errorMessage =
-				error instanceof Error ? error.message : 'Internal server error';
-
 			return res.status(500).send({
 				success: false,
-				error: {
-					code: 'INTERNAL_ERROR',
-					message: errorMessage,
-				},
+				error: serializeError(originalError),
 			});
 		}
 	};
+}
+
+function unwrapEffectError(error: unknown): unknown {
+	if (!error) return error;
+
+	if (isFiberFailure(error)) {
+		const extracted = extractCauseValue(error.cause);
+		if (extracted !== undefined) {
+			return extracted;
+		}
+	}
+
+	if (error instanceof Error) {
+		const message = error.message;
+		if (message) {
+			try {
+				return JSON.parse(message);
+			} catch {
+				return { code: 'ERROR', message };
+			}
+		}
+		return { code: 'ERROR', message: error.toString() };
+	}
+
+	if (typeof error === 'object') {
+		const value = extractCauseValue((error as any).cause);
+		if (value !== undefined) {
+			return value;
+		}
+	}
+
+	if (typeof error === 'string') {
+		try {
+			return JSON.parse(error);
+		} catch {
+			return { code: 'ERROR', message: error };
+		}
+	}
+
+	return error;
+}
+
+function isFiberFailure(
+	error: unknown,
+): error is { _tag: string; cause: unknown } {
+	return (
+		typeof error === 'object' &&
+		error !== null &&
+		'_tag' in (error as any) &&
+		(error as any)._tag === 'FiberFailure'
+	);
+}
+
+function extractCauseValue(cause: any): unknown {
+	if (!cause || typeof cause !== 'object') {
+		return undefined;
+	}
+
+	if ('value' in cause) {
+		return cause.value;
+	}
+
+	const nestedKeys = ['cause', 'left', 'right', 'first', 'second'];
+	for (const key of nestedKeys) {
+		if (key in cause) {
+			const nested = extractCauseValue(cause[key]);
+			if (nested !== undefined) {
+				return nested;
+			}
+		}
+	}
+
+	if (Array.isArray(cause.causes)) {
+		for (const nested of cause.causes) {
+			const value = extractCauseValue(nested);
+			if (value !== undefined) {
+				return value;
+			}
+		}
+	}
+
+	return undefined;
 }
 
 /**

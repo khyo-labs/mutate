@@ -6,11 +6,11 @@ import { twoFactor } from 'better-auth/plugins/two-factor';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { eq } from 'drizzle-orm';
 
-import { config } from '../config.js';
-import { db } from '../db/connection.js';
-import { user } from '../db/schema.js';
-import { subscriptionService } from '../services/billing/subscription-service.js';
-import { EmailArgs, sendEmail } from '../services/email/index.js';
+import { config } from '@/config.js';
+import { db } from '@/db/connection.js';
+import { user } from '@/db/schema.js';
+import { subscriptionService } from '@/services/billing/subscription-service.js';
+import { EmailArgs, sendEmail } from '@/services/email/index.js';
 
 export const auth = betterAuth({
 	appName: 'Mutate',

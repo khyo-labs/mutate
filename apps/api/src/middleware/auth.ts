@@ -2,18 +2,18 @@ import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { db } from '../db/connection.js';
+import { db } from '@/db/connection.js';
 import {
 	apiKeys,
 	member,
 	organization,
 	platformAdmins,
 	user,
-} from '../db/schema.js';
-import { auth } from '../lib/auth.js';
-import { adminAuditService } from '../services/admin/audit-service.js';
-import { adminService } from '../services/admin/index.js';
-import '../types/fastify.js';
+} from '@/db/schema.js';
+import { auth } from '@/lib/auth.js';
+import { adminAuditService } from '@/services/admin/audit-service.js';
+import { adminService } from '@/services/admin/index.js';
+import '@/types/fastify.js';
 
 export async function authenticateSession(
 	request: FastifyRequest,

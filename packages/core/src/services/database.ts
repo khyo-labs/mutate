@@ -82,6 +82,7 @@ export interface DatabaseService {
 		organizationId: string,
 		configurationId: string,
 		fileName: string,
+		userId: string,
 	) => Effect.Effect<string, DbError>;
 
 	getJob: (id: string) => Effect.Effect<

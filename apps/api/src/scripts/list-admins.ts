@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 
-import { db } from '../db/connection.js';
-import { platformAdmins, user } from '../db/schema.js';
+import { db } from '@/db/connection.js';
+import { platformAdmins, user } from '@/db/schema.js';
 
 async function listPlatformAdmins() {
 	try {

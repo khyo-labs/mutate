@@ -3,8 +3,8 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import {
 	QuotaEnforcementService,
 	UsageTrackingService,
-} from '../services/billing/index.js';
-import type { ConversionEvent } from '../services/billing/types.js';
+} from '@/services/billing/index.js';
+import type { ConversionEvent } from '@/services/billing/types.js';
 
 const quotaService = new QuotaEnforcementService();
 const usageService = new UsageTrackingService();

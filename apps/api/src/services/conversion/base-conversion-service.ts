@@ -1,4 +1,4 @@
-import type { Configuration } from '../../types/index.js';
+import type { Configuration } from '@/types/index.js';
 
 export interface ConversionOptions {
 	debug?: boolean;

@@ -1,7 +1,7 @@
 import { StorageError, StorageService, type UploadResult } from '@mutate/core';
 import { Effect, Layer } from 'effect';
 
-import { storageService as existingStorage } from '../../services/storage.js';
+import { storageService as existingStorage } from '@/services/storage.js';
 
 const StorageServiceImpl = StorageService.of({
 	upload: (key: string, data: Buffer, contentType?: string) =>

@@ -4,13 +4,13 @@ import type {
 	Configuration,
 	CsvOutputFormat,
 	TransformationRule,
-} from '../../types/index.js';
-import { getErrorMessage } from '../../utils/error.js';
+} from '@/types/index.js';
+import { getErrorMessage } from '@/utils/error.js';
 import {
 	BaseConversionService,
 	type ConversionOptions,
 	type ConversionResult,
-} from './base-conversion-service.js';
+} from '@/services/conversion/base-conversion-service.js';
 import {
 	ColumnValidationError,
 	FileReadError,
@@ -18,8 +18,8 @@ import {
 	RuleExecutionError,
 	RuleValidationError,
 	WorksheetNotFoundError,
-} from './conversion-errors.js';
-import { ConversionErrorHandler, type ErrorContext } from './error-handler.js';
+} from '@/services/conversion/conversion-errors.js';
+import { ConversionErrorHandler, type ErrorContext } from '@/services/conversion/error-handler.js';
 
 export class XlsxToCsvService extends BaseConversionService {
 	private selectedSheetsHistory: string[] = [];

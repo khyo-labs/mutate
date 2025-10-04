@@ -1,14 +1,14 @@
 import { and, eq } from 'drizzle-orm';
 import { ulid } from 'ulid';
 
-import { db } from '../../db/connection.js';
+import { db } from '@/db/connection.js';
 import {
 	organization,
 	organizationSubscriptions,
 	subscriptionPlans,
 	usageRecords,
-} from '../../db/schema.js';
-import type { ConversionLimits } from './types.js';
+} from '@/db/schema.js';
+import type { ConversionLimits } from '@/services/billing/types.js';
 
 export class SubscriptionService {
 	async getOrganizationLimits(

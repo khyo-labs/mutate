@@ -12,12 +12,12 @@ import { and, count, desc, eq, ilike } from 'drizzle-orm';
 import { Effect, Layer } from 'effect';
 import { ulid } from 'ulid';
 
-import { db } from '../../db/connection.js';
+import { db } from '@/db/connection.js';
 import {
 	configurationVersions,
 	configurations,
 	transformationJobs,
-} from '../../db/schema.js';
+} from '@/db/schema.js';
 
 const DrizzleDatabaseService = DatabaseService.of({
 	getConfiguration: (id: string) =>
@@ -44,6 +44,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 						config.conversionType as Configuration['conversionType'],
 					inputFormat: config.inputFormat as Configuration['inputFormat'],
 					version: config.version,
+					callbackUrl: config.callbackUrl || undefined,
 					isActive: config.isActive,
 					createdBy: config.createdBy,
 					createdAt: config.createdAt,
@@ -100,6 +101,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 		organizationId: string,
 		configurationId: string,
 		fileName: string,
+		userId: string,
 	) =>
 		Effect.tryPromise({
 			try: async () => {
@@ -109,7 +111,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 					id,
 					organizationId,
 					configurationId,
-					createdBy: 'system', // TODO: Get from auth context
+					createdBy: userId,
 					status: 'pending',
 					originalFileName: fileName,
 					createdAt: new Date(),
@@ -214,6 +216,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 						config.conversionType as Configuration['conversionType'],
 					inputFormat: config.inputFormat as Configuration['inputFormat'],
 					version: config.version,
+					callbackUrl: config.callbackUrl || undefined,
 					isActive: config.isActive,
 					createdBy: config.createdBy,
 					createdAt: config.createdAt,
@@ -259,6 +262,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 						config.conversionType as Configuration['conversionType'],
 					inputFormat: config.inputFormat as Configuration['inputFormat'],
 					version: config.version,
+					callbackUrl: config.callbackUrl || undefined,
 					isActive: config.isActive,
 					createdBy: config.createdBy,
 					createdAt: config.createdAt,
@@ -318,6 +322,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 						config.conversionType as Configuration['conversionType'],
 					inputFormat: config.inputFormat as Configuration['inputFormat'],
 					version: config.version,
+					callbackUrl: config.callbackUrl || undefined,
 					isActive: config.isActive,
 					createdBy: config.createdBy,
 					createdAt: config.createdAt,

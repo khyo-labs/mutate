@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 
-import { db } from '../../db/connection.js';
-import { platformAdmins, twoFactor } from '../../db/schema.js';
+import { db } from '@/db/connection.js';
+import { platformAdmins, twoFactor } from '@/db/schema.js';
 
 export class AdminService {
 	async checkTwoFactorEnabled(adminUserId: string): Promise<boolean> {

@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { webhookService } from './webhook.js';
 
 vi.mock('../db/connection.js', () => {
+	const updateWhereMock = vi.fn().mockResolvedValue(undefined);
+	const updateSetMock = vi.fn().mockReturnValue({ where: updateWhereMock });
+	const updateMock = vi.fn().mockReturnValue({ set: updateSetMock });
 	return {
 		db: {
 			query: {
@@ -21,6 +24,7 @@ vi.mock('../db/connection.js', () => {
 				values: vi.fn().mockReturnThis(),
 				onConflictDoNothing: vi.fn(),
 			}),
+			update: updateMock,
 		},
 	};
 });

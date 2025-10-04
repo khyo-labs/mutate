@@ -6,7 +6,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ulid } from 'ulid';
 
-import { config } from '../config.js';
+import { config } from '@/config.js';
 
 export interface StorageProvider {
 	uploadFile(key: string, buffer: Buffer, contentType: string): Promise<string>;

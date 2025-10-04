@@ -1,23 +1,23 @@
 import { eq } from 'drizzle-orm';
 
-import { config } from '../config.js';
-import { db } from '../db/connection.js';
-import { configurations, transformationJobs } from '../db/schema.js';
-import { ConversionServiceFactory } from '../services/conversion/index.js';
+import { config } from '@/config.js';
+import { db } from '@/db/connection.js';
+import { configurations, transformationJobs } from '@/db/schema.js';
+import { ConversionServiceFactory } from '@/services/conversion/index.js';
 import {
 	type JobResult,
 	type TransformationJobData as MutationJobData,
 	transformationQueue,
-} from '../services/queue.js';
-import { storageService } from '../services/storage.js';
-import { WebhookService, webhookService } from '../services/webhook.js';
+} from '@/services/queue.js';
+import { storageService } from '@/services/storage.js';
+import { WebhookService, webhookService } from '@/services/webhook.js';
 import type {
 	Configuration,
 	ConversionType,
 	InputFormat,
 	OutputFormatConfig,
 	TransformationRule,
-} from '../types/index.js';
+} from '@/types/index.js';
 
 class MutationWorker {
 	private isShuttingDown = false;

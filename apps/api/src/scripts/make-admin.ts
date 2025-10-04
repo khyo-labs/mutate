@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 
-import { db } from '../db/connection.js';
-import { platformAdmins, user } from '../db/schema.js';
+import { db } from '@/db/connection.js';
+import { platformAdmins, user } from '@/db/schema.js';
 
 async function makeUserAdmin(email: string) {
 	try {

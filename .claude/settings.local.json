@@ -25,7 +25,14 @@
       "Read(//Users/alanhoskins/workspace/projects/**)",
       "Bash(curl:*)",
       "mcp__shadcn__list_items_in_registries",
-      "mcp__shadcn__view_items_in_registries"
+      "mcp__shadcn__view_items_in_registries",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(for file in src/scripts/remove-admin.ts src/scripts/list-admins.ts src/workers/webhook-delivery-worker.ts)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(head:*)",
+      "Bash(done)",
+      "Bash(for file in src/services/conversion/*.ts)"
     ],
     "deny": [],
     "ask": []

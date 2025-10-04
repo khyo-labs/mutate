@@ -1,7 +1,7 @@
 import sgMail from '@sendgrid/mail';
 
-import { config } from '../../config.js';
-import { logger } from '../../utils/logger.js';
+import { config } from '@/config.js';
+import { logger } from '@/utils/logger.js';
 
 sgMail.setApiKey(config.SENDGRID_API_KEY);
 
