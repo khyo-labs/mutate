@@ -6,8 +6,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "tsx watch --inspect --tsconfig ./tsconfig.json src/index.ts",
-		"build": "tsc && cp -r src/db/migrations dist/db/",
-		"build:tsup": "tsup src/index.ts --format esm --dts",
+		"build": "tsup",
+		"build:tsc": "tsc && cp -r src/db/migrations dist/db/",
 		"start": "node dist/index.js",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "tsx --tsconfig ./tsconfig.json src/db/migrate.ts",
