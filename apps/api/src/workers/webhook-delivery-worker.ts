@@ -3,16 +3,14 @@ import {
 	type WebhookPayload,
 	deliverWebhook,
 } from '@mutate/core';
+import { createHmac } from 'crypto';
 import { eq } from 'drizzle-orm';
 import { Duration, Effect } from 'effect';
 
 import { config } from '@/config.js';
 import { db } from '@/db/connection.js';
 import { organizationWebhooks, webhookDeliveries } from '@/db/schema.js';
-import {
-	effectBullProcessor,
-	reportProgress,
-} from '@/effect/adapters/bull.js';
+import { effectBullProcessor, reportProgress } from '@/effect/adapters/bull.js';
 import { runtime } from '@/effect/runtime.js';
 import {
 	type WebhookDeliveryJobData,
@@ -22,17 +20,6 @@ import {
 
 const MAX_RETRIES = config.WEBHOOK_MAX_RETRIES || 5;
 const TIMEOUT_MS = config.WEBHOOK_TIMEOUT || 30000;
-
-const isSuccessfulDelivery = (
-	result: unknown,
-): result is { delivered: true; status: number } =>
-	typeof result === 'object' &&
-	result !== null &&
-	'delivered' in result &&
-	'status' in result &&
-	(result as { delivered?: unknown }).delivered === true &&
-	typeof (result as { status?: unknown }).status === 'number';
-
 /**
  * Process a webhook delivery job using Effect
  */
@@ -108,7 +95,7 @@ const processWebhookDelivery = (data: WebhookDeliveryJobData, job: any) =>
 			Effect.timeout(Duration.millis(TIMEOUT_MS)),
 			Effect.tap((result) =>
 				Effect.gen(function* () {
-					if (!isSuccessfulDelivery(result)) {
+					if (!result?.delivered) {
 						return;
 					}
 
@@ -124,8 +111,7 @@ const processWebhookDelivery = (data: WebhookDeliveryJobData, job: any) =>
 									lastAttempt: startedAt,
 									updatedAt: new Date(),
 									signature: secret
-										? require('crypto')
-												.createHmac('sha256', secret)
+										? createHmac('sha256', secret)
 												.update(JSON.stringify(webhookPayload))
 												.digest('hex')
 										: undefined,
@@ -134,7 +120,8 @@ const processWebhookDelivery = (data: WebhookDeliveryJobData, job: any) =>
 									error: null,
 								})
 								.where(eq(webhookDeliveries.id, deliveryId)),
-						catch: () => new Error('Failed to update delivery status'),
+						catch: (error) =>
+							new Error(`Failed to update delivery status: ${error}`),
 					});
 
 					yield* reportProgress(job, 100);

@@ -1,12 +1,12 @@
-import { db } from '@/db/connection.js';
-import { configurations, transformationJobs } from '@/db/schema.js';
-import '@/routes/types/fastify.js';
 import { and, eq } from 'drizzle-orm';
 import { FastifyInstance } from 'fastify';
 import { ulid } from 'ulid';
 
 import { config } from '@/config.js';
+import { db } from '@/db/connection.js';
+import { configurations, transformationJobs } from '@/db/schema.js';
 import { trackConversionStart } from '@/middleware/billing-middleware.js';
+import '@/routes/types/fastify.js';
 import { QuotaEnforcementService } from '@/services/billing/index.js';
 import { QueueService } from '@/services/queue.js';
 import { storageService } from '@/services/storage.js';
@@ -46,17 +46,20 @@ function validateFileType(
 		});
 	};
 
-	const expectedExtensions = {
+	const expectedExtensions: Partial<Record<ConversionType, string[]>> = {
 		XLSX_TO_CSV: ['xlsx', 'xls'],
 		DOCX_TO_PDF: ['docx', 'doc'],
 		HTML_TO_PDF: ['html', 'htm'],
 		PDF_TO_CSV: ['pdf'],
 		JSON_TO_CSV: ['json'],
 		CSV_TO_JSON: ['csv'],
+		XLSX_TO_JSON: ['xlsx', 'xls'],
+		JSON_TO_XLSX: ['json'],
+		CSV_TO_XLSX: ['csv'],
 	};
 
 	const extension = getFileExtension(filename);
-	const allowedExtensions = expectedExtensions[conversionType];
+	const allowedExtensions = expectedExtensions[conversionType] || [];
 
 	if (!allowedExtensions.includes(extension)) {
 		return {

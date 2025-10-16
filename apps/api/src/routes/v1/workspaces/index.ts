@@ -13,6 +13,7 @@ import {
 import { deleteWorkspace } from '@/services/workspace.js';
 import '@/types/fastify.js';
 import { AppError, getErrorMessage } from '@/utils/error.js';
+
 import { apiKeyRoutes } from './api-keys.js';
 import { configurationRoutes } from './configuration.js';
 import { memberRoutes } from './members.js';

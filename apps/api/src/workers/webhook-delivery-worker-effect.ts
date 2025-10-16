@@ -5,10 +5,7 @@ import { Duration, Effect, Option, Schedule, pipe } from 'effect';
 import { config } from '@/config.js';
 import { db } from '@/db/connection.js';
 import { organizationWebhooks, webhookDeliveries } from '@/db/schema.js';
-import {
-	effectBullProcessor,
-	reportProgress,
-} from '@/effect/adapters/bull.js';
+import { effectBullProcessor, reportProgress } from '@/effect/adapters/bull.js';
 import { runtime } from '@/effect/runtime.js';
 import {
 	type WebhookPayload,

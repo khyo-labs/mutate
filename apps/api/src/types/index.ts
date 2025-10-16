@@ -13,11 +13,14 @@ export type ConversionType =
 	| 'HTML_TO_PDF'
 	| 'PDF_TO_CSV'
 	| 'JSON_TO_CSV'
-	| 'CSV_TO_JSON';
+	| 'CSV_TO_JSON'
+	| 'XLSX_TO_JSON'
+	| 'JSON_TO_XLSX'
+	| 'CSV_TO_XLSX';
 
 // Input/Output formats
 export type InputFormat = 'XLSX' | 'DOCX' | 'HTML' | 'PDF' | 'JSON' | 'CSV';
-export type OutputFormat = 'CSV' | 'PDF' | 'JSON';
+export type OutputFormat = 'CSV' | 'PDF' | 'JSON' | 'XLSX';
 
 // Conversion-specific rule types
 export type XlsxToCsvRuleType =

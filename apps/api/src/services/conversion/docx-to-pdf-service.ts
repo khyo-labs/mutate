@@ -1,9 +1,9 @@
-import type { Configuration, PdfOutputFormat } from '@/types/index.js';
 import {
 	BaseConversionService,
 	type ConversionOptions,
 	type ConversionResult,
 } from '@/services/conversion/base-conversion-service.js';
+import type { Configuration, PdfOutputFormat } from '@/types/index.js';
 
 export class DocxToPdfService extends BaseConversionService {
 	async convert(

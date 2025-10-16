@@ -4,7 +4,7 @@ import { Monitor, Moon, Sun } from 'lucide-react';
 import { SettingsHeader } from '@/components/settings/header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { useTheme } from '@/contexts/theme-provider';
+import { useTheme } from '@/hooks/use-theme';
 
 export const Route = createFileRoute('/settings/account/appearance')({
 	component: AppearanceComponent,

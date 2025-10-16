@@ -3,7 +3,11 @@ import { ulid } from 'ulid';
 
 import { db } from '@/db/connection.js';
 import { activeConversions, usageRecords } from '@/db/schema.js';
-import type { BillingPeriod, ConversionEvent, UsageStats } from '@/services/billing/types.js';
+import type {
+	BillingPeriod,
+	ConversionEvent,
+	UsageStats,
+} from '@/services/billing/types.js';
 
 export class UsageTrackingService {
 	async getCurrentBillingPeriod(): Promise<BillingPeriod> {

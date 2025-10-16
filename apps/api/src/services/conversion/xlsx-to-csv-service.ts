@@ -1,11 +1,5 @@
 import * as XLSX from 'xlsx';
 
-import type {
-	Configuration,
-	CsvOutputFormat,
-	TransformationRule,
-} from '@/types/index.js';
-import { getErrorMessage } from '@/utils/error.js';
 import {
 	BaseConversionService,
 	type ConversionOptions,
@@ -19,7 +13,16 @@ import {
 	RuleValidationError,
 	WorksheetNotFoundError,
 } from '@/services/conversion/conversion-errors.js';
-import { ConversionErrorHandler, type ErrorContext } from '@/services/conversion/error-handler.js';
+import {
+	ConversionErrorHandler,
+	type ErrorContext,
+} from '@/services/conversion/error-handler.js';
+import type {
+	Configuration,
+	CsvOutputFormat,
+	TransformationRule,
+} from '@/types/index.js';
+import { getErrorMessage } from '@/utils/error.js';
 
 export class XlsxToCsvService extends BaseConversionService {
 	private selectedSheetsHistory: string[] = [];

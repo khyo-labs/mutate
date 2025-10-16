@@ -2,11 +2,7 @@ import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 
 import { db } from '@/db/connection.js';
-import {
-	platformAdmins,
-	platformAuditLogs,
-	twoFactor,
-} from '@/db/schema.js';
+import { platformAdmins, platformAuditLogs, twoFactor } from '@/db/schema.js';
 
 export class AdminAuditService {
 	async logAdminAction(

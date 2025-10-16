@@ -6,10 +6,7 @@ import {
 } from '@mutate/core';
 import { Duration, Effect, Option, pipe } from 'effect';
 
-import {
-	effectBullProcessor,
-	reportProgress,
-} from '@/effect/adapters/bull.js';
+import { effectBullProcessor, reportProgress } from '@/effect/adapters/bull.js';
 import { runtime } from '@/effect/runtime.js';
 import { WebhookService } from '@/effect/services/webhook.service.js';
 import { type QueueJobData, transformationQueue } from '@/services/queue.js';

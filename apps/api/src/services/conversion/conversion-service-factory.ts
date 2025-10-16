@@ -1,6 +1,6 @@
-import type { Configuration, ConversionType } from '@/types/index.js';
 import { BaseConversionService } from '@/services/conversion/base-conversion-service.js';
 import { XlsxToCsvService } from '@/services/conversion/xlsx-to-csv-service.js';
+import type { Configuration, ConversionType } from '@/types/index.js';
 
 export class ConversionServiceFactory {
 	private static services = new Map<
