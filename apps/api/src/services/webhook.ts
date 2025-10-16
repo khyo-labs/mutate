@@ -163,8 +163,8 @@ class WebhookService {
 
 		// New hardening headers (timestamp + id)
 		const ts = Math.floor(Date.now() / 1000).toString();
-		headers['X-Mutate-Timestamp'] = ts;
-		headers['X-Mutate-Id'] = payload.jobId; // stable per event
+		headers['Mutate-Timestamp'] = ts;
+		headers['Mutate-Id'] = payload.jobId; // stable per event
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), this.timeout);

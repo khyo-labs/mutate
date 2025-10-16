@@ -143,8 +143,8 @@ const makeHttpRequest = (
 		}
 
 		const ts = Math.floor(Date.now() / 1000).toString();
-		headers['X-Mutate-Timestamp'] = ts;
-		headers['X-Mutate-Id'] = payload.jobId;
+		headers['Mutate-Timestamp'] = ts;
+		headers['Mutate-Id'] = payload.jobId;
 
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), timeout);

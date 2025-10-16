@@ -1,3 +1,4 @@
+import { createHmac } from 'crypto';
 import { Duration, Effect, Schedule } from 'effect';
 
 import { WebhookError } from './errors.js';
@@ -39,17 +40,15 @@ export function deliverWebhook(
 			'User-Agent': 'Mutate/1.0',
 		};
 
-		// Add signature if secret provided
 		if (secret) {
 			try {
-				const crypto = require('crypto');
-				const signature = crypto
-					.createHmac('sha256', secret)
+				const signature = createHmac('sha256', secret)
 					.update(body)
 					.digest('hex');
 				headers['Mutate-Signature'] = signature;
 			} catch {
 				// Crypto not available, skip signature
+				yield* logger.error('Crypto not available, skipping signature');
 			}
 		}
 
