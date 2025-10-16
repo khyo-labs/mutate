@@ -47,7 +47,6 @@ export function deliverWebhook(
 					.digest('hex');
 				headers['Mutate-Signature'] = signature;
 			} catch {
-				// Crypto not available, skip signature
 				yield* logger.error('Crypto not available, skipping signature');
 			}
 		}
@@ -58,8 +57,6 @@ export function deliverWebhook(
 				const timeoutId = setTimeout(() => controller.abort(), 30000);
 
 				try {
-					console.log('Sending webhook headers:', headers);
-
 					const res = await fetch(url, {
 						method: 'POST',
 						headers,
