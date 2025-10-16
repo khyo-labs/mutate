@@ -139,7 +139,7 @@ const makeHttpRequest = (
 
 		if (secret) {
 			const signature = generateSignature(body, secret);
-			headers['x-mutate-signature'] = `sha256=${signature}`;
+			headers['mutate-signature'] = `sha256=${signature}`;
 		}
 
 		const ts = Math.floor(Date.now() / 1000).toString();

@@ -158,7 +158,7 @@ class WebhookService {
 
 		if (secret) {
 			const signature = this.generateSignature(body, secret);
-			headers['x-mutate-signature'] = `sha256=${signature}`;
+			headers['mutate-signature'] = `sha256=${signature}`;
 		}
 
 		// New hardening headers (timestamp + id)

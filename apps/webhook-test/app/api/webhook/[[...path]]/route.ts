@@ -85,7 +85,7 @@ async function handleWebhook(
 
 	// Extract special headers
 	const signature =
-		headers['x-mutate-signature'] ||
+		headers['mutate-signature'] ||
 		headers['x-webhook-signature'] ||
 		headers['x-hub-signature-256'];
 	const event = headers['x-webhook-event'];

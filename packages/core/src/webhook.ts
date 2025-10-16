@@ -47,7 +47,7 @@ export function deliverWebhook(
 					.createHmac('sha256', secret)
 					.update(body)
 					.digest('hex');
-				headers['X-Mutate-Signature'] = signature;
+				headers['Mutate-Signature'] = signature;
 			} catch {
 				// Crypto not available, skip signature
 			}
