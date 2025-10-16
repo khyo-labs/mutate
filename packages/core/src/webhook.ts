@@ -59,6 +59,8 @@ export function deliverWebhook(
 				const timeoutId = setTimeout(() => controller.abort(), 30000);
 
 				try {
+					console.log('Sending webhook headers:', headers);
+
 					const res = await fetch(url, {
 						method: 'POST',
 						headers,
