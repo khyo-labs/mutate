@@ -29,7 +29,7 @@ export function Layout({ title, description, buttons, children }: LayoutProps) {
 							<div className="flex flex-col items-start">
 								<div className="flex w-full items-center justify-between">
 									{title && (
-										<h1 className="text-foreground text-2xl font-bold tracking-tight">
+										<h1 className="font-display text-foreground text-2xl font-bold tracking-tight">
 											{title}
 										</h1>
 									)}
@@ -55,16 +55,19 @@ export function Layout({ title, description, buttons, children }: LayoutProps) {
 
 export function PublicLayout({ children }: LayoutProps) {
 	return (
-		<div className="bg-background flex min-h-screen flex-col justify-center py-12 sm:px-6 lg:px-8">
-			<div className="sm:mx-auto sm:w-full sm:max-w-md">
+		<div className="bg-background gradient-mesh relative flex min-h-screen flex-col justify-center py-12 sm:px-6 lg:px-8">
+			<div className="absolute inset-0 grid-pattern pointer-events-none" />
+			<div className="relative sm:mx-auto sm:w-full sm:max-w-md">
 				<div className="mb-8 flex items-center justify-center gap-3">
-					<div className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded-md text-lg font-bold">
+					<div className="glow-primary flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-lg font-bold text-white shadow-lg shadow-amber-500/30">
 						M
 					</div>
-					<h2 className="text-foreground text-3xl font-bold">mutate</h2>
+					<h2 className="font-display text-foreground text-3xl font-bold tracking-tight">
+						mutate
+					</h2>
 				</div>
 			</div>
-			{children}
+			<div className="relative">{children}</div>
 		</div>
 	);
 }

@@ -122,8 +122,10 @@
 @layer base {
 	:root {
 		--font-sans:
-			'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+			'Satoshi', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
 			'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+		--font-display:
+			'Cabinet Grotesk', 'Satoshi', ui-sans-serif, system-ui, sans-serif;
 		--font-mono:
 			'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Consolas,
 			'Liberation Mono', Menlo, monospace;
@@ -137,5 +139,102 @@
 		background-color: var(--background);
 		color: var(--foreground);
 		font-family: var(--font-sans);
+	}
+}
+
+@layer utilities {
+	.font-display {
+		font-family: var(--font-display);
+	}
+
+	.glow-primary {
+		box-shadow: 0 0 20px -5px oklch(0.795 0.184 86.047 / 0.4);
+	}
+
+	.glow-primary-lg {
+		box-shadow: 0 0 40px -10px oklch(0.795 0.184 86.047 / 0.5);
+	}
+
+	.gradient-mesh {
+		background:
+			radial-gradient(at 40% 20%, oklch(0.795 0.184 86.047 / 0.08) 0px, transparent 50%),
+			radial-gradient(at 80% 0%, oklch(0.6 0.118 184.704 / 0.06) 0px, transparent 50%),
+			radial-gradient(at 0% 50%, oklch(0.627 0.265 303.9 / 0.05) 0px, transparent 50%);
+	}
+
+	.dark .gradient-mesh {
+		background:
+			radial-gradient(at 40% 20%, oklch(0.795 0.184 86.047 / 0.12) 0px, transparent 50%),
+			radial-gradient(at 80% 0%, oklch(0.6 0.118 184.704 / 0.08) 0px, transparent 50%),
+			radial-gradient(at 0% 50%, oklch(0.627 0.265 303.9 / 0.06) 0px, transparent 50%);
+	}
+
+	.grid-pattern {
+		background-image:
+			linear-gradient(to right, oklch(0.5 0 0 / 0.03) 1px, transparent 1px),
+			linear-gradient(to bottom, oklch(0.5 0 0 / 0.03) 1px, transparent 1px);
+		background-size: 24px 24px;
+	}
+
+	.dark .grid-pattern {
+		background-image:
+			linear-gradient(to right, oklch(1 0 0 / 0.04) 1px, transparent 1px),
+			linear-gradient(to bottom, oklch(1 0 0 / 0.04) 1px, transparent 1px);
+		background-size: 24px 24px;
+	}
+
+	.stat-glow {
+		text-shadow: 0 0 30px oklch(0.795 0.184 86.047 / 0.5);
+	}
+
+	.card-shine {
+		position: relative;
+		overflow: hidden;
+	}
+
+	.card-shine::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 50%;
+		height: 100%;
+		background: linear-gradient(
+			90deg,
+			transparent,
+			oklch(1 0 0 / 0.03),
+			transparent
+		);
+		transition: left 0.5s ease;
+	}
+
+	.card-shine:hover::before {
+		left: 100%;
+	}
+
+	@keyframes pulse-glow {
+		0%, 100% {
+			opacity: 0.4;
+		}
+		50% {
+			opacity: 0.8;
+		}
+	}
+
+	.animate-pulse-glow {
+		animation: pulse-glow 3s ease-in-out infinite;
+	}
+
+	@keyframes float {
+		0%, 100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-4px);
+		}
+	}
+
+	.animate-float {
+		animation: float 4s ease-in-out infinite;
 	}
 }
