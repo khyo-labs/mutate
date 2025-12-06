@@ -95,15 +95,8 @@ export function LoginComponent() {
 
 	async function handlePasskeyLogin() {
 		try {
-			const email = form.getValues('email');
-			if (!email || !z.string().email().safeParse(email).success) {
-				form.setError('email', {
-					message: 'Please enter a valid email to use a passkey.',
-				});
-				return;
-			}
 			setApiError(null);
-			const { error } = await authClient.signIn.passkey({ email });
+			const { error } = await authClient.signIn.passkey();
 			if (error) {
 				throw new Error(error.message);
 			}
