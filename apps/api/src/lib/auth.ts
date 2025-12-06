@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAuthMiddleware, organization } from 'better-auth/plugins';
-import { passkey } from 'better-auth/plugins/passkey';
+import { passkey } from '@better-auth/passkey';
 import { twoFactor } from 'better-auth/plugins/two-factor';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { eq } from 'drizzle-orm';
