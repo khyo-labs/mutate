@@ -16,6 +16,7 @@ import { AppError, getErrorMessage } from '@/utils/error.js';
 
 import { apiKeyRoutes } from './api-keys.js';
 import { configurationRoutes } from './configuration.js';
+import { jobRoutes } from './jobs.js';
 import { memberRoutes } from './members.js';
 import { webhookRoutes } from './webhooks.js';
 
@@ -34,6 +35,10 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 
 	fastify.register(memberRoutes, {
 		prefix: '/:workspaceId/members',
+	});
+
+	fastify.register(jobRoutes, {
+		prefix: '/:workspaceId/jobs',
 	});
 
 	fastify.addHook('preHandler', fastify.authenticate);

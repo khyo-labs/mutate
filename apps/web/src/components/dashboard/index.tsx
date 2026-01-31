@@ -3,7 +3,7 @@ import { Activity, ArrowUpRight, Sparkles, Zap } from 'lucide-react';
 import { useQuotaStatus } from '@/hooks/use-billing';
 import { useMutations } from '@/hooks/use-mutations';
 
-import { MutationBreakdown } from './mutation-breakdown';
+import { LatestRuns } from './latest-runs';
 import { MutationsList } from './mutations-list';
 import { QuotaCard } from './quota-card';
 import { UsageChart } from './usage-chart';
@@ -75,7 +75,6 @@ export function Dashboard() {
 					label="Active Pipelines"
 					value={activeMutations}
 					icon={Activity}
-					trend={{ value: 12, positive: true }}
 				/>
 				<QuickStat
 					label="This Month"
@@ -95,7 +94,7 @@ export function Dashboard() {
 				</div>
 				<div className="space-y-6">
 					<QuotaCard />
-					<MutationBreakdown />
+					<LatestRuns />
 				</div>
 			</div>
 

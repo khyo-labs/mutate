@@ -30,23 +30,26 @@ export type OrganizationSubscription = {
 };
 
 export type QuotaStatus = {
-	organizationId: string;
-	subscription?: OrganizationSubscription;
-	usage?: {
+	subscription: {
+		planName: string;
+		status: string;
+	} | null;
+	usage: {
 		currentMonth: number;
 		currentMonthOverage: number;
 		activeConversions: number;
 	};
-	limits?: {
+	limits: {
 		monthly: number;
 		concurrent: number;
 		maxFileSizeMb: number;
 	};
-	remaining?: {
+	remaining: {
 		monthly: number;
 		concurrent: number;
 	};
-	periodEnd?: string;
+	periodEnd: string;
+	warnings: string[];
 };
 
 export type UsageHistory = {

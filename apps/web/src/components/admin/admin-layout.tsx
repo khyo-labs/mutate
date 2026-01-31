@@ -21,7 +21,6 @@ export function AdminLayout() {
 	const { data: session } = useSession();
 	const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 	const [isAdmin, setIsAdmin] = useState(false);
-	const [needs2FA, setNeeds2FA] = useState(false);
 
 	useEffect(() => {
 		checkAdminAccess();
@@ -38,8 +37,6 @@ export function AdminLayout() {
 			const response = await api.get<
 				SuccessResponse<{
 					isAdmin: boolean;
-					requires2FA?: boolean;
-					has2FAEnabled?: boolean;
 				}>
 			>('/v1/admin/check-access');
 
@@ -47,22 +44,9 @@ export function AdminLayout() {
 
 			if (data.isAdmin) {
 				setIsAdmin(true);
-
-				// Check 2FA status
-				if (data.requires2FA && !data.has2FAEnabled) {
-					setNeeds2FA(true);
-				}
 			}
 		} catch (error: unknown) {
-			const err = error as {
-				response?: { data?: { error?: { code?: string } } };
-			};
-			if (err.response?.data?.error?.code === '2FA_VERIFICATION_REQUIRED') {
-				setNeeds2FA(true);
-				setIsAdmin(true);
-			} else {
-				console.error('Admin access check failed:', error);
-			}
+			console.error('Admin access check failed:', error);
 		} finally {
 			setIsCheckingAdmin(false);
 		}
@@ -121,35 +105,6 @@ export function AdminLayout() {
 						<Button asChild variant="outline" className="w-full">
 							<a href="/">Return to Dashboard</a>
 						</Button>
-					</CardContent>
-				</Card>
-			</div>
-		);
-	}
-
-	if (needs2FA) {
-		return (
-			<div className="flex min-h-screen items-center justify-center">
-				<Card className="w-full max-w-md">
-					<CardHeader>
-						<CardTitle>Two-Factor Authentication Required</CardTitle>
-						<CardDescription>
-							Platform admin access requires 2FA for enhanced security.
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<p className="text-muted-foreground mb-4 text-sm">
-							Please enable two-factor authentication in your account settings
-							to continue.
-						</p>
-						<div className="space-y-2">
-							<Button asChild className="w-full">
-								<a href="/settings/account/security">Setup 2FA</a>
-							</Button>
-							<Button asChild variant="outline" className="w-full">
-								<a href="/">Return to Dashboard</a>
-							</Button>
-						</div>
 					</CardContent>
 				</Card>
 			</div>

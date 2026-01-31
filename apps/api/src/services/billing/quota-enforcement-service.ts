@@ -1,6 +1,7 @@
 import { SubscriptionService } from './subscription-service.js';
 import type {
 	ConversionLimits,
+	QuotaStatusResponse,
 	QuotaValidationResult,
 	UsageStats,
 } from './types.js';
@@ -111,23 +112,25 @@ export class QuotaEnforcementService {
 			: false;
 	}
 
-	async getQuotaStatus(organizationId: string): Promise<{
-		limits: ConversionLimits;
-		usage: UsageStats;
-		warnings: string[];
-	}> {
+	async getQuotaStatus(
+		organizationId: string,
+	): Promise<QuotaStatusResponse> {
 		const limits =
 			await this.subscriptionService.getOrganizationLimits(organizationId);
 		const usage = await this.usageTrackingService.getUsageStats(
 			organizationId,
 			limits.monthlyConversionLimit,
 		);
+		const sub =
+			await this.subscriptionService.getOrganizationSubscription(
+				organizationId,
+			);
 
-		usage.maxFileSize = limits.maxFileSizeMb;
+		const monthly = limits.monthlyConversionLimit ?? 100;
+		const concurrent = limits.concurrentConversionLimit ?? 1;
 
 		const warnings: string[] = [];
 
-		// Generate warnings based on usage thresholds
 		if (limits.monthlyConversionLimit && usage.remainingConversions !== null) {
 			const usagePercentage =
 				(usage.currentUsage / limits.monthlyConversionLimit) * 100;
@@ -147,8 +150,27 @@ export class QuotaEnforcementService {
 		}
 
 		return {
-			limits,
-			usage,
+			subscription: sub
+				? {
+						planName: sub.subscription_plan.name,
+						status: sub.organization_subscription.status,
+					}
+				: null,
+			usage: {
+				currentMonth: usage.currentUsage,
+				currentMonthOverage: usage.overageUsage,
+				activeConversions: usage.activeConversions,
+			},
+			limits: {
+				monthly,
+				concurrent,
+				maxFileSizeMb: limits.maxFileSizeMb ?? 10,
+			},
+			remaining: {
+				monthly: Math.max(0, monthly - usage.currentUsage),
+				concurrent: Math.max(0, concurrent - usage.activeConversions),
+			},
+			periodEnd: usage.resetDate.toISOString(),
 			warnings,
 		};
 	}

@@ -181,11 +181,13 @@ export async function adminBillingRoutes(fastify: FastifyInstance) {
 				quotaService.getQuotaStatus(orgId),
 			]);
 
+			const { subscription: _, ...quota } = quotaStatus;
+
 			return {
 				success: true,
 				data: {
 					subscription,
-					...quotaStatus,
+					...quota,
 				},
 			};
 		} catch (error) {

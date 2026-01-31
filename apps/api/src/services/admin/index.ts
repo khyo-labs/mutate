@@ -4,6 +4,16 @@ import { db } from '@/db/connection.js';
 import { platformAdmins, twoFactor } from '@/db/schema.js';
 
 export class AdminService {
+	async isAdmin(userId: string): Promise<boolean> {
+		const admin = await db
+			.select({ id: platformAdmins.id })
+			.from(platformAdmins)
+			.where(eq(platformAdmins.userId, userId))
+			.limit(1);
+
+		return admin.length > 0;
+	}
+
 	async checkTwoFactorEnabled(adminUserId: string): Promise<boolean> {
 		const twoFactorRecord = await db
 			.select({ id: twoFactor.id })

@@ -28,6 +28,29 @@ export interface QuotaValidationResult {
 	usage: UsageStats;
 }
 
+export type QuotaStatusResponse = {
+	subscription: {
+		planName: string;
+		status: string;
+	} | null;
+	usage: {
+		currentMonth: number;
+		currentMonthOverage: number;
+		activeConversions: number;
+	};
+	limits: {
+		monthly: number;
+		concurrent: number;
+		maxFileSizeMb: number;
+	};
+	remaining: {
+		monthly: number;
+		concurrent: number;
+	};
+	periodEnd: string;
+	warnings: string[];
+};
+
 export type ConversionType = 'XLSX_TO_CSV' | 'DOCX_TO_PDF';
 
 export interface ConversionEvent {

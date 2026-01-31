@@ -1,11 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Calendar, Edit, FileText, User } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import {
+	AlertCircle,
+	ArrowLeft,
+	Calendar,
+	CheckCircle2,
+	Clock,
+	Download,
+	Edit,
+	FileText,
+	Loader2,
+	User,
+} from 'lucide-react';
 
 import { api } from '@/api/client';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layouts';
 import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
 import { formatDate } from '@/lib/utils';
+import { useJobDownload, useRecentJobs } from '@/hooks/use-jobs';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 import type { ApiResponse, Configuration } from '@/types';
 
@@ -235,7 +250,184 @@ export function ConfigurationDetailComponent() {
 						<MutationSidebar config={config} />
 					</div>
 				</div>
+
+				{/* Run History */}
+				<RunHistory configurationId={config.id} />
 			</div>
 		</Layout>
+	);
+}
+
+function formatDuration(ms: number): string {
+	if (ms < 1000) return `${ms}ms`;
+	if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+	return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`;
+}
+
+function formatFileSize(bytes: number): string {
+	if (bytes < 1024) return `${bytes} B`;
+	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function StatusBadge({ status }: { status: string }) {
+	if (status === 'completed') {
+		return (
+			<Badge
+				variant="default"
+				className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 dark:text-emerald-400"
+			>
+				<CheckCircle2 className="mr-1 h-3 w-3" />
+				Completed
+			</Badge>
+		);
+	}
+	if (status === 'failed') {
+		return (
+			<Badge variant="destructive" className="bg-red-500/10 text-red-600 hover:bg-red-500/20 dark:text-red-400">
+				<AlertCircle className="mr-1 h-3 w-3" />
+				Failed
+			</Badge>
+		);
+	}
+	if (status === 'processing') {
+		return (
+			<Badge
+				variant="secondary"
+				className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 dark:text-amber-400"
+			>
+				<Loader2 className="mr-1 h-3 w-3 animate-spin" />
+				Processing
+			</Badge>
+		);
+	}
+	return (
+		<Badge variant="secondary">
+			<Clock className="mr-1 h-3 w-3" />
+			Pending
+		</Badge>
+	);
+}
+
+function RunHistory({ configurationId }: { configurationId: string }) {
+	const { data: jobsData, isLoading } = useRecentJobs({
+		configurationId,
+		limit: 10,
+	});
+	const { mutate: download, isPending: isDownloading } = useJobDownload();
+	const jobs = jobsData?.data || [];
+
+	function handleDownload(jobId: string) {
+		download(
+			{ mutationId: configurationId, jobId },
+			{
+				onSuccess: (response) => {
+					if (response.data?.downloadUrl) {
+						window.open(response.data.downloadUrl, '_blank');
+					}
+				},
+			},
+		);
+	}
+
+	if (isLoading) {
+		return (
+			<div className="bg-card mt-8 rounded-lg border p-6">
+				<h2 className="text-card-foreground mb-4 text-lg font-medium">
+					Run History
+				</h2>
+				<div className="space-y-3">
+					{[...Array(3)].map((_, i) => (
+						<div
+							key={i}
+							className="bg-muted/50 h-16 animate-pulse rounded-lg"
+						/>
+					))}
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className="bg-card mt-8 rounded-lg border p-6">
+			<div className="mb-4 flex items-center gap-3">
+				<div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
+					<Clock className="text-primary h-4 w-4" />
+				</div>
+				<div>
+					<h2 className="text-card-foreground text-lg font-medium">
+						Run History
+					</h2>
+					<p className="text-muted-foreground text-sm">
+						{jobsData?.pagination?.total || 0} total runs
+					</p>
+				</div>
+			</div>
+
+			{jobs.length === 0 ? (
+				<p className="text-muted-foreground py-8 text-center text-sm">
+					No runs yet. Execute a transformation to see results here.
+				</p>
+			) : (
+				<div className="space-y-2">
+					{jobs.map((job) => (
+						<div
+							key={job.id}
+							className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-4 transition-colors"
+						>
+							<div className="min-w-0 flex-1">
+								<div className="flex items-center gap-2">
+									<StatusBadge status={job.status} />
+									{job.originalFileName && (
+										<span className="text-foreground flex items-center gap-1 truncate text-sm font-medium">
+											<FileText className="h-3.5 w-3.5 shrink-0" />
+											{job.originalFileName}
+										</span>
+									)}
+								</div>
+								<div className="text-muted-foreground mt-1.5 flex items-center gap-4 text-xs">
+									{job.fileSize && (
+										<span>{formatFileSize(job.fileSize)}</span>
+									)}
+									{job.durationMs !== null && (
+										<span className="flex items-center gap-1">
+											<Clock className="h-3 w-3" />
+											{formatDuration(job.durationMs)}
+										</span>
+									)}
+									<span>
+										{formatDistanceToNow(new Date(job.createdAt), {
+											addSuffix: true,
+										})}
+									</span>
+									{job.errorMessage && (
+										<span className="text-destructive truncate">
+											{job.errorMessage}
+										</span>
+									)}
+								</div>
+							</div>
+
+							{job.status === 'completed' && job.outputFileKey && (
+								<Button
+									variant="ghost"
+									size="sm"
+									className="ml-4 shrink-0 gap-1.5"
+									onClick={() => handleDownload(job.id)}
+									disabled={isDownloading}
+								>
+									{isDownloading ? (
+										<Loader2 className="h-3.5 w-3.5 animate-spin" />
+									) : (
+										<Download className="h-3.5 w-3.5" />
+									)}
+									Download
+								</Button>
+							)}
+						</div>
+					))}
+				</div>
+			)}
+		</div>
 	);
 }

@@ -54,31 +54,14 @@ export async function adminRoutes(fastify: FastifyInstance) {
 				};
 			}
 
-			const twoFactorRequired = await adminService.checkTwoFactorRequired(
-				request.currentUser.id,
-			);
-
-			if (!twoFactorRequired) {
-				return {
-					success: true,
-					data: {
-						isAdmin: false,
-						requires2FA: false,
-						has2FAEnabled: false,
-					},
-				};
-			}
-
-			const has2FAEnabled = await adminService.checkTwoFactorEnabled(
-				request.currentUser.id,
-			);
+			const userIsAdmin = await adminService.isAdmin(request.currentUser.id);
 
 			return {
 				success: true,
 				data: {
-					isAdmin: true,
-					requires2FA: twoFactorRequired,
-					has2FAEnabled,
+					isAdmin: userIsAdmin,
+					requires2FA: false,
+					has2FAEnabled: false,
 				},
 			};
 		} catch (error) {

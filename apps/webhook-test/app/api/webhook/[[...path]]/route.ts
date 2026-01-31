@@ -4,9 +4,10 @@ import { webhookStore } from '@/lib/webhook-store';
 
 export async function POST(
 	request: NextRequest,
-	{ params }: { params: { path?: string[] } },
+	{ params }: { params: Promise<{ path?: string[] }> },
 ) {
-	return handleWebhook(request, 'POST', params.path || []);
+	const { path } = await params;
+	return handleWebhook(request, 'POST', path || []);
 }
 
 async function handleWebhook(

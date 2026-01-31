@@ -199,12 +199,26 @@ export async function mutateRoutes(app: FastifyInstance) {
 					}
 
 					// Synchronous transformation (only if not queued)
+					yield* database.updateJobStatus(jobId, 'processing', {
+						startedAt: new Date(),
+					});
+
 					const result = yield* transformBuffer(fileBuffer, config).pipe(
+						Effect.tapError(() =>
+							database.updateJobStatus(jobId, 'failed', {
+								completedAt: new Date(),
+							}),
+						),
 						Effect.mapError((error) => ({
 							code: 'TRANSFORMATION_ERROR',
 							message: serializeError(error),
 						})),
 					);
+
+					yield* database.updateJobStatus(jobId, 'completed', {
+						completedAt: new Date(),
+						executionLog: result.executionLog,
+					});
 
 					return {
 						success: true,

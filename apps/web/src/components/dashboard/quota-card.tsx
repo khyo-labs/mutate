@@ -106,12 +106,13 @@ export function QuotaCard() {
 		);
 	}
 
-	const monthlyLimit = quota.limits?.monthly || 100;
-	const currentUsage = quota.usage?.currentMonth || 0;
+	const monthlyLimit = quota.limits.monthly;
+	const currentUsage = quota.usage.currentMonth;
 	const isOverLimit = currentUsage > monthlyLimit;
-	const daysRemaining = quota.periodEnd
-		? differenceInDays(new Date(quota.periodEnd), new Date())
-		: 30;
+	const daysRemaining = differenceInDays(
+		new Date(quota.periodEnd),
+		new Date(),
+	);
 
 	return (
 		<div className="card-shine bg-card border-border relative overflow-hidden rounded-2xl border">
@@ -136,7 +137,7 @@ export function QuotaCard() {
 								Usage Quota
 							</h2>
 							<p className="text-muted-foreground text-sm">
-								{quota.subscription?.plan?.name || 'Free Plan'}
+								{quota.subscription?.planName || 'Free Plan'}
 							</p>
 						</div>
 					</div>
@@ -145,7 +146,7 @@ export function QuotaCard() {
 						className="bg-primary/10 text-primary border-0 font-medium"
 					>
 						<Zap className="mr-1 h-3 w-3" />
-						{quota.subscription?.plan?.name || 'Free'}
+						{quota.subscription?.planName || 'Free'}
 					</Badge>
 				</div>
 
