@@ -32,7 +32,8 @@
       "Bash(do echo \"=== $file ===\")",
       "Bash(head:*)",
       "Bash(done)",
-      "Bash(for file in src/services/conversion/*.ts)"
+      "Bash(for file in src/services/conversion/*.ts)",
+      "mcp__shadcn__search_items_in_registries"
     ],
     "deny": [],
     "ask": []
