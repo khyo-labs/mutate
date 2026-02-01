@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { AlertCircle, Eye, FileText, Save } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -11,10 +11,8 @@ import { CsvOutputPreview } from '@/components/csv-output-preview';
 import { FileUpload } from '@/components/file-upload';
 import { JsonConfigPanel } from '@/components/json-config-panel';
 import { Layout } from '@/components/layouts';
-import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
 import { RuleBuilder } from '@/components/rule-builder';
 import { SpreadsheetPreview } from '@/components/spreadsheet-preview';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
@@ -34,7 +32,6 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 import type {
@@ -44,8 +41,8 @@ import type {
 	Webhook,
 } from '@/types';
 
-export const Route = createFileRoute('/mutations/$mutationId/edit')({
-	component: ConfigurationEditComponent,
+export const Route = createFileRoute('/mutations/create')({
+	component: CreateMutationComponent,
 });
 
 type FormData = {
@@ -55,26 +52,12 @@ type FormData = {
 	webhookUrlId?: string;
 };
 
-export function ConfigurationEditComponent() {
-	const { mutationId } = Route.useParams();
+function CreateMutationComponent() {
 	const navigate = useNavigate();
-	const queryClient = useQueryClient();
-
 	const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
-
-	const {
-		data: config,
-		isLoading,
-		error,
-	} = useQuery({
-		queryKey: ['mutations', mutationId],
-		queryFn: async () => mutApi.get(mutationId),
-		enabled: !!mutationId,
-	});
-
 	const { activeWorkspace } = useWorkspaceStore();
 
-	const { data: webhooks = [], isLoading: isWebhooksLoading } = useQuery({
+	const { data: webhooks = [] } = useQuery({
 		queryKey: ['workspace', 'webhooks', activeWorkspace?.id],
 		queryFn: async () => workspaceApi.getWebhooks(activeWorkspace!.id),
 		enabled: !!activeWorkspace,
@@ -92,74 +75,38 @@ export function ConfigurationEditComponent() {
 	const {
 		control,
 		handleSubmit,
-		formState: { errors, isSubmitting },
+		formState: { errors },
 		watch,
 		setValue,
-		reset,
 	} = form;
 
 	const watchedName = watch('name');
 	const watchedDescription = watch('description');
 	const watchedRules = watch('rules');
 
-	useEffect(() => {
-		if (config && !isWebhooksLoading) {
-			reset({
-				name: config.name,
-				description: config.description || '',
-				rules: config.rules,
-				webhookUrlId: config.webhookUrlId || '',
-			});
-		}
-	}, [config, isWebhooksLoading, reset]);
-
-	const updateConfigurationMutation = useMutation({
+	const createMutation = useMutation({
 		mutationFn: async (data: FormData) => {
-			const configurationData: Partial<Configuration> = {};
-
-			if (data.name && data.name.trim()) {
-				configurationData.name = data.name.trim();
-			}
-
-			if (data.description !== undefined) {
-				configurationData.description = data.description.trim();
-			}
-
-			// Only send rules if we have at least one rule
-			if (data.rules && data.rules.length > 0) {
-				configurationData.rules = data.rules;
-			}
-
-			// Include webhook URL ID if selected
-			if (data.webhookUrlId) {
-				configurationData.webhookUrlId = data.webhookUrlId;
-			} else {
-				configurationData.webhookUrlId = null; // Explicitly set to null to clear
-			}
-
-			// Always include outputFormat
-			configurationData.outputFormat = {
-				type: 'CSV' as const,
-				delimiter: ',',
-				encoding: 'UTF-8' as const,
-				includeHeaders: true,
-			};
-
-			const updatedConfig = await mutApi.update(mutationId, configurationData);
-			return updatedConfig;
+			return mutApi.create({
+				name: data.name.trim(),
+				description: data.description.trim(),
+				conversionType: 'XLSX_TO_CSV',
+				inputFormat: 'XLSX',
+				rules: data.rules,
+				outputFormat: {
+					type: 'CSV' as const,
+					delimiter: ',',
+					encoding: 'UTF-8' as const,
+					includeHeaders: true,
+				},
+				...(data.webhookUrlId ? { webhookUrlId: data.webhookUrlId } : {}),
+			});
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['configurations'] });
-			queryClient.invalidateQueries({
-				queryKey: ['configurations', mutationId],
-			});
-			navigate({
-				to: '/mutations/$mutationId',
-				params: { mutationId: mutationId },
-			});
+			toast.success('Mutation created successfully');
+			navigate({ to: '/mutations' });
 		},
 		onError: (error) => {
-			toast.error('Failed to update configuration', {
+			toast.error('Failed to create mutation', {
 				description: error.message,
 			});
 		},
@@ -167,15 +114,15 @@ export function ConfigurationEditComponent() {
 
 	function onSubmit(data: FormData) {
 		if (!data.rules || data.rules.length === 0) {
-			toast.warning('Please add at least one transformation rule before saving.');
+			toast.warning('Please add at least one transformation rule before creating.');
 			return;
 		}
 
-		updateConfigurationMutation.mutate(data);
+		createMutation.mutate(data);
 	}
 
 	function handleCancel() {
-		navigate({ to: '/mutations/$mutationId', params: { mutationId } });
+		navigate({ to: '/mutations' });
 	}
 
 	function handleImportConfig(importedConfig: {
@@ -189,110 +136,15 @@ export function ConfigurationEditComponent() {
 		setValue('rules', importedConfig.rules);
 	}
 
-	if (isLoading) {
-		return (
-			<Layout>
-				<div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
-					<div className="space-y-8 xl:col-span-8">
-						<Card>
-							<CardHeader>
-								<Skeleton className="h-5 w-48" />
-								<Skeleton className="h-4 w-72" />
-							</CardHeader>
-							<CardContent className="space-y-4">
-								<Skeleton className="h-24 w-full rounded-lg" />
-								<Skeleton className="h-24 w-full rounded-lg" />
-							</CardContent>
-						</Card>
-						<Card>
-							<CardHeader>
-								<Skeleton className="h-5 w-32" />
-								<Skeleton className="h-4 w-56" />
-							</CardHeader>
-							<CardContent>
-								<Skeleton className="h-48 w-full rounded-lg" />
-							</CardContent>
-						</Card>
-					</div>
-					<div className="space-y-8 xl:col-span-4">
-						<Card>
-							<CardHeader>
-								<Skeleton className="h-5 w-32" />
-								<Skeleton className="h-4 w-48" />
-							</CardHeader>
-							<CardContent className="space-y-4">
-								<Skeleton className="h-9 w-full" />
-								<Skeleton className="h-9 w-full" />
-								<Skeleton className="h-9 w-full" />
-							</CardContent>
-						</Card>
-					</div>
-				</div>
-			</Layout>
-		);
-	}
-
-	if (error) {
-		return (
-			<Layout>
-				<Alert variant="destructive">
-					<AlertCircle className="h-4 w-4" />
-					<AlertDescription>{error.message}</AlertDescription>
-				</Alert>
-			</Layout>
-		);
-	}
-
-	if (!config) {
-		return (
-			<Layout>
-				<div className="py-12 text-center">
-					<div className="bg-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
-						<FileText className="text-muted-foreground h-8 w-8" />
-					</div>
-					<h3 className="text-foreground mb-1 text-lg font-semibold">
-						Mutation not found
-					</h3>
-					<p className="text-muted-foreground mb-4 text-sm">
-						The configuration you're looking for doesn't exist.
-					</p>
-					<Button
-						variant="outline"
-						onClick={() => navigate({ to: '/mutations' })}
-					>
-						Back to Mutations
-					</Button>
-				</div>
-			</Layout>
-		);
-	}
-
 	return (
 		<Layout
-			title="Edit Mutation"
-			description="Modify your data transformation mutation"
-			buttons={[
-				<Button
-					variant="outline"
-					onClick={() =>
-						navigate({
-							to: '/mutations/$mutationId',
-							params: { mutationId },
-						})
-					}
-				>
-					<Eye className="mr-2 h-4 w-4" />
-					Preview
-				</Button>,
-			]}
+			title="Create Mutation"
+			description="Design a new data transformation pipeline"
 		>
 			<Form {...form}>
 				<form onSubmit={handleSubmit(onSubmit)}>
-					{/* Main Content Grid */}
 					<div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
-						{/* Left Column - Main Content Area */}
 						<div className="space-y-8 xl:col-span-8">
-							{/* Transformation Rules Card - Larger Space */}
 							<Card>
 								<CardContent>
 									<Controller
@@ -305,7 +157,6 @@ export function ConfigurationEditComponent() {
 								</CardContent>
 							</Card>
 
-							{/* Data Preview Tabs */}
 							<Tabs defaultValue="preview">
 								<Card>
 									<CardHeader>
@@ -345,7 +196,6 @@ export function ConfigurationEditComponent() {
 								</Card>
 							</Tabs>
 
-							{/* Output Preview Card */}
 							<Card>
 								<CardHeader>
 									<CardTitle>Output Preview</CardTitle>
@@ -369,9 +219,7 @@ export function ConfigurationEditComponent() {
 							</Card>
 						</div>
 
-						{/* Right Column - Configuration Sidebar */}
 						<div className="space-y-8 xl:col-span-4">
-							{/* Configuration Details Card */}
 							<Card>
 								<CardHeader>
 									<CardTitle>Configuration</CardTitle>
@@ -453,7 +301,6 @@ export function ConfigurationEditComponent() {
 								</CardContent>
 							</Card>
 
-							{/* JSON Configuration Card */}
 							<Card>
 								<CardHeader>
 									<CardTitle>JSON Configuration</CardTitle>
@@ -473,12 +320,9 @@ export function ConfigurationEditComponent() {
 									/>
 								</CardContent>
 							</Card>
-
-							<MutationSidebar config={config} />
 						</div>
 					</div>
 
-					{/* Action Bar */}
 					<Separator className="my-6" />
 					<div>
 						<div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
@@ -494,7 +338,6 @@ export function ConfigurationEditComponent() {
 										No file uploaded
 									</span>
 								)}
-								{/* Rules count */}
 								<span className="text-muted-foreground ml-4">
 									{watchedRules.length} transformation rule
 									{watchedRules.length !== 1 ? 's' : ''} configured
@@ -507,14 +350,12 @@ export function ConfigurationEditComponent() {
 								</Button>
 								<Button
 									type="submit"
-									disabled={
-										isSubmitting || updateConfigurationMutation.isPending
-									}
+									disabled={createMutation.isPending}
 								>
-									<Save className="mr-2 h-4 w-4" />
-									{isSubmitting || updateConfigurationMutation.isPending
-										? 'Saving...'
-										: 'Save Changes'}
+									<Plus className="mr-2 h-4 w-4" />
+									{createMutation.isPending
+										? 'Creating...'
+										: 'Create Mutation'}
 								</Button>
 							</div>
 						</div>

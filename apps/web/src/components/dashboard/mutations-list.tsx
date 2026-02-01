@@ -52,7 +52,7 @@ export function MutationsList() {
 				<p className="text-muted-foreground mx-auto mb-4 max-w-xs text-sm">
 					Create your first mutation pipeline to start transforming data
 				</p>
-				<Link to="/create-mutation">
+				<Link to="/mutations/create">
 					<Button size="sm" className="gap-2">
 						Create Pipeline
 						<ArrowRight className="h-4 w-4" />

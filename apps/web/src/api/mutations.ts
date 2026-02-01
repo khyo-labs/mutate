@@ -50,9 +50,7 @@ export const mutApi = {
 
 		const url = `/v1/workspace/${workspace.id}/configuration/${id}`;
 
-		console.log('mutApi.update - Sending data:', data);
 		const response = await api.put<SuccessResponse<Configuration>>(url, data);
-		console.log('mutApi.update - Received response:', response);
 
 		return response.data;
 	},

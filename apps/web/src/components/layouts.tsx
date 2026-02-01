@@ -22,7 +22,7 @@ export function Layout({ title, description, buttons, children }: LayoutProps) {
 			<div className="bg-background flex h-screen flex-col">
 				{showBanner && <VerificationBanner />}
 
-				<div className="flex overflow-auto pt-10 lg:pt-0">
+				<div className="flex min-h-0 flex-1 overflow-auto pt-10 lg:pt-0">
 					<Sidebar />
 					<main className="mx-auto flex flex-1 flex-col overflow-auto">
 						<div className="bg-background mt-16 p-8 pb-0 lg:mt-0">

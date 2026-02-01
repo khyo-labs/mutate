@@ -115,7 +115,7 @@ export function ConfigurationsComponent() {
 							{pagination && ` (${pagination.total} total)`}
 						</p>
 					</div>
-					<Link to="/create-mutation">
+					<Link to="/mutations/create">
 						<Button>
 							<Plus className="mr-2 h-4 w-4" />
 							New Mutation
@@ -279,7 +279,7 @@ export function ConfigurationsComponent() {
 							</p>
 							{!searchTerm && (
 								<div className="mt-4">
-									<Link to="/create-mutation">
+									<Link to="/mutations/create">
 										<Button>
 											<Plus className="mr-2 h-4 w-4" />
 											Create Mutation

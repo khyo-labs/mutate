@@ -11,11 +11,13 @@ Mutate is a SaaS platform that enables users to create visual, reusable configur
 ```
 mutate/
 ├── apps/
-│   ├── api/          # Backend API (Fastify)
-│   └── web/          # Frontend App (React + Vite)
-├── infrastructure/   # Docker & deployment configs
-├── docs/            # Documentation
-└── packages/        # Shared packages (future)
+│   ├── api/            # Fastify + TypeScript API (routes, services, middleware, workers)
+│   ├── web/            # React + Vite frontend
+│   ├── marketing/      # Vite marketing site
+│   └── webhook-test/   # Minimal Fastify webhook receiver for local testing
+├── infrastructure/     # Docker, docker-compose.dev.yml, helper scripts
+├── docs/               # Auth/billing notes and plans
+└── packages/           # Shared packages (future)
 ```
 
 ### Technology Stack
@@ -81,17 +83,48 @@ mutate/
 6. **COMBINE_WORKSHEETS** - Merge multiple worksheets
 7. **EVALUATE_FORMULAS** - Calculate formula values
 
+## Commands
+
+### Development
+
+```bash
+bun install           # Install dependencies
+bun dev               # Start both API and web in development (Turbo)
+bun build             # Build all apps
+bun typecheck         # Run TypeScript checks
+bun lint              # Run linting
+bun format            # Format code with Prettier
+```
+
+### App-specific
+
+```bash
+bun --filter @mutate/api dev       # Start API only
+bun --filter @mutate/api build     # Build API only
+bun --filter @mutate/web dev       # Start web only
+bun --filter @mutate/marketing dev # Start marketing site only
+```
+
+### Database
+
+```bash
+bun db:generate       # Generate Drizzle migration SQL
+bun db:migrate        # Apply migrations
+bun db:studio         # Open Drizzle Studio UI
+```
+
 ## Development Guidelines
 
-### File Naming
+### Coding Style & Naming
 
-- Use kebab-case for file names (e.g., `user-service.ts`, `auth-middleware.ts`)
-
-### Code Style
-
+- Formatting via Prettier (`bun format`); linting with `bun lint`
+- TypeScript strict mode throughout; prefer explicit types for public APIs
 - Prefer function declarations over arrow functions: `function myFunction() {}` instead of `const myFunction = () => {}`
-- Use TypeScript strict mode across all projects
-- Follow existing patterns in the codebase
+- Naming: PascalCase for types/interfaces, camelCase for vars/functions, UPPER_SNAKE for constants/env
+- Files: kebab-case (`quota-enforcement-service.ts`); tests mirror files with `.test.ts`
+- Do not add one line comments unless absolutely needed
+- Do not chain ternary operators
+- Always use the api-client when you can instead of native fetch
 
 ### UI Components and Icons
 
@@ -104,7 +137,7 @@ mutate/
 - Use Drizzle ORM with PostgreSQL
 - All migrations are version controlled in `apps/api/src/db/migrations/`
 - Database connection and schema defined in `apps/api/src/db/`
-- Key tables include:
+- Key tables:
   - `user`, `session`, `account` - Authentication and user management
   - `organization`, `member`, `invitation` - Multi-tenancy
   - `configuration`, `transformation_job` - Core business logic
@@ -118,6 +151,27 @@ mutate/
 - Better Auth handles authentication with organization plugin
 - Session-based auth with secure cookies
 - Support for email/password and social providers (GitHub, Google)
+
+### API Error Format
+
+```json
+error: {
+	code: 'NOT_AUTHENTICATED',
+	message: 'Authentication required',
+}
+```
+
+## Testing Guidelines
+
+- Framework: Vitest in `apps/api`. Run: `bun --filter @mutate/api test`
+- Place tests next to implementation: `foo.ts` and `foo.test.ts`
+- Avoid external calls in unit tests; stub queue/storage/email. Use fast, deterministic data.
+
+## Commit & Pull Request Guidelines
+
+- Commits: imperative, concise subjects. Optional scope prefix, e.g. `api: add quota checks`, `web: fix mutation list`
+- PRs: include description, linked issues, testing steps. Add screenshots/GIFs for UI changes.
+- API changes: note required env vars and include migrations/seed updates when relevant.
 
 ## API Structure
 
@@ -151,34 +205,13 @@ mutate/
 }
 ```
 
-## Commands
-
-### Development
-
-```bash
-pnpm dev          # Start both API and web in development
-pnpm build        # Build all apps
-pnpm typecheck    # Run TypeScript checks
-pnpm lint         # Run linting
-pnpm format       # Format code with Prettier
-```
-
-### Database
-
-```bash
-pnpm db:migrate   # Run database migrations
-pnpm db:generate  # Generate new migration
-pnpm db:studio    # Open Drizzle Studio
-```
-
-### App-specific
-
-```bash
-pnpm api dev      # Start API only
-pnpm web dev      # Start web only
-```
-
 ## Environment Setup
+
+### Security & Configuration
+
+- Never commit secrets. Copy `.env.example` to `.env` per app.
+- Local services: use `infrastructure/docker/docker-compose.dev.yml` and scripts in `infrastructure/scripts/` (`start-dev.sh`, `stop-dev.sh`).
+- Some features require S3/Email/Redis credentials; see `apps/api/.env.example` and `README.md`.
 
 ### Required Environment Variables
 
@@ -222,6 +255,13 @@ VITE_API_URL=http://localhost:3000
 
 ## Recent Changes
 
+- ✅ Redesigned mutation detail page with Card-based layout, Skeleton loading, and Alert error states
+- ✅ Redesigned mutation edit page: removed debug logs, replaced alerts with toasts, proper loading/error states
+- ✅ Redesigned MutationSidebar: single Card with Tabs for code examples, showConfig prop, useClipboard hook
+- ✅ Extracted shared utilities: `format.ts`, `status-badge.tsx`, `use-clipboard.ts`
+- ✅ Extracted RunHistory into standalone component with Card layout and Skeleton loading
+- ✅ Redesigned dashboard with shadcn Card primitives and usage quota Progress bars
+- ✅ Fixed usage quota data shape mismatch between API and frontend
 - ✅ Added passkey authentication (WebAuthn/FIDO2) for passwordless login
 - ✅ Implemented two-factor authentication (2FA) with QR codes and backup codes
 - ✅ Added user profile management with avatar, name, and email updates
@@ -237,21 +277,3 @@ VITE_API_URL=http://localhost:3000
 - ✅ Enhanced API key management with new UI design
 - ✅ Added workspace member management and invitations
 - ✅ Implemented organization limits and quota enforcement
-
-## Development Notes
-
-- The app uses a monorepo structure with pnpm workspaces
-- Turbo is used for build orchestration
-- All apps use TypeScript with strict mode
-- Database migrations are handled by Drizzle
-- The frontend uses TanStack Router for type-safe routing
-- Do not add one line comments unless absolutely needed
-- Always use the api-client when you can instead of native fetch.
-- When returning errors from the api use this format:
-  ```json
-  error: {
-  	code: 'NOT_AUTHENTICATED',
-  	message: 'Authentication required',
-  }
-  ```
-- do not chain ternary operators

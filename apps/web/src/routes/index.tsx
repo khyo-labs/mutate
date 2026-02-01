@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { Link, createFileRoute, redirect } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
 
 import { Dashboard } from '@/components/dashboard';
@@ -53,10 +53,12 @@ export function RouteComponent() {
 		<Layout
 			title="Dashboard"
 			buttons={[
-				<Button>
-					<Plus className="mr-2 h-4 w-4" />
-					New Mutation
-				</Button>,
+				<Link to="/mutations/create">
+					<Button>
+						<Plus className="mr-2 h-4 w-4" />
+						New Mutation
+					</Button>
+				</Link>,
 			]}
 		>
 			<Dashboard />

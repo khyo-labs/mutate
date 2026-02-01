@@ -1,32 +1,88 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
 import { formatDistanceToNow } from 'date-fns';
-import {
-	AlertCircle,
-	ArrowLeft,
-	Calendar,
-	CheckCircle2,
-	Clock,
-	Download,
-	Edit,
-	FileText,
-	Loader2,
-	User,
-} from 'lucide-react';
+import { AlertCircle, ArrowLeft, Calendar, Clock, Edit, FileText } from 'lucide-react';
 
 import { api } from '@/api/client';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layouts';
 import { MutationSidebar } from '@/components/mutations/mutation-sidebar';
+import { RunHistory } from '@/components/mutations/run-history';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getRuleTypeLabel } from '@/lib/format';
 import { formatDate } from '@/lib/utils';
-import { useJobDownload, useRecentJobs } from '@/hooks/use-jobs';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 import type { ApiResponse, Configuration } from '@/types';
 
 export const Route = createFileRoute('/mutations/$mutationId/')({
 	component: ConfigurationDetailComponent,
 });
+
+function DetailSkeleton() {
+	return (
+		<Layout>
+			<div className="space-y-6">
+				<div className="flex flex-wrap items-center gap-4">
+					<Skeleton className="h-5 w-32" />
+					<Skeleton className="h-5 w-24" />
+					<Skeleton className="h-5 w-20" />
+					<Skeleton className="h-5 w-16" />
+				</div>
+				<div className="grid gap-6 lg:grid-cols-3">
+					<div className="space-y-6 lg:col-span-2">
+						<Card>
+							<CardHeader>
+								<Skeleton className="h-5 w-40" />
+								<Skeleton className="h-4 w-56" />
+							</CardHeader>
+							<CardContent className="space-y-3">
+								{[...Array(3)].map((_, i) => (
+									<div key={i} className="flex items-start gap-3 rounded-lg border p-3">
+										<Skeleton className="h-6 w-6 rounded-full" />
+										<div className="flex-1 space-y-2">
+											<Skeleton className="h-4 w-32" />
+											<Skeleton className="h-3 w-48" />
+										</div>
+									</div>
+								))}
+							</CardContent>
+						</Card>
+						<Card>
+							<CardHeader>
+								<Skeleton className="h-5 w-28" />
+							</CardHeader>
+							<CardContent className="space-y-3">
+								<Skeleton className="h-4 w-full" />
+								<Skeleton className="h-4 w-full" />
+							</CardContent>
+						</Card>
+					</div>
+					<Card>
+						<CardHeader>
+							<Skeleton className="h-5 w-32" />
+							<Skeleton className="h-4 w-48" />
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<Skeleton className="h-20 w-full rounded-lg" />
+							<Skeleton className="h-8 w-full" />
+							<Skeleton className="h-40 w-full rounded-lg" />
+						</CardContent>
+					</Card>
+				</div>
+			</div>
+		</Layout>
+	);
+}
 
 export function ConfigurationDetailComponent() {
 	const { mutationId } = Route.useParams();
@@ -50,32 +106,17 @@ export function ConfigurationDetailComponent() {
 		enabled: !!mutationId && !!activeWorkspace,
 	});
 
-	function getRuleTypeLabel(ruleType: string) {
-		return ruleType
-			.replace(/_/g, ' ')
-			.toLowerCase()
-			.replace(/\b\w/g, (l) => l.toUpperCase());
-	}
-
 	if (isLoading) {
-		return (
-			<Layout>
-				<div className="flex items-center justify-center py-12">
-					<div className="text-center">
-						<div className="border-primary mx-auto h-12 w-12 animate-spin rounded-full border-b-2"></div>
-						<p className="text-muted-foreground mt-4">Loading mutation...</p>
-					</div>
-				</div>
-			</Layout>
-		);
+		return <DetailSkeleton />;
 	}
 
 	if (error) {
 		return (
 			<Layout>
-				<div className="bg-destructive/10 rounded-md p-4">
-					<div className="text-destructive text-sm">{error.message}</div>
-				</div>
+				<Alert variant="destructive">
+					<AlertCircle className="h-4 w-4" />
+					<AlertDescription>{error.message}</AlertDescription>
+				</Alert>
 			</Layout>
 		);
 	}
@@ -84,350 +125,175 @@ export function ConfigurationDetailComponent() {
 		return (
 			<Layout>
 				<div className="py-12 text-center">
-					<h2 className="text-foreground text-xl font-semibold">
+					<div className="bg-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
+						<FileText className="text-muted-foreground h-8 w-8" />
+					</div>
+					<h3 className="text-foreground mb-1 text-lg font-semibold">
 						Mutation not found
-					</h2>
-					<p className="text-muted-foreground mt-2">
+					</h3>
+					<p className="text-muted-foreground mb-4 text-sm">
 						The mutation you're looking for doesn't exist.
 					</p>
-					<Link
-						to="/mutations"
-						className="text-primary mt-4 inline-block hover:underline"
-					>
-						Back to Mutations
-					</Link>
+					<Button variant="outline" asChild>
+						<Link to="/mutations">Back to Mutations</Link>
+					</Button>
 				</div>
 			</Layout>
 		);
 	}
 
 	return (
-		<Layout>
-			<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-				{/* Header */}
-				<div className="mb-8">
-					<div className="mb-4 flex items-center space-x-4">
-						<button
-							onClick={() => navigate({ to: '/mutations' })}
-							className="text-muted-foreground hover:text-foreground flex items-center transition-colors"
-						>
-							<ArrowLeft className="mr-1 h-4 w-4" />
-							Back to Mutations
-						</button>
-					</div>
-
-					<div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
-						<div>
-							<h1 className="text-foreground text-3xl font-bold">
-								{config.name}
-							</h1>
-							{config.description && (
-								<p className="text-muted-foreground mt-2 text-lg">
-									{config.description}
-								</p>
-							)}
-							<div className="text-muted-foreground mt-4 flex items-center space-x-6 text-sm">
-								<div className="flex items-center">
-									<Calendar className="mr-1 h-4 w-4" />
-									Created {formatDate(config.createdAt)}
-								</div>
-								<div className="flex items-center">
-									<Calendar className="mr-1 h-4 w-4" />
-									Updated {formatDate(config.updatedAt)}
-								</div>
-								<div className="flex items-center">
-									<User className="mr-1 h-4 w-4" />
-									Version {config.version}
-								</div>
-								<div className="flex items-center">
-									<FileText className="mr-1 h-4 w-4" />
-									{config.rules.length} rules
-								</div>
-							</div>
-						</div>
-
-						<div className="mt-6 flex flex-col space-y-2 sm:mt-0 sm:flex-row sm:space-x-3 sm:space-y-0">
-							<Link
-								to="/mutations/$mutationId/edit"
-								params={{ mutationId: config.id }}
-								className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors"
-							>
-								<Edit className="mr-2 h-4 w-4" />
-								Edit Mutation
-							</Link>
-						</div>
-					</div>
+		<Layout
+			title={config.name}
+			description={config.description || undefined}
+			buttons={[
+				<Button
+					key="back"
+					variant="outline"
+					size="sm"
+					onClick={() => navigate({ to: '/mutations' })}
+				>
+					<ArrowLeft className="mr-2 h-4 w-4" />
+					Back
+				</Button>,
+				<Button key="edit" asChild>
+					<Link
+						to="/mutations/$mutationId/edit"
+						params={{ mutationId: config.id }}
+					>
+						<Edit className="mr-2 h-4 w-4" />
+						Edit Mutation
+					</Link>
+				</Button>,
+			]}
+		>
+			<div className="space-y-6">
+				<div className="text-muted-foreground flex flex-wrap items-center gap-4 text-sm">
+					<span className="flex items-center gap-1.5">
+						<Calendar className="h-3.5 w-3.5" />
+						Created {formatDate(config.createdAt)}
+					</span>
+					<Separator orientation="vertical" className="h-4" />
+					<span className="flex items-center gap-1.5">
+						<Clock className="h-3.5 w-3.5" />
+						Updated{' '}
+						{formatDistanceToNow(new Date(config.updatedAt), {
+							addSuffix: true,
+						})}
+					</span>
+					<Separator orientation="vertical" className="h-4" />
+					<Badge variant="secondary" className="font-mono">
+						v{config.version}
+					</Badge>
+					<Separator orientation="vertical" className="h-4" />
+					<span className="flex items-center gap-1.5">
+						<FileText className="h-3.5 w-3.5" />
+						{config.rules.length} rules
+					</span>
 				</div>
 
-				<div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-					{/* Configuration Details */}
+				<div className="grid gap-6 lg:grid-cols-3">
 					<div className="space-y-6 lg:col-span-2">
-						{/* Rules List */}
-						<div className="bg-card rounded-lg border p-6">
-							<h2 className="text-card-foreground mb-4 text-lg font-medium">
-								Transformation Rules
-							</h2>
-							{config.rules.length > 0 ? (
-								<div className="space-y-3">
-									{config.rules.map((rule, index) => (
-										<div
-											key={rule.id}
-											className="bg-muted/50 flex items-start space-x-3 rounded-lg border p-3"
-										>
-											<div className="bg-primary/10 text-primary flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-semibold">
-												{index + 1}
+						<Card>
+							<CardHeader>
+								<CardTitle>Operations</CardTitle>
+								<CardDescription>
+									Mutation steps applied in order
+								</CardDescription>
+							</CardHeader>
+							<CardContent>
+								{config.rules.length > 0 ? (
+									<div className="space-y-3">
+										{config.rules.map((rule, index) => (
+											<div
+												key={rule.id}
+												className="bg-muted/50 flex items-start gap-3 rounded-lg border p-3"
+											>
+												<div className="bg-primary/10 text-primary flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+													{index + 1}
+												</div>
+												<div className="min-w-0 flex-1">
+													<p className="text-foreground text-sm font-medium">
+														{getRuleTypeLabel(rule.type)}
+													</p>
+													<pre className="text-muted-foreground mt-1 overflow-x-auto font-mono text-xs">
+														{JSON.stringify(rule.params, null, 2)}
+													</pre>
+												</div>
 											</div>
-											<div className="min-w-0 flex-1">
-												<h3 className="text-card-foreground text-sm font-medium">
-													{getRuleTypeLabel(rule.type)}
-												</h3>
-												<p className="text-muted-foreground mt-1 text-xs">
-													{JSON.stringify(rule.params, null, 2)}
-												</p>
-											</div>
-										</div>
-									))}
-								</div>
-							) : (
-								<p className="text-muted-foreground py-4 text-center">
-									No rules configured
-								</p>
-							)}
-						</div>
+										))}
+									</div>
+								) : (
+									<div className="text-muted-foreground py-8 text-center text-sm">
+										No rules configured
+									</div>
+								)}
+							</CardContent>
+						</Card>
 
-						{/* Output Format */}
-						<div className="bg-card rounded-lg border p-6">
-							<h2 className="text-card-foreground mb-4 text-lg font-medium">
-								Output Format
-							</h2>
-							<div className="space-y-2 text-sm">
-								<div className="flex justify-between">
-									<span className="text-muted-foreground">Format:</span>
-									<span className="text-card-foreground font-medium">
-										{config.outputFormat.type}
-									</span>
+						<Card>
+							<CardHeader>
+								<CardTitle>Output Format</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="space-y-3 text-sm">
+									<div className="flex justify-between">
+										<span className="text-muted-foreground">Format</span>
+										<span className="text-foreground font-medium">
+											{config.outputFormat.type}
+										</span>
+									</div>
+									{config.outputFormat.type === 'CSV' && (
+										<>
+											<Separator />
+											<div className="flex justify-between">
+												<span className="text-muted-foreground">
+													Delimiter
+												</span>
+												<span className="text-foreground font-mono">
+													{'delimiter' in config.outputFormat
+														? config.outputFormat.delimiter
+														: ','}
+												</span>
+											</div>
+											<Separator />
+											<div className="flex justify-between">
+												<span className="text-muted-foreground">
+													Encoding
+												</span>
+												<span className="text-foreground font-medium">
+													{'encoding' in config.outputFormat
+														? config.outputFormat.encoding
+														: 'utf-8'}
+												</span>
+											</div>
+											<Separator />
+											<div className="flex justify-between">
+												<span className="text-muted-foreground">
+													Include Headers
+												</span>
+												<span className="text-foreground font-medium">
+													{'includeHeaders' in config.outputFormat
+														? config.outputFormat.includeHeaders
+															? 'Yes'
+															: 'No'
+														: 'Yes'}
+												</span>
+											</div>
+										</>
+									)}
 								</div>
-								{config.outputFormat.type === 'CSV' && (
-									<div className="flex justify-between">
-										<span className="text-muted-foreground">Delimiter:</span>
-										<span className="text-card-foreground font-mono">
-											{'delimiter' in config.outputFormat
-												? config.outputFormat.delimiter
-												: ','}
-										</span>
-									</div>
-								)}
-								{config.outputFormat.type === 'CSV' && (
-									<div className="flex justify-between">
-										<span className="text-muted-foreground">Encoding:</span>
-										<span className="text-card-foreground font-medium">
-											{'encoding' in config.outputFormat
-												? config.outputFormat.encoding
-												: 'utf-8'}
-										</span>
-									</div>
-								)}
-								{config.outputFormat.type === 'CSV' && (
-									<div className="flex justify-between">
-										<span className="text-muted-foreground">
-											Include Headers:
-										</span>
-										<span className="text-card-foreground font-medium">
-											{'includeHeaders' in config.outputFormat
-												? config.outputFormat.includeHeaders
-													? 'Yes'
-													: 'No'
-												: 'Yes'}
-										</span>
-									</div>
-								)}
-							</div>
-						</div>
+							</CardContent>
+						</Card>
 					</div>
 
-					{/* API Usage Sidebar */}
 					<div className="lg:col-span-1">
-						<MutationSidebar config={config} />
+						<MutationSidebar config={config} showConfig />
 					</div>
 				</div>
 
-				{/* Run History */}
 				<RunHistory configurationId={config.id} />
 			</div>
 		</Layout>
-	);
-}
-
-function formatDuration(ms: number): string {
-	if (ms < 1000) return `${ms}ms`;
-	if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-	return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`;
-}
-
-function formatFileSize(bytes: number): string {
-	if (bytes < 1024) return `${bytes} B`;
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function StatusBadge({ status }: { status: string }) {
-	if (status === 'completed') {
-		return (
-			<Badge
-				variant="default"
-				className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 dark:text-emerald-400"
-			>
-				<CheckCircle2 className="mr-1 h-3 w-3" />
-				Completed
-			</Badge>
-		);
-	}
-	if (status === 'failed') {
-		return (
-			<Badge variant="destructive" className="bg-red-500/10 text-red-600 hover:bg-red-500/20 dark:text-red-400">
-				<AlertCircle className="mr-1 h-3 w-3" />
-				Failed
-			</Badge>
-		);
-	}
-	if (status === 'processing') {
-		return (
-			<Badge
-				variant="secondary"
-				className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 dark:text-amber-400"
-			>
-				<Loader2 className="mr-1 h-3 w-3 animate-spin" />
-				Processing
-			</Badge>
-		);
-	}
-	return (
-		<Badge variant="secondary">
-			<Clock className="mr-1 h-3 w-3" />
-			Pending
-		</Badge>
-	);
-}
-
-function RunHistory({ configurationId }: { configurationId: string }) {
-	const { data: jobsData, isLoading } = useRecentJobs({
-		configurationId,
-		limit: 10,
-	});
-	const { mutate: download, isPending: isDownloading } = useJobDownload();
-	const jobs = jobsData?.data || [];
-
-	function handleDownload(jobId: string) {
-		download(
-			{ mutationId: configurationId, jobId },
-			{
-				onSuccess: (response) => {
-					if (response.data?.downloadUrl) {
-						window.open(response.data.downloadUrl, '_blank');
-					}
-				},
-			},
-		);
-	}
-
-	if (isLoading) {
-		return (
-			<div className="bg-card mt-8 rounded-lg border p-6">
-				<h2 className="text-card-foreground mb-4 text-lg font-medium">
-					Run History
-				</h2>
-				<div className="space-y-3">
-					{[...Array(3)].map((_, i) => (
-						<div
-							key={i}
-							className="bg-muted/50 h-16 animate-pulse rounded-lg"
-						/>
-					))}
-				</div>
-			</div>
-		);
-	}
-
-	return (
-		<div className="bg-card mt-8 rounded-lg border p-6">
-			<div className="mb-4 flex items-center gap-3">
-				<div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
-					<Clock className="text-primary h-4 w-4" />
-				</div>
-				<div>
-					<h2 className="text-card-foreground text-lg font-medium">
-						Run History
-					</h2>
-					<p className="text-muted-foreground text-sm">
-						{jobsData?.pagination?.total || 0} total runs
-					</p>
-				</div>
-			</div>
-
-			{jobs.length === 0 ? (
-				<p className="text-muted-foreground py-8 text-center text-sm">
-					No runs yet. Execute a transformation to see results here.
-				</p>
-			) : (
-				<div className="space-y-2">
-					{jobs.map((job) => (
-						<div
-							key={job.id}
-							className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-4 transition-colors"
-						>
-							<div className="min-w-0 flex-1">
-								<div className="flex items-center gap-2">
-									<StatusBadge status={job.status} />
-									{job.originalFileName && (
-										<span className="text-foreground flex items-center gap-1 truncate text-sm font-medium">
-											<FileText className="h-3.5 w-3.5 shrink-0" />
-											{job.originalFileName}
-										</span>
-									)}
-								</div>
-								<div className="text-muted-foreground mt-1.5 flex items-center gap-4 text-xs">
-									{job.fileSize && (
-										<span>{formatFileSize(job.fileSize)}</span>
-									)}
-									{job.durationMs !== null && (
-										<span className="flex items-center gap-1">
-											<Clock className="h-3 w-3" />
-											{formatDuration(job.durationMs)}
-										</span>
-									)}
-									<span>
-										{formatDistanceToNow(new Date(job.createdAt), {
-											addSuffix: true,
-										})}
-									</span>
-									{job.errorMessage && (
-										<span className="text-destructive truncate">
-											{job.errorMessage}
-										</span>
-									)}
-								</div>
-							</div>
-
-							{job.status === 'completed' && job.outputFileKey && (
-								<Button
-									variant="ghost"
-									size="sm"
-									className="ml-4 shrink-0 gap-1.5"
-									onClick={() => handleDownload(job.id)}
-									disabled={isDownloading}
-								>
-									{isDownloading ? (
-										<Loader2 className="h-3.5 w-3.5 animate-spin" />
-									) : (
-										<Download className="h-3.5 w-3.5" />
-									)}
-									Download
-								</Button>
-							)}
-						</div>
-					))}
-				</div>
-			)}
-		</div>
 	);
 }

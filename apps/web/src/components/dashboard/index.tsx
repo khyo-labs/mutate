@@ -63,7 +63,7 @@ export function Dashboard() {
 						icon={Sparkles}
 					/>
 					<StatCard
-						label="Active Pipelines"
+						label="Active Mutations"
 						value={activeMutations}
 						icon={Activity}
 					/>
@@ -98,7 +98,7 @@ export function Dashboard() {
 								<div className="px-6">
 									<TabsList className="w-full">
 										<TabsTrigger value="runs">Recent Runs</TabsTrigger>
-										<TabsTrigger value="pipelines">Pipelines</TabsTrigger>
+										<TabsTrigger value="pipelines">Mutations</TabsTrigger>
 									</TabsList>
 								</div>
 								<TabsContent value="runs" className="mt-0">

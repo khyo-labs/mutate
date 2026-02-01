@@ -1,71 +1,11 @@
 import { formatDistanceToNow } from 'date-fns';
-import {
-	AlertCircle,
-	CheckCircle2,
-	Clock,
-	Download,
-	FileText,
-	Loader2,
-} from 'lucide-react';
+import { Download, FileText, Loader2 } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useJobDownload, useRecentJobs } from '@/hooks/use-jobs';
-
-function formatDuration(ms: number): string {
-	if (ms < 1000) return `${ms}ms`;
-	if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-	return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`;
-}
-
-function formatFileSize(bytes: number): string {
-	if (bytes < 1024) return `${bytes} B`;
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function StatusBadge({ status }: { status: string }) {
-	if (status === 'completed') {
-		return (
-			<Badge
-				variant="default"
-				className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 dark:text-emerald-400"
-			>
-				<CheckCircle2 className="mr-1 h-3 w-3" />
-				Done
-			</Badge>
-		);
-	}
-	if (status === 'failed') {
-		return (
-			<Badge
-				variant="destructive"
-				className="bg-red-500/10 text-red-600 hover:bg-red-500/20 dark:text-red-400"
-			>
-				<AlertCircle className="mr-1 h-3 w-3" />
-				Failed
-			</Badge>
-		);
-	}
-	if (status === 'processing') {
-		return (
-			<Badge
-				variant="secondary"
-				className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 dark:text-amber-400"
-			>
-				<Loader2 className="mr-1 h-3 w-3 animate-spin" />
-				Running
-			</Badge>
-		);
-	}
-	return (
-		<Badge variant="secondary">
-			<Clock className="mr-1 h-3 w-3" />
-			Pending
-		</Badge>
-	);
-}
+import { formatDuration, formatFileSize } from '@/lib/format';
 
 function DownloadButton({
 	configurationId,
@@ -146,7 +86,7 @@ export function LatestRuns() {
 							<span className="text-foreground truncate text-sm font-medium">
 								{job.configurationName || 'Unknown pipeline'}
 							</span>
-							<StatusBadge status={job.status} />
+							<StatusBadge status={job.status} compact />
 						</div>
 						<div className="text-muted-foreground mt-1 flex items-center gap-3 text-xs">
 							{job.originalFileName && (
