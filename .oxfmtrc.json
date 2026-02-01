@@ -1,0 +1,25 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"quoteProps": "consistent",
+	"semi": true,
+	"singleQuote": true,
+	"tabWidth": 2,
+	"trailingComma": "all",
+	"useTabs": true,
+	"experimentalTailwindcss": {},
+	"importOrder": ["^@/(.*)$", "^[./]"],
+	"importOrderSeparation": true,
+	"importOrderSortSpecifiers": true,
+	"ignorePatterns": [
+		"routeTree.gen.ts",
+		"dist/",
+		"node_modules/",
+		".claude/",
+		".turbo/",
+		".vscode/",
+		".env",
+		"package-lock.json",
+		"yarn.lock",
+		"pnpm-lock.yaml"
+	]
+}

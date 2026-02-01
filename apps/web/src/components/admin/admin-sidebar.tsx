@@ -114,16 +114,12 @@ export function AdminSidebar() {
 							{!isCollapsed && (
 								<div className="flex-1">
 									<div className="flex items-center gap-1">
-										<span className="text-foreground text-sm font-semibold">
-											Platform Admin
-										</span>
+										<span className="text-foreground text-sm font-semibold">Platform Admin</span>
 										<Badge variant="outline" className="ml-2 text-xs">
 											2FA Active
 										</Badge>
 									</div>
-									<div className="text-muted-foreground text-xs">
-										{session?.user?.email}
-									</div>
+									<div className="text-muted-foreground text-xs">{session?.user?.email}</div>
 								</div>
 							)}
 						</div>
@@ -155,9 +151,7 @@ export function AdminSidebar() {
 										<span className="flex-1">{item.name}</span>
 										{item.badge && (
 											<Badge
-												variant={
-													item.badge === 'Live' ? 'default' : 'secondary'
-												}
+												variant={item.badge === 'Live' ? 'default' : 'secondary'}
 												className="text-xs"
 											>
 												{item.badge}
@@ -176,11 +170,7 @@ export function AdminSidebar() {
 					{!isCollapsed ? (
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<Button
-									variant="ghost"
-									className="w-full justify-start text-sm"
-									size="sm"
-								>
+								<Button variant="ghost" className="w-full justify-start text-sm" size="sm">
 									<div className="flex items-center gap-2">
 										<div className="bg-muted flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium">
 											{session?.user?.name?.[0]?.toUpperCase() || 'A'}
@@ -200,10 +190,7 @@ export function AdminSidebar() {
 									<Link to="/">Exit Admin Mode</Link>
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem
-									onClick={handleLogout}
-									className="text-destructive"
-								>
+								<DropdownMenuItem onClick={handleLogout} className="text-destructive">
 									<LogOut className="mr-2 h-4 w-4" />
 									Logout
 								</DropdownMenuItem>

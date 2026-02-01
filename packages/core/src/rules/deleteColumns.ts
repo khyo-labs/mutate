@@ -6,10 +6,7 @@ import { LoggerService } from '../services/logger.js';
 import type { TransformationState } from '../transform/types.js';
 import type { DeleteColumnsRule } from '../types.js';
 
-export function applyDeleteColumns(
-	state: TransformationState,
-	rule: DeleteColumnsRule,
-) {
+export function applyDeleteColumns(state: TransformationState, rule: DeleteColumnsRule) {
 	return Effect.gen(function* () {
 		const logger = yield* LoggerService;
 		const { workbook, selectedSheet } = state;
@@ -63,14 +60,11 @@ export function applyDeleteColumns(
 				.sort((a, b) => a - b);
 
 			if (toDelete.length === 0) {
-				yield* logger.info(
-					'Specified columns are outside current range, skipping',
-				);
+				yield* logger.info('Specified columns are outside current range, skipping');
 				return state;
 			}
 
-			const countDeletedBefore = (c: number) =>
-				toDelete.filter((d) => d < c).length;
+			const countDeletedBefore = (c: number) => toDelete.filter((d) => d < c).length;
 
 			const newSheet: XLSX.WorkSheet = {} as any;
 			const props = ['!merges', '!cols', '!rows', '!protect', '!autofilter'];
@@ -102,9 +96,7 @@ export function applyDeleteColumns(
 
 			workbook.Sheets[sheetName] = newSheet;
 
-			yield* logger.info(
-				`Deleted ${toDelete.length} column(s) from "${sheetName}"`,
-			);
+			yield* logger.info(`Deleted ${toDelete.length} column(s) from "${sheetName}"`);
 
 			return {
 				...state,
@@ -117,8 +109,7 @@ export function applyDeleteColumns(
 			return yield* Effect.fail(
 				new TransformError({
 					rule: 'DELETE_COLUMNS',
-					reason:
-						error instanceof Error ? error.message : 'Failed to delete columns',
+					reason: error instanceof Error ? error.message : 'Failed to delete columns',
 				}),
 			);
 		}

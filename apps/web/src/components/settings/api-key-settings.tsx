@@ -62,8 +62,8 @@ export function ApiKeySettings() {
 				<Alert>
 					<AlertCircle className="h-4 w-4" />
 					<AlertDescription>
-						You must verify your email address before you can create API keys.
-						Check your inbox for the verification email.
+						You must verify your email address before you can create API keys. Check your inbox for
+						the verification email.
 					</AlertDescription>
 				</Alert>
 			)}
@@ -73,9 +73,7 @@ export function ApiKeySettings() {
 			{!isLoading && apiKeys.length === 0 && (
 				<Alert>
 					<AlertCircle className="h-4 w-4" />
-					<AlertDescription>
-						Create your first API key to get started.
-					</AlertDescription>
+					<AlertDescription>Create your first API key to get started.</AlertDescription>
 				</Alert>
 			)}
 
@@ -85,10 +83,7 @@ export function ApiKeySettings() {
 						<div className="divide-border divide-y">
 							{apiKeys.map((apiKey) => (
 								<div key={apiKey.id} className="pb-8 last:pb-0">
-									<ApiKeyDetails
-										apiKey={apiKey}
-										deleteApiKey={deleteMutation}
-									/>
+									<ApiKeyDetails apiKey={apiKey} deleteApiKey={deleteMutation} />
 								</div>
 							))}
 						</div>

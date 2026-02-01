@@ -21,9 +21,7 @@ async function listPlatformAdmins() {
 
 		if (admins.length === 0) {
 			console.log('ℹ️ No platform admins found');
-			console.log(
-				'Run "pnpm tsx src/scripts/make-admin.ts <email>" to add an admin',
-			);
+			console.log('Run "pnpm tsx src/scripts/make-admin.ts <email>" to add an admin');
 			return;
 		}
 

@@ -1,9 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import {
-	QuotaEnforcementService,
-	UsageTrackingService,
-} from '@/services/billing/index.js';
+import { QuotaEnforcementService, UsageTrackingService } from '@/services/billing/index.js';
 import type { ConversionEvent } from '@/services/billing/types.js';
 
 const quotaService = new QuotaEnforcementService();
@@ -23,21 +20,14 @@ export async function validateQuotaMiddleware(
 
 	// Extract file size from request (assuming multipart file upload)
 	let fileSizeMb = 0;
-	if (
-		request.body &&
-		typeof request.body === 'object' &&
-		'file' in request.body
-	) {
+	if (request.body && typeof request.body === 'object' && 'file' in request.body) {
 		const file = (request.body as any).file;
 		if (file && file.size) {
 			fileSizeMb = file.size / (1024 * 1024); // Convert bytes to MB
 		}
 	}
 
-	const validation = await quotaService.validateConversionQuota(
-		organizationId,
-		fileSizeMb,
-	);
+	const validation = await quotaService.validateConversionQuota(organizationId, fileSizeMb);
 
 	if (!validation.canProceed) {
 		return reply.status(403).send({
@@ -92,9 +82,6 @@ export async function trackConversionComplete(
 	}
 }
 
-export async function trackConversionFailure(
-	organizationId: string,
-	jobId: string,
-): Promise<void> {
+export async function trackConversionFailure(organizationId: string, jobId: string): Promise<void> {
 	await usageService.recordConversionFailure(organizationId, jobId);
 }

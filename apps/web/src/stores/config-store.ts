@@ -3,11 +3,7 @@ import { create } from 'zustand';
 import { mutApi } from '@/api/mutations';
 import { workspaceApi } from '@/api/workspaces';
 
-import type {
-	Configuration,
-	ConfigurationFormData,
-	TransformationRule,
-} from '../types';
+import type { Configuration, ConfigurationFormData, TransformationRule } from '../types';
 import { useWorkspaceStore } from './workspace-store';
 
 interface ConfigurationStore {
@@ -29,10 +25,7 @@ interface ConfigurationStore {
 		search?: string;
 	}) => Promise<void>;
 	createConfiguration: (data: ConfigurationFormData) => Promise<Configuration>;
-	updateConfiguration: (
-		id: string,
-		data: Partial<ConfigurationFormData>,
-	) => Promise<Configuration>;
+	updateConfiguration: (id: string, data: Partial<ConfigurationFormData>) => Promise<Configuration>;
 	deleteConfiguration: (id: string) => Promise<void>;
 	fetchConfiguration: (id: string) => Promise<Configuration>;
 	setCurrentConfiguration: (config: Configuration | null) => void;
@@ -162,10 +155,7 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 		} catch (error: unknown) {
 			console.log('fetchConfigurations: Error', error);
 			set({
-				error:
-					error instanceof Error
-						? error.message
-						: 'Failed to fetch configurations',
+				error: error instanceof Error ? error.message : 'Failed to fetch configurations',
 				isLoading: false,
 			});
 		}
@@ -185,20 +175,14 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 		} catch (error: unknown) {
 			console.log('createConfiguration: Error', error);
 			set({
-				error:
-					error instanceof Error
-						? error.message
-						: 'Failed to create configuration',
+				error: error instanceof Error ? error.message : 'Failed to create configuration',
 				isLoading: false,
 			});
 			throw error;
 		}
 	},
 
-	updateConfiguration: async (
-		id: string,
-		data: Partial<ConfigurationFormData>,
-	) => {
+	updateConfiguration: async (id: string, data: Partial<ConfigurationFormData>) => {
 		set({ isLoading: true, error: null });
 		try {
 			const updatedConfig = await mutApi.update(id, data);
@@ -207,18 +191,13 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 					config.id === id ? updatedConfig : config,
 				),
 				currentConfiguration:
-					state.currentConfiguration?.id === id
-						? updatedConfig
-						: state.currentConfiguration,
+					state.currentConfiguration?.id === id ? updatedConfig : state.currentConfiguration,
 				isLoading: false,
 			}));
 			return updatedConfig;
 		} catch (error: unknown) {
 			set({
-				error:
-					error instanceof Error
-						? error.message
-						: 'Failed to update configuration',
+				error: error instanceof Error ? error.message : 'Failed to update configuration',
 				isLoading: false,
 			});
 			throw error;
@@ -230,21 +209,14 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 		try {
 			await mutApi.delete(id);
 			set((state) => ({
-				configurations: state.configurations.filter(
-					(config) => config.id !== id,
-				),
+				configurations: state.configurations.filter((config) => config.id !== id),
 				currentConfiguration:
-					state.currentConfiguration?.id === id
-						? null
-						: state.currentConfiguration,
+					state.currentConfiguration?.id === id ? null : state.currentConfiguration,
 				isLoading: false,
 			}));
 		} catch (error: unknown) {
 			set({
-				error:
-					error instanceof Error
-						? error.message
-						: 'Failed to delete configuration',
+				error: error instanceof Error ? error.message : 'Failed to delete configuration',
 				isLoading: false,
 			});
 			throw error;
@@ -259,10 +231,7 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 			return config;
 		} catch (error: unknown) {
 			set({
-				error:
-					error instanceof Error
-						? error.message
-						: 'Failed to fetch configuration',
+				error: error instanceof Error ? error.message : 'Failed to fetch configuration',
 				isLoading: false,
 			});
 			throw error;
@@ -277,8 +246,7 @@ export const useConfigurationStore = create<ConfigurationStore>((set, get) => ({
 		}));
 	},
 
-	setCurrentConfiguration: (currentConfiguration) =>
-		set({ currentConfiguration }),
+	setCurrentConfiguration: (currentConfiguration) => set({ currentConfiguration }),
 
 	setLoading: (isLoading) => set({ isLoading }),
 

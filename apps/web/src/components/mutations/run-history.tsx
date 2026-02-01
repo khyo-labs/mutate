@@ -3,13 +3,7 @@ import { Clock, Download, FileText, Loader2 } from 'lucide-react';
 
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useJobDownload, useRecentJobs } from '@/hooks/use-jobs';
 import { formatDuration, formatFileSize } from '@/lib/format';
@@ -18,13 +12,7 @@ type RunHistoryProps = {
 	configurationId: string;
 };
 
-function DownloadButton({
-	configurationId,
-	jobId,
-}: {
-	configurationId: string;
-	jobId: string;
-}) {
+function DownloadButton({ configurationId, jobId }: { configurationId: string; jobId: string }) {
 	const { mutate: download, isPending } = useJobDownload();
 
 	function handleDownload() {
@@ -93,9 +81,7 @@ export function RunHistory({ configurationId }: RunHistoryProps) {
 		<Card>
 			<CardHeader>
 				<CardTitle>Run History</CardTitle>
-				<CardDescription>
-					{jobsData?.pagination?.total || 0} total runs
-				</CardDescription>
+				<CardDescription>{jobsData?.pagination?.total || 0} total runs</CardDescription>
 			</CardHeader>
 			<CardContent>
 				{jobs.length === 0 ? (
@@ -103,9 +89,7 @@ export function RunHistory({ configurationId }: RunHistoryProps) {
 						<div className="bg-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
 							<Clock className="text-muted-foreground h-8 w-8" />
 						</div>
-						<h3 className="text-foreground mb-1 font-semibold">
-							No runs yet
-						</h3>
+						<h3 className="text-foreground mb-1 font-semibold">No runs yet</h3>
 						<p className="text-muted-foreground text-sm">
 							Execute a transformation to see results here.
 						</p>
@@ -128,9 +112,7 @@ export function RunHistory({ configurationId }: RunHistoryProps) {
 										)}
 									</div>
 									<div className="text-muted-foreground mt-1.5 flex items-center gap-4 text-xs">
-										{job.fileSize && (
-											<span>{formatFileSize(job.fileSize)}</span>
-										)}
+										{job.fileSize && <span>{formatFileSize(job.fileSize)}</span>}
 										{job.durationMs !== null && (
 											<span className="flex items-center gap-1">
 												<Clock className="h-3 w-3" />
@@ -143,18 +125,13 @@ export function RunHistory({ configurationId }: RunHistoryProps) {
 											})}
 										</span>
 										{job.errorMessage && (
-											<span className="text-destructive truncate">
-												{job.errorMessage}
-											</span>
+											<span className="text-destructive truncate">{job.errorMessage}</span>
 										)}
 									</div>
 								</div>
 
 								{job.status === 'completed' && job.outputFileKey && (
-									<DownloadButton
-										configurationId={configurationId}
-										jobId={job.id}
-									/>
+									<DownloadButton configurationId={configurationId} jobId={job.id} />
 								)}
 							</div>
 						))}

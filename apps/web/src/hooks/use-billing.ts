@@ -35,9 +35,7 @@ export function useOrganizationSubscription(
 	});
 }
 
-export function useQuotaStatus(
-	options?: UseQueryOptions<{ success: boolean; data: QuotaStatus }>,
-) {
+export function useQuotaStatus(options?: UseQueryOptions<{ success: boolean; data: QuotaStatus }>) {
 	const activeWorkspace = useWorkspaceStore((state) => state.activeWorkspace);
 
 	return useQuery({

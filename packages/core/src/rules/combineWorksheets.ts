@@ -6,19 +6,14 @@ import { LoggerService } from '../services/logger.js';
 import type { TransformationState } from '../transform/types.js';
 import type { CombineWorksheetsRule } from '../types.js';
 
-export function applyCombineWorksheets(
-	state: TransformationState,
-	rule: CombineWorksheetsRule,
-) {
+export function applyCombineWorksheets(state: TransformationState, rule: CombineWorksheetsRule) {
 	return Effect.gen(function* () {
 		const logger = yield* LoggerService;
 		const { workbook, history } = state;
 		const params = rule.params;
 
 		const sourceSheets =
-			params.sourceSheets && params.sourceSheets.length
-				? params.sourceSheets
-				: history;
+			params.sourceSheets && params.sourceSheets.length ? params.sourceSheets : history;
 
 		if (!sourceSheets || sourceSheets.length === 0) {
 			return yield* Effect.fail(
@@ -76,9 +71,7 @@ export function applyCombineWorksheets(
 
 				const headerSet = new Set<string>();
 				sheetsData.forEach((rows) => {
-					rows.forEach((row) =>
-						Object.keys(row).forEach((h) => headerSet.add(h)),
-					);
+					rows.forEach((row) => Object.keys(row).forEach((h) => headerSet.add(h)));
 				});
 				const headers = Array.from(headerSet);
 
@@ -108,10 +101,7 @@ export function applyCombineWorksheets(
 			return yield* Effect.fail(
 				new TransformError({
 					rule: 'COMBINE_WORKSHEETS',
-					reason:
-						error instanceof Error
-							? error.message
-							: 'Failed to combine worksheets',
+					reason: error instanceof Error ? error.message : 'Failed to combine worksheets',
 				}),
 			);
 		}

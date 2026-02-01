@@ -6,12 +6,12 @@ Background job processors using Bull (Redis-backed queues). Workers are imported
 
 ## Worker Files
 
-| File | Queue | Status |
-|------|-------|--------|
-| `mutation-worker-effect.ts` | `file-transformation` | **Active** (imported in index.ts) |
-| `mutation-worker.ts` | `file-transformation` | Legacy (not imported) |
-| `webhook-delivery-worker.ts` | `webhook-delivery` | **Active** (imported in index.ts) |
-| `webhook-delivery-worker-effect.ts` | `webhook-delivery` | Effect version (not imported) |
+| File                                | Queue                 | Status                            |
+| ----------------------------------- | --------------------- | --------------------------------- |
+| `mutation-worker-effect.ts`         | `file-transformation` | **Active** (imported in index.ts) |
+| `mutation-worker.ts`                | `file-transformation` | Legacy (not imported)             |
+| `webhook-delivery-worker.ts`        | `webhook-delivery`    | **Active** (imported in index.ts) |
+| `webhook-delivery-worker-effect.ts` | `webhook-delivery`    | Effect version (not imported)     |
 
 Only `mutation-worker-effect.ts` and `webhook-delivery-worker.ts` are imported by the server.
 
@@ -46,6 +46,7 @@ Uses Effect.ts runtime with DatabaseService, StorageService, WebhookService laye
 **Security**: Uses constant-time comparison for signature verification to prevent timing attacks.
 
 **Webhook headers**:
+
 ```
 Content-Type: application/json
 User-Agent: Mutate-Webhook/1.0
@@ -58,17 +59,20 @@ Mutate-Id: {jobId}
 ## Queue Configuration (from `src/services/queue.ts`)
 
 **Transformation queue**:
+
 - Attempts: 3 (5 for files > 50MB)
 - Backoff: exponential, 5s initial delay
 - Stalled check: every 30s
 - Retention: last 100 completed, 50 failed
 
 **Webhook delivery queue**:
+
 - Attempts: 5 (configurable via `WEBHOOK_MAX_RETRIES`)
 - Backoff: exponential, 1s initial delay
 - Retention: last 200 completed, 100 failed
 
 **Dead letter queue**:
+
 - Retention: last 500 completed
 
 ## Job Data Serialization

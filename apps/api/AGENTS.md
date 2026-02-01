@@ -31,6 +31,7 @@ src/
 ## Key Conventions
 
 **Response format** (all endpoints):
+
 ```json
 { "success": true, "data": { ... } }
 { "success": false, "error": { "code": "ERROR_CODE", "message": "..." } }

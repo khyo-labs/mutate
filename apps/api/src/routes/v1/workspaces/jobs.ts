@@ -31,9 +31,7 @@ export async function jobRoutes(fastify: FastifyInstance) {
 			const limit = Math.min(parseInt(limitStr || '10', 10), 100);
 			const offset = parseInt(offsetStr || '0', 10);
 
-			const conditions = [
-				eq(transformationJobs.organizationId, organizationId),
-			];
+			const conditions = [eq(transformationJobs.organizationId, organizationId)];
 
 			if (configurationId) {
 				conditions.push(eq(transformationJobs.configurationId, configurationId));
@@ -59,10 +57,7 @@ export async function jobRoutes(fastify: FastifyInstance) {
 					createdAt: transformationJobs.createdAt,
 				})
 				.from(transformationJobs)
-				.leftJoin(
-					configurations,
-					eq(transformationJobs.configurationId, configurations.id),
-				)
+				.leftJoin(configurations, eq(transformationJobs.configurationId, configurations.id))
 				.where(and(...conditions))
 				.orderBy(desc(transformationJobs.createdAt))
 				.offset(offset)
@@ -76,9 +71,7 @@ export async function jobRoutes(fastify: FastifyInstance) {
 			const jobsWithDuration = jobs.map((job) => {
 				let durationMs: number | null = null;
 				if (job.startedAt && job.completedAt) {
-					durationMs =
-						new Date(job.completedAt).getTime() -
-						new Date(job.startedAt).getTime();
+					durationMs = new Date(job.completedAt).getTime() - new Date(job.startedAt).getTime();
 				}
 
 				return {
@@ -129,10 +122,7 @@ export async function jobRoutes(fastify: FastifyInstance) {
 						),
 				})
 				.from(transformationJobs)
-				.leftJoin(
-					configurations,
-					eq(transformationJobs.configurationId, configurations.id),
-				)
+				.leftJoin(configurations, eq(transformationJobs.configurationId, configurations.id))
 				.where(
 					and(
 						eq(transformationJobs.organizationId, organizationId),

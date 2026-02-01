@@ -87,9 +87,7 @@ function WorkspaceManagement() {
 	const [filterPlan, setFilterPlan] = useState('all');
 	const [filterStatus, setFilterStatus] = useState('all');
 	const [sortBy, setSortBy] = useState('created');
-	const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(
-		null,
-	);
+	const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null);
 	const [showLimitModal, setShowLimitModal] = useState(false);
 	const [limitOverrides, setLimitOverrides] = useState({
 		monthlyConversionLimit: '',
@@ -139,14 +137,10 @@ function WorkspaceManagement() {
 		try {
 			const payload: Record<string, number | null> = {};
 			if (limitOverrides.monthlyConversionLimit) {
-				payload.monthlyConversionLimit = parseInt(
-					limitOverrides.monthlyConversionLimit,
-				);
+				payload.monthlyConversionLimit = parseInt(limitOverrides.monthlyConversionLimit);
 			}
 			if (limitOverrides.concurrentConversionLimit) {
-				payload.concurrentConversionLimit = parseInt(
-					limitOverrides.concurrentConversionLimit,
-				);
+				payload.concurrentConversionLimit = parseInt(limitOverrides.concurrentConversionLimit);
 			}
 			if (limitOverrides.maxFileSizeMb) {
 				payload.maxFileSizeMb = parseInt(limitOverrides.maxFileSizeMb);
@@ -171,11 +165,9 @@ function WorkspaceManagement() {
 			workspace.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			workspace.slug?.toLowerCase().includes(searchTerm.toLowerCase());
 
-		const matchesPlan =
-			filterPlan === 'all' || workspace.plan?.name === filterPlan;
+		const matchesPlan = filterPlan === 'all' || workspace.plan?.name === filterPlan;
 
-		const matchesStatus =
-			filterStatus === 'all' || workspace.subscription?.status === filterStatus;
+		const matchesStatus = filterStatus === 'all' || workspace.subscription?.status === filterStatus;
 
 		return matchesSearch && matchesPlan && matchesStatus;
 	});
@@ -187,9 +179,7 @@ function WorkspaceManagement() {
 			case 'usage':
 				return b.currentUsage - a.currentUsage;
 			case 'created':
-				return (
-					new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-				);
+				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 			case 'activity':
 				return (
 					new Date(b.lastActivityAt || b.createdAt).getTime() -
@@ -203,10 +193,8 @@ function WorkspaceManagement() {
 	// Calculate statistics
 	const stats = {
 		total: workspaces.length,
-		active: workspaces.filter((w) => w.subscription?.status === 'active')
-			.length,
-		suspended: workspaces.filter((w) => w.subscription?.status === 'suspended')
-			.length,
+		active: workspaces.filter((w) => w.subscription?.status === 'active').length,
+		suspended: workspaces.filter((w) => w.subscription?.status === 'suspended').length,
 		totalUsage: workspaces.reduce((sum, w) => sum + w.currentUsage, 0),
 		totalOverages: workspaces.reduce((sum, w) => sum + w.overageCount, 0),
 	};
@@ -223,18 +211,14 @@ function WorkspaceManagement() {
 		<div className="space-y-6">
 			<div>
 				<h2 className="text-2xl font-bold">Workspace Management</h2>
-				<p className="text-muted-foreground">
-					Manage all workspaces across the platform
-				</p>
+				<p className="text-muted-foreground">Manage all workspaces across the platform</p>
 			</div>
 
 			{/* Statistics Cards */}
 			<div className="grid gap-4 md:grid-cols-5">
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Total Workspaces
-						</CardTitle>
+						<CardTitle className="text-sm font-medium">Total Workspaces</CardTitle>
 						<Building2 className="text-muted-foreground h-4 w-4" />
 					</CardHeader>
 					<CardContent>
@@ -271,12 +255,8 @@ function WorkspaceManagement() {
 						<TrendingUp className="h-4 w-4 text-blue-600" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">
-							{stats.totalUsage.toLocaleString()}
-						</div>
-						<p className="text-muted-foreground text-xs">
-							Transformations this period
-						</p>
+						<div className="text-2xl font-bold">{stats.totalUsage.toLocaleString()}</div>
+						<p className="text-muted-foreground text-xs">Transformations this period</p>
 					</CardContent>
 				</Card>
 
@@ -287,9 +267,7 @@ function WorkspaceManagement() {
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">{stats.totalOverages}</div>
-						<p className="text-muted-foreground text-xs">
-							Total overage charges
-						</p>
+						<p className="text-muted-foreground text-xs">Total overage charges</p>
 					</CardContent>
 				</Card>
 			</div>
@@ -309,7 +287,7 @@ function WorkspaceManagement() {
 				<CardContent>
 					<div className="mb-4 flex flex-wrap gap-2">
 						<div className="relative flex-1">
-							<Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
+							<Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
 							<Input
 								placeholder="Search workspaces..."
 								value={searchTerm}
@@ -378,9 +356,7 @@ function WorkspaceManagement() {
 											</div>
 										</TableCell>
 										<TableCell>
-											<Badge variant="outline">
-												{workspace.plan?.name || 'No Plan'}
-											</Badge>
+											<Badge variant="outline">{workspace.plan?.name || 'No Plan'}</Badge>
 										</TableCell>
 										<TableCell>
 											<Badge
@@ -397,9 +373,7 @@ function WorkspaceManagement() {
 										</TableCell>
 										<TableCell>
 											<div className="text-sm">
-												<span className="font-medium">
-													{workspace.currentUsage}
-												</span>
+												<span className="font-medium">{workspace.currentUsage}</span>
 												{workspace.plan?.monthlyConversionLimit && (
 													<span className="text-muted-foreground">
 														{' '}
@@ -416,9 +390,7 @@ function WorkspaceManagement() {
 										<TableCell>
 											<div className="flex items-center gap-1">
 												<Users className="h-3 w-3" />
-												<span className="text-sm">
-													{workspace.memberCount || 0}
-												</span>
+												<span className="text-sm">{workspace.memberCount || 0}</span>
 											</div>
 										</TableCell>
 										<TableCell>
@@ -498,8 +470,7 @@ function WorkspaceManagement() {
 								id="monthlyLimit"
 								type="number"
 								placeholder={
-									selectedWorkspace?.plan?.monthlyConversionLimit?.toString() ||
-									'Unlimited'
+									selectedWorkspace?.plan?.monthlyConversionLimit?.toString() || 'Unlimited'
 								}
 								value={limitOverrides.monthlyConversionLimit}
 								onChange={(e) =>
@@ -511,9 +482,7 @@ function WorkspaceManagement() {
 							/>
 						</div>
 						<div>
-							<Label htmlFor="concurrentLimit">
-								Concurrent Conversion Limit
-							</Label>
+							<Label htmlFor="concurrentLimit">Concurrent Conversion Limit</Label>
 							<Input
 								id="concurrentLimit"
 								type="number"
@@ -567,11 +536,7 @@ function WorkspaceManagement() {
 							>
 								Cancel
 							</Button>
-							<Button
-								onClick={() =>
-									selectedWorkspace && updateLimits(selectedWorkspace.id)
-								}
-							>
+							<Button onClick={() => selectedWorkspace && updateLimits(selectedWorkspace.id)}>
 								Save Changes
 							</Button>
 						</div>

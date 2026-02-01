@@ -13,8 +13,7 @@ function detectDelimiter(csvText: string): string {
 	let detectedDelimiter = ',';
 
 	for (const delimiter of delimiters) {
-		const count = (firstLine.match(new RegExp(`\\${delimiter}`, 'g')) || [])
-			.length;
+		const count = (firstLine.match(new RegExp(`\\${delimiter}`, 'g')) || []).length;
 		if (count > maxCount) {
 			maxCount = count;
 			detectedDelimiter = delimiter;
@@ -25,8 +24,7 @@ function detectDelimiter(csvText: string): string {
 }
 
 export const csvToXlsxConverter: Converter = {
-	supports: (input: string, output: string) =>
-		input === 'csv' && output === 'xlsx',
+	supports: (input: string, output: string) => input === 'csv' && output === 'xlsx',
 
 	convert: (file: Buffer, config?: Configuration) =>
 		Effect.tryPromise({
@@ -50,8 +48,7 @@ export const csvToXlsxConverter: Converter = {
 
 				return Buffer.from(xlsxBuffer);
 			},
-			catch: (error) =>
-				new Error(`CSV to XLSX conversion failed: ${String(error)}`),
+			catch: (error) => new Error(`CSV to XLSX conversion failed: ${String(error)}`),
 		}),
 
 	metadata: {

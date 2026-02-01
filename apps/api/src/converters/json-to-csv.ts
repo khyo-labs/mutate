@@ -26,9 +26,7 @@ function jsonToCsv(data: any[], delimiter = ','): string {
 
 	const flattenedData = data.map((item) => flattenObject(item));
 
-	const headers = Array.from(
-		new Set(flattenedData.flatMap((item) => Object.keys(item))),
-	);
+	const headers = Array.from(new Set(flattenedData.flatMap((item) => Object.keys(item))));
 
 	const csvRows = [headers.join(delimiter)];
 
@@ -48,8 +46,7 @@ function jsonToCsv(data: any[], delimiter = ','): string {
 }
 
 export const jsonToCsvConverter: Converter = {
-	supports: (input: string, output: string) =>
-		input === 'json' && output === 'csv',
+	supports: (input: string, output: string) => input === 'json' && output === 'csv',
 
 	convert: (file: Buffer, config?: Configuration) =>
 		Effect.tryPromise({
@@ -57,17 +54,14 @@ export const jsonToCsvConverter: Converter = {
 				const jsonData = JSON.parse(file.toString('utf-8'));
 
 				if (!Array.isArray(jsonData)) {
-					throw new Error(
-						'JSON must be an array of objects for CSV conversion',
-					);
+					throw new Error('JSON must be an array of objects for CSV conversion');
 				}
 
 				const csvData = jsonToCsv(jsonData, ',');
 
 				return Buffer.from(csvData, 'utf-8');
 			},
-			catch: (error) =>
-				new Error(`JSON to CSV conversion failed: ${String(error)}`),
+			catch: (error) => new Error(`JSON to CSV conversion failed: ${String(error)}`),
 		}),
 
 	metadata: {

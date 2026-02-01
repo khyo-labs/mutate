@@ -19,11 +19,7 @@ export interface WebhookPayload {
 	originalFileName?: string;
 }
 
-export function deliverWebhook(
-	url: string,
-	payload: WebhookPayload,
-	secret?: string,
-) {
+export function deliverWebhook(url: string, payload: WebhookPayload, secret?: string) {
 	return Effect.gen(function* () {
 		const logger = yield* LoggerService;
 
@@ -42,9 +38,7 @@ export function deliverWebhook(
 
 		if (secret) {
 			try {
-				const signature = createHmac('sha256', secret)
-					.update(body)
-					.digest('hex');
+				const signature = createHmac('sha256', secret).update(body).digest('hex');
 				headers['Mutate-Signature'] = signature;
 			} catch {
 				yield* logger.error('Crypto not available, skipping signature');

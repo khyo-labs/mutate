@@ -7,7 +7,7 @@ services:
     container_name: mutate_postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_DB: mutate_db
       POSTGRES_USER: postgres
@@ -17,7 +17,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ../scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d mutate_db"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d mutate_db']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,12 +31,12 @@ services:
     container_name: mutate_redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,7 +50,7 @@ services:
     container_name: mutate_redis_ui
     restart: unless-stopped
     ports:
-      - "8081:8081"
+      - '8081:8081'
     environment:
       - REDIS_HOSTS=local:redis:6379
       - HTTP_USER=admin

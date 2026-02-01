@@ -101,9 +101,7 @@ export function ConfigurationsComponent() {
 			<div className="space-y-8">
 				{error && (
 					<div className="bg-destructive/10 border-destructive/20 rounded-md border p-4">
-						<div className="text-destructive text-sm">
-							{error.message || 'An error occurred'}
-						</div>
+						<div className="text-destructive text-sm">{error.message || 'An error occurred'}</div>
 					</div>
 				)}
 
@@ -128,13 +126,13 @@ export function ConfigurationsComponent() {
 						<form onSubmit={handleSearch} className="flex gap-4">
 							<div className="flex-1">
 								<div className="relative">
-									<Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform" />
+									<Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
 									<input
 										type="text"
 										placeholder="Search mutations..."
 										value={searchTerm}
 										onChange={(e) => setSearchTerm(e.target.value)}
-										className="border-input bg-background file:text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 pl-10 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50"
+										className="border-input bg-background file:text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-9 w-full rounded-md border px-3 py-1 pl-10 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-1 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 									/>
 								</div>
 							</div>
@@ -149,9 +147,7 @@ export function ConfigurationsComponent() {
 					{isLoading ? (
 						<CardContent className="flex items-center justify-center py-8">
 							<Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
-							<span className="text-muted-foreground ml-2">
-								Loading mutations...
-							</span>
+							<span className="text-muted-foreground ml-2">Loading mutations...</span>
 						</CardContent>
 					) : filteredConfigurations?.length > 0 ? (
 						<CardContent className="p-6">
@@ -170,12 +166,8 @@ export function ConfigurationsComponent() {
 													<h3 className="text-foreground truncate text-base font-medium">
 														{config.name}
 													</h3>
-													<span className="text-muted-foreground text-xs">
-														v{config.version}
-													</span>
-													<Badge
-														variant={config.isActive ? 'default' : 'secondary'}
-													>
+													<span className="text-muted-foreground text-xs">v{config.version}</span>
+													<Badge variant={config.isActive ? 'default' : 'secondary'}>
 														{config.isActive ? 'Active' : 'Inactive'}
 													</Badge>
 												</div>
@@ -193,8 +185,7 @@ export function ConfigurationsComponent() {
 													</div>
 													<div className="flex items-center">
 														<span className="font-medium">
-															{config.conversionType?.replace('_', ' → ') ||
-																'XLSX → CSV'}
+															{config.conversionType?.replace('_', ' → ') || 'XLSX → CSV'}
 														</span>
 													</div>
 												</div>
@@ -202,19 +193,13 @@ export function ConfigurationsComponent() {
 										</div>
 
 										<div className="flex items-center space-x-2">
-											<Link
-												to="/mutations/$mutationId"
-												params={{ mutationId: config.id }}
-											>
+											<Link to="/mutations/$mutationId" params={{ mutationId: config.id }}>
 												<Button variant="outline" size="sm">
 													<Eye className="mr-1 h-3 w-3" />
 													View
 												</Button>
 											</Link>
-											<Link
-												to="/mutations/$mutationId/edit"
-												params={{ mutationId: config.id }}
-											>
+											<Link to="/mutations/$mutationId/edit" params={{ mutationId: config.id }}>
 												<Button variant="default" size="sm">
 													<Edit className="mr-1 h-3 w-3" />
 													Edit
@@ -227,9 +212,7 @@ export function ConfigurationsComponent() {
 													variant="outline"
 													size="sm"
 													onClick={() =>
-														setSelectedConfig(
-															selectedConfig === config.id ? null : config.id,
-														)
+														setSelectedConfig(selectedConfig === config.id ? null : config.id)
 													}
 												>
 													<MoreVertical className="h-3 w-3" />
@@ -322,14 +305,11 @@ export function ConfigurationsComponent() {
 					<AlertDialogHeader>
 						<AlertDialogTitle>Delete Configuration</AlertDialogTitle>
 						<AlertDialogDescription>
-							Are you sure you want to delete this configuration? This action
-							cannot be undone.
+							Are you sure you want to delete this configuration? This action cannot be undone.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel onClick={() => setConfigToDelete(null)}>
-							Cancel
-						</AlertDialogCancel>
+						<AlertDialogCancel onClick={() => setConfigToDelete(null)}>Cancel</AlertDialogCancel>
 						<AlertDialogAction asChild>
 							<Button
 								variant="destructive"
@@ -344,10 +324,7 @@ export function ConfigurationsComponent() {
 
 			{/* Click outside to close dropdown */}
 			{selectedConfig && (
-				<div
-					className="fixed inset-0 z-0"
-					onClick={() => setSelectedConfig(null)}
-				/>
+				<div className="fixed inset-0 z-0" onClick={() => setSelectedConfig(null)} />
 			)}
 		</Layout>
 	);

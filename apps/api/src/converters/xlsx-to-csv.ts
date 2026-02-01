@@ -6,8 +6,7 @@ import type { Configuration } from '@/types/index.js';
 import type { Converter } from './core/types.js';
 
 export const xlsxToCsvConverter: Converter = {
-	supports: (input: string, output: string) =>
-		input === 'xlsx' && output === 'csv',
+	supports: (input: string, output: string) => input === 'xlsx' && output === 'csv',
 
 	convert: (file: Buffer, config?: Configuration) =>
 		Effect.tryPromise({
@@ -34,8 +33,7 @@ export const xlsxToCsvConverter: Converter = {
 
 				return Buffer.from(csvData, 'utf-8');
 			},
-			catch: (error) =>
-				new Error(`XLSX to CSV conversion failed: ${String(error)}`),
+			catch: (error) => new Error(`XLSX to CSV conversion failed: ${String(error)}`),
 		}),
 
 	metadata: {

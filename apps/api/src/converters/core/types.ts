@@ -12,10 +12,7 @@ export interface ConverterMetadata {
 
 export interface Converter {
 	supports(input: string, output: string): boolean;
-	convert: (
-		file: Buffer,
-		config?: Configuration,
-	) => Effect.Effect<Buffer | object | string, Error>;
+	convert: (file: Buffer, config?: Configuration) => Effect.Effect<Buffer | object | string, Error>;
 	metadata?: ConverterMetadata;
 }
 

@@ -35,9 +35,7 @@ function getCellValue(
 	if (cell.v !== undefined) {
 		// Handle dates
 		if (cell.v instanceof Date) {
-			value = convertDatesToSerial
-				? dateToExcelSerial(cell.v)
-				: cell.v.toISOString();
+			value = convertDatesToSerial ? dateToExcelSerial(cell.v) : cell.v.toISOString();
 		} else {
 			value = cell.v;
 		}
@@ -81,11 +79,7 @@ export function fillColumn(
 
 export function escapeValues(value: string, delimiter: string): string {
 	// If value contains delimiter, quotes, or newlines, wrap in quotes and escape internal quotes
-	if (
-		value.includes(delimiter) ||
-		value.includes('"') ||
-		value.includes('\n')
-	) {
+	if (value.includes(delimiter) || value.includes('"') || value.includes('\n')) {
 		return `"${value.replace(/"/g, '""')}"`;
 	}
 	return value;
@@ -104,19 +98,11 @@ export function deleteColumnsFromWorksheet(
 		.sort((a, b) => a - b);
 	if (toDelete.length === 0) return worksheet;
 
-	const countDeletedBefore = (c: number) =>
-		toDelete.filter((d) => d < c).length;
+	const countDeletedBefore = (c: number) => toDelete.filter((d) => d < c).length;
 	const newSheet: XLSX.WorkSheet = {} as XLSX.WorkSheet;
-	const props = [
-		'!merges',
-		'!cols',
-		'!rows',
-		'!protect',
-		'!autofilter',
-	] as const;
+	const props = ['!merges', '!cols', '!rows', '!protect', '!autofilter'] as const;
 	for (const p of props)
-		if (worksheet[p] !== undefined)
-			(newSheet as Record<string, unknown>)[p] = worksheet[p];
+		if (worksheet[p] !== undefined) (newSheet as Record<string, unknown>)[p] = worksheet[p];
 
 	Object.keys(worksheet)
 		.filter((k) => !k.startsWith('!'))
@@ -149,11 +135,10 @@ export function simulateTransformations(
 	const warnings: string[] = [];
 
 	// Check if any EVALUATE_FORMULAS rule specifies date conversion preference
-	const evaluateFormulaRule = rules.find(
-		(r) => r.type === 'EVALUATE_FORMULAS',
-	) as import('@/types').EvaluateFormulasRule | undefined;
-	const convertDatesToSerial =
-		evaluateFormulaRule?.params?.convertDatesToSerial ?? true;
+	const evaluateFormulaRule = rules.find((r) => r.type === 'EVALUATE_FORMULAS') as
+		| import('@/types').EvaluateFormulasRule
+		| undefined;
+	const convertDatesToSerial = evaluateFormulaRule?.params?.convertDatesToSerial ?? true;
 
 	// Start with the first worksheet by default
 	let activeWorksheet = file.worksheets[0];
@@ -175,9 +160,7 @@ export function simulateTransformations(
 
 	// Extract headers (first row)
 	let headers: string[] =
-		data.length > 0
-			? data[0].map((cell, index) => cell?.toString() || `Column ${index + 1}`)
-			: [];
+		data.length > 0 ? data[0].map((cell, index) => cell?.toString() || `Column ${index + 1}`) : [];
 
 	// Track selected worksheets to support defaults in COMBINE_WORKSHEETS
 	const selectedSheetsHistory: string[] = [];
@@ -193,14 +176,11 @@ export function simulateTransformations(
 						targetWorksheet = rule.params.value;
 						break;
 					case 'index':
-						targetWorksheet =
-							file.worksheets[Number.parseInt(rule.params.value)];
+						targetWorksheet = file.worksheets[Number.parseInt(rule.params.value)];
 						break;
 					case 'pattern':
 						targetWorksheet =
-							file.worksheets.find((worksheet) =>
-								worksheet.match(rule.params.value),
-							) || null;
+							file.worksheets.find((worksheet) => worksheet.match(rule.params.value)) || null;
 						break;
 				}
 
@@ -223,9 +203,7 @@ export function simulateTransformations(
 					}
 					headers =
 						data.length > 0
-							? data[0].map(
-									(cell, index) => cell?.toString() || `Column ${index + 1}`,
-								)
+							? data[0].map((cell, index) => cell?.toString() || `Column ${index + 1}`)
 							: [];
 
 					appliedRules.push(`Selected worksheet: ${targetWorksheet}`);
@@ -242,9 +220,7 @@ export function simulateTransformations(
 				const numOfColumns = rule.params.numOfColumns;
 				const actualCount = data.length > 0 ? data[0].length : 0;
 				if (actualCount !== numOfColumns) {
-					warnings.push(
-						`Expected ${numOfColumns} columns, found ${actualCount}`,
-					);
+					warnings.push(`Expected ${numOfColumns} columns, found ${actualCount}`);
 					if (rule.params.onFailure === 'stop') {
 						return {
 							data: [],
@@ -252,10 +228,7 @@ export function simulateTransformations(
 							rowCount: 0,
 							colCount: 0,
 							appliedRules,
-							warnings: [
-								...warnings,
-								'Processing stopped due to column validation failure',
-							],
+							warnings: [...warnings, 'Processing stopped due to column validation failure'],
 						};
 					}
 				}
@@ -277,9 +250,7 @@ export function simulateTransformations(
 				deleteIndices.sort((a, b) => b - a);
 
 				deleteIndices.forEach((colIndex) => {
-					data = data.map((row) =>
-						row.filter((_, index) => index !== colIndex),
-					);
+					data = data.map((row) => row.filter((_, index) => index !== colIndex));
 					headers = headers.filter((_, index) => index !== colIndex);
 				});
 
@@ -418,18 +389,12 @@ export function simulateTransformations(
 
 							// Re-extract data from the worksheet after evaluating formulas
 							// This ensures the data array reflects the evaluated values
-							const updatedRange = XLSX.utils.decode_range(
-								ws['!ref'] || 'A1:A1',
-							);
+							const updatedRange = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
 							const updatedData: (string | number | null)[][] = [];
 
 							for (let row = updatedRange.s.r; row <= updatedRange.e.r; row++) {
 								const rowData: (string | number | null)[] = [];
-								for (
-									let col = updatedRange.s.c;
-									col <= updatedRange.e.c;
-									col++
-								) {
+								for (let col = updatedRange.s.c; col <= updatedRange.e.c; col++) {
 									const cellAddress = XLSX.utils.encode_cell({
 										r: row,
 										c: col,
@@ -447,10 +412,7 @@ export function simulateTransformations(
 							// Update headers if they might have changed
 							headers =
 								data.length > 0
-									? data[0].map(
-											(cell, index) =>
-												cell?.toString() || `Column ${index + 1}`,
-										)
+									? data[0].map((cell, index) => cell?.toString() || `Column ${index + 1}`)
 									: [];
 						} else {
 							appliedRules.push('No formulas found to evaluate');
@@ -474,9 +436,7 @@ export function simulateTransformations(
 				const operation = params.operation || 'append';
 
 				if (sheets.length === 0) {
-					warnings.push(
-						'No source sheets provided and no prior SELECT_WORKSHEET selections found',
-					);
+					warnings.push('No source sheets provided and no prior SELECT_WORKSHEET selections found');
 					break;
 				}
 
@@ -504,9 +464,7 @@ export function simulateTransformations(
 					data = combined;
 					headers =
 						combined.length > 0
-							? combined[0].map(
-									(cell, index) => cell?.toString() || `Column ${index + 1}`,
-								)
+							? combined[0].map((cell, index) => cell?.toString() || `Column ${index + 1}`)
 							: [];
 				} else {
 					const sheetsData = sheets.map(
@@ -518,9 +476,7 @@ export function simulateTransformations(
 
 					const headerSet = new Set<string>();
 					sheetsData.forEach((rows) => {
-						rows.forEach((row) =>
-							Object.keys(row).forEach((h) => headerSet.add(h)),
-						);
+						rows.forEach((row) => Object.keys(row).forEach((h) => headerSet.add(h)));
 					});
 					const headerArr = Array.from(headerSet);
 
@@ -535,9 +491,7 @@ export function simulateTransformations(
 				}
 
 				appliedRules.push(
-					`Combined ${sheets.length} worksheet${
-						sheets.length !== 1 ? 's' : ''
-					} (${operation})`,
+					`Combined ${sheets.length} worksheet${sheets.length !== 1 ? 's' : ''} (${operation})`,
 				);
 				break;
 			}
@@ -556,11 +510,7 @@ export function simulateTransformations(
 
 					data = data.map((row, rowIndex) => {
 						// Check if this row should be processed
-						if (
-							scope === 'specific_rows' &&
-							rows &&
-							!rows.includes(rowIndex + 1)
-						) {
+						if (scope === 'specific_rows' && rows && !rows.includes(rowIndex + 1)) {
 							return row;
 						}
 

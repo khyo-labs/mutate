@@ -29,25 +29,13 @@ export type XlsxToCsvRuleType =
 
 export type DocxToPdfRuleType = 'SET_MARGINS' | 'SET_ORIENTATION' | 'SET_FONT';
 
-export type HtmlToPdfRuleType =
-	| 'SET_PAGE_SIZE'
-	| 'SET_MARGINS'
-	| 'SET_HEADERS_FOOTERS';
+export type HtmlToPdfRuleType = 'SET_PAGE_SIZE' | 'SET_MARGINS' | 'SET_HEADERS_FOOTERS';
 
-export type PdfToCsvRuleType =
-	| 'EXTRACT_TABLES'
-	| 'SET_TABLE_DETECTION'
-	| 'VALIDATE_EXTRACTION';
+export type PdfToCsvRuleType = 'EXTRACT_TABLES' | 'SET_TABLE_DETECTION' | 'VALIDATE_EXTRACTION';
 
-export type JsonToCsvRuleType =
-	| 'FLATTEN_NESTED'
-	| 'SELECT_FIELDS'
-	| 'TRANSFORM_VALUES';
+export type JsonToCsvRuleType = 'FLATTEN_NESTED' | 'SELECT_FIELDS' | 'TRANSFORM_VALUES';
 
-export type CsvToJsonRuleType =
-	| 'SET_SCHEMA'
-	| 'VALIDATE_DATA'
-	| 'TRANSFORM_TYPES';
+export type CsvToJsonRuleType = 'SET_SCHEMA' | 'VALIDATE_DATA' | 'TRANSFORM_TYPES';
 
 // Union type for all rule types
 export type RuleType =
@@ -176,10 +164,7 @@ export type JsonOutputFormat = {
 	encoding: 'UTF-8' | 'UTF-16';
 };
 
-export type OutputFormatConfig =
-	| CsvOutputFormat
-	| PdfOutputFormat
-	| JsonOutputFormat;
+export type OutputFormatConfig = CsvOutputFormat | PdfOutputFormat | JsonOutputFormat;
 
 // Configuration
 export type Configuration = {

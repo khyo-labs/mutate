@@ -67,64 +67,55 @@ const redis = new IORedis(config.REDIS_URL, {
 });
 
 // Create transformation queue
-export const transformationQueue = new Queue<QueueJobData>(
-	'file-transformation',
-	{
-		redis: {
-			port: redis.options.port || 6379,
-			host: redis.options.host || 'localhost',
-			password: redis.options.password,
-			db: redis.options.db || 0,
-		},
-		defaultJobOptions: {
-			removeOnComplete: 100, // Keep last 100 completed jobs
-			removeOnFail: 50, // Keep last 50 failed jobs
-			attempts: 3,
-			backoff: {
-				type: 'exponential',
-				delay: 5000,
-			},
-		},
-		settings: {
-			stalledInterval: 30 * 1000, // 30 seconds
-			retryProcessDelay: 5 * 1000, // 5 seconds
+export const transformationQueue = new Queue<QueueJobData>('file-transformation', {
+	redis: {
+		port: redis.options.port || 6379,
+		host: redis.options.host || 'localhost',
+		password: redis.options.password,
+		db: redis.options.db || 0,
+	},
+	defaultJobOptions: {
+		removeOnComplete: 100, // Keep last 100 completed jobs
+		removeOnFail: 50, // Keep last 50 failed jobs
+		attempts: 3,
+		backoff: {
+			type: 'exponential',
+			delay: 5000,
 		},
 	},
-);
+	settings: {
+		stalledInterval: 30 * 1000, // 30 seconds
+		retryProcessDelay: 5 * 1000, // 5 seconds
+	},
+});
 
 // Webhook delivery queue and DLQ
-export const webhookDeliveryQueue = new Queue<WebhookDeliveryJobData>(
-	'webhook-delivery',
-	{
-		redis: {
-			port: redis.options.port || 6379,
-			host: redis.options.host || 'localhost',
-			password: redis.options.password,
-			db: redis.options.db || 0,
-		},
-		defaultJobOptions: {
-			removeOnComplete: 200,
-			removeOnFail: 100,
-			attempts: config.WEBHOOK_MAX_RETRIES ?? 5,
-			backoff: { type: 'exponential', delay: 1000 },
-		},
+export const webhookDeliveryQueue = new Queue<WebhookDeliveryJobData>('webhook-delivery', {
+	redis: {
+		port: redis.options.port || 6379,
+		host: redis.options.host || 'localhost',
+		password: redis.options.password,
+		db: redis.options.db || 0,
 	},
-);
+	defaultJobOptions: {
+		removeOnComplete: 200,
+		removeOnFail: 100,
+		attempts: config.WEBHOOK_MAX_RETRIES ?? 5,
+		backoff: { type: 'exponential', delay: 1000 },
+	},
+});
 
-export const webhookDeadLetterQueue = new Queue<WebhookDeliveryJobData>(
-	'webhook-dead-letter',
-	{
-		redis: {
-			port: redis.options.port || 6379,
-			host: redis.options.host || 'localhost',
-			password: redis.options.password,
-			db: redis.options.db || 0,
-		},
-		defaultJobOptions: {
-			removeOnComplete: 500,
-		},
+export const webhookDeadLetterQueue = new Queue<WebhookDeliveryJobData>('webhook-dead-letter', {
+	redis: {
+		port: redis.options.port || 6379,
+		host: redis.options.host || 'localhost',
+		password: redis.options.password,
+		db: redis.options.db || 0,
 	},
-);
+	defaultJobOptions: {
+		removeOnComplete: 500,
+	},
+});
 
 export class QueueService {
 	static async addTransformationJob(

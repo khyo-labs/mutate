@@ -48,10 +48,7 @@ const StorageServiceImpl = StorageService.of({
 	signGet: (key: string, expiresInSeconds: number) =>
 		Effect.tryPromise({
 			try: async () => {
-				const url = await existingStorage.generateFreshPresignedUrl(
-					key,
-					expiresInSeconds,
-				);
+				const url = await existingStorage.generateFreshPresignedUrl(key, expiresInSeconds);
 				return url;
 			},
 			catch: (error) =>
@@ -95,7 +92,4 @@ const StorageServiceImpl = StorageService.of({
 		}),
 });
 
-export const StorageServiceLayer = Layer.succeed(
-	StorageService,
-	StorageServiceImpl,
-);
+export const StorageServiceLayer = Layer.succeed(StorageService, StorageServiceImpl);

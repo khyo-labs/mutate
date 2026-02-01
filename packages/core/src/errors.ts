@@ -36,17 +36,13 @@ export class ValidationError extends Data.TaggedError('ValidationError')<{
 	readonly message: string;
 }> {}
 
-export class RuleApplicationError extends Data.TaggedError(
-	'RuleApplicationError',
-)<{
+export class RuleApplicationError extends Data.TaggedError('RuleApplicationError')<{
 	readonly ruleType: string;
 	readonly ruleIndex: number;
 	readonly message: string;
 }> {}
 
-export class WorksheetNotFoundError extends Data.TaggedError(
-	'WorksheetNotFoundError',
-)<{
+export class WorksheetNotFoundError extends Data.TaggedError('WorksheetNotFoundError')<{
 	readonly sheetName: string;
 	readonly availableSheets: string[];
 }> {}

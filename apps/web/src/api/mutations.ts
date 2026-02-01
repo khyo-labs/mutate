@@ -2,11 +2,7 @@ import { toast } from 'sonner';
 
 import { useWorkspaceStore } from '@/stores/workspace-store';
 
-import type {
-	Configuration,
-	ConfigurationFormData,
-	SuccessResponse,
-} from '../types';
+import type { Configuration, ConfigurationFormData, SuccessResponse } from '../types';
 import { api } from './client';
 
 export const mutApi = {
@@ -39,10 +35,7 @@ export const mutApi = {
 		return api.post<Configuration>(url, data);
 	},
 
-	update: async (
-		id: string,
-		data: Partial<ConfigurationFormData>,
-	): Promise<Configuration> => {
+	update: async (id: string, data: Partial<ConfigurationFormData>): Promise<Configuration> => {
 		const workspace = useWorkspaceStore.getState().activeWorkspace;
 		if (!workspace) {
 			throw new Error('No active workspace selected');

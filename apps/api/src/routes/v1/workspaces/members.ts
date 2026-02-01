@@ -55,51 +55,45 @@ export async function memberRoutes(fastify: FastifyInstance) {
 	fastify.addHook('preHandler', fastify.authenticate);
 	fastify.addHook('preHandler', validateWorkspaceAccess);
 
-	fastify.get<{ Params: FromSchema<typeof workspaceParamsSchema> }>(
-		'/',
-		async (request, reply) => {
-			const { workspaceId } = request.params;
+	fastify.get<{ Params: FromSchema<typeof workspaceParamsSchema> }>('/', async (request, reply) => {
+		const { workspaceId } = request.params;
 
-			try {
-				const [membersResponse, invitationsResponse] = await Promise.all([
-					auth.api.listMembers({
-						query: { organizationId: workspaceId },
-						headers: request.headers as any,
-					}),
-					auth.api.listInvitations({
-						query: { organizationId: workspaceId },
-						headers: request.headers as any,
-					}),
-				]);
+		try {
+			const [membersResponse, invitationsResponse] = await Promise.all([
+				auth.api.listMembers({
+					query: { organizationId: workspaceId },
+					headers: request.headers as any,
+				}),
+				auth.api.listInvitations({
+					query: { organizationId: workspaceId },
+					headers: request.headers as any,
+				}),
+			]);
 
-				const members = membersResponse.members || [];
-				const invitations = invitationsResponse || [];
+			const members = membersResponse.members || [];
+			const invitations = invitationsResponse || [];
 
-				const data = [
-					...members.map((m) => ({ ...m, type: 'member' })),
-					...invitations.map((i) => ({
-						...i,
-						type: 'invitation',
-						invitationLink: `${config.BASE_URL}/join?invitation=${i.id}`,
-					})),
-				];
+			const data = [
+				...members.map((m) => ({ ...m, type: 'member' })),
+				...invitations.map((i) => ({
+					...i,
+					type: 'invitation',
+					invitationLink: `${config.BASE_URL}/join?invitation=${i.id}`,
+				})),
+			];
 
-				return reply.send({ data, success: true });
-			} catch (error) {
-				fastify.log.error(
-					error,
-					`Failed to list members for workspace ${workspaceId}`,
-				);
-				return reply.status(500).send({
-					success: false,
-					error: {
-						code: 'FAILED_TO_LIST_MEMBERS',
-						message: getErrorMessage(error, 'Failed to list members'),
-					},
-				});
-			}
-		},
-	);
+			return reply.send({ data, success: true });
+		} catch (error) {
+			fastify.log.error(error, `Failed to list members for workspace ${workspaceId}`);
+			return reply.status(500).send({
+				success: false,
+				error: {
+					code: 'FAILED_TO_LIST_MEMBERS',
+					message: getErrorMessage(error, 'Failed to list members'),
+				},
+			});
+		}
+	});
 
 	fastify.post<{
 		Params: FromSchema<typeof workspaceParamsSchema>;
@@ -120,14 +114,9 @@ export async function memberRoutes(fastify: FastifyInstance) {
 
 			const invitationLink = `${config.BASE_URL}/join?invitation=${invitation.id}`;
 
-			return reply
-				.status(201)
-				.send({ success: true, data: { ...invitation, invitationLink } });
+			return reply.status(201).send({ success: true, data: { ...invitation, invitationLink } });
 		} catch (error) {
-			fastify.log.error(
-				error,
-				`Failed to invite member to workspace ${workspaceId}`,
-			);
+			fastify.log.error(error, `Failed to invite member to workspace ${workspaceId}`);
 			return reply.status(500).send({
 				success: false,
 				error: {
@@ -173,37 +162,33 @@ export async function memberRoutes(fastify: FastifyInstance) {
 	fastify.put<{
 		Params: FromSchema<typeof memberParamsSchema>;
 		Body: FromSchema<typeof updateRoleSchema>;
-	}>(
-		'/:memberId/role',
-		{ preHandler: [validateWorkspaceAdmin] },
-		async (request, reply) => {
-			const { workspaceId, memberId } = request.params;
-			const { role } = request.body;
-			try {
-				await auth.api.updateMemberRole({
-					body: {
-						organizationId: workspaceId,
-						memberId,
-						role,
-					},
-					headers: request.headers as any,
-				});
-				return reply.send({ success: true });
-			} catch (error) {
-				fastify.log.error(
-					error,
-					`Failed to update role for member ${memberId} in workspace ${workspaceId}`,
-				);
-				return reply.status(500).send({
-					success: false,
-					error: {
-						code: 'FAILED_TO_UPDATE_ROLE',
-						message: getErrorMessage(error, 'Failed to update member role'),
-					},
-				});
-			}
-		},
-	);
+	}>('/:memberId/role', { preHandler: [validateWorkspaceAdmin] }, async (request, reply) => {
+		const { workspaceId, memberId } = request.params;
+		const { role } = request.body;
+		try {
+			await auth.api.updateMemberRole({
+				body: {
+					organizationId: workspaceId,
+					memberId,
+					role,
+				},
+				headers: request.headers as any,
+			});
+			return reply.send({ success: true });
+		} catch (error) {
+			fastify.log.error(
+				error,
+				`Failed to update role for member ${memberId} in workspace ${workspaceId}`,
+			);
+			return reply.status(500).send({
+				success: false,
+				error: {
+					code: 'FAILED_TO_UPDATE_ROLE',
+					message: getErrorMessage(error, 'Failed to update member role'),
+				},
+			});
+		}
+	});
 
 	// Cancel Invitation
 	fastify.delete<{ Params: FromSchema<typeof invitationParamsSchema> }>(

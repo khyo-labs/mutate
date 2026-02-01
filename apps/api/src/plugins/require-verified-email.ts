@@ -4,10 +4,7 @@ import fp from 'fastify-plugin';
 import { auth } from '@/lib/auth.js';
 import '@/types/fastify.js';
 
-export async function requireVerifiedEmail(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function requireVerifiedEmail(request: FastifyRequest, reply: FastifyReply) {
 	if (request.currentUser?.role === 'api') {
 		return;
 	}

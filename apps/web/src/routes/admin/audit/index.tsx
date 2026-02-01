@@ -15,13 +15,7 @@ import { toast } from 'sonner';
 import { api } from '@/api/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -83,8 +77,7 @@ function AuditLogViewer() {
 			});
 
 			if (filterAction !== 'all') params.append('action', filterAction);
-			if (filterResourceType !== 'all')
-				params.append('resourceType', filterResourceType);
+			if (filterResourceType !== 'all') params.append('resourceType', filterResourceType);
 			if (dateFrom) params.append('from', dateFrom);
 			if (dateTo) params.append('to', dateTo);
 			if (searchTerm) params.append('search', searchTerm);
@@ -110,8 +103,7 @@ function AuditLogViewer() {
 			});
 
 			if (filterAction !== 'all') params.append('action', filterAction);
-			if (filterResourceType !== 'all')
-				params.append('resourceType', filterResourceType);
+			if (filterResourceType !== 'all') params.append('resourceType', filterResourceType);
 			if (dateFrom) params.append('from', dateFrom);
 			if (dateTo) params.append('to', dateTo);
 
@@ -133,12 +125,9 @@ function AuditLogViewer() {
 	}
 
 	const getActionBadgeVariant = (action: string) => {
-		if (action.includes('DELETE') || action.includes('SUSPEND'))
-			return 'destructive';
-		if (action.includes('CREATE') || action.includes('ACTIVATE'))
-			return 'default';
-		if (action.includes('UPDATE') || action.includes('EDIT'))
-			return 'secondary';
+		if (action.includes('DELETE') || action.includes('SUSPEND')) return 'destructive';
+		if (action.includes('CREATE') || action.includes('ACTIVATE')) return 'default';
+		if (action.includes('UPDATE') || action.includes('EDIT')) return 'secondary';
 		if (action.includes('VIEW') || action.includes('ACCESS')) return 'outline';
 		return 'outline';
 	};
@@ -170,9 +159,7 @@ function AuditLogViewer() {
 
 	// Get unique actions and resource types for filters
 	const uniqueActions = [...new Set(logs.map((log) => log.action))];
-	const uniqueResourceTypes = [
-		...new Set(logs.map((log) => log.resourceType).filter(Boolean)),
-	];
+	const uniqueResourceTypes = [...new Set(logs.map((log) => log.resourceType).filter(Boolean))];
 
 	if (loading && logs.length === 0) {
 		return (
@@ -195,9 +182,7 @@ function AuditLogViewer() {
 			<div className="grid gap-4 md:grid-cols-4">
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Total Actions Today
-						</CardTitle>
+						<CardTitle className="text-sm font-medium">Total Actions Today</CardTitle>
 						<Calendar className="text-muted-foreground h-4 w-4" />
 					</CardHeader>
 					<CardContent>
@@ -228,9 +213,7 @@ function AuditLogViewer() {
 
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Critical Actions
-						</CardTitle>
+						<CardTitle className="text-sm font-medium">Critical Actions</CardTitle>
 						<Shield className="h-4 w-4 text-red-600" />
 					</CardHeader>
 					<CardContent>
@@ -244,9 +227,7 @@ function AuditLogViewer() {
 								).length
 							}
 						</div>
-						<p className="text-muted-foreground text-xs">
-							Sensitive operations
-						</p>
+						<p className="text-muted-foreground text-xs">Sensitive operations</p>
 					</CardContent>
 				</Card>
 
@@ -282,7 +263,7 @@ function AuditLogViewer() {
 				<CardContent>
 					<div className="mb-4 grid gap-2 md:grid-cols-5">
 						<div className="relative">
-							<Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
+							<Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
 							<Input
 								placeholder="Search logs..."
 								value={searchTerm}
@@ -303,10 +284,7 @@ function AuditLogViewer() {
 								))}
 							</SelectContent>
 						</Select>
-						<Select
-							value={filterResourceType}
-							onValueChange={setFilterResourceType}
-						>
+						<Select value={filterResourceType} onValueChange={setFilterResourceType}>
 							<SelectTrigger>
 								<SelectValue placeholder="Resource type" />
 							</SelectTrigger>
@@ -353,24 +331,16 @@ function AuditLogViewer() {
 										onClick={() => setSelectedLog(log)}
 									>
 										<TableCell>
-											<div className="text-sm">
-												{new Date(log.createdAt).toLocaleString()}
-											</div>
+											<div className="text-sm">{new Date(log.createdAt).toLocaleString()}</div>
 										</TableCell>
 										<TableCell>
 											<div>
-												<div className="font-medium">
-													{log.adminName || 'Unknown'}
-												</div>
-												<div className="text-muted-foreground text-xs">
-													{log.adminEmail}
-												</div>
+												<div className="font-medium">{log.adminName || 'Unknown'}</div>
+												<div className="text-muted-foreground text-xs">{log.adminEmail}</div>
 											</div>
 										</TableCell>
 										<TableCell>
-											<Badge variant={getActionBadgeVariant(log.action)}>
-												{log.action}
-											</Badge>
+											<Badge variant={getActionBadgeVariant(log.action)}>{log.action}</Badge>
 										</TableCell>
 										<TableCell>
 											{log.resourceType && (
@@ -386,9 +356,7 @@ function AuditLogViewer() {
 											)}
 										</TableCell>
 										<TableCell>
-											<div className="text-muted-foreground text-sm">
-												{log.ipAddress || '-'}
-											</div>
+											<div className="text-muted-foreground text-sm">{log.ipAddress || '-'}</div>
 										</TableCell>
 										<TableCell>
 											{log.changes && (
@@ -421,9 +389,7 @@ function AuditLogViewer() {
 								<Button
 									variant="outline"
 									size="sm"
-									onClick={() =>
-										setCurrentPage((p) => Math.min(totalPages, p + 1))
-									}
+									onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
 									disabled={currentPage === totalPages}
 								>
 									Next
@@ -439,9 +405,7 @@ function AuditLogViewer() {
 				<Card>
 					<CardHeader>
 						<CardTitle>Log Details</CardTitle>
-						<CardDescription>
-							Full details for audit log entry {selectedLog.id}
-						</CardDescription>
+						<CardDescription>Full details for audit log entry {selectedLog.id}</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<div className="space-y-4">
@@ -454,9 +418,7 @@ function AuditLogViewer() {
 								</div>
 								<div>
 									<Label>Timestamp</Label>
-									<p className="text-sm">
-										{new Date(selectedLog.createdAt).toLocaleString()}
-									</p>
+									<p className="text-sm">{new Date(selectedLog.createdAt).toLocaleString()}</p>
 								</div>
 								<div>
 									<Label>Action</Label>
@@ -474,9 +436,7 @@ function AuditLogViewer() {
 								</div>
 								<div>
 									<Label>User Agent</Label>
-									<p className="text-sm text-xs">
-										{selectedLog.userAgent || 'N/A'}
-									</p>
+									<p className="text-sm text-xs">{selectedLog.userAgent || 'N/A'}</p>
 								</div>
 							</div>
 							{selectedLog.changes && (
@@ -487,11 +447,7 @@ function AuditLogViewer() {
 									</pre>
 								</div>
 							)}
-							<Button
-								variant="outline"
-								onClick={() => setSelectedLog(null)}
-								className="w-full"
-							>
+							<Button variant="outline" onClick={() => setSelectedLog(null)} className="w-full">
 								Close
 							</Button>
 						</div>

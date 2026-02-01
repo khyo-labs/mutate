@@ -28,25 +28,18 @@ export function RecentMutations() {
 							<FileText className="text-primary h-4 w-4" />
 						</div>
 						<div>
-							<h3 className="text-foreground text-sm font-medium">
-								{mutation.name}
-							</h3>
+							<h3 className="text-foreground text-sm font-medium">{mutation.name}</h3>
 							<p className="text-muted-foreground text-xs">
 								{mutation.description || 'No description'}
 							</p>
 						</div>
 					</div>
 					<div className="flex items-center space-x-3">
-						<span className="text-muted-foreground text-xs">
-							v{mutation.version}
-						</span>
+						<span className="text-muted-foreground text-xs">v{mutation.version}</span>
 						<Badge variant={mutation.isActive ? 'default' : 'secondary'}>
 							{mutation.isActive ? 'Active' : 'Inactive'}
 						</Badge>
-						<Link
-							to="/mutations/$mutationId/edit"
-							params={{ mutationId: mutation.id }}
-						>
+						<Link to="/mutations/$mutationId/edit" params={{ mutationId: mutation.id }}>
 							<Button variant="outline" size="sm">
 								Edit
 							</Button>

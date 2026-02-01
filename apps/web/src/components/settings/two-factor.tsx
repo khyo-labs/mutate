@@ -36,9 +36,9 @@ export function TwoFactor() {
 	const [backupCodes, setBackupCodes] = useState<string[]>([]);
 	const [password, setPassword] = useState('');
 	const [isPasswordDrawerOpen, setPasswordDrawerOpen] = useState(false);
-	const [pendingAction, setPendingAction] = useState<
-		'enable' | 'disable' | 'regenerate' | null
-	>(null);
+	const [pendingAction, setPendingAction] = useState<'enable' | 'disable' | 'regenerate' | null>(
+		null,
+	);
 	const [verificationCode, setVerificationCode] = useState('');
 	const [showVerificationStep, setShowVerificationStep] = useState(false);
 	const [isInitialSetup, setIsInitialSetup] = useState(false);
@@ -48,9 +48,10 @@ export function TwoFactor() {
 
 	const enable2FAMutation = useMutation({
 		mutationFn: async (userPassword: string) => {
-			const result = await api.post<
-				SuccessResponse<{ totpURI: string; backupCodes: string[] }>
-			>('/v1/security/two-factor/enable', { password: userPassword });
+			const result = await api.post<SuccessResponse<{ totpURI: string; backupCodes: string[] }>>(
+				'/v1/security/two-factor/enable',
+				{ password: userPassword },
+			);
 
 			console.log('2FA enable response:', result.data);
 			return result.data;
@@ -74,9 +75,7 @@ export function TwoFactor() {
 				setPasswordDrawerOpen(false);
 				setShowVerificationStep(true);
 
-				toast.info(
-					'Scan the QR code and enter verification code to complete setup',
-				);
+				toast.info('Scan the QR code and enter verification code to complete setup');
 			}
 		},
 		onError: (error: Error) => {
@@ -88,12 +87,9 @@ export function TwoFactor() {
 
 	const disable2FAMutation = useMutation({
 		mutationFn: async (userPassword: string) => {
-			const result = await api.post<SuccessResponse>(
-				'/v1/security/two-factor/disable',
-				{
-					password: userPassword,
-				},
-			);
+			const result = await api.post<SuccessResponse>('/v1/security/two-factor/disable', {
+				password: userPassword,
+			});
 			return result.data;
 		},
 		onSuccess: () => {
@@ -258,11 +254,7 @@ export function TwoFactor() {
 					</Button>
 				) : (
 					<div className="flex items-center gap-2">
-						<Button
-							size="sm"
-							variant="outline"
-							onClick={handleRegenerateBackupCodes}
-						>
+						<Button size="sm" variant="outline" onClick={handleRegenerateBackupCodes}>
 							Regenerate Codes
 						</Button>
 						<Button size="sm" variant="destructive" onClick={handleDisable2FA}>
@@ -289,9 +281,8 @@ export function TwoFactor() {
 					{twoFactorEnabled && (
 						<Alert>
 							<AlertDescription>
-								Your account is protected with two-factor authentication. You'll
-								need to enter a code from your authenticator app when signing
-								in.
+								Your account is protected with two-factor authentication. You'll need to enter a
+								code from your authenticator app when signing in.
 							</AlertDescription>
 						</Alert>
 					)}
@@ -316,8 +307,8 @@ export function TwoFactor() {
 						<DrawerHeader>
 							<DrawerTitle>Enable Two-Factor Authentication</DrawerTitle>
 							<DrawerDescription>
-								Scan the QR code with your authenticator app, then enter the
-								verification code to complete setup.
+								Scan the QR code with your authenticator app, then enter the verification code to
+								complete setup.
 							</DrawerDescription>
 						</DrawerHeader>
 						<div className="grid max-h-[70vh] gap-4 overflow-y-auto px-4 py-4">
@@ -326,9 +317,7 @@ export function TwoFactor() {
 									<img src={qrCode} alt="2FA QR Code" className="h-48 w-48" />
 								</div>
 								<div className="space-y-2">
-									<Label htmlFor="manual-entry">
-										Can't scan? Enter manually:
-									</Label>
+									<Label htmlFor="manual-entry">Can't scan? Enter manually:</Label>
 									<div className="flex items-center gap-2">
 										<Input
 											id="manual-entry"
@@ -336,19 +325,13 @@ export function TwoFactor() {
 											readOnly
 											className="font-mono text-xs"
 										/>
-										<Button
-											size="sm"
-											variant="outline"
-											onClick={() => copyToClipboard(totpUri)}
-										>
+										<Button size="sm" variant="outline" onClick={() => copyToClipboard(totpUri)}>
 											<CopyIcon className="h-4 w-4" />
 										</Button>
 									</div>
 								</div>
 								<div className="space-y-2">
-									<Label htmlFor="verification-code">
-										Enter verification code from your app:
-									</Label>
+									<Label htmlFor="verification-code">Enter verification code from your app:</Label>
 									<Input
 										id="verification-code"
 										type="text"
@@ -369,13 +352,9 @@ export function TwoFactor() {
 						<DrawerFooter>
 							<Button
 								onClick={() => verifyTotpMutation.mutate(verificationCode)}
-								disabled={
-									verificationCode.length !== 6 || verifyTotpMutation.isPending
-								}
+								disabled={verificationCode.length !== 6 || verifyTotpMutation.isPending}
 							>
-								{verifyTotpMutation.isPending
-									? 'Verifying...'
-									: 'Verify and Enable 2FA'}
+								{verifyTotpMutation.isPending ? 'Verifying...' : 'Verify and Enable 2FA'}
 							</Button>
 							<Button
 								variant="outline"
@@ -410,29 +389,21 @@ export function TwoFactor() {
 						<DrawerHeader>
 							<DrawerTitle>Save Your Backup Codes</DrawerTitle>
 							<DrawerDescription>
-								Store these codes in a safe place. Each code can only be used
-								once to access your account if you lose your authenticator.
+								Store these codes in a safe place. Each code can only be used once to access your
+								account if you lose your authenticator.
 							</DrawerDescription>
 						</DrawerHeader>
 						<div className="grid max-h-[70vh] gap-4 overflow-y-auto px-4 py-4">
 							<Alert>
 								<AlertDescription>
-									⚠️ These codes won't be shown again. Make sure to save them
-									now!
+									⚠️ These codes won't be shown again. Make sure to save them now!
 								</AlertDescription>
 							</Alert>
 							<div className="grid grid-cols-2 gap-2">
 								{backupCodes.map((code, index) => (
-									<div
-										key={index}
-										className="bg-muted flex items-center gap-2 rounded-md p-2"
-									>
+									<div key={index} className="bg-muted flex items-center gap-2 rounded-md p-2">
 										<code className="flex-1 font-mono text-sm">{code}</code>
-										<Button
-											size="sm"
-											variant="ghost"
-											onClick={() => copyToClipboard(code)}
-										>
+										<Button size="sm" variant="ghost" onClick={() => copyToClipboard(code)}>
 											<CopyIcon className="h-3 w-3" />
 										</Button>
 									</div>
@@ -447,40 +418,27 @@ export function TwoFactor() {
 									<CopyIcon className="mr-2 h-4 w-4" />
 									Copy All
 								</Button>
-								<Button
-									variant="outline"
-									onClick={downloadBackupCodes}
-									className="flex-1"
-								>
+								<Button variant="outline" onClick={downloadBackupCodes} className="flex-1">
 									<DownloadIcon className="mr-2 h-4 w-4" />
 									Download .txt
 								</Button>
 							</div>
 						</div>
 						<DrawerFooter>
-							<Button onClick={handleBackupCodesComplete}>
-								I've Saved My Codes
-							</Button>
+							<Button onClick={handleBackupCodesComplete}>I've Saved My Codes</Button>
 						</DrawerFooter>
 					</DrawerContent>
 				</Drawer>
 			)}
-			<Drawer
-				open={isPasswordDrawerOpen}
-				onOpenChange={setPasswordDrawerOpen}
-				direction="right"
-			>
+			<Drawer open={isPasswordDrawerOpen} onOpenChange={setPasswordDrawerOpen} direction="right">
 				<DrawerContent className="sm:max-w-md">
 					<DrawerHeader>
 						<DrawerTitle>
 							{pendingAction === 'enable' && 'Enable Two-Factor Authentication'}
-							{pendingAction === 'disable' &&
-								'Disable Two-Factor Authentication'}
+							{pendingAction === 'disable' && 'Disable Two-Factor Authentication'}
 							{pendingAction === 'regenerate' && 'Regenerate Backup Codes'}
 						</DrawerTitle>
-						<DrawerDescription>
-							Enter your password to continue with this action.
-						</DrawerDescription>
+						<DrawerDescription>Enter your password to continue with this action.</DrawerDescription>
 					</DrawerHeader>
 					<div className="grid gap-4 px-4 py-4">
 						<div className="space-y-2">

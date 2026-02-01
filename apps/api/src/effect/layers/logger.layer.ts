@@ -4,8 +4,7 @@ import { Effect, Layer, Ref } from 'effect';
 const createLoggerService = Effect.gen(function* () {
 	const logRef = yield* Ref.make<ReadonlyArray<LogEntry>>([]);
 
-	const addLog = (entry: LogEntry) =>
-		Ref.update(logRef, (logs) => [...logs, entry]);
+	const addLog = (entry: LogEntry) => Ref.update(logRef, (logs) => [...logs, entry]);
 
 	return LoggerService.of({
 		debug: (message: string, context?: Record<string, any>) =>
@@ -60,7 +59,4 @@ const createLoggerService = Effect.gen(function* () {
 	});
 });
 
-export const LoggerServiceLayer = Layer.effect(
-	LoggerService,
-	createLoggerService,
-);
+export const LoggerServiceLayer = Layer.effect(LoggerService, createLoggerService);

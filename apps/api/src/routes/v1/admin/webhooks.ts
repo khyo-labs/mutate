@@ -18,10 +18,8 @@ export async function adminWebhookRoutes(fastify: FastifyInstance) {
 
 		const where = [] as any[];
 		if (q.status) where.push(eq(webhookDeliveries.status, q.status));
-		if (q.organizationId)
-			where.push(eq(webhookDeliveries.organizationId, q.organizationId));
-		if (q.configurationId)
-			where.push(eq(webhookDeliveries.configurationId, q.configurationId));
+		if (q.organizationId) where.push(eq(webhookDeliveries.organizationId, q.organizationId));
+		if (q.configurationId) where.push(eq(webhookDeliveries.configurationId, q.configurationId));
 
 		const limit = Math.min(100, Number(q.limit ?? 20));
 		const offset = Number(q.offset ?? 0);
@@ -74,11 +72,7 @@ export async function adminWebhookRoutes(fastify: FastifyInstance) {
 			.set({ status: 'pending', nextAttempt: new Date(), error: null })
 			.where(eq(webhookDeliveries.id, deliveryId));
 
-		await webhookDeliveryQueue.add(
-			'deliver-webhook',
-			{ deliveryId },
-			{ jobId: deliveryId },
-		);
+		await webhookDeliveryQueue.add('deliver-webhook', { deliveryId }, { jobId: deliveryId });
 
 		return { success: true };
 	});

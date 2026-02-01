@@ -7,19 +7,14 @@ import type { Converter } from './types.js';
 export class ConversionPipeline {
 	constructor(private steps: Converter[]) {}
 
-	run(
-		file: Buffer,
-		config?: Configuration,
-	): Effect.Effect<Buffer | object | string, Error> {
+	run(file: Buffer, config?: Configuration): Effect.Effect<Buffer | object | string, Error> {
 		return this.steps.reduce<Effect.Effect<Buffer | object | string, Error>>(
 			(acc, step) =>
 				acc.pipe(
 					Effect.flatMap((data) => {
 						const buffer = Buffer.isBuffer(data)
 							? data
-							: Buffer.from(
-									typeof data === 'string' ? data : JSON.stringify(data),
-								);
+							: Buffer.from(typeof data === 'string' ? data : JSON.stringify(data));
 						return step.convert(buffer, config);
 					}),
 				),

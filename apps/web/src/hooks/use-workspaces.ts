@@ -61,27 +61,18 @@ export function useUpdateWorkspace() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({
-			workspaceId,
-			data,
-		}: {
-			workspaceId: string;
-			data: UpdateWorkspaceRequest;
-		}) => workspaceApi.update(workspaceId, data),
+		mutationFn: ({ workspaceId, data }: { workspaceId: string; data: UpdateWorkspaceRequest }) =>
+			workspaceApi.update(workspaceId, data),
 		onSuccess: (workspace: Workspace) => {
 			useWorkspaceStore.setState((state) => {
 				const workspaces = state.workspaces.some((ws) => ws.id === workspace.id)
-					? state.workspaces.map((ws) =>
-							ws.id === workspace.id ? workspace : ws,
-						)
+					? state.workspaces.map((ws) => (ws.id === workspace.id ? workspace : ws))
 					: [...state.workspaces, workspace];
 
 				return {
 					workspaces,
 					activeWorkspace:
-						state.activeWorkspace?.id === workspace.id
-							? workspace
-							: state.activeWorkspace,
+						state.activeWorkspace?.id === workspace.id ? workspace : state.activeWorkspace,
 				};
 			});
 

@@ -6,11 +6,7 @@ import * as XLSX from 'xlsx';
  * @param range - Range string like "AK20:AK23"
  * @param worksheet - The worksheet to evaluate in
  */
-function evaluateSubtotal(
-	func: number,
-	range: string,
-	worksheet: XLSX.WorkSheet,
-): number | null {
+function evaluateSubtotal(func: number, range: string, worksheet: XLSX.WorkSheet): number | null {
 	// Parse the range
 	const rangeObj = XLSX.utils.decode_range(range);
 	const values: number[] = [];
@@ -46,12 +42,7 @@ function evaluateSubtotal(
 				for (let col = rangeObj.s.c; col <= rangeObj.e.c; col++) {
 					const cellAddr = XLSX.utils.encode_cell({ r: row, c: col });
 					const cell = worksheet[cellAddr];
-					if (
-						cell &&
-						cell.v !== undefined &&
-						cell.v !== null &&
-						cell.v !== ''
-					) {
+					if (cell && cell.v !== undefined && cell.v !== null && cell.v !== '') {
 						count++;
 					}
 				}
@@ -64,8 +55,7 @@ function evaluateSubtotal(
 			if (values.length < 2) return 0;
 			const avg = values.reduce((a, b) => a + b, 0) / values.length;
 			const variance =
-				values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) /
-				(values.length - 1);
+				values.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / (values.length - 1);
 			return Math.sqrt(variance);
 		}
 
@@ -112,9 +102,7 @@ export function evaluateFormula(
 	}
 
 	// Handle single SUBTOTAL function
-	const subtotalMatch = formula.match(
-		/SUBTOTAL\((\d+),([A-Z]+\d+:[A-Z]+\d+)\)/,
-	);
+	const subtotalMatch = formula.match(/SUBTOTAL\((\d+),([A-Z]+\d+:[A-Z]+\d+)\)/);
 	if (subtotalMatch) {
 		const func = parseInt(subtotalMatch[1]);
 		const range = subtotalMatch[2];
@@ -122,9 +110,7 @@ export function evaluateFormula(
 	}
 
 	// Handle IF(ISERROR(expression), defaultValue, expression) pattern
-	const ifIsErrorMatch = formula.match(
-		/IF\(ISERROR\((.*?)\),\s*(.*?),\s*(.*?)\)$/,
-	);
+	const ifIsErrorMatch = formula.match(/IF\(ISERROR\((.*?)\),\s*(.*?),\s*(.*?)\)$/);
 	if (ifIsErrorMatch) {
 		const expression = ifIsErrorMatch[3];
 		const defaultValue = ifIsErrorMatch[2];

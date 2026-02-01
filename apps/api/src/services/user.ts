@@ -4,10 +4,7 @@ import { db } from '@/db/connection.js';
 import { user } from '@/db/schema.js';
 
 export class UserService {
-	static async updateUser(
-		userId: string,
-		data: { name: string; image?: string | null },
-	) {
+	static async updateUser(userId: string, data: { name: string; image?: string | null }) {
 		const [updatedUser] = await db
 			.update(user)
 			.set({

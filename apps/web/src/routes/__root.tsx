@@ -9,9 +9,7 @@ export const Route = createRootRoute({
 		<>
 			<WorkspaceInitializer />
 			<Outlet />
-			{import.meta.env.DEV && (
-				<TanStackRouterDevtools position="bottom-right" />
-			)}
+			{import.meta.env.DEV && <TanStackRouterDevtools position="bottom-right" />}
 			<Toaster />
 		</>
 	),

@@ -40,20 +40,14 @@ class ApiClient {
 			(response: AxiosResponse) => response,
 			(error) => {
 				console.error('Response error:', error.response?.data || error);
-				const errorMessage =
-					error.response?.data?.error?.message ||
-					'An unexpected error occurred';
+				const errorMessage = error.response?.data?.error?.message || 'An unexpected error occurred';
 				toast.error(errorMessage);
 				return Promise.reject(error);
 			},
 		);
 	}
 
-	private async makeRequest<T>({
-		endpoint,
-		method,
-		data,
-	}: RequestOptions): Promise<T> {
+	private async makeRequest<T>({ endpoint, method, data }: RequestOptions): Promise<T> {
 		const config: AxiosRequestConfig = {
 			url: endpoint,
 			method,

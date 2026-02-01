@@ -99,12 +99,7 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useSession } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 
@@ -131,9 +126,7 @@ function getRoleIcon(role: string) {
 	}
 }
 
-function getRoleBadgeVariant(
-	role: string,
-): 'default' | 'secondary' | 'outline' | 'destructive' {
+function getRoleBadgeVariant(role: string): 'default' | 'secondary' | 'outline' | 'destructive' {
 	switch (role) {
 		case 'owner':
 			return 'default';
@@ -166,8 +159,7 @@ function InviteDialog({ workspaceId }: { workspaceId: string }) {
 	});
 
 	const mutation = useMutation({
-		mutationFn: (data: InviteMemberRequest) =>
-			membersApi.invite(workspaceId, data),
+		mutationFn: (data: InviteMemberRequest) => membersApi.invite(workspaceId, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['members', workspaceId] });
 			form.reset();
@@ -195,15 +187,9 @@ function InviteDialog({ workspaceId }: { workspaceId: string }) {
 						<FormItem>
 							<FormLabel>Email Address</FormLabel>
 							<FormControl>
-								<Input
-									placeholder="colleague@company.com"
-									type="email"
-									{...field}
-								/>
+								<Input placeholder="colleague@company.com" type="email" {...field} />
 							</FormControl>
-							<FormDescription>
-								We'll send an invitation to this email address.
-							</FormDescription>
+							<FormDescription>We'll send an invitation to this email address.</FormDescription>
 							<FormMessage />
 						</FormItem>
 					)}
@@ -253,7 +239,7 @@ function InviteDialog({ workspaceId }: { workspaceId: string }) {
 					control={form.control}
 					name="sendEmail"
 					render={({ field }) => (
-						<FormItem className="flex flex-row items-start space-x-3 space-y-0">
+						<FormItem className="flex flex-row items-start space-y-0 space-x-3">
 							<FormControl>
 								<input
 									type="checkbox"
@@ -328,8 +314,8 @@ function UpdateRoleDialog({
 				<DialogHeader>
 					<DialogTitle>Change member role</DialogTitle>
 					<DialogDescription>
-						Update the role for {member.user.name || member.user.email}. This
-						will change their permissions immediately.
+						Update the role for {member.user.name || member.user.email}. This will change their
+						permissions immediately.
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -340,10 +326,7 @@ function UpdateRoleDialog({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>New Role</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}
-									>
+									<Select onValueChange={field.onChange} defaultValue={field.value}>
 										<FormControl>
 											<SelectTrigger>
 												<SelectValue placeholder="Select a role" />
@@ -408,13 +391,10 @@ function MembersTable({
 	const { data: session } = useSession();
 	const [globalFilter, setGlobalFilter] = useState('');
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-	const [sorting, setSorting] = useState<SortingState>([
-		{ id: 'createdAt', desc: true },
-	]);
+	const [sorting, setSorting] = useState<SortingState>([{ id: 'createdAt', desc: true }]);
 
 	const cancelMutation = useMutation({
-		mutationFn: (invitationId: string) =>
-			membersApi.cancelInvitation(workspaceId, invitationId),
+		mutationFn: (invitationId: string) => membersApi.cancelInvitation(workspaceId, invitationId),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['members', workspaceId] });
 			toast.success('Invitation cancelled');
@@ -425,8 +405,7 @@ function MembersTable({
 	});
 
 	const resendMutation = useMutation({
-		mutationFn: (invitationId: string) =>
-			membersApi.resendInvitation(workspaceId, invitationId),
+		mutationFn: (invitationId: string) => membersApi.resendInvitation(workspaceId, invitationId),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['members', workspaceId] });
 			toast.success('Invitation resent');
@@ -465,16 +444,12 @@ function MembersTable({
 	const columns: ColumnDef<MemberOrInvitation>[] = useMemo(
 		() => [
 			{
-				accessorFn: (row) =>
-					row.type === 'member' ? row.user.name || row.user.email : row.email,
+				accessorFn: (row) => (row.type === 'member' ? row.user.name || row.user.email : row.email),
 				id: 'memberName',
 				header: 'Member',
 				cell: ({ row }) => {
 					const item = row.original;
-					const name =
-						item.type === 'member'
-							? item.user.name || item.user.email
-							: item.email;
+					const name = item.type === 'member' ? item.user.name || item.user.email : item.email;
 					const email = item.type === 'member' ? item.user.email : item.email;
 					const avatar = item.type === 'member' ? item.user.avatar : undefined;
 
@@ -482,14 +457,10 @@ function MembersTable({
 						<div className="flex items-center gap-3">
 							<Avatar className="h-8 w-8">
 								<AvatarImage src={avatar} />
-								<AvatarFallback className="text-xs">
-									{getInitials(name)}
-								</AvatarFallback>
+								<AvatarFallback className="text-xs">{getInitials(name)}</AvatarFallback>
 							</Avatar>
 							<div className="flex flex-col">
-								<div className="text-sm font-medium">
-									{item.type === 'member' ? name : '—'}
-								</div>
+								<div className="text-sm font-medium">{item.type === 'member' ? name : '—'}</div>
 								<div className="text-muted-foreground text-xs">{email}</div>
 							</div>
 						</div>
@@ -521,10 +492,7 @@ function MembersTable({
 					const item = row.original;
 					if (item.type === 'member') {
 						return (
-							<Badge
-								variant="default"
-								className="bg-green-500/10 text-green-600"
-							>
+							<Badge variant="default" className="bg-green-500/10 text-green-600">
 								Active
 							</Badge>
 						);
@@ -535,10 +503,7 @@ function MembersTable({
 						const isExpired = new Date(item.expiresAt) < new Date();
 						if (isExpired) {
 							return (
-								<Badge
-									variant="destructive"
-									className="bg-red-500/10 text-red-600"
-								>
+								<Badge variant="destructive" className="bg-red-500/10 text-red-600">
 									Expired
 								</Badge>
 							);
@@ -546,10 +511,7 @@ function MembersTable({
 					}
 
 					return (
-						<Badge
-							variant="secondary"
-							className="bg-yellow-500/10 text-yellow-600"
-						>
+						<Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600">
 							Pending
 						</Badge>
 					);
@@ -570,17 +532,14 @@ function MembersTable({
 					if (item.type === 'invitation' && item.expiresAt) {
 						const expiryDate = new Date(item.expiresAt);
 						const daysLeft = Math.ceil(
-							(expiryDate.getTime() - new Date().getTime()) /
-								(1000 * 60 * 60 * 24),
+							(expiryDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
 						);
 						const isExpired = daysLeft < 0;
 
 						return (
 							<div className="flex flex-col">
 								<div className="text-sm">{formattedDate}</div>
-								<div
-									className={`text-xs ${isExpired ? 'text-red-500' : 'text-muted-foreground'}`}
-								>
+								<div className={`text-xs ${isExpired ? 'text-red-500' : 'text-muted-foreground'}`}>
 									{isExpired ? 'Expired' : `${daysLeft} days left`}
 								</div>
 							</div>
@@ -601,8 +560,7 @@ function MembersTable({
 					}
 
 					if (item.type === 'invitation') {
-						const isExpired =
-							item.expiresAt && new Date(item.expiresAt) < new Date();
+						const isExpired = item.expiresAt && new Date(item.expiresAt) < new Date();
 
 						return (
 							<div className="flex items-center gap-2">
@@ -619,11 +577,7 @@ function MembersTable({
 											</Button>
 										</TooltipTrigger>
 										<TooltipContent>
-											<p>
-												{isExpired
-													? 'Resend expired invitation'
-													: 'Resend invitation'}
-											</p>
+											<p>{isExpired ? 'Resend expired invitation' : 'Resend invitation'}</p>
 										</TooltipContent>
 									</Tooltip>
 								</TooltipProvider>
@@ -704,10 +658,8 @@ function MembersTable({
 											<AlertDialogHeader>
 												<AlertDialogTitle>Remove member?</AlertDialogTitle>
 												<AlertDialogDescription>
-													This will permanently remove{' '}
-													{item.user.name || item.user.email} from the
-													workspace. They will lose access to all workspace
-													resources.
+													This will permanently remove {item.user.name || item.user.email} from the
+													workspace. They will lose access to all workspace resources.
 												</AlertDialogDescription>
 											</AlertDialogHeader>
 											<AlertDialogFooter>
@@ -767,7 +719,7 @@ function MembersTable({
 		<div className="space-y-4">
 			<div className="flex items-center justify-between gap-4">
 				<div className="relative max-w-sm flex-1">
-					<Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+					<Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
 					<Input
 						placeholder="Search by name or email..."
 						value={globalFilter ?? ''}
@@ -776,15 +728,10 @@ function MembersTable({
 					/>
 				</div>
 				<Select
-					value={
-						(columnFilters.find((filter) => filter.id === 'role')
-							?.value as string) || 'all'
-					}
+					value={(columnFilters.find((filter) => filter.id === 'role')?.value as string) || 'all'}
 					onValueChange={(value) => {
 						if (value === 'all') {
-							setColumnFilters(
-								columnFilters.filter((filter) => filter.id !== 'role'),
-							);
+							setColumnFilters(columnFilters.filter((filter) => filter.id !== 'role'));
 						} else {
 							setColumnFilters([
 								...columnFilters.filter((filter) => filter.id !== 'role'),
@@ -815,10 +762,7 @@ function MembersTable({
 										<TableHead key={header.id}>
 											{header.isPlaceholder
 												? null
-												: flexRender(
-														header.column.columnDef.header,
-														header.getContext(),
-													)}
+												: flexRender(header.column.columnDef.header, header.getContext())}
 										</TableHead>
 									);
 								})}
@@ -828,26 +772,17 @@ function MembersTable({
 					<TableBody>
 						{table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() && 'selected'}
-								>
+								<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
-											)}
+											{flexRender(cell.column.columnDef.cell, cell.getContext())}
 										</TableCell>
 									))}
 								</TableRow>
 							))
 						) : (
 							<TableRow>
-								<TableCell
-									colSpan={columns.length}
-									className="h-24 text-center"
-								>
+								<TableCell colSpan={columns.length} className="h-24 text-center">
 									No members found.
 								</TableCell>
 							</TableRow>
@@ -858,14 +793,10 @@ function MembersTable({
 
 			<div className="flex items-center justify-between">
 				<div className="text-muted-foreground text-sm">
-					Showing{' '}
-					{table.getState().pagination.pageIndex *
-						table.getState().pagination.pageSize +
-						1}{' '}
+					Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}{' '}
 					to{' '}
 					{Math.min(
-						(table.getState().pagination.pageIndex + 1) *
-							table.getState().pagination.pageSize,
+						(table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
 						data.length,
 					)}{' '}
 					of {data.length} members
@@ -925,9 +856,7 @@ function MembersStats({ data }: { data: MemberOrInvitation[] }) {
 				</CardHeader>
 				<CardContent>
 					<div className="text-2xl font-bold">{stats.totalMembers}</div>
-					<p className="text-muted-foreground text-xs">
-						Active workspace members
-					</p>
+					<p className="text-muted-foreground text-xs">Active workspace members</p>
 				</CardContent>
 			</Card>
 
@@ -937,12 +866,10 @@ function MembersStats({ data }: { data: MemberOrInvitation[] }) {
 					<Shield className="text-muted-foreground h-4 w-4" />
 				</CardHeader>
 				<CardContent>
-					<div className="text-2xl font-bold">
-						{stats.owners + stats.admins}
-					</div>
+					<div className="text-2xl font-bold">{stats.owners + stats.admins}</div>
 					<p className="text-muted-foreground text-xs">
-						{stats.owners} owner{stats.owners !== 1 ? 's' : ''}, {stats.admins}{' '}
-						admin{stats.admins !== 1 ? 's' : ''}
+						{stats.owners} owner{stats.owners !== 1 ? 's' : ''}, {stats.admins} admin
+						{stats.admins !== 1 ? 's' : ''}
 					</p>
 				</CardContent>
 			</Card>
@@ -954,9 +881,7 @@ function MembersStats({ data }: { data: MemberOrInvitation[] }) {
 				</CardHeader>
 				<CardContent>
 					<div className="text-2xl font-bold">{stats.regularMembers}</div>
-					<p className="text-muted-foreground text-xs">
-						Standard access members
-					</p>
+					<p className="text-muted-foreground text-xs">Standard access members</p>
 				</CardContent>
 			</Card>
 
@@ -968,8 +893,7 @@ function MembersStats({ data }: { data: MemberOrInvitation[] }) {
 				<CardContent>
 					<div className="text-2xl font-bold">{stats.pendingInvitations}</div>
 					<p className="text-muted-foreground text-xs">
-						{stats.expiredInvitations > 0 &&
-							`${stats.expiredInvitations} expired`}
+						{stats.expiredInvitations > 0 && `${stats.expiredInvitations} expired`}
 						{stats.expiredInvitations === 0 && 'Awaiting acceptance'}
 					</p>
 				</CardContent>
@@ -982,9 +906,7 @@ function MembersComponent() {
 	const { activeWorkspace } = useWorkspaceStore();
 	const workspaceId = activeWorkspace?.id || '';
 	const { data: session } = useSession();
-	const [activeTab, setActiveTab] = useState<'all' | 'members' | 'invitations'>(
-		'all',
-	);
+	const [activeTab, setActiveTab] = useState<'all' | 'members' | 'invitations'>('all');
 
 	const { data, isLoading, isError, refetch } = useQuery({
 		queryKey: ['members', workspaceId],
@@ -1022,9 +944,7 @@ function MembersComponent() {
 				<div className="flex items-center justify-between">
 					<div>
 						<h2 className="text-3xl font-bold tracking-tight">Members</h2>
-						<p className="text-muted-foreground">
-							Manage who has access to this workspace
-						</p>
+						<p className="text-muted-foreground">Manage who has access to this workspace</p>
 					</div>
 					<Skeleton className="h-10 w-32" />
 				</div>
@@ -1062,9 +982,7 @@ function MembersComponent() {
 	if (isError) {
 		return (
 			<div className="flex flex-col items-center justify-center space-y-4 py-8">
-				<div className="text-destructive">
-					Failed to load members. Please try again.
-				</div>
+				<div className="text-destructive">Failed to load members. Please try again.</div>
 				<Button onClick={() => refetch()}>Retry</Button>
 			</div>
 		);
@@ -1099,19 +1017,15 @@ function MembersComponent() {
 						<CardTitle>Workspace Members</CardTitle>
 						<Tabs
 							value={activeTab}
-							onValueChange={(v) =>
-								setActiveTab(v as 'all' | 'members' | 'invitations')
-							}
+							onValueChange={(v) => setActiveTab(v as 'all' | 'members' | 'invitations')}
 						>
 							<TabsList>
 								<TabsTrigger value="all">All ({data?.length || 0})</TabsTrigger>
 								<TabsTrigger value="members">
-									Members (
-									{data?.filter((d) => d.type === 'member').length || 0})
+									Members ({data?.filter((d) => d.type === 'member').length || 0})
 								</TabsTrigger>
 								<TabsTrigger value="invitations">
-									Invitations (
-									{data?.filter((d) => d.type === 'invitation').length || 0})
+									Invitations ({data?.filter((d) => d.type === 'invitation').length || 0})
 								</TabsTrigger>
 							</TabsList>
 						</Tabs>

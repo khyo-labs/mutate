@@ -10,13 +10,7 @@ import { RunHistory } from '@/components/mutations/run-history';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getRuleTypeLabel } from '@/lib/format';
@@ -128,9 +122,7 @@ export function ConfigurationDetailComponent() {
 					<div className="bg-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
 						<FileText className="text-muted-foreground h-8 w-8" />
 					</div>
-					<h3 className="text-foreground mb-1 text-lg font-semibold">
-						Mutation not found
-					</h3>
+					<h3 className="text-foreground mb-1 text-lg font-semibold">Mutation not found</h3>
 					<p className="text-muted-foreground mb-4 text-sm">
 						The mutation you're looking for doesn't exist.
 					</p>
@@ -157,10 +149,7 @@ export function ConfigurationDetailComponent() {
 					Back
 				</Button>,
 				<Button key="edit" asChild>
-					<Link
-						to="/mutations/$mutationId/edit"
-						params={{ mutationId: config.id }}
-					>
+					<Link to="/mutations/$mutationId/edit" params={{ mutationId: config.id }}>
 						<Edit className="mr-2 h-4 w-4" />
 						Edit Mutation
 					</Link>
@@ -197,9 +186,7 @@ export function ConfigurationDetailComponent() {
 						<Card>
 							<CardHeader>
 								<CardTitle>Operations</CardTitle>
-								<CardDescription>
-									Mutation steps applied in order
-								</CardDescription>
+								<CardDescription>Mutation steps applied in order</CardDescription>
 							</CardHeader>
 							<CardContent>
 								{config.rules.length > 0 ? (
@@ -239,28 +226,20 @@ export function ConfigurationDetailComponent() {
 								<div className="space-y-3 text-sm">
 									<div className="flex justify-between">
 										<span className="text-muted-foreground">Format</span>
-										<span className="text-foreground font-medium">
-											{config.outputFormat.type}
-										</span>
+										<span className="text-foreground font-medium">{config.outputFormat.type}</span>
 									</div>
 									{config.outputFormat.type === 'CSV' && (
 										<>
 											<Separator />
 											<div className="flex justify-between">
-												<span className="text-muted-foreground">
-													Delimiter
-												</span>
+												<span className="text-muted-foreground">Delimiter</span>
 												<span className="text-foreground font-mono">
-													{'delimiter' in config.outputFormat
-														? config.outputFormat.delimiter
-														: ','}
+													{'delimiter' in config.outputFormat ? config.outputFormat.delimiter : ','}
 												</span>
 											</div>
 											<Separator />
 											<div className="flex justify-between">
-												<span className="text-muted-foreground">
-													Encoding
-												</span>
+												<span className="text-muted-foreground">Encoding</span>
 												<span className="text-foreground font-medium">
 													{'encoding' in config.outputFormat
 														? config.outputFormat.encoding
@@ -269,9 +248,7 @@ export function ConfigurationDetailComponent() {
 											</div>
 											<Separator />
 											<div className="flex justify-between">
-												<span className="text-muted-foreground">
-													Include Headers
-												</span>
+												<span className="text-muted-foreground">Include Headers</span>
 												<span className="text-foreground font-medium">
 													{'includeHeaders' in config.outputFormat
 														? config.outputFormat.includeHeaders

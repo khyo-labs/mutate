@@ -33,13 +33,7 @@ import { toast } from 'sonner';
 import { api } from '@/api/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -146,10 +140,8 @@ function PlatformOverview() {
 		if (editingPlan) {
 			setPlanForm({
 				name: editingPlan.name,
-				monthlyConversionLimit:
-					editingPlan.monthlyConversionLimit?.toString() || '',
-				concurrentConversionLimit:
-					editingPlan.concurrentConversionLimit?.toString() || '',
+				monthlyConversionLimit: editingPlan.monthlyConversionLimit?.toString() || '',
+				concurrentConversionLimit: editingPlan.concurrentConversionLimit?.toString() || '',
 				maxFileSizeMb: editingPlan.maxFileSizeMb?.toString() || '',
 				priceCents: editingPlan.priceCents.toString(),
 				billingInterval: editingPlan.billingInterval,
@@ -169,17 +161,13 @@ function PlatformOverview() {
 	}, [selectedOrg]);
 
 	async function fetchOrganizations() {
-		const response = await api.get<SuccessResponse<Organization[]>>(
-			'/v1/admin/billing/workspaces',
-		);
+		const response = await api.get<SuccessResponse<Organization[]>>('/v1/admin/billing/workspaces');
 		setOrganizations(response.data);
 		setLoading(false);
 	}
 
 	async function fetchPlans() {
-		const response = await api.get<SuccessResponse<SubscriptionPlan[]>>(
-			'/v1/admin/billing/plans',
-		);
+		const response = await api.get<SuccessResponse<SubscriptionPlan[]>>('/v1/admin/billing/plans');
 		setPlans(response.data);
 	}
 
@@ -240,14 +228,10 @@ function PlatformOverview() {
 			concurrentConversionLimit: planForm.concurrentConversionLimit
 				? parseInt(planForm.concurrentConversionLimit)
 				: null,
-			maxFileSizeMb: planForm.maxFileSizeMb
-				? parseInt(planForm.maxFileSizeMb)
-				: null,
+			maxFileSizeMb: planForm.maxFileSizeMb ? parseInt(planForm.maxFileSizeMb) : null,
 			priceCents: parseInt(planForm.priceCents),
 			billingInterval: planForm.billingInterval,
-			overagePriceCents: planForm.overagePriceCents
-				? parseInt(planForm.overagePriceCents)
-				: null,
+			overagePriceCents: planForm.overagePriceCents ? parseInt(planForm.overagePriceCents) : null,
 			features: planForm.features ? JSON.parse(planForm.features) : {},
 			isDefault: planForm.isDefault,
 			isPublic: planForm.isPublic,
@@ -297,14 +281,10 @@ function PlatformOverview() {
 	async function saveOverrides(orgId: string) {
 		const payload: Record<string, unknown> = {};
 		if (overrides.monthlyConversionLimit) {
-			payload.monthlyConversionLimit = parseInt(
-				overrides.monthlyConversionLimit,
-			);
+			payload.monthlyConversionLimit = parseInt(overrides.monthlyConversionLimit);
 		}
 		if (overrides.concurrentConversionLimit) {
-			payload.concurrentConversionLimit = parseInt(
-				overrides.concurrentConversionLimit,
-			);
+			payload.concurrentConversionLimit = parseInt(overrides.concurrentConversionLimit);
 		}
 		if (overrides.maxFileSizeMb) {
 			payload.maxFileSizeMb = parseInt(overrides.maxFileSizeMb);
@@ -343,21 +323,13 @@ function PlatformOverview() {
 	// Calculate statistics
 	const stats = useMemo(() => {
 		const totalOrgs = organizations.length;
-		const totalConversions = organizations.reduce(
-			(acc, org) => acc + org.currentUsage,
-			0,
-		);
-		const totalOverages = organizations.reduce(
-			(acc, org) => acc + org.overageCount,
-			0,
-		);
+		const totalConversions = organizations.reduce((acc, org) => acc + org.currentUsage, 0);
+		const totalOverages = organizations.reduce((acc, org) => acc + org.overageCount, 0);
 		const totalRevenue = organizations.reduce((acc, org) => {
 			const planPrice = org.plan?.priceCents || 0;
 			const overageRevenue =
 				org.overageCount *
-				(org.subscription?.overrideOveragePriceCents ||
-					org.plan?.overagePriceCents ||
-					0);
+				(org.subscription?.overrideOveragePriceCents || org.plan?.overagePriceCents || 0);
 			return acc + planPrice + overageRevenue;
 		}, 0);
 
@@ -380,12 +352,10 @@ function PlatformOverview() {
 	}, [organizations]);
 
 	// Prepare chart data
-	const planChartData = Object.entries(stats.planDistribution).map(
-		([name, value]) => ({
-			name,
-			value,
-		}),
-	);
+	const planChartData = Object.entries(stats.planDistribution).map(([name, value]) => ({
+		name,
+		value,
+	}));
 
 	const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
@@ -402,9 +372,7 @@ function PlatformOverview() {
 			<div className="container mx-auto p-6">
 				<Card>
 					<CardContent className="p-6">
-						<p className="text-muted-foreground text-center">
-							Please log in to access this page.
-						</p>
+						<p className="text-muted-foreground text-center">Please log in to access this page.</p>
 					</CardContent>
 				</Card>
 			</div>
@@ -416,9 +384,7 @@ function PlatformOverview() {
 			<div className="mb-6 flex items-center justify-between">
 				<div>
 					<h1 className="mb-2 text-3xl font-bold">Platform Overview</h1>
-					<p className="text-muted-foreground">
-						Real-time platform metrics and system status
-					</p>
+					<p className="text-muted-foreground">Real-time platform metrics and system status</p>
 				</div>
 				<div className="flex gap-2">
 					<Button
@@ -447,65 +413,45 @@ function PlatformOverview() {
 					<div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									Total Organizations
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">Total Organizations</CardTitle>
 								<Users className="text-muted-foreground h-4 w-4" />
 							</CardHeader>
 							<CardContent>
 								<div className="text-2xl font-bold">{stats.totalOrgs}</div>
-								<p className="text-muted-foreground text-xs">
-									Active workspaces
-								</p>
+								<p className="text-muted-foreground text-xs">Active workspaces</p>
 							</CardContent>
 						</Card>
 
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									Total Conversions
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">Total Conversions</CardTitle>
 								<Activity className="text-muted-foreground h-4 w-4" />
 							</CardHeader>
 							<CardContent>
-								<div className="text-2xl font-bold">
-									{stats.totalConversions}
-								</div>
-								<p className="text-muted-foreground text-xs">
-									This billing period
-								</p>
+								<div className="text-2xl font-bold">{stats.totalConversions}</div>
+								<p className="text-muted-foreground text-xs">This billing period</p>
 							</CardContent>
 						</Card>
 
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									Total Overages
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">Total Overages</CardTitle>
 								<AlertCircle className="text-muted-foreground h-4 w-4" />
 							</CardHeader>
 							<CardContent>
 								<div className="text-2xl font-bold">{stats.totalOverages}</div>
-								<p className="text-muted-foreground text-xs">
-									Extra conversions
-								</p>
+								<p className="text-muted-foreground text-xs">Extra conversions</p>
 							</CardContent>
 						</Card>
 
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									Monthly Revenue
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
 								<DollarSign className="text-muted-foreground h-4 w-4" />
 							</CardHeader>
 							<CardContent>
-								<div className="text-2xl font-bold">
-									${(stats.totalRevenue / 100).toFixed(2)}
-								</div>
-								<p className="text-muted-foreground text-xs">
-									Recurring + overages
-								</p>
+								<div className="text-2xl font-bold">${(stats.totalRevenue / 100).toFixed(2)}</div>
+								<p className="text-muted-foreground text-xs">Recurring + overages</p>
 							</CardContent>
 						</Card>
 					</div>
@@ -515,9 +461,7 @@ function PlatformOverview() {
 						<Card>
 							<CardHeader>
 								<CardTitle>Plan Distribution</CardTitle>
-								<CardDescription>
-									Organizations by subscription plan
-								</CardDescription>
+								<CardDescription>Organizations by subscription plan</CardDescription>
 							</CardHeader>
 							<CardContent>
 								<ResponsiveContainer width="100%" height={250}>
@@ -527,18 +471,13 @@ function PlatformOverview() {
 											cx="50%"
 											cy="50%"
 											labelLine={false}
-											label={({ name, percent = 0 }) =>
-												`${name} ${(percent * 100).toFixed(0)}%`
-											}
+											label={({ name, percent = 0 }) => `${name} ${(percent * 100).toFixed(0)}%`}
 											outerRadius={80}
 											fill="#8884d8"
 											dataKey="value"
 										>
 											{planChartData.map((_entry, index) => (
-												<Cell
-													key={'cell-${index}'}
-													fill={COLORS[index % COLORS.length]}
-												/>
+												<Cell key={'cell-${index}'} fill={COLORS[index % COLORS.length]} />
 											))}
 										</Pie>
 										<Tooltip />
@@ -580,7 +519,7 @@ function PlatformOverview() {
 								<CardTitle>Organizations</CardTitle>
 								<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
 									<div className="relative flex-1 sm:flex-initial">
-										<Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
+										<Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
 										<Input
 											placeholder="Search organizations..."
 											value={searchTerm}
@@ -632,18 +571,12 @@ function PlatformOverview() {
 											<CardHeader className="pb-3">
 												<div className="flex items-start justify-between">
 													<div>
-														<CardTitle className="text-lg">
-															{org.name}
-														</CardTitle>
-														<p className="text-muted-foreground mt-1 text-sm">
-															{org.id}
-														</p>
+														<CardTitle className="text-lg">{org.name}</CardTitle>
+														<p className="text-muted-foreground mt-1 text-sm">{org.id}</p>
 													</div>
 													<Badge
 														variant={
-															org.subscription?.status === 'active'
-																? 'default'
-																: 'secondary'
+															org.subscription?.status === 'active' ? 'default' : 'secondary'
 														}
 													>
 														{org.subscription?.status || 'No Plan'}
@@ -654,14 +587,10 @@ function PlatformOverview() {
 												<div className="space-y-2 text-sm">
 													<div className="flex justify-between">
 														<span className="text-muted-foreground">Plan:</span>
-														<span className="font-medium">
-															{org.plan?.name || 'None'}
-														</span>
+														<span className="font-medium">{org.plan?.name || 'None'}</span>
 													</div>
 													<div className="flex justify-between">
-														<span className="text-muted-foreground">
-															Usage:
-														</span>
+														<span className="text-muted-foreground">Usage:</span>
 														<span className="font-medium">
 															{org.currentUsage}
 															{org.plan?.monthlyConversionLimit
@@ -670,12 +599,8 @@ function PlatformOverview() {
 														</span>
 													</div>
 													<div className="flex justify-between">
-														<span className="text-muted-foreground">
-															Overages:
-														</span>
-														<span className="font-medium">
-															{org.overageCount}
-														</span>
+														<span className="text-muted-foreground">Overages:</span>
+														<span className="font-medium">{org.overageCount}</span>
 													</div>
 													{org.subscription?.overrideMonthlyLimit && (
 														<Badge variant="outline" className="text-xs">
@@ -713,16 +638,12 @@ function PlatformOverview() {
 												<div className="grid flex-1 grid-cols-5 items-center gap-4">
 													<div>
 														<p className="font-semibold">{org.name}</p>
-														<p className="text-muted-foreground text-xs">
-															{org.id}
-														</p>
+														<p className="text-muted-foreground text-xs">{org.id}</p>
 													</div>
 													<div className="text-center">
 														<Badge
 															variant={
-																org.subscription?.status === 'active'
-																	? 'default'
-																	: 'secondary'
+																org.subscription?.status === 'active' ? 'default' : 'secondary'
 															}
 														>
 															{org.plan?.name || 'No Plan'}
@@ -737,9 +658,7 @@ function PlatformOverview() {
 														</p>
 													</div>
 													<div className="text-center">
-														<p className="text-sm">
-															{org.overageCount} overages
-														</p>
+														<p className="text-sm">{org.overageCount} overages</p>
 													</div>
 													<div className="text-center">
 														<p className="text-sm font-medium">
@@ -764,9 +683,7 @@ function PlatformOverview() {
 							<div className="flex items-center justify-between">
 								<div>
 									<CardTitle>Subscription Plans</CardTitle>
-									<CardDescription>
-										Manage subscription plans and pricing
-									</CardDescription>
+									<CardDescription>Manage subscription plans and pricing</CardDescription>
 								</div>
 								<Button
 									onClick={() => {
@@ -813,52 +730,28 @@ function PlatformOverview() {
 												)}
 											</div>
 											<p className="text-muted-foreground mt-1 text-sm">
-												${(plan.priceCents / 100).toFixed(2)}/
-												{plan.billingInterval}
+												${(plan.priceCents / 100).toFixed(2)}/{plan.billingInterval}
 											</p>
 											<div className="text-muted-foreground mt-2 flex gap-4 text-sm">
-												<span>
-													Conversions:{' '}
-													{plan.monthlyConversionLimit || 'Unlimited'}
-												</span>
-												<span>
-													Concurrent:{' '}
-													{plan.concurrentConversionLimit || 'Unlimited'}
-												</span>
-												<span>
-													Max Size: {plan.maxFileSizeMb || 'Unlimited'} MB
-												</span>
+												<span>Conversions: {plan.monthlyConversionLimit || 'Unlimited'}</span>
+												<span>Concurrent: {plan.concurrentConversionLimit || 'Unlimited'}</span>
+												<span>Max Size: {plan.maxFileSizeMb || 'Unlimited'} MB</span>
 												{plan.overagePriceCents && (
-													<span>
-														Overage: $
-														{(plan.overagePriceCents / 100).toFixed(2)}
-													</span>
+													<span>Overage: ${(plan.overagePriceCents / 100).toFixed(2)}</span>
 												)}
 											</div>
 										</div>
 										<div className="flex gap-2">
 											{!plan.isDefault && (
-												<Button
-													variant="outline"
-													size="sm"
-													onClick={() => setDefaultPlan(plan.id)}
-												>
+												<Button variant="outline" size="sm" onClick={() => setDefaultPlan(plan.id)}>
 													Set Default
 												</Button>
 											)}
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() => setEditingPlan(plan)}
-											>
+											<Button variant="outline" size="sm" onClick={() => setEditingPlan(plan)}>
 												Edit
 											</Button>
 											{!plan.isDefault && (
-												<Button
-													variant="destructive"
-													size="sm"
-													onClick={() => deletePlan(plan.id)}
-												>
+												<Button variant="destructive" size="sm" onClick={() => deletePlan(plan.id)}>
 													<Trash2 className="h-4 w-4" />
 												</Button>
 											)}
@@ -878,9 +771,7 @@ function PlatformOverview() {
 						<div className="bg-background sticky top-0 flex items-start justify-between border-b p-6">
 							<div>
 								<h2 className="text-2xl font-bold">{selectedOrg.name}</h2>
-								<p className="text-muted-foreground mt-1 text-sm">
-									{selectedOrg.id}
-								</p>
+								<p className="text-muted-foreground mt-1 text-sm">{selectedOrg.id}</p>
 							</div>
 							<Button
 								variant="ghost"
@@ -908,9 +799,7 @@ function PlatformOverview() {
 									<div className="grid gap-4 md:grid-cols-2">
 										<Card>
 											<CardHeader>
-												<CardTitle className="text-base">
-													Current Plan
-												</CardTitle>
+												<CardTitle className="text-base">Current Plan</CardTitle>
 											</CardHeader>
 											<CardContent>
 												<div className="space-y-2">
@@ -929,10 +818,7 @@ function PlatformOverview() {
 														</Badge>
 													</div>
 													<p className="text-muted-foreground text-sm">
-														$
-														{(
-															(selectedOrg.plan?.priceCents || 0) / 100
-														).toFixed(2)}
+														${((selectedOrg.plan?.priceCents || 0) / 100).toFixed(2)}
 														/month
 													</p>
 												</div>
@@ -941,9 +827,7 @@ function PlatformOverview() {
 
 										<Card>
 											<CardHeader>
-												<CardTitle className="text-base">
-													Current Usage
-												</CardTitle>
+												<CardTitle className="text-base">Current Usage</CardTitle>
 											</CardHeader>
 											<CardContent>
 												<div className="space-y-2">
@@ -958,9 +842,7 @@ function PlatformOverview() {
 													</div>
 													<div className="flex justify-between">
 														<span>Overages:</span>
-														<span className="font-medium">
-															{selectedOrg.overageCount}
-														</span>
+														<span className="font-medium">{selectedOrg.overageCount}</span>
 													</div>
 													{selectedOrg.plan?.monthlyConversionLimit && (
 														<div className="pt-2">
@@ -971,8 +853,7 @@ function PlatformOverview() {
 																		width: `${Math.min(
 																			100,
 																			(selectedOrg.currentUsage /
-																				selectedOrg.plan
-																					.monthlyConversionLimit) *
+																				selectedOrg.plan.monthlyConversionLimit) *
 																				100,
 																		)}%`,
 																	}}
@@ -995,24 +876,18 @@ function PlatformOverview() {
 
 									<Card>
 										<CardHeader>
-											<CardTitle className="text-base">
-												Organization Details
-											</CardTitle>
+											<CardTitle className="text-base">Organization Details</CardTitle>
 										</CardHeader>
 										<CardContent>
 											<dl className="grid grid-cols-2 gap-4 text-sm">
 												<div>
 													<dt className="text-muted-foreground">Created</dt>
 													<dd className="font-medium">
-														{new Date(
-															selectedOrg.createdAt,
-														).toLocaleDateString()}
+														{new Date(selectedOrg.createdAt).toLocaleDateString()}
 													</dd>
 												</div>
 												<div>
-													<dt className="text-muted-foreground">
-														Billing Period
-													</dt>
+													<dt className="text-muted-foreground">Billing Period</dt>
 													<dd className="font-medium">
 														{selectedOrg.subscription?.currentPeriodStart
 															? `${new Date(selectedOrg.subscription.currentPeriodStart).toLocaleDateString()} - ${new Date(selectedOrg.subscription.currentPeriodEnd).toLocaleDateString()}`
@@ -1020,9 +895,7 @@ function PlatformOverview() {
 													</dd>
 												</div>
 												<div>
-													<dt className="text-muted-foreground">
-														File Size Limit
-													</dt>
+													<dt className="text-muted-foreground">File Size Limit</dt>
 													<dd className="font-medium">
 														{selectedOrg.subscription?.overrideMaxFileSizeMb ||
 															selectedOrg.plan?.maxFileSizeMb ||
@@ -1031,12 +904,9 @@ function PlatformOverview() {
 													</dd>
 												</div>
 												<div>
-													<dt className="text-muted-foreground">
-														Concurrent Limit
-													</dt>
+													<dt className="text-muted-foreground">Concurrent Limit</dt>
 													<dd className="font-medium">
-														{selectedOrg.subscription
-															?.overrideConcurrentLimit ||
+														{selectedOrg.subscription?.overrideConcurrentLimit ||
 															selectedOrg.plan?.concurrentConversionLimit ||
 															'Unlimited'}
 													</dd>
@@ -1050,9 +920,7 @@ function PlatformOverview() {
 									<Card>
 										<CardHeader>
 											<CardTitle className="text-base">Usage History</CardTitle>
-											<CardDescription>
-												Monthly conversion trends
-											</CardDescription>
+											<CardDescription>Monthly conversion trends</CardDescription>
 										</CardHeader>
 										<CardContent>
 											<ResponsiveContainer width="100%" height={300}>
@@ -1100,27 +968,20 @@ function PlatformOverview() {
 
 									<Card>
 										<CardHeader>
-											<CardTitle className="text-base">
-												Conversion Types
-											</CardTitle>
-											<CardDescription>
-												Breakdown by conversion type
-											</CardDescription>
+											<CardTitle className="text-base">Conversion Types</CardTitle>
+											<CardDescription>Breakdown by conversion type</CardDescription>
 										</CardHeader>
 										<CardContent>
 											<div className="space-y-2">
 												{orgUsageHistory[0]?.conversionTypeBreakdown &&
-													Object.entries(
-														orgUsageHistory[0].conversionTypeBreakdown,
-													).map(([type, count]) => (
-														<div
-															key={type}
-															className="flex items-center justify-between"
-														>
-															<span className="text-sm">{type}</span>
-															<span className="font-medium">{count}</span>
-														</div>
-													))}
+													Object.entries(orgUsageHistory[0].conversionTypeBreakdown).map(
+														([type, count]) => (
+															<div key={type} className="flex items-center justify-between">
+																<span className="text-sm">{type}</span>
+																<span className="font-medium">{count}</span>
+															</div>
+														),
+													)}
 											</div>
 										</CardContent>
 									</Card>
@@ -1129,32 +990,21 @@ function PlatformOverview() {
 								<TabsContent value="subscription" className="space-y-4">
 									<Card>
 										<CardHeader>
-											<CardTitle className="text-base">
-												Subscription Management
-											</CardTitle>
-											<CardDescription>
-												Update plan and billing settings
-											</CardDescription>
+											<CardTitle className="text-base">Subscription Management</CardTitle>
+											<CardDescription>Update plan and billing settings</CardDescription>
 										</CardHeader>
 										<CardContent className="space-y-4">
 											{!editingSubscription ? (
 												<div className="space-y-4">
 													<div className="flex items-center justify-between rounded-lg border p-4">
 														<div>
-															<p className="font-medium">
-																{selectedOrg.plan?.name || 'No Plan'}
-															</p>
+															<p className="font-medium">{selectedOrg.plan?.name || 'No Plan'}</p>
 															<p className="text-muted-foreground text-sm">
-																$
-																{(
-																	(selectedOrg.plan?.priceCents || 0) / 100
-																).toFixed(2)}
+																${((selectedOrg.plan?.priceCents || 0) / 100).toFixed(2)}
 																/month
 															</p>
 														</div>
-														<Button
-															onClick={() => setEditingSubscription(true)}
-														>
+														<Button onClick={() => setEditingSubscription(true)}>
 															Change Plan
 														</Button>
 													</div>
@@ -1163,10 +1013,7 @@ function PlatformOverview() {
 												<div className="space-y-4">
 													<div className="space-y-2">
 														<Label>Select New Plan</Label>
-														<Select
-															value={newPlanId}
-															onValueChange={setNewPlanId}
-														>
+														<Select value={newPlanId} onValueChange={setNewPlanId}>
 															<SelectTrigger>
 																<SelectValue placeholder="Choose a plan" />
 															</SelectTrigger>
@@ -1197,10 +1044,7 @@ function PlatformOverview() {
 														<Button
 															onClick={() => {
 																if (newPlanId) {
-																	updateSubscriptionPlan(
-																		selectedOrg.id,
-																		newPlanId,
-																	);
+																	updateSubscriptionPlan(selectedOrg.id, newPlanId);
 																}
 															}}
 															disabled={!newPlanId}
@@ -1215,16 +1059,12 @@ function PlatformOverview() {
 
 									<Card>
 										<CardHeader>
-											<CardTitle className="text-base">
-												Billing Information
-											</CardTitle>
+											<CardTitle className="text-base">Billing Information</CardTitle>
 										</CardHeader>
 										<CardContent>
 											<dl className="space-y-2 text-sm">
 												<div className="flex justify-between">
-													<dt className="text-muted-foreground">
-														Next Invoice
-													</dt>
+													<dt className="text-muted-foreground">Next Invoice</dt>
 													<dd className="font-medium">
 														{selectedOrg.subscription?.currentPeriodEnd
 															? new Date(
@@ -1234,14 +1074,11 @@ function PlatformOverview() {
 													</dd>
 												</div>
 												<div className="flex justify-between">
-													<dt className="text-muted-foreground">
-														Overage Rate
-													</dt>
+													<dt className="text-muted-foreground">Overage Rate</dt>
 													<dd className="font-medium">
 														$
 														{(
-															(selectedOrg.subscription
-																?.overrideOveragePriceCents ||
+															(selectedOrg.subscription?.overrideOveragePriceCents ||
 																selectedOrg.plan?.overagePriceCents ||
 																0) / 100
 														).toFixed(2)}{' '}
@@ -1249,22 +1086,18 @@ function PlatformOverview() {
 													</dd>
 												</div>
 												<div className="flex justify-between">
-													<dt className="text-muted-foreground">
-														Current Overages
-													</dt>
+													<dt className="text-muted-foreground">Current Overages</dt>
 													<dd className="font-medium">
 														{selectedOrg.overageCount} × $
 														{(
-															(selectedOrg.subscription
-																?.overrideOveragePriceCents ||
+															(selectedOrg.subscription?.overrideOveragePriceCents ||
 																selectedOrg.plan?.overagePriceCents ||
 																0) / 100
 														).toFixed(2)}{' '}
 														= $
 														{(
 															(selectedOrg.overageCount *
-																(selectedOrg.subscription
-																	?.overrideOveragePriceCents ||
+																(selectedOrg.subscription?.overrideOveragePriceCents ||
 																	selectedOrg.plan?.overagePriceCents ||
 																	0)) /
 															100
@@ -1279,26 +1112,20 @@ function PlatformOverview() {
 								<TabsContent value="settings" className="space-y-4">
 									<Card>
 										<CardHeader>
-											<CardTitle className="text-base">
-												Custom Limits Override
-											</CardTitle>
+											<CardTitle className="text-base">Custom Limits Override</CardTitle>
 											<CardDescription>
-												Set custom limits for this organization (overrides plan
-												defaults)
+												Set custom limits for this organization (overrides plan defaults)
 											</CardDescription>
 										</CardHeader>
 										<CardContent className="space-y-4">
 											<div className="grid gap-4 md:grid-cols-2">
 												<div>
-													<Label htmlFor="monthlyLimit">
-														Monthly Conversion Limit
-													</Label>
+													<Label htmlFor="monthlyLimit">Monthly Conversion Limit</Label>
 													<Input
 														id="monthlyLimit"
 														type="number"
 														placeholder={
-															selectedOrg.plan?.monthlyConversionLimit?.toString() ||
-															'Unlimited'
+															selectedOrg.plan?.monthlyConversionLimit?.toString() || 'Unlimited'
 														}
 														value={overrides.monthlyConversionLimit}
 														onChange={(e) =>
@@ -1317,15 +1144,12 @@ function PlatformOverview() {
 												</div>
 
 												<div>
-													<Label htmlFor="concurrentLimit">
-														Concurrent Conversion Limit
-													</Label>
+													<Label htmlFor="concurrentLimit">Concurrent Conversion Limit</Label>
 													<Input
 														id="concurrentLimit"
 														type="number"
 														placeholder={
-															selectedOrg.plan?.concurrentConversionLimit?.toString() ||
-															'Unlimited'
+															selectedOrg.plan?.concurrentConversionLimit?.toString() || 'Unlimited'
 														}
 														value={overrides.concurrentConversionLimit}
 														onChange={(e) =>
@@ -1337,8 +1161,7 @@ function PlatformOverview() {
 													/>
 													<p className="text-muted-foreground mt-1 text-xs">
 														Current:{' '}
-														{selectedOrg.subscription
-															?.overrideConcurrentLimit ||
+														{selectedOrg.subscription?.overrideConcurrentLimit ||
 															selectedOrg.plan?.concurrentConversionLimit ||
 															'Unlimited'}
 													</p>
@@ -1349,10 +1172,7 @@ function PlatformOverview() {
 													<Input
 														id="fileSize"
 														type="number"
-														placeholder={
-															selectedOrg.plan?.maxFileSizeMb?.toString() ||
-															'Unlimited'
-														}
+														placeholder={selectedOrg.plan?.maxFileSizeMb?.toString() || 'Unlimited'}
 														value={overrides.maxFileSizeMb}
 														onChange={(e) =>
 															setOverrides({
@@ -1371,9 +1191,7 @@ function PlatformOverview() {
 												</div>
 
 												<div>
-													<Label htmlFor="overagePrice">
-														Overage Price (cents)
-													</Label>
+													<Label htmlFor="overagePrice">Overage Price (cents)</Label>
 													<Input
 														id="overagePrice"
 														type="number"
@@ -1388,8 +1206,7 @@ function PlatformOverview() {
 													/>
 													<p className="text-muted-foreground mt-1 text-xs">
 														Current:{' '}
-														{selectedOrg.subscription
-															?.overrideOveragePriceCents ||
+														{selectedOrg.subscription?.overrideOveragePriceCents ||
 															selectedOrg.plan?.overagePriceCents ||
 															0}{' '}
 														cents
@@ -1445,9 +1262,7 @@ function PlatformOverview() {
 					<div className="bg-background max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg border">
 						<div className="bg-background sticky top-0 flex items-start justify-between border-b p-6">
 							<div>
-								<h2 className="text-2xl font-bold">
-									{editingPlan ? 'Edit Plan' : 'Create Plan'}
-								</h2>
+								<h2 className="text-2xl font-bold">{editingPlan ? 'Edit Plan' : 'Create Plan'}</h2>
 								<p className="text-muted-foreground mt-1 text-sm">
 									{editingPlan
 										? 'Update subscription plan details'
@@ -1473,9 +1288,7 @@ function PlatformOverview() {
 									<Input
 										id="planName"
 										value={planForm.name}
-										onChange={(e) =>
-											setPlanForm({ ...planForm, name: e.target.value })
-										}
+										onChange={(e) => setPlanForm({ ...planForm, name: e.target.value })}
 										placeholder="e.g., Professional"
 									/>
 								</div>
@@ -1486,9 +1299,7 @@ function PlatformOverview() {
 										id="planPrice"
 										type="number"
 										value={planForm.priceCents}
-										onChange={(e) =>
-											setPlanForm({ ...planForm, priceCents: e.target.value })
-										}
+										onChange={(e) => setPlanForm({ ...planForm, priceCents: e.target.value })}
 										placeholder="e.g., 2900 for $29.00"
 									/>
 								</div>
@@ -1497,9 +1308,7 @@ function PlatformOverview() {
 									<Label htmlFor="billingInterval">Billing Interval</Label>
 									<Select
 										value={planForm.billingInterval}
-										onValueChange={(value) =>
-											setPlanForm({ ...planForm, billingInterval: value })
-										}
+										onValueChange={(value) => setPlanForm({ ...planForm, billingInterval: value })}
 									>
 										<SelectTrigger>
 											<SelectValue />
@@ -1528,9 +1337,7 @@ function PlatformOverview() {
 								</div>
 
 								<div>
-									<Label htmlFor="concurrentLimit">
-										Concurrent Conversion Limit
-									</Label>
+									<Label htmlFor="concurrentLimit">Concurrent Conversion Limit</Label>
 									<Input
 										id="concurrentLimit"
 										type="number"
@@ -1562,9 +1369,7 @@ function PlatformOverview() {
 								</div>
 
 								<div>
-									<Label htmlFor="overagePrice">
-										Overage Price (cents per conversion)
-									</Label>
+									<Label htmlFor="overagePrice">Overage Price (cents per conversion)</Label>
 									<Input
 										id="overagePrice"
 										type="number"
@@ -1586,9 +1391,7 @@ function PlatformOverview() {
 									id="features"
 									className="border-input bg-background min-h-[100px] w-full rounded-md border px-3 py-2 text-sm"
 									value={planForm.features}
-									onChange={(e) =>
-										setPlanForm({ ...planForm, features: e.target.value })
-									}
+									onChange={(e) => setPlanForm({ ...planForm, features: e.target.value })}
 									placeholder='{"feature1": true, "feature2": false}'
 								/>
 							</div>
@@ -1598,9 +1401,7 @@ function PlatformOverview() {
 									<input
 										type="checkbox"
 										checked={planForm.isDefault}
-										onChange={(e) =>
-											setPlanForm({ ...planForm, isDefault: e.target.checked })
-										}
+										onChange={(e) => setPlanForm({ ...planForm, isDefault: e.target.checked })}
 										className="rounded border-gray-300"
 									/>
 									<span className="text-sm font-medium">
@@ -1612,14 +1413,10 @@ function PlatformOverview() {
 									<input
 										type="checkbox"
 										checked={planForm.isPublic}
-										onChange={(e) =>
-											setPlanForm({ ...planForm, isPublic: e.target.checked })
-										}
+										onChange={(e) => setPlanForm({ ...planForm, isPublic: e.target.checked })}
 										className="rounded border-gray-300"
 									/>
-									<span className="text-sm font-medium">
-										Visible to users (public plan)
-									</span>
+									<span className="text-sm font-medium">Visible to users (public plan)</span>
 								</label>
 							</div>
 
@@ -1633,9 +1430,7 @@ function PlatformOverview() {
 								>
 									Cancel
 								</Button>
-								<Button onClick={savePlan}>
-									{editingPlan ? 'Update Plan' : 'Create Plan'}
-								</Button>
+								<Button onClick={savePlan}>{editingPlan ? 'Update Plan' : 'Create Plan'}</Button>
 							</div>
 						</div>
 					</div>

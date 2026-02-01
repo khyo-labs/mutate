@@ -6,10 +6,7 @@ import { LoggerService } from '../services/logger.js';
 import type { TransformationState } from '../transform/types.js';
 import type { ValidateColumnsRule } from '../types.js';
 
-export function applyValidateColumns(
-	state: TransformationState,
-	rule: ValidateColumnsRule,
-) {
+export function applyValidateColumns(state: TransformationState, rule: ValidateColumnsRule) {
 	return Effect.gen(function* () {
 		const logger = yield* LoggerService;
 		const { workbook, selectedSheet } = state;

@@ -24,19 +24,21 @@ effect/
 ## Runtime (`runtime.ts`)
 
 The app runtime combines all service layers:
+
 ```typescript
 const AppLive = Layer.mergeAll(
-  DrizzleDatabaseLayer,
-  StorageServiceLayer,
-  StorageStreamServiceLive,
-  LoggerServiceLayer,
-  WebhookServiceLive,
+	DrizzleDatabaseLayer,
+	StorageServiceLayer,
+	StorageStreamServiceLive,
+	LoggerServiceLayer,
+	WebhookServiceLive,
 );
 
 export const runtime = ManagedRuntime.make(AppLive);
 ```
 
 When adding a new Effect service:
+
 1. Create service definition with `Context.Tag`
 2. Create live implementation as a `Layer`
 3. Add the layer to `AppLive` in `runtime.ts`
@@ -53,6 +55,7 @@ effectHandler<A, E, T>(
 ```
 
 **Default behavior**:
+
 - Success: returns `{ success: true, data: result }`
 - Error: unwraps Effect's FiberFailure, serializes to `{ success: false, error: { code, message } }`
 
@@ -64,33 +67,39 @@ effectHandler<A, E, T>(
 
 ```typescript
 import { Effect } from 'effect';
+
 import { effectHandler } from '@/effect/adapters/fastify.js';
 import { DatabaseService } from '@/effect/layers/drizzle.layer.js';
 
-fastify.post('/foo', {
-  preHandler: [fastify.authenticate],
-}, effectHandler((req) =>
-  Effect.gen(function* () {
-    const db = yield* DatabaseService;
-    const result = yield* Effect.tryPromise(() =>
-      db.select().from(table).where(eq(table.id, req.params.id))
-    );
-    return result;
-  })
-));
+fastify.post(
+	'/foo',
+	{
+		preHandler: [fastify.authenticate],
+	},
+	effectHandler((req) =>
+		Effect.gen(function* () {
+			const db = yield* DatabaseService;
+			const result = yield* Effect.tryPromise(() =>
+				db.select().from(table).where(eq(table.id, req.params.id)),
+			);
+			return result;
+		}),
+	),
+);
 ```
 
 ## Error Patterns in Effect Pipelines
 
 Use tagged errors for domain-specific failures:
+
 ```typescript
 class NotFoundError {
-  readonly _tag = 'NotFoundError';
-  constructor(readonly message: string) {}
+	readonly _tag = 'NotFoundError';
+	constructor(readonly message: string) {}
 }
 
 // In pipeline:
-yield* Effect.fail(new NotFoundError('Configuration not found'));
+yield * Effect.fail(new NotFoundError('Configuration not found'));
 ```
 
 The `serializeError()` function in `adapters/fastify.ts` uses `_tag` as the error code in API responses.

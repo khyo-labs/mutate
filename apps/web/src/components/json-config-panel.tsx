@@ -1,11 +1,4 @@
-import {
-	AlertTriangle,
-	CheckCircle,
-	ChevronDown,
-	Copy,
-	Download,
-	Upload,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle, ChevronDown, Copy, Download, Upload } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import type { Configuration, TransformationRule } from '../types';
@@ -90,9 +83,7 @@ export function JsonConfigPanel({
 			}
 
 			if (!parsed.outputFormat || typeof parsed.outputFormat !== 'object') {
-				throw new Error(
-					'Configuration must have a valid "outputFormat" object',
-				);
+				throw new Error('Configuration must have a valid "outputFormat" object');
 			}
 
 			// Validate each rule has required fields
@@ -109,9 +100,7 @@ export function JsonConfigPanel({
 					throw new Error(`Rule ${index + 1} must have a valid "type" field`);
 				}
 				if (!r.params || typeof r.params !== 'object') {
-					throw new Error(
-						`Rule ${index + 1} must have a valid "params" object`,
-					);
+					throw new Error(`Rule ${index + 1} must have a valid "params" object`);
 				}
 			});
 
@@ -147,11 +136,7 @@ export function JsonConfigPanel({
 			if (error instanceof SyntaxError) {
 				setImportError('Invalid JSON format. Please check your JSON syntax.');
 			} else {
-				setImportError(
-					error instanceof Error
-						? error.message
-						: 'Failed to import configuration',
-				);
+				setImportError(error instanceof Error ? error.message : 'Failed to import configuration');
 			}
 		}
 	}
@@ -172,9 +157,7 @@ export function JsonConfigPanel({
 					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
 				>
 					<div>
-						<p className="text-sm text-gray-500">
-							Preview or import configuration as JSON
-						</p>
+						<p className="text-sm text-gray-500">Preview or import configuration as JSON</p>
 					</div>
 					<ChevronDown className="h-5 w-5 text-gray-400" />
 				</Button>
@@ -188,12 +171,8 @@ export function JsonConfigPanel({
 				<div className="border-b border-gray-200 p-4">
 					<div className="flex items-center justify-between">
 						<div>
-							<h3 className="text-lg font-medium text-gray-900">
-								Import Configuration
-							</h3>
-							<p className="text-sm text-gray-500">
-								Paste your JSON configuration below
-							</p>
+							<h3 className="text-lg font-medium text-gray-900">Import Configuration</h3>
+							<p className="text-sm text-gray-500">Paste your JSON configuration below</p>
 						</div>
 						<Button
 							variant="ghost"
@@ -217,7 +196,7 @@ export function JsonConfigPanel({
 								onChange={(e) => setImportText(e.target.value)}
 								placeholder="Paste your JSON configuration here..."
 								rows={12}
-								className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+								className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-xs focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
 							/>
 						</div>
 
@@ -231,9 +210,7 @@ export function JsonConfigPanel({
 						{importSuccess && (
 							<div className="flex items-center space-x-2 rounded-md bg-green-50 p-3">
 								<CheckCircle className="h-4 w-4 text-green-500" />
-								<span className="text-sm text-green-700">
-									Configuration imported successfully!
-								</span>
+								<span className="text-sm text-green-700">Configuration imported successfully!</span>
 							</div>
 						)}
 
@@ -241,10 +218,7 @@ export function JsonConfigPanel({
 							<Button variant="outline" onClick={handleImportCancel}>
 								Cancel
 							</Button>
-							<Button
-								onClick={handleImport}
-								disabled={!importText.trim() || importSuccess}
-							>
+							<Button onClick={handleImport} disabled={!importText.trim() || importSuccess}>
 								<Upload className="mr-2 h-4 w-4" />
 								Import Configuration
 							</Button>
@@ -261,8 +235,8 @@ export function JsonConfigPanel({
 				<div className="flex flex-col items-center justify-between space-y-2">
 					<div>
 						<p className="text-sm text-gray-500">
-							{rules.length} rule{rules.length !== 1 ? 's' : ''} •{' '}
-							{configJson.split('\n').length} lines
+							{rules.length} rule{rules.length !== 1 ? 's' : ''} • {configJson.split('\n').length}{' '}
+							lines
 						</p>
 					</div>
 					<div className="flex items-center space-x-3">
@@ -302,7 +276,7 @@ export function JsonConfigPanel({
 
 			<div className="p-4">
 				<div className="rounded bg-gray-50 p-3">
-					<pre className="max-h-96 overflow-auto whitespace-pre-wrap font-mono text-xs text-gray-800">
+					<pre className="max-h-96 overflow-auto font-mono text-xs whitespace-pre-wrap text-gray-800">
 						{configJson}
 					</pre>
 				</div>

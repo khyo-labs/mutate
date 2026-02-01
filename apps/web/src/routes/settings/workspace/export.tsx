@@ -173,10 +173,7 @@ function ExportDialog({
 											})
 										}
 									/>
-									<Label
-										htmlFor={key}
-										className="cursor-pointer text-sm font-normal"
-									>
+									<Label htmlFor={key} className="cursor-pointer text-sm font-normal">
 										{label}
 									</Label>
 								</div>
@@ -187,8 +184,7 @@ function ExportDialog({
 					<div className="bg-muted rounded-lg p-3">
 						<p className="text-muted-foreground text-sm">
 							<Shield className="mr-1 inline h-4 w-4" />
-							Your export will be encrypted and available for download for 24
-							hours.
+							Your export will be encrypted and available for download for 24 hours.
 						</p>
 					</div>
 				</div>
@@ -279,8 +275,8 @@ function ImportDialog({
 
 					<div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
 						<p className="text-sm text-yellow-800">
-							⚠️ Importing will merge data with existing workspace data.
-							Conflicts will be resolved by keeping the most recent version.
+							⚠️ Importing will merge data with existing workspace data. Conflicts will be resolved
+							by keeping the most recent version.
 						</p>
 					</div>
 				</div>
@@ -330,19 +326,14 @@ function BackupHistoryTable({ history }: { history: BackupHistory[] }) {
 							</div>
 						</TableCell>
 						<TableCell>
-							<Badge
-								variant={backup.type === 'scheduled' ? 'secondary' : 'outline'}
-							>
+							<Badge variant={backup.type === 'scheduled' ? 'secondary' : 'outline'}>
 								{backup.type === 'scheduled' ? 'Automatic' : 'Manual'}
 							</Badge>
 						</TableCell>
 						<TableCell>{backup.size}</TableCell>
 						<TableCell>
 							{backup.status === 'completed' && (
-								<Badge
-									variant="outline"
-									className="border-green-600 text-green-600"
-								>
+								<Badge variant="outline" className="border-green-600 text-green-600">
 									<CheckCircle className="mr-1 h-3 w-3" />
 									Completed
 								</Badge>
@@ -353,16 +344,10 @@ function BackupHistoryTable({ history }: { history: BackupHistory[] }) {
 									In Progress
 								</Badge>
 							)}
-							{backup.status === 'failed' && (
-								<Badge variant="destructive">Failed</Badge>
-							)}
+							{backup.status === 'failed' && <Badge variant="destructive">Failed</Badge>}
 						</TableCell>
 						<TableCell className="text-right">
-							<Button
-								variant="ghost"
-								size="sm"
-								disabled={backup.status !== 'completed'}
-							>
+							<Button variant="ghost" size="sm" disabled={backup.status !== 'completed'}>
 								<Download className="h-4 w-4" />
 							</Button>
 						</TableCell>
@@ -428,24 +413,18 @@ function ExportComponent() {
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">2 days ago</div>
-						<p className="text-muted-foreground text-xs">
-							Automatic backup completed
-						</p>
+						<p className="text-muted-foreground text-xs">Automatic backup completed</p>
 					</CardContent>
 				</Card>
 
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Total Backup Size
-						</CardTitle>
+						<CardTitle className="text-sm font-medium">Total Backup Size</CardTitle>
 						<HardDrive className="text-muted-foreground h-4 w-4" />
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">6.7 MB</div>
-						<p className="text-muted-foreground text-xs">
-							Across 3 backup files
-						</p>
+						<p className="text-muted-foreground text-xs">Across 3 backup files</p>
 					</CardContent>
 				</Card>
 
@@ -457,10 +436,7 @@ function ExportComponent() {
 					<CardContent>
 						<div className="text-2xl font-bold">5 days</div>
 						<p className="text-muted-foreground text-xs">
-							Scheduled for{' '}
-							{new Date(
-								Date.now() + 5 * 24 * 60 * 60 * 1000,
-							).toLocaleDateString()}
+							Scheduled for {new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString()}
 						</p>
 					</CardContent>
 				</Card>
@@ -476,13 +452,9 @@ function ExportComponent() {
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<p className="text-muted-foreground text-sm">
-							Export your workspace data including configurations, settings, and
-							team information.
+							Export your workspace data including configurations, settings, and team information.
 						</p>
-						<Button
-							onClick={() => setExportDialogOpen(true)}
-							className="w-full"
-						>
+						<Button onClick={() => setExportDialogOpen(true)} className="w-full">
 							<Download className="mr-2 h-4 w-4" />
 							Export Workspace Data
 						</Button>
@@ -498,14 +470,9 @@ function ExportComponent() {
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<p className="text-muted-foreground text-sm">
-							Restore workspace data from a previous export or migrate from
-							another workspace.
+							Restore workspace data from a previous export or migrate from another workspace.
 						</p>
-						<Button
-							onClick={() => setImportDialogOpen(true)}
-							variant="outline"
-							className="w-full"
-						>
+						<Button onClick={() => setImportDialogOpen(true)} variant="outline" className="w-full">
 							<Upload className="mr-2 h-4 w-4" />
 							Import Backup File
 						</Button>
@@ -519,9 +486,7 @@ function ExportComponent() {
 						<span>Automatic Backups</span>
 						<Badge
 							variant={backupSchedule.enabled ? 'default' : 'secondary'}
-							className={
-								backupSchedule.enabled ? 'bg-green-500 hover:bg-green-600' : ''
-							}
+							className={backupSchedule.enabled ? 'bg-green-500 hover:bg-green-600' : ''}
 						>
 							{backupSchedule.enabled ? 'Enabled' : 'Disabled'}
 						</Badge>
@@ -585,14 +550,8 @@ function ExportComponent() {
 				</CardContent>
 			</Card>
 
-			<ExportDialog
-				open={exportDialogOpen}
-				onOpenChange={setExportDialogOpen}
-			/>
-			<ImportDialog
-				open={importDialogOpen}
-				onOpenChange={setImportDialogOpen}
-			/>
+			<ExportDialog open={exportDialogOpen} onOpenChange={setExportDialogOpen} />
+			<ImportDialog open={importDialogOpen} onOpenChange={setImportDialogOpen} />
 		</div>
 	);
 }

@@ -1,10 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import {
-	type JobsListResponse,
-	type JobStatsResponse,
-	jobsApi,
-} from '@/api/jobs';
+import { type JobStatsResponse, type JobsListResponse, jobsApi } from '@/api/jobs';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 
 type JobsQueryParams = {
@@ -36,12 +32,7 @@ export function useJobStats() {
 
 export function useJobDownload() {
 	return useMutation({
-		mutationFn: ({
-			mutationId,
-			jobId,
-		}: {
-			mutationId: string;
-			jobId: string;
-		}) => jobsApi.getJobDownloadUrl(mutationId, jobId),
+		mutationFn: ({ mutationId, jobId }: { mutationId: string; jobId: string }) =>
+			jobsApi.getJobDownloadUrl(mutationId, jobId),
 	});
 }

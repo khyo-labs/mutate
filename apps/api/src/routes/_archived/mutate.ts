@@ -24,10 +24,7 @@ function validateFileType(
 		return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
 	};
 
-	const hasValidMagicNumber = (
-		buffer: Buffer,
-		conversionType: ConversionType,
-	): boolean => {
+	const hasValidMagicNumber = (buffer: Buffer, conversionType: ConversionType): boolean => {
 		const magicNumbers = {
 			XLSX_TO_CSV: [
 				[0x50, 0x4b, 0x03, 0x04], // ZIP signature (XLSX are ZIP files)
@@ -36,8 +33,7 @@ function validateFileType(
 			],
 		};
 
-		const signatures =
-			magicNumbers[conversionType as keyof typeof magicNumbers];
+		const signatures = magicNumbers[conversionType as keyof typeof magicNumbers];
 		if (!signatures) return true; // No validation for unsupported types
 
 		return signatures.some((signature) => {
@@ -69,10 +65,7 @@ function validateFileType(
 	}
 
 	// Additional validation for supported conversion types with magic number check
-	if (
-		conversionType === 'XLSX_TO_CSV' &&
-		!hasValidMagicNumber(fileBuffer, conversionType)
-	) {
+	if (conversionType === 'XLSX_TO_CSV' && !hasValidMagicNumber(fileBuffer, conversionType)) {
 		return {
 			valid: false,
 			error: 'File does not appear to be a valid XLSX/XLS file',
@@ -137,10 +130,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				.where(
 					and(
 						eq(configurations.id, configId),
-						eq(
-							configurations.organizationId,
-							request.currentUser!.organizationId,
-						),
+						eq(configurations.organizationId, request.currentUser!.organizationId),
 						eq(configurations.isActive, true),
 					),
 				)
@@ -215,8 +205,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 			}
 
 			// Determine if processing should be async
-			const isAsync =
-				options.async !== false && fileBuffer.length >= config.ASYNC_THRESHOLD;
+			const isAsync = options.async !== false && fileBuffer.length >= config.ASYNC_THRESHOLD;
 
 			// Create transformation job
 			const jobId = ulid();
@@ -251,9 +240,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 					configurationId: configId,
 					fileBuffer,
 					fileName: data.filename || 'upload.xlsx',
-					conversionType: configuration.conversionType as
-						| 'XLSX_TO_CSV'
-						| 'DOCX_TO_PDF',
+					conversionType: configuration.conversionType as 'XLSX_TO_CSV' | 'DOCX_TO_PDF',
 					callbackUrl: callbackUrl || configuration.callbackUrl,
 					uid: uid,
 					options,
@@ -265,8 +252,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 						jobId: job.id,
 						status: 'queued',
 						statusUrl: `/v1/mutate/jobs/${job.id}`,
-						message:
-							'File queued for processing. Use the status URL to check progress.',
+						message: 'File queued for processing. Use the status URL to check progress.',
 					},
 				});
 			} else {
@@ -278,9 +264,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 						configurationId: configId,
 						fileBuffer,
 						fileName: data.filename || 'upload.xlsx',
-						conversionType: configuration.conversionType as
-							| 'XLSX_TO_CSV'
-							| 'DOCX_TO_PDF',
+						conversionType: configuration.conversionType as 'XLSX_TO_CSV' | 'DOCX_TO_PDF',
 						callbackUrl: callbackUrl || configuration.callbackUrl,
 						uid: uid,
 						options,
@@ -325,10 +309,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 					and(
 						eq(transformationJobs.id, jobId),
 						eq(transformationJobs.configurationId, mutationId),
-						eq(
-							transformationJobs.organizationId,
-							request.currentUser!.organizationId,
-						),
+						eq(transformationJobs.organizationId, request.currentUser!.organizationId),
 					),
 				)
 				.limit(1);
@@ -413,10 +394,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 					and(
 						eq(transformationJobs.id, jobId),
 						eq(transformationJobs.configurationId, mutationId),
-						eq(
-							transformationJobs.organizationId,
-							request.currentUser!.organizationId,
-						),
+						eq(transformationJobs.organizationId, request.currentUser!.organizationId),
 						eq(transformationJobs.status, 'completed'),
 					),
 				)
@@ -451,9 +429,7 @@ export async function mutateRoutes(fastify: FastifyInstance) {
 				success: true,
 				data: {
 					downloadUrl,
-					expiresAt: new Date(
-						Date.now() + config.FILE_TTL * 1000,
-					).toISOString(),
+					expiresAt: new Date(Date.now() + config.FILE_TTL * 1000).toISOString(),
 					originalFileName: job.originalFileName,
 					fileSize: job.fileSize,
 				},

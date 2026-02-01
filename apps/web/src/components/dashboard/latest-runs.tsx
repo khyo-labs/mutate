@@ -7,13 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useJobDownload, useRecentJobs } from '@/hooks/use-jobs';
 import { formatDuration, formatFileSize } from '@/lib/format';
 
-function DownloadButton({
-	configurationId,
-	jobId,
-}: {
-	configurationId: string;
-	jobId: string;
-}) {
+function DownloadButton({ configurationId, jobId }: { configurationId: string; jobId: string }) {
 	const { mutate: download, isPending } = useJobDownload();
 
 	function handleDownload() {
@@ -95,15 +89,9 @@ export function LatestRuns() {
 									{job.originalFileName}
 								</span>
 							)}
-							{job.fileSize && (
-								<span className="shrink-0">
-									{formatFileSize(job.fileSize)}
-								</span>
-							)}
+							{job.fileSize && <span className="shrink-0">{formatFileSize(job.fileSize)}</span>}
 							{job.durationMs !== null && (
-								<span className="shrink-0">
-									{formatDuration(job.durationMs)}
-								</span>
+								<span className="shrink-0">{formatDuration(job.durationMs)}</span>
 							)}
 							<span className="shrink-0">
 								{formatDistanceToNow(new Date(job.createdAt), {
@@ -114,10 +102,7 @@ export function LatestRuns() {
 					</div>
 
 					{job.status === 'completed' && job.outputFileKey && (
-						<DownloadButton
-							configurationId={job.configurationId}
-							jobId={job.id}
-						/>
+						<DownloadButton configurationId={job.configurationId} jobId={job.id} />
 					)}
 				</div>
 			))}

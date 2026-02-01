@@ -50,9 +50,7 @@ export function FileUpload({ onFileUploaded, currentFile }: FileUploadProps) {
 				onFileUploaded(uploadedFile);
 			} catch (err) {
 				console.error('Error processing file:', err);
-				setError(
-					'Failed to process the Excel file. Please check the file format.',
-				);
+				setError('Failed to process the Excel file. Please check the file format.');
 			} finally {
 				setIsProcessing(false);
 			}
@@ -110,12 +108,9 @@ export function FileUpload({ onFileUploaded, currentFile }: FileUploadProps) {
 							<File className="h-5 w-5 text-green-600" />
 						</div>
 						<div>
-							<p className="text-sm font-medium text-gray-900">
-								{currentFile.name}
-							</p>
+							<p className="text-sm font-medium text-gray-900">{currentFile.name}</p>
 							<p className="text-xs text-gray-500">
-								{formatFileSize(currentFile.size)} •{' '}
-								{currentFile.worksheets.length} worksheet
+								{formatFileSize(currentFile.size)} • {currentFile.worksheets.length} worksheet
 								{currentFile.worksheets.length !== 1 ? 's' : ''}
 							</p>
 							<p className="text-xs text-gray-500">
@@ -144,9 +139,7 @@ export function FileUpload({ onFileUploaded, currentFile }: FileUploadProps) {
 				onDragOver={handleDragOver}
 				onDragLeave={handleDragLeave}
 				className={`relative rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
-					isDragOver
-						? 'border-blue-400 bg-blue-50'
-						: 'border-gray-300 bg-gray-50'
+					isDragOver ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-gray-50'
 				} ${isProcessing ? 'pointer-events-none opacity-50' : ''}`}
 			>
 				<input
@@ -159,9 +152,7 @@ export function FileUpload({ onFileUploaded, currentFile }: FileUploadProps) {
 
 				<div className="space-y-4">
 					<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-						<Upload
-							className={`h-6 w-6 ${isProcessing ? 'animate-pulse' : ''} text-gray-400`}
-						/>
+						<Upload className={`h-6 w-6 ${isProcessing ? 'animate-pulse' : ''} text-gray-400`} />
 					</div>
 
 					<div>

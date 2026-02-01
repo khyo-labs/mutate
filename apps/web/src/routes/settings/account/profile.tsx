@@ -47,10 +47,7 @@ function ProfileComponent() {
 
 	return (
 		<div className="space-y-6">
-			<SettingsHeader
-				title="Profile"
-				description="Manage your profile settings"
-			/>
+			<SettingsHeader title="Profile" description="Manage your profile settings" />
 
 			<Card>
 				<CardContent className="p-4">
@@ -65,9 +62,7 @@ function ProfileComponent() {
 										<FormControl>
 											<Input placeholder="Your name" {...field} />
 										</FormControl>
-										<FormDescription>
-											This is your public display name.
-										</FormDescription>
+										<FormDescription>This is your public display name.</FormDescription>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -85,9 +80,7 @@ function ProfileComponent() {
 												value={field.value ?? ''}
 											/>
 										</FormControl>
-										<FormDescription>
-											Enter the URL of your profile picture.
-										</FormDescription>
+										<FormDescription>Enter the URL of your profile picture.</FormDescription>
 										<FormMessage />
 									</FormItem>
 								)}

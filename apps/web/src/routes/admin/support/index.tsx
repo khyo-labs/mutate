@@ -16,13 +16,7 @@ import { toast } from 'sonner';
 
 import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogContent,
@@ -104,10 +98,7 @@ function SupportTools() {
 			const url = window.URL.createObjectURL(blob);
 			const link = document.createElement('a');
 			link.href = url;
-			link.setAttribute(
-				'download',
-				`workspace-${workspaceId}-${Date.now()}.${exportFormat}`,
-			);
+			link.setAttribute('download', `workspace-${workspaceId}-${Date.now()}.${exportFormat}`);
 			document.body.appendChild(link);
 			link.click();
 			link.remove();
@@ -134,9 +125,7 @@ function SupportTools() {
 				enabled: !debugMode,
 			});
 			setDebugMode(!debugMode);
-			toast.success(
-				`Debug mode ${!debugMode ? 'enabled' : 'disabled'} for workspace`,
-			);
+			toast.success(`Debug mode ${!debugMode ? 'enabled' : 'disabled'} for workspace`);
 		} catch {
 			toast.error('Failed to toggle debug mode');
 		} finally {
@@ -186,12 +175,9 @@ function SupportTools() {
 
 		try {
 			setLoading(true);
-			const data = await api.post<{ result: unknown }>(
-				'/v1/admin/support/query',
-				{
-					query: queryInput,
-				},
-			);
+			const data = await api.post<{ result: unknown }>('/v1/admin/support/query', {
+				query: queryInput,
+			});
 			setQueryResult(JSON.stringify(data.result, null, 2));
 			toast.success('Query executed successfully');
 		} catch (error: unknown) {
@@ -199,9 +185,7 @@ function SupportTools() {
 				response?: { data?: { error?: { message?: string } } };
 				message?: string;
 			};
-			setQueryResult(
-				`Error: ${err.response?.data?.error?.message || err.message}`,
-			);
+			setQueryResult(`Error: ${err.response?.data?.error?.message || err.message}`);
 			toast.error('Query failed');
 		} finally {
 			setLoading(false);
@@ -222,9 +206,7 @@ function SupportTools() {
 		<div className="space-y-6">
 			<div>
 				<h2 className="text-2xl font-bold">Support Tools</h2>
-				<p className="text-muted-foreground">
-					Administrative tools for debugging and support
-				</p>
+				<p className="text-muted-foreground">Administrative tools for debugging and support</p>
 			</div>
 
 			{currentImpersonation && (
@@ -233,9 +215,7 @@ function SupportTools() {
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-2">
 								<User className="h-4 w-4" />
-								<CardTitle className="text-sm">
-									Currently Impersonating
-								</CardTitle>
+								<CardTitle className="text-sm">Currently Impersonating</CardTitle>
 							</div>
 							<Button size="sm" variant="outline" onClick={endImpersonation}>
 								End Impersonation
@@ -294,12 +274,8 @@ function SupportTools() {
 							<div className="bg-muted rounded-lg p-4">
 								<h4 className="mb-2 text-sm font-medium">Important Notes:</h4>
 								<ul className="text-muted-foreground space-y-1 text-xs">
-									<li>
-										• All actions performed will be attributed to the user
-									</li>
-									<li>
-										• Your session will be replaced with the user's session
-									</li>
+									<li>• All actions performed will be attributed to the user</li>
+									<li>• Your session will be replaced with the user's session</li>
 									<li>• Remember to end impersonation when done</li>
 									<li>• This feature is for debugging purposes only</li>
 								</ul>
@@ -339,27 +315,15 @@ function SupportTools() {
 										<CardTitle className="text-sm">Quick Actions</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-2">
-										<Button
-											variant="outline"
-											className="w-full justify-start"
-											size="sm"
-										>
+										<Button variant="outline" className="w-full justify-start" size="sm">
 											<FileCode className="mr-2 h-4 w-4" />
 											Export Configurations
 										</Button>
-										<Button
-											variant="outline"
-											className="w-full justify-start"
-											size="sm"
-										>
+										<Button variant="outline" className="w-full justify-start" size="sm">
 											<Database className="mr-2 h-4 w-4" />
 											Export Usage Data
 										</Button>
-										<Button
-											variant="outline"
-											className="w-full justify-start"
-											size="sm"
-										>
+										<Button variant="outline" className="w-full justify-start" size="sm">
 											<User className="mr-2 h-4 w-4" />
 											Export Member List
 										</Button>
@@ -371,19 +335,11 @@ function SupportTools() {
 										<CardTitle className="text-sm">Bulk Operations</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-2">
-										<Button
-											variant="outline"
-											className="w-full justify-start"
-											size="sm"
-										>
+										<Button variant="outline" className="w-full justify-start" size="sm">
 											<Upload className="mr-2 h-4 w-4" />
 											Import Configurations
 										</Button>
-										<Button
-											variant="outline"
-											className="w-full justify-start"
-											size="sm"
-										>
+										<Button variant="outline" className="w-full justify-start" size="sm">
 											<RefreshCw className="mr-2 h-4 w-4" />
 											Reset Workspace
 										</Button>
@@ -421,10 +377,7 @@ function SupportTools() {
 										onChange={(e) => setWorkspaceId(e.target.value)}
 									/>
 									<div className="flex items-center gap-2">
-										<Switch
-											checked={debugMode}
-											onCheckedChange={toggleDebugMode}
-										/>
+										<Switch checked={debugMode} onCheckedChange={toggleDebugMode} />
 										<Label>Debug Mode</Label>
 									</div>
 								</div>
@@ -465,9 +418,7 @@ function SupportTools() {
 					<Card>
 						<CardHeader>
 							<CardTitle>Cache Management</CardTitle>
-							<CardDescription>
-								Clear application cache for troubleshooting
-							</CardDescription>
+							<CardDescription>Clear application cache for troubleshooting</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
 							<div className="space-y-2">
@@ -479,18 +430,12 @@ function SupportTools() {
 										value={cacheKey}
 										onChange={(e) => setCacheKey(e.target.value)}
 									/>
-									<Button
-										onClick={clearCache}
-										disabled={loading}
-										variant="destructive"
-									>
+									<Button onClick={clearCache} disabled={loading} variant="destructive">
 										<Trash2 className="mr-2 h-4 w-4" />
 										Clear Cache
 									</Button>
 								</div>
-								<p className="text-muted-foreground text-xs">
-									Leave empty to clear all cache
-								</p>
+								<p className="text-muted-foreground text-xs">Leave empty to clear all cache</p>
 							</div>
 
 							<div className="grid gap-2">
@@ -550,8 +495,8 @@ function SupportTools() {
 									⚠️ Warning
 								</h4>
 								<p className="text-xs text-yellow-700 dark:text-yellow-300">
-									Only SELECT queries are allowed. All queries are logged in the
-									audit trail. Use with extreme caution.
+									Only SELECT queries are allowed. All queries are logged in the audit trail. Use
+									with extreme caution.
 								</p>
 							</div>
 						</CardContent>
@@ -564,9 +509,7 @@ function SupportTools() {
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Export Workspace Data</DialogTitle>
-						<DialogDescription>
-							Choose the format for the workspace data export
-						</DialogDescription>
+						<DialogDescription>Choose the format for the workspace data export</DialogDescription>
 					</DialogHeader>
 					<div className="space-y-4">
 						<div>
@@ -583,9 +526,7 @@ function SupportTools() {
 							</Select>
 						</div>
 						<div className="bg-muted rounded-lg p-3">
-							<p className="text-muted-foreground text-xs">
-								This will export all data including:
-							</p>
+							<p className="text-muted-foreground text-xs">This will export all data including:</p>
 							<ul className="text-muted-foreground mt-2 space-y-1 text-xs">
 								<li>• Workspace configuration</li>
 								<li>• All mutations/configuration</li>

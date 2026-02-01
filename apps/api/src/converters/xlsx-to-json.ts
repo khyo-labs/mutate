@@ -6,8 +6,7 @@ import type { Configuration } from '@/types/index.js';
 import type { Converter } from './core/types.js';
 
 export const xlsxToJsonConverter: Converter = {
-	supports: (input: string, output: string) =>
-		input === 'xlsx' && output === 'json',
+	supports: (input: string, output: string) => input === 'xlsx' && output === 'json',
 
 	convert: (file: Buffer, config?: Configuration) =>
 		Effect.tryPromise({
@@ -32,13 +31,11 @@ export const xlsxToJsonConverter: Converter = {
 
 				return result;
 			},
-			catch: (error) =>
-				new Error(`XLSX to JSON conversion failed: ${String(error)}`),
+			catch: (error) => new Error(`XLSX to JSON conversion failed: ${String(error)}`),
 		}),
 
 	metadata: {
-		description:
-			'Converts each sheet in the workbook to JSON. Returns { SheetName: [...rows] }.',
+		description: 'Converts each sheet in the workbook to JSON. Returns { SheetName: [...rows] }.',
 		status: 'supported',
 		experimental: false,
 		costEstimate: null,

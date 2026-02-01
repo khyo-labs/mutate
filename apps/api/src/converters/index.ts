@@ -15,16 +15,11 @@ export const converters: Converter[] = [
 	csvToXlsxConverter,
 ];
 
-export function findConverter(
-	inputType: string,
-	outputType: string,
-): Converter | null {
+export function findConverter(inputType: string, outputType: string): Converter | null {
 	const input = inputType.toLowerCase();
 	const output = outputType.toLowerCase();
 
-	return (
-		converters.find((converter) => converter.supports(input, output)) || null
-	);
+	return converters.find((converter) => converter.supports(input, output)) || null;
 }
 
 export function listFormats(): ConverterFormat[] {

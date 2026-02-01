@@ -64,13 +64,7 @@ export function WebhookDrawer({ webhook }: { webhook?: Webhook }) {
 	});
 
 	const updateWebhook = useMutation({
-		mutationFn: async ({
-			id,
-			data,
-		}: {
-			id: string;
-			data: Partial<FormData>;
-		}) => {
+		mutationFn: async ({ id, data }: { id: string; data: Partial<FormData> }) => {
 			if (!activeWorkspace) {
 				throw new Error('No active workspace selected');
 			}
@@ -120,10 +114,7 @@ export function WebhookDrawer({ webhook }: { webhook?: Webhook }) {
 		<>
 			<div className="flex-1 overflow-y-auto p-4">
 				<Form {...form}>
-					<form
-						onSubmit={form.handleSubmit(handleSubmit)}
-						className="space-y-4"
-					>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
 						<FormField
 							control={form.control}
 							name="name"
@@ -184,16 +175,12 @@ export function WebhookDrawer({ webhook }: { webhook?: Webhook }) {
 											>
 												<Copy
 													className={`text-muted-foreground h-3 w-3 transition-all duration-200 ${
-														copied
-															? 'scale-0 opacity-0'
-															: 'scale-100 opacity-100'
+														copied ? 'scale-0 opacity-0' : 'scale-100 opacity-100'
 													}`}
 												/>
 												<Check
 													className={`absolute inset-0 m-auto h-3 w-3 text-green-500 transition-all duration-200 ${
-														copied
-															? 'scale-100 opacity-100'
-															: 'scale-0 opacity-0'
+														copied ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
 													}`}
 												/>
 											</Button>

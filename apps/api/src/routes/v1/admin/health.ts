@@ -11,12 +11,9 @@ export async function adminHealthRoutes(fastify: FastifyInstance) {
 	fastify.get('/status', async (request, reply) => {
 		const now = new Date().toISOString();
 
-		const time = () =>
-			typeof performance !== 'undefined' ? performance.now() : Date.now();
+		const time = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
-		async function timed<T>(
-			fn: () => Promise<T>,
-		): Promise<{ ok: boolean; data?: T; ms: number }> {
+		async function timed<T>(fn: () => Promise<T>): Promise<{ ok: boolean; data?: T; ms: number }> {
 			const start = time();
 			try {
 				const data = await fn();
@@ -47,8 +44,7 @@ export async function adminHealthRoutes(fastify: FastifyInstance) {
 			paused: 0,
 		};
 
-		const queueSize =
-			(counts.waiting || 0) + (counts.active || 0) + (counts.delayed || 0);
+		const queueSize = (counts.waiting || 0) + (counts.active || 0) + (counts.delayed || 0);
 
 		const overall = dbUp && redisUp && queueOk ? 'healthy' : 'degraded';
 

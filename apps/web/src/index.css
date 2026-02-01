@@ -122,13 +122,12 @@
 @layer base {
 	:root {
 		--font-sans:
-			'Satoshi', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-			'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-		--font-display:
-			'Cabinet Grotesk', 'Satoshi', ui-sans-serif, system-ui, sans-serif;
+			'Satoshi', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+			'Segoe UI Symbol', 'Noto Color Emoji';
+		--font-display: 'Cabinet Grotesk', 'Satoshi', ui-sans-serif, system-ui, sans-serif;
 		--font-mono:
-			'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Consolas,
-			'Liberation Mono', Menlo, monospace;
+			'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo,
+			monospace;
 	}
 	* {
 		border-color: var(--border);
@@ -199,12 +198,7 @@
 		left: -100%;
 		width: 50%;
 		height: 100%;
-		background: linear-gradient(
-			90deg,
-			transparent,
-			oklch(1 0 0 / 0.03),
-			transparent
-		);
+		background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.03), transparent);
 		transition: left 0.5s ease;
 	}
 
@@ -213,7 +207,8 @@
 	}
 
 	@keyframes pulse-glow {
-		0%, 100% {
+		0%,
+		100% {
 			opacity: 0.4;
 		}
 		50% {
@@ -226,7 +221,8 @@
 	}
 
 	@keyframes float {
-		0%, 100% {
+		0%,
+		100% {
 			transform: translateY(0);
 		}
 		50% {

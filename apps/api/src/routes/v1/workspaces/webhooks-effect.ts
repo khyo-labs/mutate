@@ -5,15 +5,9 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { db } from '@/db/connection.js';
 import { organizationWebhooks } from '@/db/schema.js';
 import { effectHandler } from '@/effect/adapters/fastify.js';
-import {
-	WebhookService,
-	WebhookValidationError,
-} from '@/effect/services/webhook.service.js';
+import { WebhookService, WebhookValidationError } from '@/effect/services/webhook.service.js';
 import { validateWorkspaceAccess } from '@/middleware/workspace-access.js';
-import {
-	createWorkspaceWebhookSchema,
-	updateWorkspaceWebhookSchema,
-} from '@/schemas/workspace.js';
+import { createWorkspaceWebhookSchema, updateWorkspaceWebhookSchema } from '@/schemas/workspace.js';
 import '@/types/fastify.js';
 
 interface CreateWebhookBody {
@@ -125,9 +119,7 @@ export async function webhookRoutesEffect(fastify: FastifyInstance) {
 					);
 
 					// Generate ID for webhook
-					const webhookId = `wh_${Date.now()}_${Math.random()
-						.toString(36)
-						.substr(2, 9)}`;
+					const webhookId = `wh_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 					// Create the webhook
 					yield* Effect.tryPromise({
@@ -186,9 +178,7 @@ export async function webhookRoutesEffect(fastify: FastifyInstance) {
 			},
 		},
 		effectHandler(
-			(
-				req: FastifyRequest<{ Params: WebhookParams; Body: UpdateWebhookBody }>,
-			) =>
+			(req: FastifyRequest<{ Params: WebhookParams; Body: UpdateWebhookBody }>) =>
 				Effect.gen(function* () {
 					const webhookService = yield* WebhookService;
 					const workspaceId = req.workspace!.id;
@@ -225,10 +215,7 @@ export async function webhookRoutesEffect(fastify: FastifyInstance) {
 						}),
 					});
 
-					if (
-						!existingWebhook ||
-						existingWebhook.organizationId !== workspaceId
-					) {
+					if (!existingWebhook || existingWebhook.organizationId !== workspaceId) {
 						return yield* Effect.fail({
 							code: 'NOT_FOUND',
 							message: 'Webhook not found',
@@ -301,10 +288,7 @@ export async function webhookRoutesEffect(fastify: FastifyInstance) {
 						}),
 					});
 
-					if (
-						!existingWebhook ||
-						existingWebhook.organizationId !== workspaceId
-					) {
+					if (!existingWebhook || existingWebhook.organizationId !== workspaceId) {
 						return yield* Effect.fail({
 							code: 'NOT_FOUND',
 							message: 'Webhook not found',
@@ -314,9 +298,7 @@ export async function webhookRoutesEffect(fastify: FastifyInstance) {
 					// Delete the webhook
 					yield* Effect.tryPromise({
 						try: () =>
-							db
-								.delete(organizationWebhooks)
-								.where(eq(organizationWebhooks.id, webhookId)),
+							db.delete(organizationWebhooks).where(eq(organizationWebhooks.id, webhookId)),
 						catch: (error) => ({
 							code: 'DB_ERROR',
 							message: 'Failed to delete webhook',

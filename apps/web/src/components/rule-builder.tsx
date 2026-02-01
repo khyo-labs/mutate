@@ -41,10 +41,7 @@ interface RuleBuilderProps {
 	onChange: (rules: TransformationRule[]) => void;
 }
 
-const ruleIcons: Record<
-	XlsxToCsvRuleType,
-	React.ComponentType<{ className?: string }>
-> = {
+const ruleIcons: Record<XlsxToCsvRuleType, React.ComponentType<{ className?: string }>> = {
 	SELECT_WORKSHEET: FileText,
 	VALIDATE_COLUMNS: CheckCircle,
 	UNMERGE_AND_FILL: Merge,
@@ -74,14 +71,9 @@ interface SortableRuleProps {
 }
 
 function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
-	const {
-		attributes,
-		listeners,
-		setNodeRef,
-		transform,
-		transition,
-		isDragging,
-	} = useSortable({ id: rule.id });
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+		id: rule.id,
+	});
 
 	const style = {
 		transform: CSS.Transform.toString(transform),
@@ -94,9 +86,7 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 		<div
 			ref={setNodeRef}
 			style={style}
-			className={`bg-card rounded-lg border p-4 ${
-				isDragging ? 'opacity-50' : ''
-			}`}
+			className={`bg-card rounded-lg border p-4 ${isDragging ? 'opacity-50' : ''}`}
 		>
 			<div className="flex items-center justify-between">
 				<div className="flex items-center space-x-3">
@@ -116,9 +106,7 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 						<h4 className="text-foreground truncate text-sm font-medium">
 							{rule.type.replace(/_/g, ' ')}
 						</h4>
-						<p className="text-muted-foreground text-xs">
-							{ruleDescriptions[rule.type]}
-						</p>
+						<p className="text-muted-foreground text-xs">{ruleDescriptions[rule.type]}</p>
 					</div>
 				</div>
 				<div className="flex flex-shrink-0 items-center gap-2">
@@ -183,18 +171,14 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 	}
 
 	function updateRule(updatedRule: TransformationRule) {
-		onChange(
-			rules.map((rule) => (rule.id === updatedRule.id ? updatedRule : rule)),
-		);
+		onChange(rules.map((rule) => (rule.id === updatedRule.id ? updatedRule : rule)));
 	}
 
 	return (
 		<div className="grid grid-cols-12 gap-6">
 			{/* Available Rules */}
 			<div className="col-span-4">
-				<h3 className="text-foreground mb-4 text-lg font-medium">
-					Available Operations
-				</h3>
+				<h3 className="text-foreground mb-4 text-lg font-medium">Available Operations</h3>
 				<div className="space-y-2">
 					{availableRules.map((rule) => {
 						const Icon = ruleIcons[rule.type];
@@ -213,7 +197,7 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 										<div className="text-foreground truncate text-sm font-medium">
 											{rule.type.replace(/_/g, ' ')}
 										</div>
-										<div className="text-muted-foreground whitespace-normal text-xs leading-relaxed">
+										<div className="text-muted-foreground text-xs leading-relaxed whitespace-normal">
 											{ruleDescriptions[rule.type]}
 										</div>
 									</div>
@@ -227,9 +211,7 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 			{/* Active Rules */}
 			<div className="col-span-8">
 				<div className="mb-4 flex items-center justify-between">
-					<h3 className="text-foreground text-lg font-medium">
-						Mutation Pipeline
-					</h3>
+					<h3 className="text-foreground text-lg font-medium">Mutation Pipeline</h3>
 					<span className="text-muted-foreground text-sm">
 						{rules.length} rule{rules.length !== 1 ? 's' : ''}
 					</span>
@@ -242,10 +224,7 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 						onDragStart={handleDragStart}
 						onDragEnd={handleDragEnd}
 					>
-						<SortableContext
-							items={rules}
-							strategy={verticalListSortingStrategy}
-						>
+						<SortableContext items={rules} strategy={verticalListSortingStrategy}>
 							<div className="space-y-3">
 								{rules.map((rule, index) => (
 									<SortableRule
@@ -262,12 +241,9 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 				) : (
 					<div className="border-border rounded-lg border-2 border-dashed p-12 text-center">
 						<Plus className="text-muted-foreground mx-auto h-12 w-12" />
-						<h4 className="text-foreground mt-2 text-sm font-medium">
-							No rules added
-						</h4>
+						<h4 className="text-foreground mt-2 text-sm font-medium">No rules added</h4>
 						<p className="text-muted-foreground mt-1 text-sm">
-							Add transformation rules from the left panel to build your
-							pipeline.
+							Add transformation rules from the left panel to build your pipeline.
 						</p>
 					</div>
 				)}

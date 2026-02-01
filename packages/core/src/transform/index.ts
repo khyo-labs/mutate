@@ -2,11 +2,7 @@ import { Duration, Effect, Schedule } from 'effect';
 import * as XLSX from 'xlsx';
 
 import { TransformError } from '../errors.js';
-import {
-	DatabaseService,
-	LoggerService,
-	StorageService,
-} from '../services/index.js';
+import { DatabaseService, LoggerService, StorageService } from '../services/index.js';
 import type { Configuration } from '../types.js';
 import { applyRule } from './applyRule.js';
 import { parseWorkbook } from './parseWorkbook.js';
@@ -95,11 +91,7 @@ export function transformFile(fileKey: string, configurationId: string) {
 		const processingTimeMs = Date.now() - startTime;
 		const executionLog = yield* logger
 			.getLog()
-			.pipe(
-				Effect.map((logs) =>
-					logs.map((l) => `${l.timestamp.toISOString()}: ${l.message}`),
-				),
-			);
+			.pipe(Effect.map((logs) => logs.map((l) => `${l.timestamp.toISOString()}: ${l.message}`)));
 
 		yield* logger.info('Transformation completed', {
 			processingTimeMs,
@@ -132,11 +124,7 @@ export function transformFile(fileKey: string, configurationId: string) {
 /**
  * Transform a buffer directly (for preview functionality in browser)
  */
-export function transformBuffer(
-	buffer: Buffer,
-	configuration: Configuration,
-	maxRows?: number,
-) {
+export function transformBuffer(buffer: Buffer, configuration: Configuration, maxRows?: number) {
 	return Effect.gen(function* () {
 		const startTime = Date.now();
 		const logger = yield* LoggerService;
@@ -193,11 +181,7 @@ export function transformBuffer(
 		const processingTimeMs = Date.now() - startTime;
 		const executionLog = yield* logger
 			.getLog()
-			.pipe(
-				Effect.map((logs) =>
-					logs.map((l) => `${l.timestamp.toISOString()}: ${l.message}`),
-				),
-			);
+			.pipe(Effect.map((logs) => logs.map((l) => `${l.timestamp.toISOString()}: ${l.message}`)));
 
 		const result: TransformationResult = {
 			success: true,

@@ -11,10 +11,7 @@ export const Route = createFileRoute('/settings/account/security')({
 function SecurityPage() {
 	return (
 		<div className="space-y-8">
-			<SettingsHeader
-				title="Security"
-				description="Manage your account security settings."
-			/>
+			<SettingsHeader title="Security" description="Manage your account security settings." />
 
 			<PassKeys />
 			<TwoFactor />

@@ -22,8 +22,8 @@ export function CheckEmailComponent() {
 				<div className="bg-card rounded-lg border p-6 text-center shadow-sm">
 					<h2 className="text-2xl font-bold">Check your email</h2>
 					<p className="mt-4 text-gray-600">
-						We've sent a link to your email address. Please check your inbox and
-						follow the instructions.
+						We've sent a link to your email address. Please check your inbox and follow the
+						instructions.
 					</p>
 				</div>
 			</div>

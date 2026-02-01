@@ -7,10 +7,7 @@ import { db } from '@/db/connection.js';
 import { organizationWebhooks, webhookDeliveries } from '@/db/schema.js';
 import { effectBullProcessor, reportProgress } from '@/effect/adapters/bull.js';
 import { runtime } from '@/effect/runtime.js';
-import {
-	type WebhookPayload,
-	WebhookService,
-} from '@/effect/services/webhook.service.js';
+import { type WebhookPayload, WebhookService } from '@/effect/services/webhook.service.js';
 import {
 	type WebhookDeliveryJobData,
 	webhookDeadLetterQueue,
@@ -129,9 +126,7 @@ const processWebhookDelivery = (data: WebhookDeliveryJobData, job: any) =>
 
 						yield* reportProgress(job, 100);
 
-						console.log(
-							`[Effect Webhook Worker] Delivery ${deliveryId} completed successfully`,
-						);
+						console.log(`[Effect Webhook Worker] Delivery ${deliveryId} completed successfully`);
 					}),
 				),
 				Effect.catchAll((error) =>
@@ -141,10 +136,7 @@ const processWebhookDelivery = (data: WebhookDeliveryJobData, job: any) =>
 								? String(error.message)
 								: 'Unknown error';
 
-						console.error(
-							`[Effect Webhook Worker] Delivery ${deliveryId} failed:`,
-							errorMessage,
-						);
+						console.error(`[Effect Webhook Worker] Delivery ${deliveryId} failed:`, errorMessage);
 
 						// Check if we should retry
 						if (currentAttempt >= MAX_RETRIES) {
@@ -170,11 +162,7 @@ const processWebhookDelivery = (data: WebhookDeliveryJobData, job: any) =>
 
 							// Add to dead letter queue
 							yield* Effect.tryPromise(() =>
-								webhookDeadLetterQueue.add(
-									'dead',
-									{ deliveryId },
-									{ jobId: deliveryId },
-								),
+								webhookDeadLetterQueue.add('dead', { deliveryId }, { jobId: deliveryId }),
 							).pipe(Effect.orElse(() => Effect.succeed(undefined)));
 
 							// Don't re-throw - let job complete to prevent Bull retry
@@ -188,9 +176,7 @@ const processWebhookDelivery = (data: WebhookDeliveryJobData, job: any) =>
 						}
 
 						// Calculate next retry time using exponential backoff
-						const nextRetryAt = new Date(
-							Date.now() + Math.pow(2, currentAttempt) * 1000,
-						);
+						const nextRetryAt = new Date(Date.now() + Math.pow(2, currentAttempt) * 1000);
 
 						// Update delivery with error and next retry time
 						yield* Effect.tryPromise(() =>
@@ -210,9 +196,7 @@ const processWebhookDelivery = (data: WebhookDeliveryJobData, job: any) =>
 						yield* reportProgress(job, 80);
 
 						// Re-throw to let Bull handle retry
-						return yield* Effect.fail(
-							new Error(`HTTP delivery failed: ${errorMessage}`),
-						);
+						return yield* Effect.fail(new Error(`HTTP delivery failed: ${errorMessage}`));
 					}),
 				),
 			);
@@ -231,9 +215,7 @@ const processDLQDelivery = (data: WebhookDeliveryJobData) =>
 	Effect.gen(function* () {
 		const { deliveryId } = data;
 
-		console.log(
-			`[Effect Webhook Worker] Processing DLQ delivery ${deliveryId} for inspection`,
-		);
+		console.log(`[Effect Webhook Worker] Processing DLQ delivery ${deliveryId} for inspection`);
 
 		// Fetch the delivery record
 		const delivery = yield* Effect.tryPromise(() =>
@@ -348,27 +330,17 @@ const reprocessDLQDelivery = (
  * Initialize the webhook delivery worker
  */
 function initializeWebhookWorker() {
-	console.log(
-		'[Effect Webhook Worker] Initializing webhook delivery worker with Effect processor',
-	);
+	console.log('[Effect Webhook Worker] Initializing webhook delivery worker with Effect processor');
 
 	// Process webhook deliveries
-	webhookDeliveryQueue.process(
-		'deliver-webhook',
-		effectBullProcessor(processWebhookDelivery),
-	);
+	webhookDeliveryQueue.process('deliver-webhook', effectBullProcessor(processWebhookDelivery));
 
 	// Process DLQ items (for inspection/manual retry)
-	webhookDeadLetterQueue.process(
-		'dead',
-		effectBullProcessor(processDLQDelivery),
-	);
+	webhookDeadLetterQueue.process('dead', effectBullProcessor(processDLQDelivery));
 
 	// Handle shutdown gracefully
 	process.on('SIGTERM', async () => {
-		console.log(
-			'[Effect Webhook Worker] Received SIGTERM, shutting down gracefully...',
-		);
+		console.log('[Effect Webhook Worker] Received SIGTERM, shutting down gracefully...');
 		await webhookDeliveryQueue.close();
 		await webhookDeadLetterQueue.close();
 		await runtime.dispose();
@@ -376,18 +348,14 @@ function initializeWebhookWorker() {
 	});
 
 	process.on('SIGINT', async () => {
-		console.log(
-			'[Effect Webhook Worker] Received SIGINT, shutting down gracefully...',
-		);
+		console.log('[Effect Webhook Worker] Received SIGINT, shutting down gracefully...');
 		await webhookDeliveryQueue.close();
 		await webhookDeadLetterQueue.close();
 		await runtime.dispose();
 		process.exit(0);
 	});
 
-	console.log(
-		'[Effect Webhook Worker] Worker initialized and ready to process webhook deliveries',
-	);
+	console.log('[Effect Webhook Worker] Worker initialized and ready to process webhook deliveries');
 }
 
 // Initialize the worker when this module is imported

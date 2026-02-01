@@ -56,10 +56,7 @@ export const membersApi = {
 		return response.data;
 	},
 
-	invite: async function (
-		workspaceId: string,
-		data: InviteMemberRequest,
-	): Promise<Invitation> {
+	invite: async function (workspaceId: string, data: InviteMemberRequest): Promise<Invitation> {
 		const response = await api.post<SuccessResponse<Invitation>>(
 			`/v1/workspace/${workspaceId}/members`,
 			data,
@@ -68,10 +65,7 @@ export const membersApi = {
 		return response.data;
 	},
 
-	remove: async function (
-		workspaceId: string,
-		memberId: string,
-	): Promise<void> {
+	remove: async function (workspaceId: string, memberId: string): Promise<void> {
 		await api.delete(`/v1/workspace/${workspaceId}/members/${memberId}`);
 		toast.success('Member removed successfully');
 	},
@@ -81,30 +75,17 @@ export const membersApi = {
 		memberId: string,
 		data: UpdateMemberRoleRequest,
 	): Promise<void> {
-		await api.put(
-			`/v1/workspace/${workspaceId}/members/${memberId}/role`,
-			data,
-		);
+		await api.put(`/v1/workspace/${workspaceId}/members/${memberId}/role`, data);
 		toast.success('Member role updated successfully');
 	},
 
-	cancelInvitation: async function (
-		workspaceId: string,
-		invitationId: string,
-	): Promise<void> {
-		await api.delete(
-			`/v1/workspace/${workspaceId}/members/invitations/${invitationId}`,
-		);
+	cancelInvitation: async function (workspaceId: string, invitationId: string): Promise<void> {
+		await api.delete(`/v1/workspace/${workspaceId}/members/invitations/${invitationId}`);
 		toast.success('Invitation canceled successfully');
 	},
 
-	resendInvitation: async function (
-		workspaceId: string,
-		invitationId: string,
-	): Promise<void> {
-		await api.post(
-			`/v1/workspace/${workspaceId}/members/invitations/${invitationId}/resend`,
-		);
+	resendInvitation: async function (workspaceId: string, invitationId: string): Promise<void> {
+		await api.post(`/v1/workspace/${workspaceId}/members/invitations/${invitationId}/resend`);
 		toast.success('Invitation resent successfully');
 	},
 };

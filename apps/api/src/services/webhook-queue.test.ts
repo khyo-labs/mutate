@@ -50,11 +50,7 @@ describe('webhookService enqueue', () => {
 			completedAt: new Date().toISOString(),
 		};
 
-		const res = await webhookService.sendWebhookWithPriority(
-			'org_1',
-			'cfg_1',
-			payload as any,
-		);
+		const res = await webhookService.sendWebhookWithPriority('org_1', 'cfg_1', payload as any);
 
 		expect(res).toBeTruthy();
 		expect(res?.status).toBe('pending');

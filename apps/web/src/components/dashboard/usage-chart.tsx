@@ -57,10 +57,7 @@ export function UsageChart() {
 		}))
 		.reverse();
 
-	const totalMutations = chartData.reduce(
-		(sum, item) => sum + item.mutations,
-		0,
-	);
+	const totalMutations = chartData.reduce((sum, item) => sum + item.mutations, 0);
 
 	const hasOverage = chartData.some((d) => d.overage > 0);
 
@@ -84,30 +81,19 @@ export function UsageChart() {
 				<div className="flex items-center justify-between">
 					<div>
 						<CardTitle>Usage Trend</CardTitle>
-						<CardDescription>
-							Monthly transformation activity
-						</CardDescription>
+						<CardDescription>Monthly transformation activity</CardDescription>
 					</div>
 					<div className="text-right">
-						<p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+						<p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
 							Total
 						</p>
-						<p className="text-2xl font-bold tabular-nums">
-							{totalMutations.toLocaleString()}
-						</p>
+						<p className="text-2xl font-bold tabular-nums">{totalMutations.toLocaleString()}</p>
 					</div>
 				</div>
 			</CardHeader>
 			<CardContent>
-				<ChartContainer
-					config={chartConfig}
-					className="aspect-auto h-[280px] w-full"
-				>
-					<AreaChart
-						accessibilityLayer
-						data={chartData}
-						margin={{ left: 12, right: 12 }}
-					>
+				<ChartContainer config={chartConfig} className="aspect-auto h-[280px] w-full">
+					<AreaChart accessibilityLayer data={chartData} margin={{ left: 12, right: 12 }}>
 						<CartesianGrid vertical={false} />
 						<XAxis
 							dataKey="month"
@@ -116,9 +102,7 @@ export function UsageChart() {
 							tickMargin={8}
 							tickFormatter={(value) => value.slice(0, 3)}
 						/>
-						<ChartTooltip
-							content={<ChartTooltipContent indicator="line" />}
-						/>
+						<ChartTooltip content={<ChartTooltipContent indicator="line" />} />
 						<Area
 							type="monotone"
 							dataKey="mutations"
@@ -141,9 +125,7 @@ export function UsageChart() {
 					</AreaChart>
 				</ChartContainer>
 			</CardContent>
-			<CardFooter className="text-muted-foreground text-sm">
-				Showing last 6 months
-			</CardFooter>
+			<CardFooter className="text-muted-foreground text-sm">Showing last 6 months</CardFooter>
 		</Card>
 	);
 }

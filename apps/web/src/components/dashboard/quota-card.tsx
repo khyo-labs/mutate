@@ -2,13 +2,7 @@ import { differenceInDays, format } from 'date-fns';
 import { AlertTriangle } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQuotaStatus } from '@/hooks/use-billing';
@@ -39,9 +33,7 @@ export function QuotaCard() {
 		return (
 			<Card className="flex flex-col justify-between">
 				<CardContent className="py-6">
-					<p className="text-muted-foreground text-center text-sm">
-						Unable to load usage data
-					</p>
+					<p className="text-muted-foreground text-center text-sm">Unable to load usage data</p>
 				</CardContent>
 			</Card>
 		);
@@ -52,19 +44,14 @@ export function QuotaCard() {
 	const isOverLimit = currentUsage > monthlyLimit;
 	const percentage = Math.min((currentUsage / monthlyLimit) * 100, 100);
 	const remaining = Math.max(0, monthlyLimit - currentUsage);
-	const daysRemaining = differenceInDays(
-		new Date(quota.periodEnd),
-		new Date(),
-	);
+	const daysRemaining = differenceInDays(new Date(quota.periodEnd), new Date());
 
 	return (
 		<Card className="flex flex-col justify-between">
 			<CardHeader className="pb-2">
 				<div className="flex items-center justify-between">
 					<CardDescription>Monthly Usage</CardDescription>
-					<Badge variant="secondary">
-						{quota.subscription?.planName || 'Free'}
-					</Badge>
+					<Badge variant="secondary">{quota.subscription?.planName || 'Free'}</Badge>
 				</div>
 				<CardTitle className="text-2xl font-bold">
 					{currentUsage.toLocaleString()}
@@ -77,11 +64,7 @@ export function QuotaCard() {
 			<CardContent className="space-y-3">
 				<Progress
 					value={percentage}
-					className={
-						isOverLimit
-							? '[&>[data-slot=progress-indicator]]:bg-destructive'
-							: ''
-					}
+					className={isOverLimit ? '[&>[data-slot=progress-indicator]]:bg-destructive' : ''}
 				/>
 				<div className="text-muted-foreground flex justify-between text-xs">
 					<span>{remaining.toLocaleString()} remaining</span>

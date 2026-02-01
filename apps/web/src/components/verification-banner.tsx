@@ -21,14 +21,9 @@ export function VerificationBanner() {
 		<div className="bg-primary text-primary-foreground p-4">
 			<div className="container mx-auto flex items-center justify-between">
 				<p>
-					Your email address has not been verified. Please check your inbox for
-					a verification link.
+					Your email address has not been verified. Please check your inbox for a verification link.
 				</p>
-				<Button
-					variant="secondary"
-					onClick={handleResendVerificationEmail}
-					disabled={isSending}
-				>
+				<Button variant="secondary" onClick={handleResendVerificationEmail} disabled={isSending}>
 					{isSending ? 'Sending...' : 'Resend verification email'}
 				</Button>
 			</div>

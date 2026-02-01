@@ -3,10 +3,7 @@ import { XlsxToCsvService } from '@/services/conversion/xlsx-to-csv-service.js';
 import type { Configuration, ConversionType } from '@/types/index.js';
 
 export class ConversionServiceFactory {
-	private static services = new Map<
-		ConversionType,
-		() => BaseConversionService
-	>([
+	private static services = new Map<ConversionType, () => BaseConversionService>([
 		['XLSX_TO_CSV', () => new XlsxToCsvService()],
 		// Only XLSX_TO_CSV is currently supported - other services will be added as they're implemented
 	]);
@@ -15,9 +12,7 @@ export class ConversionServiceFactory {
 		const serviceFactory = this.services.get(conversionType);
 
 		if (!serviceFactory) {
-			throw new Error(
-				`No service found for conversion type: ${conversionType}`,
-			);
+			throw new Error(`No service found for conversion type: ${conversionType}`);
 		}
 
 		return serviceFactory();

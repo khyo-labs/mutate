@@ -82,9 +82,7 @@ export const billingApi = {
 		return api.get(`/v1/billing/usage/history?limit=${limit}`);
 	},
 
-	updateSubscription: async (
-		planId: string,
-	): Promise<ApiResponse<OrganizationSubscription>> => {
+	updateSubscription: async (planId: string): Promise<ApiResponse<OrganizationSubscription>> => {
 		return api.post('/v1/billing/subscription', { planId });
 	},
 };

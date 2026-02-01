@@ -47,12 +47,9 @@ describe('ConversionErrors', () => {
 
 	describe('RuleExecutionError', () => {
 		it('creates error with rule details', () => {
-			const error = new RuleExecutionError(
-				'DELETE_ROWS',
-				'Invalid row index',
-				2,
-				{ rowsDeleted: 0 },
-			);
+			const error = new RuleExecutionError('DELETE_ROWS', 'Invalid row index', 2, {
+				rowsDeleted: 0,
+			});
 			expect(error.code).toBe('RULE_EXECUTION_ERROR');
 			expect(error.message).toContain('DELETE_ROWS');
 			expect(error.message).toContain('rule 3');

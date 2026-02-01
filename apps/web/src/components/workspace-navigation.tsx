@@ -1,13 +1,5 @@
 import { Link, useLocation, useNavigate } from '@tanstack/react-router';
-import {
-	Check,
-	FileText,
-	Key,
-	MoreHorizontal,
-	Plus,
-	Users,
-	Webhook,
-} from 'lucide-react';
+import { Check, FileText, Key, MoreHorizontal, Plus, Users, Webhook } from 'lucide-react';
 
 import { useMutations } from '@/hooks/use-mutations';
 import { useListWorkspace } from '@/hooks/use-workspaces';
@@ -38,10 +30,7 @@ type Props = {
 	setIsMobileOpen: (isOpen: boolean) => void;
 };
 
-export function WorkspaceNavigation({
-	isCollapsed = false,
-	setIsMobileOpen,
-}: Props) {
+export function WorkspaceNavigation({ isCollapsed = false, setIsMobileOpen }: Props) {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const { data: mutations } = useMutations();
@@ -85,7 +74,7 @@ export function WorkspaceNavigation({
 
 	return (
 		<div className="space-y-1">
-			<h3 className="text-muted-foreground px-3 text-xs font-semibold uppercase tracking-wider">
+			<h3 className="text-muted-foreground px-3 text-xs font-semibold tracking-wider uppercase">
 				Workspace
 			</h3>
 			{workspaceItems.map((item) => {

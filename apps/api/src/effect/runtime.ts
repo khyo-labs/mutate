@@ -19,5 +19,4 @@ const AppLive = Layer.mergeAll(
 export const runtime = ManagedRuntime.make(AppLive);
 
 // Helper function to run Effects with the runtime
-export const runWithRuntime = <A, E>(effect: Effect.Effect<A, E>) =>
-	runtime.runPromise(effect);
+export const runWithRuntime = <A, E>(effect: Effect.Effect<A, E>) => runtime.runPromise(effect);

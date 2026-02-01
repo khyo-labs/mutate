@@ -106,9 +106,7 @@ class WebhookStore {
 	verifySignature(payload: string, signature: string, secret: string): boolean {
 		if (!signature) return false;
 
-		const expectedSignature = createHmac('sha256', secret)
-			.update(payload)
-			.digest('hex');
+		const expectedSignature = createHmac('sha256', secret).update(payload).digest('hex');
 
 		const providedSignature = signature.replace('sha256=', '');
 
@@ -118,8 +116,7 @@ class WebhookStore {
 
 		let result = 0;
 		for (let i = 0; i < expectedSignature.length; i++) {
-			result |=
-				expectedSignature.charCodeAt(i) ^ providedSignature.charCodeAt(i);
+			result |= expectedSignature.charCodeAt(i) ^ providedSignature.charCodeAt(i);
 		}
 
 		return result === 0;

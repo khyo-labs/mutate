@@ -63,9 +63,7 @@ export function DeleteWorkspace() {
 		onError: (error: unknown) => {
 			// Check if it's the last workspace error
 			if ((error as ErrorResponse)?.error?.code === 'LAST_WORKSPACE') {
-				toast.error(
-					'You cannot delete your last workspace. Please create a new workspace first.',
-				);
+				toast.error('You cannot delete your last workspace. Please create a new workspace first.');
 				setIsModalOpen(false);
 				// Navigate to create workspace page
 				router.navigate({ to: '/join' });
@@ -97,9 +95,7 @@ export function DeleteWorkspace() {
 					<Button
 						variant="destructive"
 						disabled={isLastWorkspace}
-						title={
-							isLastWorkspace ? 'Cannot delete your last workspace' : undefined
-						}
+						title={isLastWorkspace ? 'Cannot delete your last workspace' : undefined}
 					>
 						Delete Workspace
 					</Button>
@@ -109,17 +105,15 @@ export function DeleteWorkspace() {
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>
-						{isLastWorkspace
-							? 'Cannot Delete Last Workspace'
-							: 'Are you absolutely sure?'}
+						{isLastWorkspace ? 'Cannot Delete Last Workspace' : 'Are you absolutely sure?'}
 					</AlertDialogTitle>
 					<AlertDialogDescription asChild>
 						<div>
 							{isLastWorkspace ? (
 								<>
 									<p>
-										You cannot delete your last workspace. Please create a new
-										workspace before attempting to delete this one.
+										You cannot delete your last workspace. Please create a new workspace before
+										attempting to delete this one.
 									</p>
 									<div className="mt-4">
 										<Button
@@ -135,16 +129,14 @@ export function DeleteWorkspace() {
 							) : (
 								<>
 									This action cannot be undone. This will permanently delete the{' '}
-									<strong>{activeWorkspace?.name}</strong> workspace and all
-									associated data.
+									<strong>{activeWorkspace?.name}</strong> workspace and all associated data.
 									<ul className="my-2 list-inside list-disc">
 										<li>API keys</li>
 										<li>Webhooks</li>
 										<li>Configurations</li>
 										<li>Members and invitations</li>
 									</ul>
-									Please type <strong>{activeWorkspace?.name}</strong> to
-									confirm.
+									Please type <strong>{activeWorkspace?.name}</strong> to confirm.
 								</>
 							)}
 						</div>

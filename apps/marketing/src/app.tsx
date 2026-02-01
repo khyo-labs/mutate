@@ -61,11 +61,7 @@ function App() {
 								onClick={() => setIsMenuOpen(!isMenuOpen)}
 								className="text-gray-600 hover:text-gray-900"
 							>
-								{isMenuOpen ? (
-									<X className="h-6 w-6" />
-								) : (
-									<Menu className="h-6 w-6" />
-								)}
+								{isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
 							</button>
 						</div>
 					</div>
@@ -74,7 +70,7 @@ function App() {
 				{/* Mobile menu */}
 				{isMenuOpen && (
 					<div className="md:hidden">
-						<div className="space-y-1 border-t border-gray-200 bg-white px-2 pb-3 pt-2 sm:px-3">
+						<div className="space-y-1 border-t border-gray-200 bg-white px-2 pt-2 pb-3 sm:px-3">
 							<a
 								href="#features"
 								className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-gray-900"
@@ -108,17 +104,16 @@ function App() {
 			<section className="relative bg-white">
 				<div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
 					<div className="text-center">
-						<h1 className="text-4xl font-bold leading-tight text-gray-900 sm:text-6xl">
+						<h1 className="text-4xl leading-tight font-bold text-gray-900 sm:text-6xl">
 							Transform Your
 							<span className="text-blue-600"> Data</span>
 							<br />
 							Visually & Effortlessly
 						</h1>
 						<p className="mx-auto mt-6 max-w-3xl text-xl text-gray-600">
-							Create visual, reusable configurations for transforming XLSX files
-							to CSV format. Design transformation rules through a drag-and-drop
-							interface, test with previews, and execute via API or web
-							interface.
+							Create visual, reusable configurations for transforming XLSX files to CSV format.
+							Design transformation rules through a drag-and-drop interface, test with previews, and
+							execute via API or web interface.
 						</p>
 						<div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
 							<a
@@ -156,12 +151,10 @@ function App() {
 							<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
 								<Zap className="h-6 w-6 text-blue-600" />
 							</div>
-							<h3 className="mb-4 text-xl font-semibold text-gray-900">
-								Visual Rule Builder
-							</h3>
+							<h3 className="mb-4 text-xl font-semibold text-gray-900">Visual Rule Builder</h3>
 							<p className="text-gray-600">
-								Create transformation rules with our intuitive drag-and-drop
-								interface. No coding required - just drag, drop, and configure.
+								Create transformation rules with our intuitive drag-and-drop interface. No coding
+								required - just drag, drop, and configure.
 							</p>
 						</div>
 
@@ -169,12 +162,10 @@ function App() {
 							<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
 								<FileText className="h-6 w-6 text-green-600" />
 							</div>
-							<h3 className="mb-4 text-xl font-semibold text-gray-900">
-								Live Preview
-							</h3>
+							<h3 className="mb-4 text-xl font-semibold text-gray-900">Live Preview</h3>
 							<p className="text-gray-600">
-								Test your transformations in real-time with live previews. See
-								exactly how your data will be transformed before processing.
+								Test your transformations in real-time with live previews. See exactly how your data
+								will be transformed before processing.
 							</p>
 						</div>
 
@@ -182,12 +173,10 @@ function App() {
 							<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
 								<Shield className="h-6 w-6 text-purple-600" />
 							</div>
-							<h3 className="mb-4 text-xl font-semibold text-gray-900">
-								Multi-tenant Security
-							</h3>
+							<h3 className="mb-4 text-xl font-semibold text-gray-900">Multi-tenant Security</h3>
 							<p className="text-gray-600">
-								Enterprise-grade security with complete data isolation between
-								organizations. Your data stays private and secure.
+								Enterprise-grade security with complete data isolation between organizations. Your
+								data stays private and secure.
 							</p>
 						</div>
 
@@ -195,12 +184,10 @@ function App() {
 							<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
 								<Download className="h-6 w-6 text-orange-600" />
 							</div>
-							<h3 className="mb-4 text-xl font-semibold text-gray-900">
-								API & Web Interface
-							</h3>
+							<h3 className="mb-4 text-xl font-semibold text-gray-900">API & Web Interface</h3>
 							<p className="text-gray-600">
-								Process files through our web interface or integrate with your
-								systems using our powerful REST API.
+								Process files through our web interface or integrate with your systems using our
+								powerful REST API.
 							</p>
 						</div>
 
@@ -208,12 +195,10 @@ function App() {
 							<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
 								<BarChart3 className="h-6 w-6 text-red-600" />
 							</div>
-							<h3 className="mb-4 text-xl font-semibold text-gray-900">
-								Advanced Rules
-							</h3>
+							<h3 className="mb-4 text-xl font-semibold text-gray-900">Advanced Rules</h3>
 							<p className="text-gray-600">
-								Support for complex transformations including cell merging,
-								formula evaluation, column validation, and worksheet combining.
+								Support for complex transformations including cell merging, formula evaluation,
+								column validation, and worksheet combining.
 							</p>
 						</div>
 
@@ -221,12 +206,10 @@ function App() {
 							<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-teal-100">
 								<Users className="h-6 w-6 text-teal-600" />
 							</div>
-							<h3 className="mb-4 text-xl font-semibold text-gray-900">
-								Team Collaboration
-							</h3>
+							<h3 className="mb-4 text-xl font-semibold text-gray-900">Team Collaboration</h3>
 							<p className="text-gray-600">
-								Share configurations across your organization with role-based
-								access control and collaborative editing.
+								Share configurations across your organization with role-based access control and
+								collaborative editing.
 							</p>
 						</div>
 					</div>
@@ -249,9 +232,7 @@ function App() {
 						{/* Starter Plan */}
 						<div className="rounded-xl border border-gray-200 bg-white p-8">
 							<h3 className="text-2xl font-bold text-gray-900">Starter</h3>
-							<p className="mt-4 text-gray-600">
-								Perfect for individuals and small projects
-							</p>
+							<p className="mt-4 text-gray-600">Perfect for individuals and small projects</p>
 							<div className="mt-8">
 								<span className="text-4xl font-bold text-gray-900">$9</span>
 								<span className="text-gray-600">/month</span>
@@ -259,9 +240,7 @@ function App() {
 							<ul className="mt-8 space-y-4">
 								<li className="flex items-center">
 									<Check className="mr-3 h-5 w-5 text-green-500" />
-									<span className="text-gray-600">
-										Up to 100 transformations/month
-									</span>
+									<span className="text-gray-600">Up to 100 transformations/month</span>
 								</li>
 								<li className="flex items-center">
 									<Check className="mr-3 h-5 w-5 text-green-500" />
@@ -289,9 +268,7 @@ function App() {
 								</span>
 							</div>
 							<h3 className="text-2xl font-bold text-gray-900">Professional</h3>
-							<p className="mt-4 text-gray-600">
-								Ideal for growing teams and businesses
-							</p>
+							<p className="mt-4 text-gray-600">Ideal for growing teams and businesses</p>
 							<div className="mt-8">
 								<span className="text-4xl font-bold text-gray-900">$29</span>
 								<span className="text-gray-600">/month</span>
@@ -299,15 +276,11 @@ function App() {
 							<ul className="mt-8 space-y-4">
 								<li className="flex items-center">
 									<Check className="mr-3 h-5 w-5 text-green-500" />
-									<span className="text-gray-600">
-										Up to 1,000 transformations/month
-									</span>
+									<span className="text-gray-600">Up to 1,000 transformations/month</span>
 								</li>
 								<li className="flex items-center">
 									<Check className="mr-3 h-5 w-5 text-green-500" />
-									<span className="text-gray-600">
-										Unlimited configurations
-									</span>
+									<span className="text-gray-600">Unlimited configurations</span>
 								</li>
 								<li className="flex items-center">
 									<Check className="mr-3 h-5 w-5 text-green-500" />
@@ -330,24 +303,18 @@ function App() {
 						{/* Enterprise Plan */}
 						<div className="rounded-xl border border-gray-200 bg-white p-8">
 							<h3 className="text-2xl font-bold text-gray-900">Enterprise</h3>
-							<p className="mt-4 text-gray-600">
-								For large organizations with custom needs
-							</p>
+							<p className="mt-4 text-gray-600">For large organizations with custom needs</p>
 							<div className="mt-8">
 								<span className="text-4xl font-bold text-gray-900">Custom</span>
 							</div>
 							<ul className="mt-8 space-y-4">
 								<li className="flex items-center">
 									<Check className="mr-3 h-5 w-5 text-green-500" />
-									<span className="text-gray-600">
-										Unlimited transformations
-									</span>
+									<span className="text-gray-600">Unlimited transformations</span>
 								</li>
 								<li className="flex items-center">
 									<Check className="mr-3 h-5 w-5 text-green-500" />
-									<span className="text-gray-600">
-										Advanced security features
-									</span>
+									<span className="text-gray-600">Advanced security features</span>
 								</li>
 								<li className="flex items-center">
 									<Check className="mr-3 h-5 w-5 text-green-500" />
@@ -377,8 +344,7 @@ function App() {
 						Ready to Transform Your Data?
 					</h2>
 					<p className="mt-4 text-xl text-blue-100">
-						Join thousands of teams already using Mutate to streamline their
-						data workflows.
+						Join thousands of teams already using Mutate to streamline their data workflows.
 					</p>
 					<div className="mt-8">
 						<a
@@ -399,8 +365,8 @@ function App() {
 						<div className="col-span-1 md:col-span-2">
 							<h3 className="text-2xl font-bold text-white">mutate</h3>
 							<p className="mt-4 text-gray-400">
-								The most intuitive platform for transforming your XLSX data.
-								Built for teams that value simplicity, security, and efficiency.
+								The most intuitive platform for transforming your XLSX data. Built for teams that
+								value simplicity, security, and efficiency.
 							</p>
 						</div>
 
@@ -408,18 +374,12 @@ function App() {
 							<h4 className="mb-4 text-lg font-semibold text-white">Product</h4>
 							<ul className="space-y-2">
 								<li>
-									<a
-										href="#features"
-										className="text-gray-400 transition-colors hover:text-white"
-									>
+									<a href="#features" className="text-gray-400 transition-colors hover:text-white">
 										Features
 									</a>
 								</li>
 								<li>
-									<a
-										href="#pricing"
-										className="text-gray-400 transition-colors hover:text-white"
-									>
+									<a href="#pricing" className="text-gray-400 transition-colors hover:text-white">
 										Pricing
 									</a>
 								</li>
@@ -438,10 +398,7 @@ function App() {
 							<h4 className="mb-4 text-lg font-semibold text-white">Company</h4>
 							<ul className="space-y-2">
 								<li>
-									<a
-										href="#about"
-										className="text-gray-400 transition-colors hover:text-white"
-									>
+									<a href="#about" className="text-gray-400 transition-colors hover:text-white">
 										About
 									</a>
 								</li>

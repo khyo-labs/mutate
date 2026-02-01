@@ -59,9 +59,7 @@ function AppearanceComponent() {
 										<div className="flex items-center gap-3">
 											<div>
 												<div className="text-sm">{item.name}</div>
-												<p className="text-muted-foreground text-xs">
-													{item.description}
-												</p>
+												<p className="text-muted-foreground text-xs">{item.description}</p>
 											</div>
 										</div>
 										<div className="text-muted-foreground flex items-center gap-2 text-sm">

@@ -7,39 +7,20 @@ import { z } from 'zod';
 import { router } from '@/main';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 
-import {
-	useCheckSlugExists,
-	useCreateWorkspace,
-} from '../../hooks/use-workspaces';
+import { useCheckSlugExists, useCreateWorkspace } from '../../hooks/use-workspaces';
 import { useAuthStore, useSession } from '../../stores/auth-store';
 import { ProtectedRoute } from '../protected-route';
 import { Button } from '../ui/button';
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '../ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const formSchema = z.object({
 	workspaceName: z.string().min(1, 'Workspace name is required'),
 	workspaceSlug: z
 		.string()
 		.min(1, 'Workspace slug is required')
-		.regex(
-			/^[a-z0-9-]+$/,
-			'Slug can only contain lowercase letters, numbers, and hyphens',
-		)
+		.regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens')
 		.refine(
 			(slug) => !slug.startsWith('-') && !slug.endsWith('-'),
 			'Slug cannot start or end with a hyphen',
@@ -147,9 +128,7 @@ export function CreateWorkspace() {
 						{!activeWorkspace && <Button onClick={logout}>Log out</Button>}
 						<div className="text-right">
 							<div className="text-muted-foreground text-xs">Logged in as:</div>
-							<div className="text-foreground text-sm font-medium">
-								{session?.user?.email}
-							</div>
+							<div className="text-foreground text-sm font-medium">{session?.user?.email}</div>
 						</div>
 					</div>
 				</div>
@@ -161,17 +140,14 @@ export function CreateWorkspace() {
 								Create a new workspace
 							</h1>
 							<p className="text-muted-foreground leading-relaxed">
-								Workspaces are shared environments where teams can work
-								collaboratively with shared data.
+								Workspaces are shared environments where teams can work collaboratively with shared
+								data.
 							</p>
 						</div>
 
 						<div className="border-border bg-card rounded-lg border p-6">
 							<Form {...form}>
-								<form
-									onSubmit={form.handleSubmit(onSubmit)}
-									className="space-y-6"
-								>
+								<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 									<FormField
 										control={form.control}
 										name="workspaceName"
@@ -179,10 +155,7 @@ export function CreateWorkspace() {
 											<FormItem>
 												<FormLabel>Workspace Name</FormLabel>
 												<FormControl>
-													<Input
-														placeholder="Enter workspace name"
-														{...field}
-													/>
+													<Input placeholder="Enter workspace name" {...field} />
 												</FormControl>
 											</FormItem>
 										)}
@@ -234,21 +207,11 @@ export function CreateWorkspace() {
 															<SelectValue placeholder="Select company size" />
 														</SelectTrigger>
 														<SelectContent>
-															<SelectItem value="1-10">
-																1-10 employees
-															</SelectItem>
-															<SelectItem value="11-50">
-																11-50 employees
-															</SelectItem>
-															<SelectItem value="51-200">
-																51-200 employees
-															</SelectItem>
-															<SelectItem value="201-500">
-																201-500 employees
-															</SelectItem>
-															<SelectItem value="500+">
-																500+ employees
-															</SelectItem>
+															<SelectItem value="1-10">1-10 employees</SelectItem>
+															<SelectItem value="11-50">11-50 employees</SelectItem>
+															<SelectItem value="51-200">51-200 employees</SelectItem>
+															<SelectItem value="201-500">201-500 employees</SelectItem>
+															<SelectItem value="500+">500+ employees</SelectItem>
 														</SelectContent>
 													</Select>
 												</FormControl>
@@ -260,15 +223,11 @@ export function CreateWorkspace() {
 										type="submit"
 										className="w-full"
 										disabled={
-											isSubmitting ||
-											createWorkspace.isPending ||
-											checkSlugExists.isPending
+											isSubmitting || createWorkspace.isPending || checkSlugExists.isPending
 										}
 									>
 										<BuildingIcon className="mr-2 size-4" />
-										{createWorkspace.isPending
-											? 'Creating workspace...'
-											: 'Create workspace'}
+										{createWorkspace.isPending ? 'Creating workspace...' : 'Create workspace'}
 									</Button>
 								</form>
 							</Form>

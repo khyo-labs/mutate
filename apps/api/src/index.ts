@@ -40,13 +40,7 @@ await fastify.register(cors, {
 	origin: config.CORS_ORIGINS,
 	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-	allowedHeaders: [
-		'Content-Type',
-		'Authorization',
-		'X-Requested-With',
-		'Accept',
-		'Origin',
-	],
+	allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
 });
 
 await fastify.register(multipart, {

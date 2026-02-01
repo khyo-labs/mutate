@@ -98,15 +98,9 @@ export function PassKeys() {
 			<div className="flex items-center justify-between">
 				<div className="space-y-1">
 					<h2 className="text-base font-medium">Passkeys</h2>
-					<p className="text-muted-foreground text-sm">
-						Add a passkey to your account
-					</p>
+					<p className="text-muted-foreground text-sm">Add a passkey to your account</p>
 				</div>
-				<Drawer
-					open={isAddDrawerOpen}
-					onOpenChange={setAddDrawerOpen}
-					direction="right"
-				>
+				<Drawer open={isAddDrawerOpen} onOpenChange={setAddDrawerOpen} direction="right">
 					<DrawerTrigger asChild>
 						<Button size="sm">Add new passkey</Button>
 					</DrawerTrigger>
@@ -144,24 +138,14 @@ export function PassKeys() {
 					) : (
 						<ul className="divide-border grid gap-3 divide-y">
 							{passkeys.map((key: Passkey) => (
-								<li
-									key={key.id}
-									className="flex items-center justify-between pb-3 last:pb-0"
-								>
+								<li key={key.id} className="flex items-center justify-between pb-3 last:pb-0">
 									<div>
-										<p className="font-medium">
-											{key.name || 'Unnamed Passkey'}
-										</p>
+										<p className="font-medium">{key.name || 'Unnamed Passkey'}</p>
 										<p className="text-muted-foreground text-sm">
-											Added on {new Date(key.createdAt).toLocaleDateString()} -{' '}
-											{key.deviceType}
+											Added on {new Date(key.createdAt).toLocaleDateString()} - {key.deviceType}
 										</p>
 									</div>
-									<Button
-										variant="destructive"
-										size="sm"
-										onClick={() => handleDelete(key.id)}
-									>
+									<Button variant="destructive" size="sm" onClick={() => handleDelete(key.id)}>
 										Delete
 									</Button>
 								</li>

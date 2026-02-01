@@ -57,9 +57,7 @@ export function ForgotPasswordComponent() {
 			await sendResetPassword(data.email);
 			setIsSuccess(true);
 		} catch (error) {
-			setApiError(
-				error instanceof Error ? error.message : 'Failed to send reset link',
-			);
+			setApiError(error instanceof Error ? error.message : 'Failed to send reset link');
 		} finally {
 			setIsLoading(false);
 		}
@@ -72,8 +70,8 @@ export function ForgotPasswordComponent() {
 					<div className="bg-card rounded-lg border p-6 text-center shadow-sm">
 						<h2 className="text-2xl font-bold">Check your email</h2>
 						<p className="mt-4 text-gray-600">
-							We've sent a password reset link to your email address. Please
-							check your inbox and follow the instructions.
+							We've sent a password reset link to your email address. Please check your inbox and
+							follow the instructions.
 						</p>
 					</div>
 				</div>
@@ -85,9 +83,7 @@ export function ForgotPasswordComponent() {
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 				<div className="bg-card rounded-lg border p-6 shadow-sm">
-					<h2 className="mb-6 text-center text-2xl font-bold">
-						Forgot Password
-					</h2>
+					<h2 className="mb-6 text-center text-2xl font-bold">Forgot Password</h2>
 
 					<Form {...form}>
 						<form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>

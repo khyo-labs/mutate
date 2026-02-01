@@ -12,9 +12,7 @@ vi.mock('../../../lib/auth.js', () => ({
 
 describe('betterAuthRoutes', () => {
 	it('forwards response from auth handler', async () => {
-		(auth.handler as any).mockResolvedValue(
-			new Response('ok', { status: 200 }),
-		);
+		(auth.handler as any).mockResolvedValue(new Response('ok', { status: 200 }));
 
 		const app = Fastify();
 		await app.register(betterAuthRoutes, { prefix: '/better-auth' });

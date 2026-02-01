@@ -13,8 +13,7 @@ export const Route = createFileRoute('/')({
 
 export function RouteComponent() {
 	const { data: session, isPending: isSessionPending } = useSession();
-	const { data: workspaces, isPending: isWorkspacesPending } =
-		useListWorkspace();
+	const { data: workspaces, isPending: isWorkspacesPending } = useListWorkspace();
 
 	const hasWorkspaces = (workspaces || []).length > 0;
 

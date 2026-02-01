@@ -23,10 +23,7 @@ class MutationWorker {
 	private isShuttingDown = false;
 
 	constructor() {
-		transformationQueue.process(
-			'mutate-file',
-			this.processMutationJob.bind(this),
-		);
+		transformationQueue.process('mutate-file', this.processMutationJob.bind(this));
 
 		process.on('SIGTERM', this.shutdown.bind(this));
 		process.on('SIGINT', this.shutdown.bind(this));
@@ -160,11 +157,7 @@ class MutationWorker {
 
 			await this.updateJobStatus(jobId, 'completed', updateData);
 
-			await this.sendWebhookNotification(
-				jobData,
-				outputFileResult.url,
-				result.executionLog,
-			);
+			await this.sendWebhookNotification(jobData, outputFileResult.url, result.executionLog);
 
 			await job.progress(100);
 
@@ -180,8 +173,7 @@ class MutationWorker {
 				executionLog: result.executionLog,
 			};
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : 'Unknown error';
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
 			console.error(`Transformation job failed: ${jobId}`, {
 				error: errorMessage,
@@ -193,12 +185,7 @@ class MutationWorker {
 				completedAt: new Date(),
 			});
 
-			await this.sendWebhookNotification(
-				jobData,
-				undefined,
-				undefined,
-				errorMessage,
-			);
+			await this.sendWebhookNotification(jobData, undefined, undefined, errorMessage);
 
 			return {
 				success: false,
@@ -267,14 +254,9 @@ class MutationWorker {
 
 				console.log(`Webhook delivered successfully for job ${jobData.jobId}`);
 			} else if (delivery?.status === 'pending') {
-				console.log(
-					`Webhook queued for asynchronous delivery for job ${jobData.jobId}`,
-				);
+				console.log(`Webhook queued for asynchronous delivery for job ${jobData.jobId}`);
 			} else if (delivery?.status === 'failed') {
-				console.error(
-					`Webhook delivery failed for job ${jobData.jobId}:`,
-					delivery.error,
-				);
+				console.error(`Webhook delivery failed for job ${jobData.jobId}:`, delivery.error);
 			} else {
 				console.log(
 					`No webhook configured for organization ${jobData.organizationId}, job ${jobData.jobId}`,
@@ -285,10 +267,7 @@ class MutationWorker {
 		}
 	}
 
-	private generateOutputFileName(
-		originalFileName: string,
-		extension: string,
-	): string {
+	private generateOutputFileName(originalFileName: string, extension: string): string {
 		const baseName = originalFileName.replace(/\.[^/.]+$/, '');
 		return `${baseName}_transformed.${extension}`;
 	}

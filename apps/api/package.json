@@ -2,8 +2,8 @@
 	"name": "@mutate/api",
 	"version": "1.0.0",
 	"description": "Backend API for the mutate",
-	"main": "dist/index.js",
 	"type": "module",
+	"main": "dist/index.js",
 	"scripts": {
 		"dev": "tsx watch --inspect --tsconfig ./tsconfig.json src/index.ts",
 		"build": "tsup",

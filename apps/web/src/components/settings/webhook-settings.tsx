@@ -78,10 +78,7 @@ export function WebhookSettings() {
 						<div className="divide-border divide-y">
 							{webhooks.map((webhook) => (
 								<div key={webhook.id} className="pb-8 last:pb-0">
-									<WebhookDetails
-										webhook={webhook}
-										deleteWebhook={deleteWebhook}
-									/>
+									<WebhookDetails webhook={webhook} deleteWebhook={deleteWebhook} />
 								</div>
 							))}
 						</div>

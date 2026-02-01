@@ -32,13 +32,7 @@ import { toast } from 'sonner';
 import { api } from '@/api/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { SuccessResponse } from '@/types';
@@ -121,9 +115,7 @@ function SystemHealthMonitoring() {
 	// Fetch server-composed system health
 	async function fetchSystemHealth() {
 		try {
-			const res = await api.get<SuccessResponse<SystemHealth>>(
-				'/v1/admin/health/status',
-			);
+			const res = await api.get<SuccessResponse<SystemHealth>>('/v1/admin/health/status');
 			setHealth(res.data);
 		} catch (error) {
 			console.error('Failed to fetch system health:', error);
@@ -219,9 +211,7 @@ function SystemHealthMonitoring() {
 			<div className="flex items-center justify-between">
 				<div>
 					<h2 className="text-2xl font-bold">System Health</h2>
-					<p className="text-muted-foreground">
-						Monitor platform performance and service status
-					</p>
+					<p className="text-muted-foreground">Monitor platform performance and service status</p>
 				</div>
 				<div className="flex items-center gap-2">
 					<Badge
@@ -281,9 +271,7 @@ function SystemHealthMonitoring() {
 							<div>
 								<div className="flex items-center gap-2">
 									{getStatusIcon(health.services.database.status)}
-									<span
-										className={getStatusColor(health.services.database.status)}
-									>
+									<span className={getStatusColor(health.services.database.status)}>
 										{health.services.database.status.toUpperCase()}
 									</span>
 								</div>
@@ -305,9 +293,7 @@ function SystemHealthMonitoring() {
 							<div>
 								<div className="flex items-center gap-2">
 									{getStatusIcon(health.services.redis.status)}
-									<span
-										className={getStatusColor(health.services.redis.status)}
-									>
+									<span className={getStatusColor(health.services.redis.status)}>
 										{health.services.redis.status.toUpperCase()}
 									</span>
 								</div>
@@ -329,15 +315,11 @@ function SystemHealthMonitoring() {
 							<div>
 								<div className="flex items-center gap-2">
 									{getStatusIcon(health.services.storage.status)}
-									<span
-										className={getStatusColor(health.services.storage.status)}
-									>
+									<span className={getStatusColor(health.services.storage.status)}>
 										{health.services.storage.status.toUpperCase()}
 									</span>
 								</div>
-								<p className="text-muted-foreground text-xs">
-									{health.metrics.diskUsage}% used
-								</p>
+								<p className="text-muted-foreground text-xs">{health.metrics.diskUsage}% used</p>
 							</div>
 						</div>
 					</CardContent>
@@ -368,9 +350,7 @@ function SystemHealthMonitoring() {
 							<CardContent>
 								<div className="space-y-2">
 									<div className="flex items-center justify-between">
-										<span className="text-2xl font-bold">
-											{health.metrics.cpuUsage}%
-										</span>
+										<span className="text-2xl font-bold">{health.metrics.cpuUsage}%</span>
 										{health.metrics.cpuUsage > 80 ? (
 											<TrendingUp className="h-4 w-4 text-red-600" />
 										) : (
@@ -389,9 +369,7 @@ function SystemHealthMonitoring() {
 							<CardContent>
 								<div className="space-y-2">
 									<div className="flex items-center justify-between">
-										<span className="text-2xl font-bold">
-											{health.metrics.memoryUsage}%
-										</span>
+										<span className="text-2xl font-bold">{health.metrics.memoryUsage}%</span>
 										{health.metrics.memoryUsage > 80 ? (
 											<TrendingUp className="h-4 w-4 text-red-600" />
 										) : (
@@ -410,9 +388,7 @@ function SystemHealthMonitoring() {
 							<CardContent>
 								<div className="space-y-2">
 									<div className="flex items-center justify-between">
-										<span className="text-2xl font-bold">
-											{health.metrics.diskUsage}%
-										</span>
+										<span className="text-2xl font-bold">{health.metrics.diskUsage}%</span>
 										{health.metrics.diskUsage > 80 ? (
 											<TrendingUp className="h-4 w-4 text-red-600" />
 										) : (
@@ -445,29 +421,10 @@ function SystemHealthMonitoring() {
 										}
 									/>
 									<YAxis />
-									<Tooltip
-										labelFormatter={(value) =>
-											new Date(value).toLocaleTimeString()
-										}
-									/>
-									<Line
-										type="monotone"
-										dataKey="cpuUsage"
-										stroke="#8884d8"
-										name="CPU %"
-									/>
-									<Line
-										type="monotone"
-										dataKey="memoryUsage"
-										stroke="#82ca9d"
-										name="Memory %"
-									/>
-									<Line
-										type="monotone"
-										dataKey="errorRate"
-										stroke="#ffc658"
-										name="Error Rate"
-									/>
+									<Tooltip labelFormatter={(value) => new Date(value).toLocaleTimeString()} />
+									<Line type="monotone" dataKey="cpuUsage" stroke="#8884d8" name="CPU %" />
+									<Line type="monotone" dataKey="memoryUsage" stroke="#82ca9d" name="Memory %" />
+									<Line type="monotone" dataKey="errorRate" stroke="#ffc658" name="Error Rate" />
 								</LineChart>
 							</ResponsiveContainer>
 						</CardContent>
@@ -479,60 +436,44 @@ function SystemHealthMonitoring() {
 					<div className="grid gap-4 md:grid-cols-4">
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									Avg Response Time
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">Avg Response Time</CardTitle>
 								<Clock className="text-muted-foreground h-4 w-4" />
 							</CardHeader>
 							<CardContent>
-								<div className="text-2xl font-bold">
-									{health.performance.avgResponseTime}ms
-								</div>
+								<div className="text-2xl font-bold">{health.performance.avgResponseTime}ms</div>
 								<p className="text-muted-foreground text-xs">Average latency</p>
 							</CardContent>
 						</Card>
 
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									P95 Response Time
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">P95 Response Time</CardTitle>
 								<Gauge className="text-muted-foreground h-4 w-4" />
 							</CardHeader>
 							<CardContent>
-								<div className="text-2xl font-bold">
-									{health.performance.p95ResponseTime}ms
-								</div>
+								<div className="text-2xl font-bold">{health.performance.p95ResponseTime}ms</div>
 								<p className="text-muted-foreground text-xs">95th percentile</p>
 							</CardContent>
 						</Card>
 
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									P99 Response Time
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">P99 Response Time</CardTitle>
 								<Gauge className="text-muted-foreground h-4 w-4" />
 							</CardHeader>
 							<CardContent>
-								<div className="text-2xl font-bold">
-									{health.performance.p99ResponseTime}ms
-								</div>
+								<div className="text-2xl font-bold">{health.performance.p99ResponseTime}ms</div>
 								<p className="text-muted-foreground text-xs">99th percentile</p>
 							</CardContent>
 						</Card>
 
 						<Card>
 							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-								<CardTitle className="text-sm font-medium">
-									Requests/sec
-								</CardTitle>
+								<CardTitle className="text-sm font-medium">Requests/sec</CardTitle>
 								<Wifi className="text-muted-foreground h-4 w-4" />
 							</CardHeader>
 							<CardContent>
-								<div className="text-2xl font-bold">
-									{health.performance.requestsPerSecond}
-								</div>
+								<div className="text-2xl font-bold">{health.performance.requestsPerSecond}</div>
 								<p className="text-muted-foreground text-xs">Current load</p>
 							</CardContent>
 						</Card>
@@ -558,11 +499,7 @@ function SystemHealthMonitoring() {
 										}
 									/>
 									<YAxis />
-									<Tooltip
-										labelFormatter={(value) =>
-											new Date(value).toLocaleTimeString()
-										}
-									/>
+									<Tooltip labelFormatter={(value) => new Date(value).toLocaleTimeString()} />
 									<Area
 										type="monotone"
 										dataKey="responseTime"
@@ -590,9 +527,7 @@ function SystemHealthMonitoring() {
 								<div className="flex items-center justify-center py-8">
 									<div className="text-center">
 										<CheckCircle className="mx-auto h-12 w-12 text-green-600" />
-										<p className="text-muted-foreground mt-2 text-sm">
-											No active alerts
-										</p>
+										<p className="text-muted-foreground mt-2 text-sm">No active alerts</p>
 									</div>
 								</div>
 							) : (
@@ -606,9 +541,7 @@ function SystemHealthMonitoring() {
 											>
 												<div className="flex-1">
 													<div className="flex items-center gap-2">
-														<Badge
-															variant={getSeverityBadgeVariant(alert.severity)}
-														>
+														<Badge variant={getSeverityBadgeVariant(alert.severity)}>
 															{alert.severity.toUpperCase()}
 														</Badge>
 														<span className="text-muted-foreground text-xs">

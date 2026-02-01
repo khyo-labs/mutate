@@ -4,11 +4,7 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 
 import { findConverter } from '@/converters/index.js';
 import { effectHandler, serializeError } from '@/effect/adapters/fastify.js';
-import {
-	getOutputFileExtension,
-	getOutputMimeType,
-	validateMimeType,
-} from '@/utils/mime-type.js';
+import { getOutputFileExtension, getOutputMimeType, validateMimeType } from '@/utils/mime-type.js';
 
 interface ConvertParams {
 	inputType: string;
@@ -91,8 +87,7 @@ export async function convertRoutes(app: FastifyInstance) {
 						fileBuffer = yield* Effect.tryPromise({
 							try: async () => {
 								const chunks: Buffer[] = [];
-								for await (const chunk of multipartData.file)
-									chunks.push(chunk);
+								for await (const chunk of multipartData.file) chunks.push(chunk);
 								return Buffer.concat(chunks);
 							},
 							catch: (error) => ({
@@ -158,17 +153,12 @@ export async function convertRoutes(app: FastifyInstance) {
 
 					const outputBuffer = Buffer.isBuffer(result)
 						? result
-						: Buffer.from(
-								typeof result === 'string' ? result : JSON.stringify(result),
-							);
+						: Buffer.from(typeof result === 'string' ? result : JSON.stringify(result));
 
 					return {
 						success: true,
 						data: outputBuffer.toString('base64'),
-						fileName: fileName.replace(
-							/\.[^.]+$/,
-							`.${getOutputFileExtension(outputType)}`,
-						),
+						fileName: fileName.replace(/\.[^.]+$/, `.${getOutputFileExtension(outputType)}`),
 						mimeType: getOutputMimeType(outputType),
 						outputFormat: outputType,
 					};

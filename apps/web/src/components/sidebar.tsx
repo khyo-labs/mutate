@@ -1,14 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router';
-import {
-	ChevronDown,
-	Home,
-	LogOut,
-	Menu,
-	Palette,
-	Shield,
-	User,
-	X,
-} from 'lucide-react';
+import { ChevronDown, Home, LogOut, Menu, Palette, Shield, User, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -54,9 +45,7 @@ export function Sidebar() {
 	const organizationName = activeWorkspace?.name || session?.user?.name;
 	const userEmail = session?.user?.email || '';
 
-	const navigationItems: NavigationItem[] = [
-		{ name: 'Home', href: '/', icon: Home },
-	];
+	const navigationItems: NavigationItem[] = [{ name: 'Home', href: '/', icon: Home }];
 
 	function isActiveRoute(href: string) {
 		const currentPath = location.pathname;
@@ -85,9 +74,7 @@ export function Sidebar() {
 												</span>
 												<ChevronDown className="text-muted-foreground hover:text-foreground size-4" />
 											</div>
-											<div className="text-muted-foreground text-xs">
-												{userEmail}
-											</div>
+											<div className="text-muted-foreground text-xs">{userEmail}</div>
 										</div>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent>
@@ -99,10 +86,7 @@ export function Sidebar() {
 											</DropdownMenuItem>
 										))}
 										<DropdownMenuSeparator />
-										<DropdownMenuItem
-											onClick={handleLogout}
-											className="flex justify-between"
-										>
+										<DropdownMenuItem onClick={handleLogout} className="flex justify-between">
 											Logout
 											<LogOut className="size-4" />
 										</DropdownMenuItem>
@@ -117,7 +101,7 @@ export function Sidebar() {
 			<div className="flex-1 overflow-y-auto px-3 py-3">
 				<nav className="grid gap-y-4">
 					<div className="space-y-1">
-						<h3 className="text-muted-foreground px-3 text-xs font-semibold uppercase tracking-wider">
+						<h3 className="text-muted-foreground px-3 text-xs font-semibold tracking-wider uppercase">
 							Home
 						</h3>
 						{navigationItems.map((item) => {
@@ -160,10 +144,7 @@ export function Sidebar() {
 						})}
 					</div>
 
-					<WorkspaceNavigation
-						isCollapsed={isCollapsed}
-						setIsMobileOpen={setIsMobileOpen}
-					/>
+					<WorkspaceNavigation isCollapsed={isCollapsed} setIsMobileOpen={setIsMobileOpen} />
 				</nav>
 			</div>
 		</>
@@ -209,7 +190,7 @@ export function Sidebar() {
 						<div className="px-3 py-3">
 							<nav className="grid gap-y-4">
 								<div className="space-y-1">
-									<h3 className="text-muted-foreground px-3 text-xs font-semibold uppercase tracking-wider">
+									<h3 className="text-muted-foreground px-3 text-xs font-semibold tracking-wider uppercase">
 										Home
 									</h3>
 									{navigationItems.map((item) => {
@@ -247,10 +228,7 @@ export function Sidebar() {
 									})}
 								</div>
 
-								<WorkspaceNavigation
-									isCollapsed={false}
-									setIsMobileOpen={setIsMobileOpen}
-								/>
+								<WorkspaceNavigation isCollapsed={false} setIsMobileOpen={setIsMobileOpen} />
 							</nav>
 						</div>
 					</div>
@@ -282,7 +260,7 @@ export function Sidebar() {
 			<Button
 				variant="ghost"
 				size="icon"
-				className="fixed left-4 top-4 z-30 h-10 w-10 lg:hidden"
+				className="fixed top-4 left-4 z-30 h-10 w-10 lg:hidden"
 				onClick={() => setIsMobileOpen(true)}
 			>
 				<Menu className="h-5 w-5" />

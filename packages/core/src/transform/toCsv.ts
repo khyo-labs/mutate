@@ -53,8 +53,7 @@ export function toCsv(
 			return yield* Effect.fail(
 				new TransformError({
 					rule: 'toCsv',
-					reason:
-						error instanceof Error ? error.message : 'CSV conversion failed',
+					reason: error instanceof Error ? error.message : 'CSV conversion failed',
 				}),
 			);
 		}

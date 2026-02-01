@@ -75,19 +75,14 @@ export async function authRoutes(fastify: FastifyInstance) {
 
 			Object.entries(request.headers).forEach(([key, value]: [string, any]) => {
 				if (value) {
-					const headerValue = Array.isArray(value)
-						? value.join(', ')
-						: value.toString();
+					const headerValue = Array.isArray(value) ? value.join(', ') : value.toString();
 					headers.append(key, headerValue);
 				}
 			});
 
 			let body: string | undefined;
 			if (request.body) {
-				body =
-					typeof request.body === 'string'
-						? request.body
-						: JSON.stringify(request.body);
+				body = typeof request.body === 'string' ? request.body : JSON.stringify(request.body);
 			}
 
 			const req = new Request(fullUrl, {
@@ -99,9 +94,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 			const response = await auth.handler(req);
 
 			reply.status(response.status);
-			response.headers.forEach((value: string, key: string) =>
-				reply.header(key, value),
-			);
+			response.headers.forEach((value: string, key: string) => reply.header(key, value));
 
 			const responseText = response.body ? await response.text() : null;
 			reply.send(responseText);

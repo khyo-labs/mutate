@@ -44,8 +44,7 @@ export function parseWorkbook(buffer: Buffer, fileName: string = 'file') {
 			return yield* Effect.fail(
 				new ParseError({
 					fileName,
-					message:
-						error instanceof Error ? error.message : 'Unknown parsing error',
+					message: error instanceof Error ? error.message : 'Unknown parsing error',
 				}),
 			);
 		}

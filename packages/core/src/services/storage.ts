@@ -17,16 +17,11 @@ export interface StorageService {
 
 	get: (key: string) => Effect.Effect<Buffer, StorageError>;
 
-	signGet: (
-		key: string,
-		expiresInSeconds: number,
-	) => Effect.Effect<string, StorageError>;
+	signGet: (key: string, expiresInSeconds: number) => Effect.Effect<string, StorageError>;
 
 	remove: (key: string) => Effect.Effect<void, StorageError>;
 
 	exists: (key: string) => Effect.Effect<boolean, StorageError>;
 }
 
-export const StorageService = Context.GenericTag<StorageService>(
-	'@mutate/core/StorageService',
-);
+export const StorageService = Context.GenericTag<StorageService>('@mutate/core/StorageService');

@@ -10,18 +10,12 @@ describe('WebhookService', () => {
 		const sig = createHmac('sha256', secret).update(payload).digest('hex');
 		const fullSig = `sha256=${sig}`;
 		expect(WebhookService.verifySignature(payload, fullSig, secret)).toBe(true);
-		expect(WebhookService.verifySignature(payload, 'sha256=bad', secret)).toBe(
-			false,
-		);
+		expect(WebhookService.verifySignature(payload, 'sha256=bad', secret)).toBe(false);
 	});
 
 	it('validates webhook URLs', () => {
-		expect(WebhookService.validateWebhookUrl('https://example.com').valid).toBe(
-			true,
-		);
-		expect(WebhookService.validateWebhookUrl('ftp://example.com').valid).toBe(
-			false,
-		);
+		expect(WebhookService.validateWebhookUrl('https://example.com').valid).toBe(true);
+		expect(WebhookService.validateWebhookUrl('ftp://example.com').valid).toBe(false);
 	});
 
 	it('creates job completed payload', () => {

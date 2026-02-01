@@ -11,21 +11,8 @@ import {
 import { useWorkspaceStore } from '@/stores/workspace-store';
 
 import { Button } from '../ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '../ui/card';
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '../ui/form';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
 
 const formSchema = z.object({
@@ -33,10 +20,7 @@ const formSchema = z.object({
 	slug: z
 		.string()
 		.min(1, 'Workspace slug is required')
-		.regex(
-			/^[a-z0-9-]+$/,
-			'Slug can only contain lowercase letters, numbers, and hyphens',
-		)
+		.regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens')
 		.refine((value) => !value.startsWith('-') && !value.endsWith('-'), {
 			message: 'Slug cannot start or end with a hyphen',
 		}),
@@ -134,11 +118,7 @@ export function WorkspaceDetailsForm() {
 
 		const slugRegex = /^[a-z0-9-]+$/;
 
-		if (
-			!slugRegex.test(trimmedSlug) ||
-			trimmedSlug.startsWith('-') ||
-			trimmedSlug.endsWith('-')
-		) {
+		if (!slugRegex.test(trimmedSlug) || trimmedSlug.startsWith('-') || trimmedSlug.endsWith('-')) {
 			checkSlugExists.reset();
 			return;
 		}
@@ -217,8 +197,7 @@ export function WorkspaceDetailsForm() {
 		);
 	}
 
-	const isCheckingAvailability =
-		checkSlugExists.isPending || checkWorkspaceName.isPending;
+	const isCheckingAvailability = checkSlugExists.isPending || checkWorkspaceName.isPending;
 
 	return (
 		<Card>
@@ -244,11 +223,8 @@ export function WorkspaceDetailsForm() {
 										checkWorkspaceName.isSuccess &&
 										checkWorkspaceName.data &&
 										trimmedNameValue.length > 0 &&
-										trimmedNameValue.toLowerCase() !==
-											activeWorkspace.name.toLowerCase() && (
-											<p className="mt-1 text-sm text-green-600">
-												Workspace name is available
-											</p>
+										trimmedNameValue.toLowerCase() !== activeWorkspace.name.toLowerCase() && (
+											<p className="mt-1 text-sm text-green-600">Workspace name is available</p>
 										)}
 									<FormMessage />
 								</FormItem>
@@ -265,11 +241,7 @@ export function WorkspaceDetailsForm() {
 											<span className="border-input bg-muted text-muted-foreground inline-flex items-center rounded-l-md border border-r-0 px-3 text-sm">
 												usemutate.com/
 											</span>
-											<Input
-												{...field}
-												placeholder="workspace-url"
-												className="rounded-l-none"
-											/>
+											<Input {...field} placeholder="workspace-url" className="rounded-l-none" />
 										</div>
 									</FormControl>
 									{!form.formState.errors.slug &&
@@ -277,9 +249,7 @@ export function WorkspaceDetailsForm() {
 										checkSlugExists.data &&
 										trimmedSlugValue.length > 0 &&
 										trimmedSlugValue !== activeWorkspace.slug && (
-											<p className="mt-1 text-sm text-green-600">
-												Workspace URL is available
-											</p>
+											<p className="mt-1 text-sm text-green-600">Workspace URL is available</p>
 										)}
 									<FormMessage />
 								</FormItem>
@@ -289,9 +259,7 @@ export function WorkspaceDetailsForm() {
 							<Button
 								type="submit"
 								disabled={
-									!form.formState.isDirty ||
-									updateWorkspace.isPending ||
-									isCheckingAvailability
+									!form.formState.isDirty || updateWorkspace.isPending || isCheckingAvailability
 								}
 							>
 								{updateWorkspace.isPending ? 'Saving…' : 'Save changes'}

@@ -6,10 +6,7 @@ import { LoggerService } from '../services/logger.js';
 import type { TransformationState } from '../transform/types.js';
 import type { ReplaceCharactersRule } from '../types.js';
 
-export function applyReplaceCharacters(
-	state: TransformationState,
-	rule: ReplaceCharactersRule,
-) {
+export function applyReplaceCharacters(state: TransformationState, rule: ReplaceCharactersRule) {
 	return Effect.gen(function* () {
 		const logger = yield* LoggerService;
 		const { workbook, selectedSheet } = state;
@@ -55,10 +52,7 @@ export function applyReplaceCharacters(
 
 					if (cell && cell.v) {
 						const originalValue = String(cell.v);
-						const newValue = originalValue.replaceAll(
-							params.search,
-							params.replace,
-						);
+						const newValue = originalValue.replaceAll(params.search, params.replace);
 
 						if (originalValue !== newValue) {
 							cell.v = newValue;
@@ -78,10 +72,7 @@ export function applyReplaceCharacters(
 			return yield* Effect.fail(
 				new TransformError({
 					rule: 'REPLACE_CHARACTERS',
-					reason:
-						error instanceof Error
-							? error.message
-							: 'Failed to replace characters',
+					reason: error instanceof Error ? error.message : 'Failed to replace characters',
 				}),
 			);
 		}

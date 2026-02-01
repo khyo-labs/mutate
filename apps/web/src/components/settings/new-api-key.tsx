@@ -26,8 +26,7 @@ export function NewApiKey({ apiKey, onDone }: Props) {
 					<h2 className="text-2xl font-semibold">New API Key Created</h2>
 				</div>
 				<p className="text-muted-foreground mt-2 text-center">
-					Here is your new API key. For security reasons, we will not show this
-					key again.
+					Here is your new API key. For security reasons, we will not show this key again.
 				</p>
 
 				<div className="bg-background relative mt-4 flex w-full items-center justify-between rounded-md border p-3">
@@ -35,14 +34,10 @@ export function NewApiKey({ apiKey, onDone }: Props) {
 					<Button
 						variant="ghost"
 						size="icon"
-						className="absolute right-1 top-1/2 -translate-y-1/2"
+						className="absolute top-1/2 right-1 -translate-y-1/2"
 						onClick={copyToClipboard}
 					>
-						{copied ? (
-							<Check className="text-success size-4" />
-						) : (
-							<Copy className="size-4" />
-						)}
+						{copied ? <Check className="text-success size-4" /> : <Copy className="size-4" />}
 					</Button>
 				</div>
 			</div>

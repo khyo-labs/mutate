@@ -8,17 +8,18 @@
 
 ## Files
 
-| File | Purpose |
-|------|---------|
+| File            | Purpose                                              |
+| --------------- | ---------------------------------------------------- |
 | `connection.ts` | Creates DB client and Drizzle instance (`db` export) |
-| `schema.ts` | All table definitions (~670 lines) |
-| `migrate.ts` | Migration runner (dev) |
-| `seed.ts` | Database seeding |
-| `migrations/` | SQL migration files (managed by Drizzle Kit) |
+| `schema.ts`     | All table definitions (~670 lines)                   |
+| `migrate.ts`    | Migration runner (dev)                               |
+| `seed.ts`       | Database seeding                                     |
+| `migrations/`   | SQL migration files (managed by Drizzle Kit)         |
 
 ## Connection
 
 `connection.ts` exports `db` (Drizzle instance) and `closeConnection`. Pool config:
+
 - Max connections: `config.DATABASE_MAX_CONNECTIONS` (default 10)
 - Idle timeout: 20s
 - Connect timeout: 10s
@@ -62,6 +63,7 @@ pnpm db:studio     # Open Drizzle Studio for visual DB browsing
 ```
 
 When modifying `schema.ts`:
+
 1. Make changes to table definitions
 2. Run `pnpm db:generate` to create migration SQL
 3. Review the generated SQL in `migrations/`
@@ -70,9 +72,10 @@ When modifying `schema.ts`:
 ## Query Patterns
 
 ```typescript
+import { and, eq } from 'drizzle-orm';
+
 import { db } from '@/db/connection.js';
-import { users, member } from '@/db/schema.js';
-import { eq, and } from 'drizzle-orm';
+import { member, users } from '@/db/schema.js';
 
 // Select
 const result = await db.select().from(users).where(eq(users.id, id));
@@ -87,8 +90,9 @@ await db.update(users).set({ name: 'new' }).where(eq(users.id, id));
 await db.delete(users).where(eq(users.id, id));
 
 // Join
-await db.select()
-  .from(member)
-  .leftJoin(organization, eq(member.organizationId, organization.id))
-  .where(eq(member.userId, userId));
+await db
+	.select()
+	.from(member)
+	.leftJoin(organization, eq(member.organizationId, organization.id))
+	.where(eq(member.userId, userId));
 ```

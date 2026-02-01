@@ -13,11 +13,7 @@ import { LoggerService } from '../services/logger.js';
 import type { TransformationRule } from '../types.js';
 import type { TransformationState } from './types.js';
 
-export function applyRule(
-	state: TransformationState,
-	rule: TransformationRule,
-	ruleIndex: number,
-) {
+export function applyRule(state: TransformationState, rule: TransformationRule, ruleIndex: number) {
 	return Effect.gen(function* () {
 		const logger = yield* LoggerService;
 
@@ -89,8 +85,7 @@ export function applyRule(
 				new RuleApplicationError({
 					ruleType: rule.type,
 					ruleIndex,
-					message:
-						error instanceof Error ? error.message : 'Rule application failed',
+					message: error instanceof Error ? error.message : 'Rule application failed',
 				}),
 			);
 		}

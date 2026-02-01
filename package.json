@@ -1,34 +1,33 @@
 {
-  "name": "mutate",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "typecheck": "turbo typecheck",
-    "lint": "turbo lint",
-    "api": "bun --filter @mutate/api",
-    "web": "bun --filter @mutate/web",
-    "marketing": "bun --filter @mutate/marketing",
-    "webhook-test": "bun --filter @mutate/webhook-test-ui dev",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
-    "db:migrate": "bun --filter @mutate/api db:migrate",
-    "db:studio": "bun --filter @mutate/api db:studio",
-    "db:generate": "bun --filter @mutate/api db:generate"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "bun@1.3.3",
-  "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "5.2.2",
-    "prettier": "^3.7.4",
-    "prettier-plugin-tailwindcss": "0.6.14",
-    "turbo": "^2.6.3"
-  },
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ]
+	"name": "mutate",
+	"version": "1.0.0",
+	"description": "",
+	"keywords": [],
+	"license": "ISC",
+	"author": "",
+	"workspaces": [
+		"packages/*",
+		"apps/*"
+	],
+	"main": "index.js",
+	"scripts": {
+		"dev": "turbo dev",
+		"build": "turbo build",
+		"typecheck": "turbo typecheck",
+		"lint": "turbo lint",
+		"api": "bun --filter @mutate/api",
+		"web": "bun --filter @mutate/web",
+		"marketing": "bun --filter @mutate/marketing",
+		"webhook-test": "bun --filter @mutate/webhook-test-ui dev",
+		"format": "oxfmt",
+		"format:check": "oxfmt --check",
+		"db:migrate": "bun --filter @mutate/api db:migrate",
+		"db:studio": "bun --filter @mutate/api db:studio",
+		"db:generate": "bun --filter @mutate/api db:generate"
+	},
+	"devDependencies": {
+		"oxfmt": "^0.27.0",
+		"turbo": "^2.6.3"
+	},
+	"packageManager": "bun@1.3.3"
 }

@@ -4,10 +4,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '@/db/connection.js';
 import { organizationWebhooks } from '@/db/schema.js';
 import { validateWorkspaceAccess } from '@/middleware/workspace-access.js';
-import {
-	createWorkspaceWebhookSchema,
-	updateWorkspaceWebhookSchema,
-} from '@/schemas/workspace.js';
+import { createWorkspaceWebhookSchema, updateWorkspaceWebhookSchema } from '@/schemas/workspace.js';
 import { WebhookService } from '@/services/webhook.js';
 import '@/types/fastify.js';
 import { getErrorMessage } from '@/utils/error.js';
@@ -160,9 +157,7 @@ export async function webhookRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			await db
-				.delete(organizationWebhooks)
-				.where(eq(organizationWebhooks.id, webhookId));
+			await db.delete(organizationWebhooks).where(eq(organizationWebhooks.id, webhookId));
 
 			return reply.send({
 				success: true,

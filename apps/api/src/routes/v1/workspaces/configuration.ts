@@ -8,11 +8,7 @@ import { configurations } from '@/db/schema.js';
 import { effectHandler } from '@/effect/adapters/fastify.js';
 import { requireRole } from '@/middleware/auth.js';
 import { validateWorkspaceAccess } from '@/middleware/workspace-access.js';
-import {
-	configurationQuerySchema,
-	createSchema,
-	updateSchema,
-} from '@/schemas/configuration.js';
+import { configurationQuerySchema, createSchema, updateSchema } from '@/schemas/configuration.js';
 import '@/types/fastify.js';
 
 interface CreateConfigurationBody {
@@ -61,13 +57,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 			schema: {
 				body: {
 					type: 'object',
-					required: [
-						'name',
-						'conversionType',
-						'inputFormat',
-						'rules',
-						'outputFormat',
-					],
+					required: ['name', 'conversionType', 'inputFormat', 'rules', 'outputFormat'],
 					properties: {
 						name: { type: 'string' },
 						description: { type: 'string' },
@@ -204,9 +194,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 				Effect.gen(function* () {
 					const database = yield* DatabaseService;
 
-					const validationResult = configurationQuerySchema.safeParse(
-						req.query,
-					);
+					const validationResult = configurationQuerySchema.safeParse(req.query);
 					if (!validationResult.success) {
 						return yield* Effect.fail({
 							code: 'VALIDATION_ERROR',
@@ -219,9 +207,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 					const offset = (page - 1) * limit;
 
 					// Build query conditions
-					const conditions = [
-						eq(configurations.organizationId, organizationId),
-					];
+					const conditions = [eq(configurations.organizationId, organizationId)];
 					if (search) {
 						conditions.push(ilike(configurations.name, `%${search}%`));
 					}
@@ -234,10 +220,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 					});
 
 					// Get total count
-					const totalCount = yield* database.getConfigurationCount(
-						organizationId,
-						search,
-					);
+					const totalCount = yield* database.getConfigurationCount(organizationId, search);
 
 					return {
 						success: true,
@@ -287,18 +270,15 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 					const { configurationId } = req.params;
 					const organizationId = req.workspace!.id;
 
-					const configuration = yield* database
-						.getConfiguration(configurationId)
-						.pipe(
-							Effect.filterOrFail(
-								(config): config is Configuration =>
-									config.organizationId === organizationId,
-								() => ({
-									code: 'NOT_FOUND',
-									message: 'Configuration not found',
-								}),
-							),
-						);
+					const configuration = yield* database.getConfiguration(configurationId).pipe(
+						Effect.filterOrFail(
+							(config): config is Configuration => config.organizationId === organizationId,
+							() => ({
+								code: 'NOT_FOUND',
+								message: 'Configuration not found',
+							}),
+						),
+					);
 
 					return configuration;
 				}),
@@ -369,18 +349,15 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 					}
 
 					// Check configuration exists and belongs to organization
-					const existing = yield* database
-						.getConfiguration(configurationId)
-						.pipe(
-							Effect.filterOrFail(
-								(config): config is Configuration =>
-									config.organizationId === organizationId,
-								() => ({
-									code: 'NOT_FOUND',
-									message: 'Configuration not found',
-								}),
-							),
-						);
+					const existing = yield* database.getConfiguration(configurationId).pipe(
+						Effect.filterOrFail(
+							(config): config is Configuration => config.organizationId === organizationId,
+							() => ({
+								code: 'NOT_FOUND',
+								message: 'Configuration not found',
+							}),
+						),
+					);
 
 					// Update configuration (filter out null values)
 					const updateData: any = {};
@@ -390,16 +367,10 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 						}
 					}
 
-					const updatedConfig = yield* database.updateConfiguration(
-						configurationId,
-						updateData,
-					);
+					const updatedConfig = yield* database.updateConfiguration(configurationId, updateData);
 
 					// Create new version if rules or output format changed
-					if (
-						validationResult.data.rules ||
-						validationResult.data.outputFormat
-					) {
+					if (validationResult.data.rules || validationResult.data.outputFormat) {
 						const newVersion = (existing.version || 1) + 1;
 
 						yield* database.createConfigurationVersion({
@@ -407,8 +378,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 							configurationId,
 							version: newVersion,
 							rules: validationResult.data.rules || existing.rules,
-							outputFormat:
-								validationResult.data.outputFormat || existing.outputFormat,
+							outputFormat: validationResult.data.outputFormat || existing.outputFormat,
 							createdBy: userId,
 						});
 
@@ -461,8 +431,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 					// Check configuration exists and belongs to organization
 					yield* database.getConfiguration(configurationId).pipe(
 						Effect.filterOrFail(
-							(config): config is Configuration =>
-								config.organizationId === organizationId,
+							(config): config is Configuration => config.organizationId === organizationId,
 							() => ({
 								code: 'NOT_FOUND',
 								message: 'Configuration not found',

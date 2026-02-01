@@ -30,9 +30,7 @@ export async function POST(request: NextRequest) {
 		// Convert attemptCounts array to Map if present
 		const configWithMap = {
 			...parsed,
-			attemptCounts: parsed.attemptCounts
-				? new Map(parsed.attemptCounts)
-				: undefined,
+			attemptCounts: parsed.attemptCounts ? new Map(parsed.attemptCounts) : undefined,
 		};
 
 		const config = webhookStore.updateConfig(configWithMap);

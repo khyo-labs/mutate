@@ -6,17 +6,7 @@ import {
 	S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import {
-	Chunk,
-	Context,
-	Duration,
-	Effect,
-	Layer,
-	Schedule,
-	Sink,
-	Stream,
-	pipe,
-} from 'effect';
+import { Chunk, Context, Duration, Effect, Layer, Schedule, Sink, Stream, pipe } from 'effect';
 import { createReadStream, createWriteStream } from 'fs';
 import { mkdir, unlink } from 'fs/promises';
 import { dirname, join } from 'path';
@@ -63,21 +53,13 @@ export class StorageStreamService extends Context.Tag('StorageStreamService')<
 			stream: Stream.Stream<Uint8Array, never, never>,
 			contentType?: string,
 			onProgress?: (progress: UploadProgress) => void,
-		) => Effect.Effect<
-			{ key: string; url: string; size: number },
-			StorageStreamError,
-			never
-		>;
+		) => Effect.Effect<{ key: string; url: string; size: number }, StorageStreamError, never>;
 
 		// Stream-based download with progress
 		readonly downloadStream: (
 			key: string,
 			onProgress?: (progress: DownloadProgress) => void,
-		) => Stream.Stream<
-			Uint8Array,
-			StorageStreamError | StorageNotFoundError,
-			never
-		>;
+		) => Stream.Stream<Uint8Array, StorageStreamError | StorageNotFoundError, never>;
 
 		// Upload from file path with streaming
 		readonly uploadFile: (
@@ -85,11 +67,7 @@ export class StorageStreamService extends Context.Tag('StorageStreamService')<
 			filePath: string,
 			contentType?: string,
 			onProgress?: (progress: UploadProgress) => void,
-		) => Effect.Effect<
-			{ key: string; url: string; size: number },
-			StorageStreamError,
-			never
-		>;
+		) => Effect.Effect<{ key: string; url: string; size: number }, StorageStreamError, never>;
 
 		// Download to file path with streaming
 		readonly downloadFile: (
@@ -105,11 +83,7 @@ export class StorageStreamService extends Context.Tag('StorageStreamService')<
 			contentType?: string,
 			partSize?: number,
 			onProgress?: (progress: UploadProgress) => void,
-		) => Effect.Effect<
-			{ key: string; url: string; size: number },
-			StorageStreamError,
-			never
-		>;
+		) => Effect.Effect<{ key: string; url: string; size: number }, StorageStreamError, never>;
 
 		// Generate presigned URL
 		readonly generatePresignedUrl: (
@@ -118,9 +92,7 @@ export class StorageStreamService extends Context.Tag('StorageStreamService')<
 		) => Effect.Effect<string, StorageStreamError, never>;
 
 		// Check if object exists
-		readonly exists: (
-			key: string,
-		) => Effect.Effect<boolean, StorageStreamError, never>;
+		readonly exists: (key: string) => Effect.Effect<boolean, StorageStreamError, never>;
 
 		// Get object metadata
 		readonly getMetadata: (
@@ -132,9 +104,7 @@ export class StorageStreamService extends Context.Tag('StorageStreamService')<
 		>;
 
 		// Delete object
-		readonly delete: (
-			key: string,
-		) => Effect.Effect<void, StorageStreamError, never>;
+		readonly delete: (key: string) => Effect.Effect<void, StorageStreamError, never>;
 	}
 >() {}
 
@@ -166,9 +136,7 @@ class S3StorageStreamServiceImpl {
 					},
 		);
 
-		this.bucket = isR2
-			? config.CLOUDFLARE_R2_BUCKET!
-			: config.AWS_S3_BUCKET || 'mutate-storage';
+		this.bucket = isR2 ? config.CLOUDFLARE_R2_BUCKET! : config.AWS_S3_BUCKET || 'mutate-storage';
 	}
 
 	uploadStream(
@@ -228,10 +196,7 @@ class S3StorageStreamServiceImpl {
 		});
 	}
 
-	downloadStream(
-		key: string,
-		onProgress?: (progress: DownloadProgress) => void,
-	) {
+	downloadStream(key: string, onProgress?: (progress: DownloadProgress) => void) {
 		const self = this;
 		return Stream.fromEffect(
 			Effect.gen(function* () {
@@ -300,30 +265,24 @@ class S3StorageStreamServiceImpl {
 	) {
 		const self = this;
 		return Effect.gen(function* () {
-			const fileStream = yield* Effect.try(() =>
-				createReadStream(filePath),
-			).pipe(
-				Effect.mapError(
-					(error) => new StorageStreamError('upload', key, error),
-				),
+			const fileStream = yield* Effect.try(() => createReadStream(filePath)).pipe(
+				Effect.mapError((error) => new StorageStreamError('upload', key, error)),
 			);
 
 			const stream = Stream.fromAsyncIterable(
 				fileStream,
 				(error) => new StorageStreamError('upload', key, error),
-			).pipe(
-				Stream.map((chunk: any) => new Uint8Array(chunk)),
-			) as Stream.Stream<Uint8Array, never, never>;
+			).pipe(Stream.map((chunk: any) => new Uint8Array(chunk))) as Stream.Stream<
+				Uint8Array,
+				never,
+				never
+			>;
 
 			return yield* self.uploadStream(key, stream, contentType, onProgress);
 		});
 	}
 
-	downloadFile(
-		key: string,
-		filePath: string,
-		onProgress?: (progress: DownloadProgress) => void,
-	) {
+	downloadFile(key: string, filePath: string, onProgress?: (progress: DownloadProgress) => void) {
 		const self = this;
 		return Effect.gen(function* () {
 			// Ensure directory exists
@@ -332,12 +291,8 @@ class S3StorageStreamServiceImpl {
 				catch: (error) => new StorageStreamError('download', key, error),
 			});
 
-			const writeStream = yield* Effect.try(() =>
-				createWriteStream(filePath),
-			).pipe(
-				Effect.mapError(
-					(error) => new StorageStreamError('download', key, error),
-				),
+			const writeStream = yield* Effect.try(() => createWriteStream(filePath)).pipe(
+				Effect.mapError((error) => new StorageStreamError('download', key, error)),
 			);
 
 			const downloadStream = self.downloadStream(key, onProgress);
@@ -444,12 +399,7 @@ class S3StorageStreamServiceImpl {
 				};
 			},
 			catch: (error) => {
-				if (
-					error &&
-					typeof error === 'object' &&
-					'name' in error &&
-					error.name === 'NotFound'
-				) {
+				if (error && typeof error === 'object' && 'name' in error && error.name === 'NotFound') {
 					return new StorageNotFoundError(key);
 				}
 				return new StorageStreamError('metadata', key, error);
@@ -536,24 +486,14 @@ class LocalStorageStreamServiceImpl {
 		});
 	}
 
-	downloadStream(
-		key: string,
-		onProgress?: (progress: DownloadProgress) => void,
-	) {
+	downloadStream(key: string, onProgress?: (progress: DownloadProgress) => void) {
 		const filePath = join(this.storagePath, key);
 
 		return Stream.fromEffect(
 			Effect.gen(function* () {
-				const readStream = yield* Effect.try(() =>
-					createReadStream(filePath),
-				).pipe(
+				const readStream = yield* Effect.try(() => createReadStream(filePath)).pipe(
 					Effect.mapError((error) => {
-						if (
-							error &&
-							typeof error === 'object' &&
-							'code' in error &&
-							error.code === 'ENOENT'
-						) {
+						if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
 							return new StorageNotFoundError(key);
 						}
 						return new StorageStreamError('download', key, error);
@@ -580,19 +520,17 @@ class LocalStorageStreamServiceImpl {
 			Stream.fromAsyncIterable(
 				createReadStream(filePath),
 				(error) => new StorageStreamError('upload', key, error),
-			).pipe(
-				Stream.map((chunk: any) => new Uint8Array(chunk)),
-			) as Stream.Stream<Uint8Array, never, never>,
+			).pipe(Stream.map((chunk: any) => new Uint8Array(chunk))) as Stream.Stream<
+				Uint8Array,
+				never,
+				never
+			>,
 			contentType,
 			onProgress,
 		);
 	}
 
-	downloadFile(
-		key: string,
-		filePath: string,
-		onProgress?: (progress: DownloadProgress) => void,
-	) {
+	downloadFile(key: string, filePath: string, onProgress?: (progress: DownloadProgress) => void) {
 		const sourcePath = join(this.storagePath, key);
 		return Effect.gen(function* () {
 			yield* Effect.tryPromise({
@@ -606,12 +544,7 @@ class LocalStorageStreamServiceImpl {
 			yield* Effect.tryPromise({
 				try: () => pipeline(readStream, writeStream),
 				catch: (error) => {
-					if (
-						error &&
-						typeof error === 'object' &&
-						'code' in error &&
-						error.code === 'ENOENT'
-					) {
+					if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
 						return new StorageNotFoundError(key);
 					}
 					return new StorageStreamError('download', key, error);
@@ -661,12 +594,7 @@ class LocalStorageStreamServiceImpl {
 				};
 			},
 			catch: (error) => {
-				if (
-					error &&
-					typeof error === 'object' &&
-					'code' in error &&
-					error.code === 'ENOENT'
-				) {
+				if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
 					return new StorageNotFoundError(key);
 				}
 				return new StorageStreamError('metadata', key, error);
@@ -692,21 +620,15 @@ const createStorageServiceWithRetry = (impl: any) => {
 
 	return StorageStreamService.of({
 		uploadStream: (key, stream, contentType, onProgress) =>
-			impl
-				.uploadStream(key, stream, contentType, onProgress)
-				.pipe(Effect.retry(retrySchedule)),
+			impl.uploadStream(key, stream, contentType, onProgress).pipe(Effect.retry(retrySchedule)),
 
 		downloadStream: (key, onProgress) => impl.downloadStream(key, onProgress),
 
 		uploadFile: (key, filePath, contentType, onProgress) =>
-			impl
-				.uploadFile(key, filePath, contentType, onProgress)
-				.pipe(Effect.retry(retrySchedule)),
+			impl.uploadFile(key, filePath, contentType, onProgress).pipe(Effect.retry(retrySchedule)),
 
 		downloadFile: (key, filePath, onProgress) =>
-			impl
-				.downloadFile(key, filePath, onProgress)
-				.pipe(Effect.retry(retrySchedule)),
+			impl.downloadFile(key, filePath, onProgress).pipe(Effect.retry(retrySchedule)),
 
 		uploadLarge: (key, stream, contentType, partSize, onProgress) =>
 			impl
@@ -714,9 +636,7 @@ const createStorageServiceWithRetry = (impl: any) => {
 				.pipe(Effect.retry(retrySchedule)),
 
 		generatePresignedUrl: (key, expiresInSeconds) =>
-			impl
-				.generatePresignedUrl(key, expiresInSeconds)
-				.pipe(Effect.retry(retrySchedule)),
+			impl.generatePresignedUrl(key, expiresInSeconds).pipe(Effect.retry(retrySchedule)),
 
 		exists: (key) => impl.exists(key),
 
@@ -737,11 +657,7 @@ export const StorageStreamServiceLive = Layer.succeed(
 );
 
 // Helper functions for common operations
-export const uploadWithProgress = (
-	key: string,
-	data: Buffer,
-	contentType?: string,
-) =>
+export const uploadWithProgress = (key: string, data: Buffer, contentType?: string) =>
 	Effect.gen(function* () {
 		const storage = yield* StorageStreamService;
 		const stream = Stream.make(new Uint8Array(data));

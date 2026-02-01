@@ -69,8 +69,7 @@ export async function billingRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			const subscription =
-				await subscriptionService.getOrganizationSubscription(organizationId);
+			const subscription = await subscriptionService.getOrganizationSubscription(organizationId);
 
 			if (!subscription) {
 				// Auto-assign default plan if none exists
@@ -124,8 +123,7 @@ export async function billingRoutes(fastify: FastifyInstance) {
 			}
 
 			await subscriptionService.upgradePlan(organizationId, planId);
-			const subscription =
-				await subscriptionService.getOrganizationSubscription(organizationId);
+			const subscription = await subscriptionService.getOrganizationSubscription(organizationId);
 
 			return {
 				success: true,

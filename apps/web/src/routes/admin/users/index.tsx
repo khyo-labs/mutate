@@ -202,9 +202,7 @@ function UserManagement() {
 			case 'email':
 				return a.email.localeCompare(b.email);
 			case 'created':
-				return (
-					new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-				);
+				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 			case 'activity':
 				return (
 					new Date(b.lastLoginAt || b.createdAt).getTime() -
@@ -240,9 +238,7 @@ function UserManagement() {
 		<div className="space-y-6">
 			<div>
 				<h2 className="text-2xl font-bold">User Management</h2>
-				<p className="text-muted-foreground">
-					Manage all users across the platform
-				</p>
+				<p className="text-muted-foreground">Manage all users across the platform</p>
 			</div>
 
 			{/* Statistics Cards */}
@@ -254,9 +250,7 @@ function UserManagement() {
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">{stats.total}</div>
-						<p className="text-muted-foreground text-xs">
-							All registered users
-						</p>
+						<p className="text-muted-foreground text-xs">All registered users</p>
 					</CardContent>
 				</Card>
 
@@ -301,11 +295,7 @@ function UserManagement() {
 						<CardTitle>All Users</CardTitle>
 						<div className="flex gap-2">
 							{selectedUsers.length > 0 && (
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setShowBulkAction(true)}
-								>
+								<Button variant="outline" size="sm" onClick={() => setShowBulkAction(true)}>
 									<Mail className="mr-2 h-4 w-4" />
 									Message ({selectedUsers.length})
 								</Button>
@@ -320,7 +310,7 @@ function UserManagement() {
 				<CardContent>
 					<div className="mb-4 flex flex-wrap gap-2">
 						<div className="relative flex-1">
-							<Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
+							<Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
 							<Input
 								placeholder="Search users..."
 								value={searchTerm}
@@ -376,8 +366,7 @@ function UserManagement() {
 												}
 											}}
 											checked={
-												selectedUsers.length === sortedUsers.length &&
-												sortedUsers.length > 0
+												selectedUsers.length === sortedUsers.length && sortedUsers.length > 0
 											}
 										/>
 									</TableHead>
@@ -400,9 +389,7 @@ function UserManagement() {
 													if (e.target.checked) {
 														setSelectedUsers([...selectedUsers, user.id]);
 													} else {
-														setSelectedUsers(
-															selectedUsers.filter((id) => id !== user.id),
-														);
+														setSelectedUsers(selectedUsers.filter((id) => id !== user.id));
 													}
 												}}
 											/>
@@ -410,11 +397,7 @@ function UserManagement() {
 										<TableCell>
 											<div className="flex items-center gap-2">
 												{user.image ? (
-													<img
-														src={user.image}
-														alt={user.name}
-														className="h-8 w-8 rounded-full"
-													/>
+													<img src={user.image} alt={user.name} className="h-8 w-8 rounded-full" />
 												) : (
 													<div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
 														<User className="h-4 w-4" />
@@ -451,8 +434,7 @@ function UserManagement() {
 												}
 											>
 												{user.lastLoginAt &&
-												new Date(user.lastLoginAt) >
-													new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+												new Date(user.lastLoginAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 													? 'Active'
 													: 'Inactive'}
 											</Badge>
@@ -460,9 +442,7 @@ function UserManagement() {
 										<TableCell>
 											<div className="flex items-center gap-1">
 												<Users className="h-3 w-3" />
-												<span className="text-sm">
-													{user.workspaces.length}
-												</span>
+												<span className="text-sm">{user.workspaces.length}</span>
 											</div>
 										</TableCell>
 										<TableCell>
@@ -489,22 +469,16 @@ function UserManagement() {
 														<User className="mr-2 h-4 w-4" />
 														View Details
 													</DropdownMenuItem>
-													<DropdownMenuItem
-														onClick={() => impersonateUser(user.id)}
-													>
+													<DropdownMenuItem onClick={() => impersonateUser(user.id)}>
 														<Key className="mr-2 h-4 w-4" />
 														Impersonate
 													</DropdownMenuItem>
-													<DropdownMenuItem
-														onClick={() => resetPassword(user.id)}
-													>
+													<DropdownMenuItem onClick={() => resetPassword(user.id)}>
 														<RefreshCw className="mr-2 h-4 w-4" />
 														Reset Password
 													</DropdownMenuItem>
 													{!user.emailVerified && (
-														<DropdownMenuItem
-															onClick={() => verifyEmail(user.id)}
-														>
+														<DropdownMenuItem onClick={() => verifyEmail(user.id)}>
 															<CheckCircle className="mr-2 h-4 w-4" />
 															Verify Email
 														</DropdownMenuItem>
@@ -564,15 +538,11 @@ function UserManagement() {
 								</div>
 								<div>
 									<Label>Joined</Label>
-									<p className="text-sm">
-										{new Date(selectedUser.createdAt).toLocaleString()}
-									</p>
+									<p className="text-sm">{new Date(selectedUser.createdAt).toLocaleString()}</p>
 								</div>
 								<div>
 									<Label>Email Verified</Label>
-									<p className="text-sm">
-										{selectedUser.emailVerified ? 'Yes' : 'No'}
-									</p>
+									<p className="text-sm">{selectedUser.emailVerified ? 'Yes' : 'No'}</p>
 								</div>
 								<div>
 									<Label>Last Login</Label>
@@ -595,8 +565,7 @@ function UserManagement() {
 											<div>
 												<p className="font-medium">{workspace.name}</p>
 												<p className="text-muted-foreground text-xs">
-													Joined{' '}
-													{new Date(workspace.joinedAt).toLocaleDateString()}
+													Joined {new Date(workspace.joinedAt).toLocaleDateString()}
 												</p>
 											</div>
 											<Badge>{workspace.role}</Badge>

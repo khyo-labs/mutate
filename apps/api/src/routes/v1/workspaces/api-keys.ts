@@ -22,11 +22,7 @@ const createApiKeySchema = z.object({
 });
 
 const updateApiKeySchema = z.object({
-	name: z
-		.string()
-		.min(1, 'Name is required')
-		.max(255, 'Name too long')
-		.optional(),
+	name: z.string().min(1, 'Name is required').max(255, 'Name too long').optional(),
 	permissions: z.array(z.string()).optional(),
 	expiresAt: z
 		.string()
@@ -37,9 +33,7 @@ const updateApiKeySchema = z.object({
 
 function generateApiKey(): string {
 	const randomBytes = crypto.getRandomValues(new Uint8Array(32));
-	const key = Array.from(randomBytes, (byte) =>
-		byte.toString(16).padStart(2, '0'),
-	).join('');
+	const key = Array.from(randomBytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 	return `mt_${key}`;
 }
 
@@ -189,9 +183,7 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 				const [updatedKey] = await db
 					.update(apiKeys)
 					.set(validationResult.data)
-					.where(
-						and(eq(apiKeys.id, id), eq(apiKeys.organizationId, organizationId)),
-					)
+					.where(and(eq(apiKeys.id, id), eq(apiKeys.organizationId, organizationId)))
 					.returning({
 						id: apiKeys.id,
 						name: apiKeys.name,
@@ -241,9 +233,7 @@ export async function apiKeyRoutes(fastify: FastifyInstance) {
 
 				const [deletedKey] = await db
 					.delete(apiKeys)
-					.where(
-						and(eq(apiKeys.id, id), eq(apiKeys.organizationId, organizationId)),
-					)
+					.where(and(eq(apiKeys.id, id), eq(apiKeys.organizationId, organizationId)))
 					.returning({ id: apiKeys.id });
 
 				if (!deletedKey) {

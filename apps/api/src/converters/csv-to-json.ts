@@ -12,8 +12,7 @@ function detectDelimiter(csvText: string): string {
 	let detectedDelimiter = ',';
 
 	for (const delimiter of delimiters) {
-		const count = (firstLine.match(new RegExp(`\\${delimiter}`, 'g')) || [])
-			.length;
+		const count = (firstLine.match(new RegExp(`\\${delimiter}`, 'g')) || []).length;
 		if (count > maxCount) {
 			maxCount = count;
 			detectedDelimiter = delimiter;
@@ -48,8 +47,7 @@ function parseCsvToJson(csvText: string, delimiter: string): any[] {
 }
 
 export const csvToJsonConverter: Converter = {
-	supports: (input: string, output: string) =>
-		input === 'csv' && output === 'json',
+	supports: (input: string, output: string) => input === 'csv' && output === 'json',
 
 	convert: (file: Buffer, config?: Configuration) =>
 		Effect.tryPromise({
@@ -60,8 +58,7 @@ export const csvToJsonConverter: Converter = {
 
 				return jsonData;
 			},
-			catch: (error) =>
-				new Error(`CSV to JSON conversion failed: ${String(error)}`),
+			catch: (error) => new Error(`CSV to JSON conversion failed: ${String(error)}`),
 		}),
 
 	metadata: {

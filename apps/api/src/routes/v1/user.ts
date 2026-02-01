@@ -38,10 +38,7 @@ export async function userRoutes(fastify: FastifyInstance) {
 		try {
 			const body = updateUserSchema.parse(request.body);
 
-			const updatedUser = await UserService.updateUser(
-				request.currentUser.id,
-				body,
-			);
+			const updatedUser = await UserService.updateUser(request.currentUser.id, body);
 
 			return reply.send({
 				success: true,

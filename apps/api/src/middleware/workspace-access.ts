@@ -6,10 +6,7 @@ import { member, organization } from '@/db/schema.js';
 import '@/types/fastify.js';
 import { logError } from '@/utils/logger.js';
 
-export async function validateWorkspaceAccess(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function validateWorkspaceAccess(request: FastifyRequest, reply: FastifyReply) {
 	try {
 		const { workspaceId } = request.params as { workspaceId: string };
 
@@ -54,12 +51,7 @@ export async function validateWorkspaceAccess(
 		const [membership] = await db
 			.select()
 			.from(member)
-			.where(
-				and(
-					eq(member.organizationId, workspaceId),
-					eq(member.userId, request.currentUser.id),
-				),
-			)
+			.where(and(eq(member.organizationId, workspaceId), eq(member.userId, request.currentUser.id)))
 			.limit(1);
 
 		if (!membership) {

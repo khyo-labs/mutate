@@ -2,10 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import '../types/fastify.js';
 
-export async function validateWorkspaceAdmin(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function validateWorkspaceAdmin(request: FastifyRequest, reply: FastifyReply) {
 	if (!request.workspace) {
 		// This should have been set by the validateWorkspaceAccess middleware
 		return reply.status(500).send({

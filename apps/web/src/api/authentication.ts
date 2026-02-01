@@ -46,9 +46,7 @@ export const authApi = {
 	},
 
 	me: async (): Promise<User> => {
-		const response = await api.get<{ success: boolean; data: User }>(
-			'/v1/user/me',
-		);
+		const response = await api.get<{ success: boolean; data: User }>('/v1/user/me');
 		return response.data;
 	},
 

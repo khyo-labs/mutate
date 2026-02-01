@@ -19,11 +19,7 @@ export class FileReadError extends ConversionError {
 }
 
 export class WorksheetNotFoundError extends ConversionError {
-	constructor(
-		worksheetName: string,
-		availableSheets: string[],
-		details?: Record<string, any>,
-	) {
+	constructor(worksheetName: string, availableSheets: string[], details?: Record<string, any>) {
 		super(
 			'WORKSHEET_NOT_FOUND',
 			`Worksheet "${worksheetName}" not found. Available worksheets: ${availableSheets.join(', ')}`,
@@ -34,11 +30,7 @@ export class WorksheetNotFoundError extends ConversionError {
 }
 
 export class RuleValidationError extends ConversionError {
-	constructor(
-		ruleType: string,
-		message: string,
-		details?: Record<string, any>,
-	) {
+	constructor(ruleType: string, message: string, details?: Record<string, any>) {
 		super('RULE_VALIDATION_ERROR', message, { ruleType, ...details });
 		this.name = 'RuleValidationError';
 	}
@@ -95,11 +87,7 @@ export class CellOperationError extends ConversionError {
 }
 
 export class EncodingError extends ConversionError {
-	constructor(
-		encoding: string,
-		message: string,
-		details?: Record<string, any>,
-	) {
+	constructor(encoding: string, message: string, details?: Record<string, any>) {
 		super('ENCODING_ERROR', `Encoding error with ${encoding}: ${message}`, {
 			encoding,
 			...details,

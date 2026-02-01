@@ -38,8 +38,7 @@ const integrations: Integration[] = [
 	{
 		id: 'aws-s3',
 		name: 'AWS S3',
-		description:
-			'Store and retrieve transformed files directly from S3 buckets',
+		description: 'Store and retrieve transformed files directly from S3 buckets',
 		icon: Cloud,
 		category: 'storage',
 		status: 'connected',
@@ -133,11 +132,7 @@ function IntegrationCard({ integration }: { integration: Integration }) {
 	const isComingSoon = integration.status === 'coming_soon';
 
 	return (
-		<Card
-			className={
-				isComingSoon ? 'opacity-60' : isConnected ? 'border-green-200' : ''
-			}
-		>
+		<Card className={isComingSoon ? 'opacity-60' : isConnected ? 'border-green-200' : ''}>
 			<CardHeader>
 				<div className="flex items-start justify-between">
 					<div className="flex items-center gap-3">
@@ -149,10 +144,7 @@ function IntegrationCard({ integration }: { integration: Integration }) {
 						<div>
 							<CardTitle className="text-base">{integration.name}</CardTitle>
 							{isConnected && (
-								<Badge
-									variant="outline"
-									className="mt-1 border-green-600 text-green-600"
-								>
+								<Badge variant="outline" className="mt-1 border-green-600 text-green-600">
 									<CheckCircle className="mr-1 h-3 w-3" />
 									Connected
 								</Badge>
@@ -164,25 +156,15 @@ function IntegrationCard({ integration }: { integration: Integration }) {
 							)}
 						</div>
 					</div>
-					{isConnected && (
-						<Switch
-							defaultChecked
-							className="data-[state=checked]:bg-green-600"
-						/>
-					)}
+					{isConnected && <Switch defaultChecked className="data-[state=checked]:bg-green-600" />}
 				</div>
 			</CardHeader>
 			<CardContent className="space-y-4">
-				<p className="text-muted-foreground text-sm">
-					{integration.description}
-				</p>
+				<p className="text-muted-foreground text-sm">{integration.description}</p>
 				{integration.features && (
 					<ul className="space-y-1">
 						{integration.features.map((feature) => (
-							<li
-								key={feature}
-								className="text-muted-foreground flex items-center text-xs"
-							>
+							<li key={feature} className="text-muted-foreground flex items-center text-xs">
 								<CheckCircle className="mr-2 h-3 w-3 text-green-600" />
 								{feature}
 							</li>
@@ -209,15 +191,9 @@ function IntegrationsComponent() {
 		return null;
 	}
 
-	const connectedIntegrations = integrations.filter(
-		(i) => i.status === 'connected',
-	);
-	const availableIntegrations = integrations.filter(
-		(i) => i.status === 'available',
-	);
-	const comingSoonIntegrations = integrations.filter(
-		(i) => i.status === 'coming_soon',
-	);
+	const connectedIntegrations = integrations.filter((i) => i.status === 'connected');
+	const availableIntegrations = integrations.filter((i) => i.status === 'available');
+	const comingSoonIntegrations = integrations.filter((i) => i.status === 'coming_soon');
 
 	return (
 		<div className="space-y-6">
@@ -231,12 +207,9 @@ function IntegrationsComponent() {
 					<div className="flex items-center gap-3">
 						<Link className="h-5 w-5 text-green-600" />
 						<div>
-							<p className="font-medium">
-								{connectedIntegrations.length} Active Integrations
-							</p>
+							<p className="font-medium">{connectedIntegrations.length} Active Integrations</p>
 							<p className="text-muted-foreground text-sm">
-								Your workspace is connected to {connectedIntegrations.length}{' '}
-								services
+								Your workspace is connected to {connectedIntegrations.length} services
 							</p>
 						</div>
 					</div>
@@ -282,8 +255,7 @@ function IntegrationsComponent() {
 					<Zap className="text-muted-foreground mb-4 h-12 w-12" />
 					<h3 className="mb-2 font-semibold">Request an Integration</h3>
 					<p className="text-muted-foreground mb-4 max-w-sm text-sm">
-						Don't see the integration you need? Let us know and we'll consider
-						adding it.
+						Don't see the integration you need? Let us know and we'll consider adding it.
 					</p>
 					<Button>Request Integration</Button>
 				</CardContent>

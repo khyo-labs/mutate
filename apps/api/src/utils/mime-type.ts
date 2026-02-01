@@ -22,14 +22,9 @@ export function getFileExtension(mimeType: string): string | null {
 	return null;
 }
 
-export function validateMimeType(
-	mimeType: string,
-	expectedType: string,
-): boolean {
+export function validateMimeType(mimeType: string, expectedType: string): boolean {
 	const validMimeTypes = getMimeTypes(expectedType);
-	return validMimeTypes.some((valid) =>
-		mimeType.toLowerCase().includes(valid.toLowerCase()),
-	);
+	return validMimeTypes.some((valid) => mimeType.toLowerCase().includes(valid.toLowerCase()));
 }
 
 export function getOutputMimeType(outputFormat: string): string {

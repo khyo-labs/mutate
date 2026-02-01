@@ -1,13 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { formatDistanceToNow } from 'date-fns';
-import {
-	ArrowRight,
-	Clock,
-	GitBranch,
-	MoreVertical,
-	Play,
-	Sparkles,
-} from 'lucide-react';
+import { ArrowRight, Clock, GitBranch, MoreVertical, Play, Sparkles } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -46,9 +39,7 @@ export function MutationsList() {
 				<div className="bg-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
 					<Sparkles className="text-muted-foreground h-8 w-8" />
 				</div>
-				<h3 className="text-foreground mb-1 font-semibold">
-					No pipelines yet
-				</h3>
+				<h3 className="text-foreground mb-1 font-semibold">No pipelines yet</h3>
 				<p className="text-muted-foreground mx-auto mb-4 max-w-xs text-sm">
 					Create your first mutation pipeline to start transforming data
 				</p>
@@ -77,9 +68,7 @@ export function MutationsList() {
 						>
 							<GitBranch
 								className={`h-4 w-4 ${
-									mutation.isActive
-										? 'text-emerald-500'
-										: 'text-muted-foreground'
+									mutation.isActive ? 'text-emerald-500' : 'text-muted-foreground'
 								}`}
 							/>
 						</div>
@@ -114,10 +103,7 @@ export function MutationsList() {
 					</div>
 
 					<div className="flex shrink-0 items-center gap-1">
-						<Link
-							to="/mutations/$mutationId"
-							params={{ mutationId: mutation.id }}
-						>
+						<Link to="/mutations/$mutationId" params={{ mutationId: mutation.id }}>
 							<Button size="sm" variant="ghost" className="h-8 gap-1.5">
 								<Play className="h-3.5 w-3.5" />
 								Run
@@ -130,16 +116,10 @@ export function MutationsList() {
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end" className="w-40">
-								<Link
-									to="/mutations/$mutationId/edit"
-									params={{ mutationId: mutation.id }}
-								>
+								<Link to="/mutations/$mutationId/edit" params={{ mutationId: mutation.id }}>
 									<DropdownMenuItem>Edit Pipeline</DropdownMenuItem>
 								</Link>
-								<Link
-									to="/mutations/$mutationId"
-									params={{ mutationId: mutation.id }}
-								>
+								<Link to="/mutations/$mutationId" params={{ mutationId: mutation.id }}>
 									<DropdownMenuItem>View Stats</DropdownMenuItem>
 								</Link>
 								<DropdownMenuItem className="text-destructive focus:text-destructive">

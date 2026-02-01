@@ -30,9 +30,7 @@ export class MutationService {
 	): Promise<MutationResult> {
 		this.log = [];
 		this.selectedSheetsHistory = [];
-		this.addLog(
-			`Starting transformation with configuration: ${configuration.name}`,
-		);
+		this.addLog(`Starting transformation with configuration: ${configuration.name}`);
 
 		try {
 			const workbook = XLSX.read(fileBuffer, {
@@ -70,15 +68,9 @@ export class MutationService {
 
 			for (let i = 0; i < configuration.rules.length; i++) {
 				const rule = configuration.rules[i];
-				this.addLog(
-					`Applying rule ${i + 1}/${configuration.rules.length}: ${rule.type}`,
-				);
+				this.addLog(`Applying rule ${i + 1}/${configuration.rules.length}: ${rule.type}`);
 
-				const result = await this.applyRule(
-					currentWorkbook,
-					rule,
-					selectedSheet,
-				);
+				const result = await this.applyRule(currentWorkbook, rule, selectedSheet);
 
 				if (!result.success) {
 					this.addLog(`Rule failed: ${result.error}`);
@@ -109,16 +101,10 @@ export class MutationService {
 
 			this.addLog(`Converting sheet "${sheetName}" to CSV`);
 
-			const csvData = XLSX.utils.sheet_to_csv(
-				currentWorkbook.Sheets[sheetName],
-				{
-					blankrows: false,
-					FS:
-						configuration.outputFormat.type === 'CSV'
-							? configuration.outputFormat.delimiter
-							: ',',
-				},
-			);
+			const csvData = XLSX.utils.sheet_to_csv(currentWorkbook.Sheets[sheetName], {
+				blankrows: false,
+				FS: configuration.outputFormat.type === 'CSV' ? configuration.outputFormat.delimiter : ',',
+			});
 
 			this.addLog(
 				`Transformation completed successfully. Output size: ${csvData.length} characters`,
@@ -130,8 +116,7 @@ export class MutationService {
 				executionLog: this.log,
 			};
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : 'Unknown error';
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			this.addLog(`Transformation failed: ${errorMessage}`);
 			return {
 				success: false,
@@ -183,10 +168,7 @@ export class MutationService {
 		} catch (error) {
 			return {
 				success: false,
-				error:
-					error instanceof Error
-						? error.message
-						: 'Unknown error applying rule',
+				error: error instanceof Error ? error.message : 'Unknown error applying rule',
 			};
 		}
 	}
@@ -231,8 +213,7 @@ export class MutationService {
 
 			case 'pattern':
 				const regex = new RegExp(params.value, 'i');
-				targetSheet =
-					workbook.SheetNames.find((name) => regex.test(name)) || null;
+				targetSheet = workbook.SheetNames.find((name) => regex.test(name)) || null;
 				break;
 		}
 
@@ -241,9 +222,7 @@ export class MutationService {
 			this.addLog(
 				`WARNING: No worksheet found matching ${params.type}: "${params.value}". Available worksheets: ${workbook.SheetNames.join(', ')}`,
 			);
-			this.addLog(
-				`Falling back to first available worksheet: "${workbook.SheetNames[0]}"`,
-			);
+			this.addLog(`Falling back to first available worksheet: "${workbook.SheetNames[0]}"`);
 			targetSheet = workbook.SheetNames[0];
 		}
 
@@ -283,9 +262,7 @@ export class MutationService {
 		const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
 		const actualColumns = range.e.c + 1; // +1 because columns are 0-indexed
 
-		this.addLog(
-			`Validating columns. Expected: ${params.numOfColumns}, Actual: ${actualColumns}`,
-		);
+		this.addLog(`Validating columns. Expected: ${params.numOfColumns}, Actual: ${actualColumns}`);
 
 		if (actualColumns !== params.numOfColumns) {
 			const message = `Column count mismatch. Expected ${params.numOfColumns}, found ${actualColumns}`;
@@ -444,11 +421,7 @@ export class MutationService {
 						} else {
 							// Check if entire row is empty
 							let hasContent = false;
-							for (
-								let colIndex = range.s.c;
-								colIndex <= range.e.c;
-								colIndex++
-							) {
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 								const cellAddr = XLSX.utils.encode_cell({
 									c: colIndex,
 									r: rowIndex,
@@ -461,10 +434,7 @@ export class MutationService {
 							}
 							shouldDelete = !hasContent;
 						}
-					} else if (
-						params.condition.type === 'contains' &&
-						params.condition.value
-					) {
+					} else if (params.condition.type === 'contains' && params.condition.value) {
 						if (params.condition.column) {
 							// Check specific column
 							const colIndex = XLSX.utils.decode_col(params.condition.column);
@@ -474,36 +444,23 @@ export class MutationService {
 							});
 							const cell = worksheet[cellAddr];
 							const cellValue = cell && cell.v ? String(cell.v) : '';
-							shouldDelete = cellValue
-								.toLowerCase()
-								.includes(params.condition.value.toLowerCase());
+							shouldDelete = cellValue.toLowerCase().includes(params.condition.value.toLowerCase());
 						} else {
 							// Check any column in the row
-							for (
-								let colIndex = range.s.c;
-								colIndex <= range.e.c;
-								colIndex++
-							) {
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 								const cellAddr = XLSX.utils.encode_cell({
 									c: colIndex,
 									r: rowIndex,
 								});
 								const cell = worksheet[cellAddr];
 								const cellValue = cell && cell.v ? String(cell.v) : '';
-								if (
-									cellValue
-										.toLowerCase()
-										.includes(params.condition.value.toLowerCase())
-								) {
+								if (cellValue.toLowerCase().includes(params.condition.value.toLowerCase())) {
 									shouldDelete = true;
 									break;
 								}
 							}
 						}
-					} else if (
-						params.condition.type === 'pattern' &&
-						params.condition.value
-					) {
+					} else if (params.condition.type === 'pattern' && params.condition.value) {
 						const regex = new RegExp(params.condition.value, 'i');
 						if (params.condition.column) {
 							// Check specific column
@@ -517,11 +474,7 @@ export class MutationService {
 							shouldDelete = regex.test(cellValue);
 						} else {
 							// Check any column in the row
-							for (
-								let colIndex = range.s.c;
-								colIndex <= range.e.c;
-								colIndex++
-							) {
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 								const cellAddr = XLSX.utils.encode_cell({
 									c: colIndex,
 									r: rowIndex,
@@ -651,21 +604,17 @@ export class MutationService {
 				.sort((a, b) => a - b);
 
 			if (toDelete.length === 0) {
-				this.addLog(
-					'DELETE_COLUMNS: Specified columns are outside current range, skipping',
-				);
+				this.addLog('DELETE_COLUMNS: Specified columns are outside current range, skipping');
 				return { success: true, workbook };
 			}
 
-			const countDeletedBefore = (c: number) =>
-				toDelete.filter((d) => d < c).length;
+			const countDeletedBefore = (c: number) => toDelete.filter((d) => d < c).length;
 
 			const newSheet: XLSX.WorkSheet = {} as any;
 			// Copy known properties if present
 			const props = ['!merges', '!cols', '!rows', '!protect', '!autofilter'];
 			for (const p of props)
-				if ((worksheet as any)[p] !== undefined)
-					(newSheet as any)[p] = (worksheet as any)[p];
+				if ((worksheet as any)[p] !== undefined) (newSheet as any)[p] = (worksheet as any)[p];
 
 			// Remap all cell addresses except metadata keys starting with '!'
 			Object.keys(worksheet)
@@ -726,8 +675,7 @@ export class MutationService {
 			return {
 				success: false,
 				workbook,
-				error:
-					'No source sheets provided and no prior SELECT_WORKSHEET selections found',
+				error: 'No source sheets provided and no prior SELECT_WORKSHEET selections found',
 			};
 		}
 
@@ -776,9 +724,7 @@ export class MutationService {
 
 				const headerSet = new Set<string>();
 				sheetsData.forEach((rows) => {
-					rows.forEach((row) =>
-						Object.keys(row).forEach((h) => headerSet.add(h)),
-					);
+					rows.forEach((row) => Object.keys(row).forEach((h) => headerSet.add(h)));
 				});
 				const headers = Array.from(headerSet);
 
@@ -804,10 +750,7 @@ export class MutationService {
 			return {
 				success: false,
 				workbook,
-				error:
-					error instanceof Error
-						? error.message
-						: 'Failed to combine worksheets',
+				error: error instanceof Error ? error.message : 'Failed to combine worksheets',
 			};
 		}
 	}

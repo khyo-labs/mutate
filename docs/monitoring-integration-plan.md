@@ -151,12 +151,8 @@ import { Client } from 'pg';
 
 interface MetricStorageService {
 	writeMetric: (metric: MetricData) => Effect.Effect<void, StorageError>;
-	queryMetrics: (
-		query: MetricQuery,
-	) => Effect.Effect<MetricResult[], StorageError>;
-	aggregateMetrics: (
-		params: AggregationParams,
-	) => Effect.Effect<AggregatedMetric[], StorageError>;
+	queryMetrics: (query: MetricQuery) => Effect.Effect<MetricResult[], StorageError>;
+	aggregateMetrics: (params: AggregationParams) => Effect.Effect<AggregatedMetric[], StorageError>;
 }
 
 export const MetricStorageService = Context.GenericTag<MetricStorageService>(
@@ -218,13 +214,7 @@ export class TimescaleMetricStorage implements MetricStorageService {
 				await this.client.query(
 					`INSERT INTO metrics (time, name, value, labels, type)
            VALUES ($1, $2, $3, $4, $5)`,
-					[
-						metric.timestamp,
-						metric.name,
-						metric.value,
-						metric.labels,
-						metric.type,
-					],
+					[metric.timestamp, metric.name, metric.value, metric.labels, metric.type],
 				);
 			},
 			catch: (error) => new StorageError({ cause: error }),
@@ -263,13 +253,7 @@ export class TimescaleMetricStorage implements MetricStorageService {
 	aggregateMetrics(params: AggregationParams) {
 		return Effect.tryPromise({
 			try: async () => {
-				const {
-					name,
-					interval,
-					startTime,
-					endTime,
-					aggregation = 'avg',
-				} = params;
+				const { name, interval, startTime, endTime, aggregation = 'avg' } = params;
 
 				const sql = `
           SELECT
@@ -284,12 +268,7 @@ export class TimescaleMetricStorage implements MetricStorageService {
           ORDER BY bucket DESC
         `;
 
-				const result = await this.client.query(sql, [
-					interval,
-					name,
-					startTime,
-					endTime,
-				]);
+				const result = await this.client.query(sql, [interval, name, startTime, endTime]);
 
 				return result.rows;
 			},
@@ -303,11 +282,7 @@ export class TimescaleMetricStorage implements MetricStorageService {
 
 ```typescript
 // packages/core/src/telemetry/storage/trace-storage.ts
-import {
-	GetObjectCommand,
-	PutObjectCommand,
-	S3Client,
-} from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Effect } from 'effect';
 
 export class S3TraceStorage {
@@ -446,9 +421,7 @@ export class MetricAggregator {
 	private startFlushTimer() {
 		Effect.gen(
 			function* () {
-				yield* this.flush().pipe(
-					Effect.repeat(Schedule.fixed(this.flushInterval)),
-				);
+				yield* this.flush().pipe(Effect.repeat(Schedule.fixed(this.flushInterval)));
 			}.bind(this),
 		).pipe(Effect.forkDaemon, Effect.runSync);
 	}
@@ -549,10 +522,7 @@ import { Effect, Ref, Schedule } from 'effect';
 
 interface ConfigSource {
 	get: (key: string) => Effect.Effect<ConfigValue, ConfigError>;
-	watch: (
-		key: string,
-		callback: (value: ConfigValue) => void,
-	) => Effect.Effect<void, ConfigError>;
+	watch: (key: string, callback: (value: ConfigValue) => void) => Effect.Effect<void, ConfigError>;
 }
 
 export class DynamicConfigService {
@@ -618,19 +588,13 @@ export class DynamicConfigService {
 		Effect.gen(
 			function* () {
 				// Refresh all cached configs periodically
-				const keys = yield* Ref.get(this.cache).pipe(
-					Effect.map((map) => Array.from(map.keys())),
-				);
+				const keys = yield* Ref.get(this.cache).pipe(Effect.map((map) => Array.from(map.keys())));
 
 				for (const key of keys) {
 					yield* this.get(key, null);
 				}
 			}.bind(this),
-		).pipe(
-			Effect.repeat(Schedule.fixed(Duration.minutes(1))),
-			Effect.forkDaemon,
-			Effect.runSync,
-		);
+		).pipe(Effect.repeat(Schedule.fixed(Duration.minutes(1))), Effect.forkDaemon, Effect.runSync);
 	}
 }
 

@@ -35,9 +35,7 @@ function StatCard({
 				<CardAction>
 					<Icon className="text-muted-foreground h-4 w-4" />
 				</CardAction>
-				<CardTitle className="text-2xl font-bold tabular-nums">
-					{value}
-				</CardTitle>
+				<CardTitle className="text-2xl font-bold tabular-nums">{value}</CardTitle>
 			</CardHeader>
 		</Card>
 	);
@@ -57,21 +55,9 @@ export function Dashboard() {
 		<div className="space-y-6">
 			<div className="grid gap-4 lg:grid-cols-4">
 				<div className="grid gap-4 sm:grid-cols-3 lg:col-span-3">
-					<StatCard
-						label="Total Mutations"
-						value={mutations.length}
-						icon={Sparkles}
-					/>
-					<StatCard
-						label="Active Mutations"
-						value={activeMutations}
-						icon={Activity}
-					/>
-					<StatCard
-						label="This Month"
-						value={monthlyUsage.toLocaleString()}
-						icon={Zap}
-					/>
+					<StatCard label="Total Mutations" value={mutations.length} icon={Sparkles} />
+					<StatCard label="Active Mutations" value={activeMutations} icon={Activity} />
+					<StatCard label="This Month" value={monthlyUsage.toLocaleString()} icon={Zap} />
 				</div>
 				<QuotaCard />
 			</div>

@@ -97,9 +97,7 @@ describe('healthRoutes', () => {
 
 	it('handles redis connection failures', async () => {
 		const { redis } = await import('../../../services/queue.js');
-		(redis.ping as unknown as Mock).mockRejectedValueOnce(
-			new Error('redis down'),
-		);
+		(redis.ping as unknown as Mock).mockRejectedValueOnce(new Error('redis down'));
 
 		const app = Fastify();
 		await app.register(healthRoutes, { prefix: '/health' });
@@ -129,9 +127,7 @@ describe('healthRoutes', () => {
 			paused: 0,
 		};
 		const { transformationQueue } = await import('../../../services/queue.js');
-		(transformationQueue.getJobCounts as unknown as Mock).mockResolvedValueOnce(
-			counts,
-		);
+		(transformationQueue.getJobCounts as unknown as Mock).mockResolvedValueOnce(counts);
 
 		const app = Fastify();
 		await app.register(healthRoutes, { prefix: '/health' });

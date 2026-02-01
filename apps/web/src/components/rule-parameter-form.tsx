@@ -28,40 +28,15 @@ export function RuleParameterForm({ rule, onChange }: RuleParameterFormProps) {
 	function renderParameterForm() {
 		switch (rule.type) {
 			case 'SELECT_WORKSHEET':
-				return (
-					<SelectWorksheetForm
-						rule={rule as SelectWorksheetRule}
-						onChange={updateParams}
-					/>
-				);
+				return <SelectWorksheetForm rule={rule as SelectWorksheetRule} onChange={updateParams} />;
 			case 'VALIDATE_COLUMNS':
-				return (
-					<ValidateColumnsForm
-						rule={rule as ValidateColumnsRule}
-						onChange={updateParams}
-					/>
-				);
+				return <ValidateColumnsForm rule={rule as ValidateColumnsRule} onChange={updateParams} />;
 			case 'UNMERGE_AND_FILL':
-				return (
-					<UnmergeAndFillForm
-						rule={rule as UnmergeAndFillRule}
-						onChange={updateParams}
-					/>
-				);
+				return <UnmergeAndFillForm rule={rule as UnmergeAndFillRule} onChange={updateParams} />;
 			case 'DELETE_ROWS':
-				return (
-					<DeleteRowsForm
-						rule={rule as DeleteRowsRule}
-						onChange={updateParams}
-					/>
-				);
+				return <DeleteRowsForm rule={rule as DeleteRowsRule} onChange={updateParams} />;
 			case 'DELETE_COLUMNS':
-				return (
-					<DeleteColumnsForm
-						rule={rule as DeleteColumnsRule}
-						onChange={updateParams}
-					/>
-				);
+				return <DeleteColumnsForm rule={rule as DeleteColumnsRule} onChange={updateParams} />;
 			case 'COMBINE_WORKSHEETS':
 				return <CombineWorksheetsForm rule={rule} onChange={updateParams} />;
 			case 'EVALUATE_FORMULAS':
@@ -81,17 +56,11 @@ export function RuleParameterForm({ rule, onChange }: RuleParameterFormProps) {
 				className="flex w-full items-center justify-between text-left text-sm text-gray-600 hover:text-gray-800"
 			>
 				<span>Configure Parameters</span>
-				{isExpanded ? (
-					<ChevronUp className="h-4 w-4" />
-				) : (
-					<ChevronDown className="h-4 w-4" />
-				)}
+				{isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
 			</button>
 
 			{isExpanded && (
-				<div className="mt-3 space-y-3 border-t border-gray-200 pt-3">
-					{renderParameterForm()}
-				</div>
+				<div className="mt-3 space-y-3 border-t border-gray-200 pt-3">{renderParameterForm()}</div>
 			)}
 		</div>
 	);
@@ -107,9 +76,7 @@ function SelectWorksheetForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">
-					Identifier Type
-				</label>
+				<label className="block text-xs font-medium text-gray-700">Identifier Type</label>
 				<select
 					value={rule.params.type || 'name'}
 					onChange={(e) =>
@@ -126,9 +93,7 @@ function SelectWorksheetForm({
 				</select>
 			</div>
 			<div>
-				<label className="block text-xs font-medium text-gray-700">
-					Worksheet Identifier
-				</label>
+				<label className="block text-xs font-medium text-gray-700">Worksheet Identifier</label>
 				<input
 					type="text"
 					value={rule.params.value || ''}
@@ -157,9 +122,7 @@ function ValidateColumnsForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">
-					Expected Column Count
-				</label>
+				<label className="block text-xs font-medium text-gray-700">Expected Column Count</label>
 				<input
 					type="number"
 					value={rule.params.numOfColumns || 0}
@@ -174,16 +137,13 @@ function ValidateColumnsForm({
 				/>
 			</div>
 			<div>
-				<label className="block text-xs font-medium text-gray-700">
-					On Failure
-				</label>
+				<label className="block text-xs font-medium text-gray-700">On Failure</label>
 				<select
 					value={rule.params.onFailure || 'stop'}
 					onChange={(e) =>
 						onChange({
 							...rule.params,
-							onFailure: e.target
-								.value as ValidateColumnsRule['params']['onFailure'],
+							onFailure: e.target.value as ValidateColumnsRule['params']['onFailure'],
 						})
 					}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
@@ -228,16 +188,13 @@ function UnmergeAndFillForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">
-					Fill Direction
-				</label>
+				<label className="block text-xs font-medium text-gray-700">Fill Direction</label>
 				<select
 					value={rule.params.fillDirection || 'down'}
 					onChange={(e) =>
 						onChange({
 							...rule.params,
-							fillDirection: e.target
-								.value as UnmergeAndFillRule['params']['fillDirection'],
+							fillDirection: e.target.value as UnmergeAndFillRule['params']['fillDirection'],
 						})
 					}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
@@ -247,9 +204,7 @@ function UnmergeAndFillForm({
 				</select>
 			</div>
 			<div>
-				<label className="block text-xs font-medium text-gray-700">
-					Columns to Process
-				</label>
+				<label className="block text-xs font-medium text-gray-700">Columns to Process</label>
 				<div className="mt-1 flex space-x-1">
 					<input
 						type="text"
@@ -325,18 +280,14 @@ function DeleteRowsForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">
-					Delete Method
-				</label>
+				<label className="block text-xs font-medium text-gray-700">Delete Method</label>
 				<select
 					value={method}
 					onChange={(e) =>
 						onChange({
 							method: e.target.value as 'condition' | 'rows',
 							// Clear the other method's params
-							...(e.target.value === 'condition'
-								? { rows: undefined }
-								: { condition: undefined }),
+							...(e.target.value === 'condition' ? { rows: undefined } : { condition: undefined }),
 						})
 					}
 					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
@@ -349,9 +300,7 @@ function DeleteRowsForm({
 			{method === 'condition' && (
 				<>
 					<div>
-						<label className="block text-xs font-medium text-gray-700">
-							Condition Type
-						</label>
+						<label className="block text-xs font-medium text-gray-700">Condition Type</label>
 						<select
 							value={rule.params.condition?.type || 'contains'}
 							onChange={(e) =>
@@ -374,8 +323,7 @@ function DeleteRowsForm({
 					</div>
 					<div>
 						<label className="block text-xs font-medium text-gray-700">
-							Column{' '}
-							{rule.params.condition?.type === 'empty' ? '(optional)' : ''}
+							Column {rule.params.condition?.type === 'empty' ? '(optional)' : ''}
 						</label>
 						<input
 							type="text"
@@ -399,16 +347,14 @@ function DeleteRowsForm({
 						/>
 						{rule.params.condition?.type === 'empty' && (
 							<div className="mt-1 text-xs text-gray-500">
-								Leave blank to delete rows where ALL columns are empty, or
-								specify a column to check only that column
+								Leave blank to delete rows where ALL columns are empty, or specify a column to check
+								only that column
 							</div>
 						)}
 					</div>
 					{rule.params.condition?.type !== 'empty' && (
 						<div>
-							<label className="block text-xs font-medium text-gray-700">
-								Value
-							</label>
+							<label className="block text-xs font-medium text-gray-700">Value</label>
 							<input
 								type="text"
 								value={rule.params.condition?.value || ''}
@@ -423,9 +369,7 @@ function DeleteRowsForm({
 									})
 								}
 								placeholder={
-									rule.params.condition?.type === 'pattern'
-										? 'Regular expression'
-										: 'Text to match'
+									rule.params.condition?.type === 'pattern' ? 'Regular expression' : 'Text to match'
 								}
 								className={`mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none ${
 									rule.params.condition?.type === 'pattern' ? 'font-mono' : ''
@@ -439,9 +383,7 @@ function DeleteRowsForm({
 			{method === 'rows' && (
 				<>
 					<div>
-						<label className="block text-xs font-medium text-gray-700">
-							Row Numbers to Delete
-						</label>
+						<label className="block text-xs font-medium text-gray-700">Row Numbers to Delete</label>
 						<div className="mt-1 flex space-x-1">
 							<input
 								type="number"
@@ -517,9 +459,7 @@ function DeleteColumnsForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">
-					Columns to Delete
-				</label>
+				<label className="block text-xs font-medium text-gray-700">Columns to Delete</label>
 				<div className="mt-1 flex space-x-1">
 					<input
 						type="text"
@@ -565,9 +505,7 @@ function CombineWorksheetsForm({
 	onChange,
 }: {
 	rule: import('../types').CombineWorksheetsRule;
-	onChange: (
-		params: import('../types').CombineWorksheetsRule['params'],
-	) => void;
+	onChange: (params: import('../types').CombineWorksheetsRule['params']) => void;
 }) {
 	const [sheetInput, setSheetInput] = useState('');
 
@@ -586,18 +524,14 @@ function CombineWorksheetsForm({
 		const currentSheets = rule.params.sourceSheets || [];
 		onChange({
 			...rule.params,
-			sourceSheets: currentSheets.filter(
-				(_: unknown, i: number) => i !== index,
-			),
+			sourceSheets: currentSheets.filter((_: unknown, i: number) => i !== index),
 		});
 	}
 
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">
-					Operation
-				</label>
+				<label className="block text-xs font-medium text-gray-700">Operation</label>
 				<select
 					value={rule.params.operation || 'append'}
 					onChange={(e) =>
@@ -613,12 +547,9 @@ function CombineWorksheetsForm({
 				</select>
 			</div>
 			<div>
-				<label className="block text-xs font-medium text-gray-700">
-					Source Sheets (optional)
-				</label>
+				<label className="block text-xs font-medium text-gray-700">Source Sheets (optional)</label>
 				<div className="mt-1 text-xs text-gray-500">
-					Leave blank to use worksheets selected by prior SELECT_WORKSHEET
-					rules.
+					Leave blank to use worksheets selected by prior SELECT_WORKSHEET rules.
 				</div>
 				<div className="mt-1 flex space-x-1">
 					<input
@@ -689,9 +620,7 @@ function ReplaceCharactersForm({
 	onChange,
 }: {
 	rule: import('../types').ReplaceCharactersRule;
-	onChange: (
-		params: import('../types').ReplaceCharactersRule['params'],
-	) => void;
+	onChange: (params: import('../types').ReplaceCharactersRule['params']) => void;
 }) {
 	const [replacements, setReplacements] = useState(
 		rule.params.replacements || [{ find: '', replace: '', scope: 'all' }],
@@ -700,13 +629,7 @@ function ReplaceCharactersForm({
 	const updateReplacement = (
 		index: number,
 		field: string,
-		value:
-			| string
-			| string[]
-			| number[]
-			| 'all'
-			| 'specific_columns'
-			| 'specific_rows',
+		value: string | string[] | number[] | 'all' | 'specific_columns' | 'specific_rows',
 	) => {
 		const updated = [...replacements];
 		updated[index] = { ...updated[index], [field]: value };
@@ -715,10 +638,7 @@ function ReplaceCharactersForm({
 	};
 
 	const addReplacement = () => {
-		const updated = [
-			...replacements,
-			{ find: '', replace: '', scope: 'all' as const },
-		];
+		const updated = [...replacements, { find: '', replace: '', scope: 'all' as const }];
 		setReplacements(updated as typeof replacements);
 		onChange({ replacements: updated as typeof replacements });
 	};
@@ -755,43 +675,31 @@ function ReplaceCharactersForm({
 					<div key={index} className="space-y-2 rounded border p-3">
 						<div className="flex gap-2">
 							<div className="flex-1">
-								<label className="block text-xs font-medium text-gray-700">
-									Find
-								</label>
+								<label className="block text-xs font-medium text-gray-700">Find</label>
 								<input
 									type="text"
 									value={replacement.find}
-									onChange={(e) =>
-										updateReplacement(index, 'find', e.target.value)
-									}
+									onChange={(e) => updateReplacement(index, 'find', e.target.value)}
 									placeholder="Character(s) to find"
 									className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 								/>
 							</div>
 							<div className="flex-1">
-								<label className="block text-xs font-medium text-gray-700">
-									Replace with
-								</label>
+								<label className="block text-xs font-medium text-gray-700">Replace with</label>
 								<input
 									type="text"
 									value={replacement.replace}
-									onChange={(e) =>
-										updateReplacement(index, 'replace', e.target.value)
-									}
+									onChange={(e) => updateReplacement(index, 'replace', e.target.value)}
 									placeholder="Replace with"
 									className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 								/>
 							</div>
 						</div>
 						<div>
-							<label className="block text-xs font-medium text-gray-700">
-								Scope
-							</label>
+							<label className="block text-xs font-medium text-gray-700">Scope</label>
 							<select
 								value={replacement.scope}
-								onChange={(e) =>
-									updateReplacement(index, 'scope', e.target.value)
-								}
+								onChange={(e) => updateReplacement(index, 'scope', e.target.value)}
 								className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 							>
 								<option value="all">All cells</option>

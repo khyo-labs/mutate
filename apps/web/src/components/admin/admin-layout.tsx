@@ -5,13 +5,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/api/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSession } from '@/stores/auth-store';
 import type { SuccessResponse } from '@/types';
 
@@ -57,9 +51,7 @@ export function AdminLayout() {
 			<div className="flex min-h-screen items-center justify-center">
 				<div className="text-center">
 					<Shield className="text-primary mx-auto h-12 w-12 animate-pulse" />
-					<p className="text-muted-foreground mt-4 text-sm">
-						Verifying admin access...
-					</p>
+					<p className="text-muted-foreground mt-4 text-sm">Verifying admin access...</p>
 				</div>
 			</div>
 		);
@@ -71,9 +63,7 @@ export function AdminLayout() {
 				<Card className="w-full max-w-md">
 					<CardHeader>
 						<CardTitle>Authentication Required</CardTitle>
-						<CardDescription>
-							Please log in to access the admin dashboard.
-						</CardDescription>
+						<CardDescription>Please log in to access the admin dashboard.</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<Button asChild className="w-full">

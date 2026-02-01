@@ -4,9 +4,7 @@ import { z } from 'zod';
 dotenvConfig();
 
 const configSchema = z.object({
-	NODE_ENV: z
-		.enum(['development', 'production', 'test'])
-		.default('development'),
+	NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 	PORT: z.coerce.number().default(3000),
 	HOST: z.string().default('0.0.0.0'),
 
@@ -48,9 +46,7 @@ const configSchema = z.object({
 	RATE_LIMIT_MAX: z.coerce.number().default(1_000),
 	RATE_LIMIT_WINDOW: z.string().default('1 minute'),
 
-	LOG_LEVEL: z
-		.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
-		.default('info'),
+	LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 
 	SENDGRID_API_KEY: z.string(),
 	SENDGRID_FROM_EMAIL: z.string().email(),
@@ -91,9 +87,7 @@ const env = {
 };
 
 // For CLI generation, we need to handle missing env vars gracefully
-const isCliGeneration = process.argv.some((arg) =>
-	arg.includes('@better-auth/cli'),
-);
+const isCliGeneration = process.argv.some((arg) => arg.includes('@better-auth/cli'));
 
 export const config = isCliGeneration
 	? ({} as z.infer<typeof configSchema>) // Return empty config for CLI generation

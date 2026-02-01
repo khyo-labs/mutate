@@ -51,23 +51,17 @@ interface ConfigurationQuery {
 
 export const workspaceApi = {
 	create: async function (data: CreateWorkspaceRequest): Promise<Workspace> {
-		const response = await api.post<SuccessResponse<Workspace>>(
-			'/v1/workspace/create',
-			data,
-		);
+		const response = await api.post<SuccessResponse<Workspace>>('/v1/workspace/create', data);
 		return response.data;
 	},
 
 	list: async function (): Promise<Workspace[]> {
-		const response =
-			await api.get<SuccessResponse<Workspace[]>>('/v1/workspace');
+		const response = await api.get<SuccessResponse<Workspace[]>>('/v1/workspace');
 		return response.data;
 	},
 
 	get: async function (workspaceId: string): Promise<Workspace> {
-		const response = await api.get<SuccessResponse<Workspace>>(
-			`/v1/workspace/${workspaceId}`,
-		);
+		const response = await api.get<SuccessResponse<Workspace>>(`/v1/workspace/${workspaceId}`);
 		return response.data;
 	},
 
@@ -110,12 +104,9 @@ export const workspaceApi = {
 	},
 
 	isSlugAvailable: async function (slug: string): Promise<boolean> {
-		const response = await api.post<ApiResponse<SlugStatus>>(
-			'/v1/workspace/exists',
-			{
-				slug,
-			},
-		);
+		const response = await api.post<ApiResponse<SlugStatus>>('/v1/workspace/exists', {
+			slug,
+		});
 		if (!response.success) {
 			toast.error(response.error.message);
 			return false;
@@ -123,10 +114,7 @@ export const workspaceApi = {
 		return response.data.status;
 	},
 
-	isNameAvailable: async function (
-		name: string,
-		workspaceId?: string,
-	): Promise<boolean> {
+	isNameAvailable: async function (name: string, workspaceId?: string): Promise<boolean> {
 		const response = await api.post<ApiResponse<NameAvailabilityStatus>>(
 			'/v1/workspace/name-exists',
 			{
@@ -143,10 +131,7 @@ export const workspaceApi = {
 		return response.data.available;
 	},
 
-	update: async function (
-		workspaceId: string,
-		data: UpdateWorkspaceRequest,
-	): Promise<Workspace> {
+	update: async function (workspaceId: string, data: UpdateWorkspaceRequest): Promise<Workspace> {
 		const response = await api.patch<SuccessResponse<Workspace>>(
 			`/v1/workspace/${workspaceId}`,
 			data,
@@ -155,9 +140,7 @@ export const workspaceApi = {
 	},
 
 	delete: async function (workspaceId: string): Promise<SuccessResponse<null>> {
-		const response = await api.delete<SuccessResponse<null>>(
-			`/v1/workspace/${workspaceId}`,
-		);
+		const response = await api.delete<SuccessResponse<null>>(`/v1/workspace/${workspaceId}`);
 		return response;
 	},
 };

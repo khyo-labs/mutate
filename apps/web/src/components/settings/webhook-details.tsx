@@ -64,8 +64,7 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 
 	const isActive =
 		webhook.lastUsedAt &&
-		new Date(webhook.lastUsedAt) >
-			new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+		new Date(webhook.lastUsedAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
 	return (
 		<div className="overflow-hidden py-4 pb-0 transition-all">
@@ -73,24 +72,18 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 				<div className="flex items-center gap-3">
 					<div>
 						<div className="mt-1 flex items-center gap-2">
-							<h3 className="text-foreground text-lg font-semibold">
-								{webhook.name}
-							</h3>
+							<h3 className="text-foreground text-lg font-semibold">{webhook.name}</h3>
 							<Badge
 								className={cn(
 									'flex items-center gap-1',
-									isActive
-										? 'bg-green-500/10 text-green-600'
-										: 'bg-muted text-muted-foreground',
+									isActive ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground',
 								)}
 							>
 								<CircleSmall className="size-3 fill-current" />
 								{isActive ? 'Active' : 'Inactive'}
 							</Badge>
 						</div>
-						<span className="text-muted-foreground text-xs">
-							ID: {webhook.id}
-						</span>
+						<span className="text-muted-foreground text-xs">ID: {webhook.id}</span>
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
@@ -128,9 +121,8 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 							<AlertDialogHeader>
 								<AlertDialogTitle>Delete Webhook</AlertDialogTitle>
 								<AlertDialogDescription>
-									Are you sure you want to delete the webhook "{webhook.name}"?
-									This will stop all notifications to {webhook.url}. This action
-									cannot be undone.
+									Are you sure you want to delete the webhook "{webhook.name}"? This will stop all
+									notifications to {webhook.url}. This action cannot be undone.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
@@ -152,13 +144,9 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 					<div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
 						<Globe className="text-muted-foreground mt-0.5 h-4 w-4" />
 						<div className="min-w-0 flex-1">
-							<p className="text-muted-foreground mb-1 text-xs font-medium">
-								Endpoint URL
-							</p>
+							<p className="text-muted-foreground mb-1 text-xs font-medium">Endpoint URL</p>
 							<div className="flex items-center gap-2">
-								<p className="text-foreground truncate font-mono text-sm">
-									{webhook.url}
-								</p>
+								<p className="text-foreground truncate font-mono text-sm">{webhook.url}</p>
 							</div>
 						</div>
 					</div>
@@ -167,9 +155,7 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 				<div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
 					<Key className="text-muted-foreground mt-0.5 h-4 w-4" />
 					<div className="flex-1">
-						<p className="text-muted-foreground mb-1 text-xs font-medium">
-							Webhook Secret
-						</p>
+						<p className="text-muted-foreground mb-1 text-xs font-medium">Webhook Secret</p>
 						{webhook.secret && (
 							<div className="flex items-center gap-2">
 								<p className="text-foreground font-mono text-sm">
@@ -211,9 +197,7 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 						)}
 
 						{!webhook.secret && (
-							<p className="text-muted-foreground text-sm italic">
-								No secret configured
-							</p>
+							<p className="text-muted-foreground text-sm italic">No secret configured</p>
 						)}
 					</div>
 				</div>
@@ -221,12 +205,8 @@ export function WebhookDetails({ webhook, deleteWebhook }: Props) {
 				<div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
 					<Clock className="text-muted-foreground mt-0.5 h-4 w-4" />
 					<div>
-						<p className="text-muted-foreground mb-1 text-xs font-medium">
-							Last Sent
-						</p>
-						<p className="text-foreground text-sm">
-							{formatRelativeTime(webhook.lastUsedAt)}
-						</p>
+						<p className="text-muted-foreground mb-1 text-xs font-medium">Last Sent</p>
+						<p className="text-foreground text-sm">{formatRelativeTime(webhook.lastUsedAt)}</p>
 					</div>
 				</div>
 			</div>

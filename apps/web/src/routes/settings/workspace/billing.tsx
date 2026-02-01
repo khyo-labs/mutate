@@ -1,12 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import {
-	Activity,
-	Calendar,
-	CreditCard,
-	Package,
-	TrendingUp,
-	Users,
-} from 'lucide-react';
+import { Activity, Calendar, CreditCard, Package, TrendingUp, Users } from 'lucide-react';
 
 import { SettingsHeader } from '@/components/settings/header';
 import { Badge } from '@/components/ui/badge';
@@ -108,9 +101,7 @@ function UsageCard({ stats }: { stats: WorkspaceStats }) {
 			<CardContent className="space-y-4">
 				<div className="space-y-2">
 					<div className="flex items-center justify-between">
-						<span className="text-sm font-medium">
-							Transformations this month
-						</span>
+						<span className="text-sm font-medium">Transformations this month</span>
 						<span className="text-muted-foreground text-sm">
 							{stats.currentUsage} / {stats.monthlyLimit}
 						</span>
@@ -118,23 +109,17 @@ function UsageCard({ stats }: { stats: WorkspaceStats }) {
 					<Progress
 						value={Math.min(usagePercentage, 100)}
 						className={
-							isOverLimit
-								? '[&>*]:bg-destructive'
-								: isNearLimit
-									? '[&>*]:bg-yellow-500'
-									: ''
+							isOverLimit ? '[&>*]:bg-destructive' : isNearLimit ? '[&>*]:bg-yellow-500' : ''
 						}
 					/>
 					{isOverLimit && (
 						<p className="text-destructive text-sm">
-							You've exceeded your monthly limit. Additional transformations
-							will incur overage charges.
+							You've exceeded your monthly limit. Additional transformations will incur overage
+							charges.
 						</p>
 					)}
 					{isNearLimit && !isOverLimit && (
-						<p className="text-sm text-yellow-600">
-							You're approaching your monthly limit.
-						</p>
+						<p className="text-sm text-yellow-600">You're approaching your monthly limit.</p>
 					)}
 				</div>
 
@@ -160,11 +145,7 @@ function UsageCard({ stats }: { stats: WorkspaceStats }) {
 	);
 }
 
-function SubscriptionCard({
-	subscription,
-}: {
-	subscription: SubscriptionInfo;
-}) {
+function SubscriptionCard({ subscription }: { subscription: SubscriptionInfo }) {
 	return (
 		<Card>
 			<CardHeader>
@@ -177,9 +158,7 @@ function SubscriptionCard({
 				<div className="flex items-center justify-between">
 					<div>
 						<h3 className="text-2xl font-bold">{subscription.plan.name}</h3>
-						<p className="text-muted-foreground">
-							{formatCurrency(subscription.plan.price)}/month
-						</p>
+						<p className="text-muted-foreground">{formatCurrency(subscription.plan.price)}/month</p>
 					</div>
 					<Badge variant={getStatusBadgeVariant(subscription.status)}>
 						{subscription.status.charAt(0).toUpperCase() +
@@ -189,27 +168,20 @@ function SubscriptionCard({
 
 				<div className="space-y-2 border-t pt-4">
 					<div className="flex items-center justify-between">
-						<span className="text-muted-foreground text-sm">
-							Billing period
-						</span>
+						<span className="text-muted-foreground text-sm">Billing period</span>
 						<span className="text-sm">
 							{formatDate(subscription.currentPeriodStart)} -{' '}
 							{formatDate(subscription.currentPeriodEnd)}
 						</span>
 					</div>
 					<div className="flex items-center justify-between">
-						<span className="text-muted-foreground text-sm">
-							Next billing date
-						</span>
-						<span className="text-sm">
-							{formatDate(subscription.nextBillingDate)}
-						</span>
+						<span className="text-muted-foreground text-sm">Next billing date</span>
+						<span className="text-sm">{formatDate(subscription.nextBillingDate)}</span>
 					</div>
 					<div className="flex items-center justify-between">
 						<span className="text-muted-foreground text-sm">Monthly limit</span>
 						<span className="text-sm">
-							{subscription.plan.conversionLimit.toLocaleString()}{' '}
-							transformations
+							{subscription.plan.conversionLimit.toLocaleString()} transformations
 						</span>
 					</div>
 				</div>
@@ -334,15 +306,9 @@ function BillingComponent() {
 			conversionLimit: 1000,
 		},
 		status: 'active',
-		currentPeriodStart: new Date(
-			Date.now() - 15 * 24 * 60 * 60 * 1000,
-		).toISOString(),
-		currentPeriodEnd: new Date(
-			Date.now() + 15 * 24 * 60 * 60 * 1000,
-		).toISOString(),
-		nextBillingDate: new Date(
-			Date.now() + 15 * 24 * 60 * 60 * 1000,
-		).toISOString(),
+		currentPeriodStart: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+		currentPeriodEnd: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+		nextBillingDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
 	};
 
 	const mockHistory: BillingHistory[] = [
@@ -415,9 +381,7 @@ function BillingComponent() {
 						<Calendar className="text-muted-foreground h-4 w-4" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">
-							{formatCurrency(mockSubscription.plan.price)}
-						</div>
+						<div className="text-2xl font-bold">{formatCurrency(mockSubscription.plan.price)}</div>
 						<p className="text-muted-foreground text-xs">
 							{formatDate(mockSubscription.nextBillingDate)}
 						</p>

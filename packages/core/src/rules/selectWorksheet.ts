@@ -5,10 +5,7 @@ import { LoggerService } from '../services/logger.js';
 import type { TransformationState } from '../transform/types.js';
 import type { SelectWorksheetRule } from '../types.js';
 
-export function applySelectWorksheet(
-	state: TransformationState,
-	rule: SelectWorksheetRule,
-) {
+export function applySelectWorksheet(state: TransformationState, rule: SelectWorksheetRule) {
 	return Effect.gen(function* () {
 		const logger = yield* LoggerService;
 		const { workbook } = state;
@@ -32,8 +29,7 @@ export function applySelectWorksheet(
 
 			case 'pattern':
 				const regex = new RegExp(params.value, 'i');
-				targetSheet =
-					workbook.SheetNames.find((name) => regex.test(name)) || null;
+				targetSheet = workbook.SheetNames.find((name) => regex.test(name)) || null;
 				break;
 		}
 

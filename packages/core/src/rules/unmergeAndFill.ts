@@ -6,10 +6,7 @@ import { LoggerService } from '../services/logger.js';
 import type { TransformationState } from '../transform/types.js';
 import type { UnmergeAndFillRule } from '../types.js';
 
-export function applyUnmergeAndFill(
-	state: TransformationState,
-	rule: UnmergeAndFillRule,
-) {
+export function applyUnmergeAndFill(state: TransformationState, rule: UnmergeAndFillRule) {
 	return Effect.gen(function* () {
 		const logger = yield* LoggerService;
 		const { workbook, selectedSheet } = state;
@@ -76,26 +73,20 @@ export function applyUnmergeAndFill(
 				}
 			}
 
-			yield* logger.info(
-				`Successfully filled ${params.columns.length} columns`,
-			);
+			yield* logger.info(`Successfully filled ${params.columns.length} columns`);
 
 			return {
 				...state,
 				metadata: {
 					...state.metadata,
-					columnsProcessed:
-						state.metadata.columnsProcessed + params.columns.length,
+					columnsProcessed: state.metadata.columnsProcessed + params.columns.length,
 				},
 			};
 		} catch (error) {
 			return yield* Effect.fail(
 				new TransformError({
 					rule: 'UNMERGE_AND_FILL',
-					reason:
-						error instanceof Error
-							? error.message
-							: 'Failed to unmerge and fill',
+					reason: error instanceof Error ? error.message : 'Failed to unmerge and fill',
 				}),
 			);
 		}

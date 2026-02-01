@@ -28,9 +28,7 @@ export const Route = createFileRoute('/auth/verify-email')({
 export function VerifyEmailComponent() {
 	const navigate = useNavigate();
 	const { token } = Route.useSearch();
-	const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
-		'loading',
-	);
+	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -64,27 +62,20 @@ export function VerifyEmailComponent() {
 						<>
 							<Loader2 className="text-primary-600 mx-auto h-12 w-12 animate-spin" />
 							<h2 className="mt-4 text-2xl font-bold">Verifying...</h2>
-							<p className="mt-2 text-gray-600">
-								Please wait while we verify your email address.
-							</p>
+							<p className="mt-2 text-gray-600">Please wait while we verify your email address.</p>
 						</>
 					)}
 					{status === 'success' && (
 						<>
-							<h2 className="text-2xl font-bold text-green-600">
-								Email Verified!
-							</h2>
+							<h2 className="text-2xl font-bold text-green-600">Email Verified!</h2>
 							<p className="mt-4 text-gray-600">
-								Your email has been successfully verified. You will be
-								redirected shortly.
+								Your email has been successfully verified. You will be redirected shortly.
 							</p>
 						</>
 					)}
 					{status === 'error' && (
 						<>
-							<h2 className="text-2xl font-bold text-red-600">
-								Verification Failed
-							</h2>
+							<h2 className="text-2xl font-bold text-red-600">Verification Failed</h2>
 							<p className="mt-4 text-gray-600">{error}</p>
 						</>
 					)}

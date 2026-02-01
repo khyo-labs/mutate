@@ -3,22 +3,13 @@ import { and, eq } from 'drizzle-orm';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { db } from '@/db/connection.js';
-import {
-	apiKeys,
-	member,
-	organization,
-	platformAdmins,
-	user,
-} from '@/db/schema.js';
+import { apiKeys, member, organization, platformAdmins, user } from '@/db/schema.js';
 import { auth } from '@/lib/auth.js';
 import { adminAuditService } from '@/services/admin/audit-service.js';
 import { adminService } from '@/services/admin/index.js';
 import '@/types/fastify.js';
 
-export async function authenticateSession(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function authenticateSession(request: FastifyRequest, reply: FastifyReply) {
 	try {
 		const fullUrl = `${request.protocol}://${request.headers.host}${request.url}`;
 
@@ -96,10 +87,7 @@ export async function authenticateSession(
 	}
 }
 
-export async function authenticate(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function authenticate(request: FastifyRequest, reply: FastifyReply) {
 	const authHeader = request.headers.authorization;
 
 	if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -108,10 +96,7 @@ export async function authenticate(
 	return authenticateSession(request, reply);
 }
 
-export async function authenticateAPIKey(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function authenticateAPIKey(request: FastifyRequest, reply: FastifyReply) {
 	const authHeader = request.headers.authorization;
 	if (!authHeader || !authHeader.startsWith('Bearer ')) {
 		return reply.code(401).send({
@@ -168,10 +153,7 @@ export async function authenticateAPIKey(
 		}
 
 		// Update last used timestamp
-		await db
-			.update(apiKeys)
-			.set({ lastUsedAt: new Date() })
-			.where(eq(apiKeys.id, validKey.id));
+		await db.update(apiKeys).set({ lastUsedAt: new Date() }).where(eq(apiKeys.id, validKey.id));
 
 		request.currentUser = {
 			id: validKey.createdBy,
@@ -224,10 +206,7 @@ export function requireRole(requiredRole: string) {
 	};
 }
 
-export async function requireAdmin(
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
+export async function requireAdmin(request: FastifyRequest, reply: FastifyReply) {
 	if (!request.currentUser) {
 		return reply.code(401).send({
 			success: false,
@@ -248,18 +227,13 @@ export async function requireAdmin(
 		});
 	}
 
-	const clientIP =
-		request.ip || (request.headers['x-forwarded-for'] as string) || '';
+	const clientIP = request.ip || (request.headers['x-forwarded-for'] as string) || '';
 	const userAgent = request.headers['user-agent'] || '';
 
-	await adminAuditService.logAdminAction(
-		request.currentUser.id,
-		'ADMIN_ACCESS',
-		{
-			resourceType: 'API_ENDPOINT',
-			resourceId: request.url,
-			ipAddress: clientIP,
-			userAgent: userAgent,
-		},
-	);
+	await adminAuditService.logAdminAction(request.currentUser.id, 'ADMIN_ACCESS', {
+		resourceType: 'API_ENDPOINT',
+		resourceId: request.url,
+		ipAddress: clientIP,
+		userAgent: userAgent,
+	});
 }

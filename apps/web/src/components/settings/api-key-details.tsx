@@ -45,9 +45,7 @@ export function ApiKeyDetails({ apiKey, deleteApiKey }: Props) {
 				<div className="flex items-center gap-3">
 					<div>
 						<div className="flex items-center gap-2">
-							<h3 className="text-foreground text-lg font-semibold">
-								{apiKey.name}
-							</h3>
+							<h3 className="text-foreground text-lg font-semibold">{apiKey.name}</h3>
 							<Badge
 								className={cn(
 									'flex items-center gap-1',
@@ -60,9 +58,7 @@ export function ApiKeyDetails({ apiKey, deleteApiKey }: Props) {
 								{!isExpired(apiKey.expiresAt) ? 'Active' : 'Expired'}
 							</Badge>
 						</div>
-						<span className="text-muted-foreground text-xs">
-							ID: {apiKey.id}
-						</span>
+						<span className="text-muted-foreground text-xs">ID: {apiKey.id}</span>
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
@@ -100,8 +96,8 @@ export function ApiKeyDetails({ apiKey, deleteApiKey }: Props) {
 							<AlertDialogHeader>
 								<AlertDialogTitle>Delete API Key</AlertDialogTitle>
 								<AlertDialogDescription>
-									Are you sure you want to delete the API key "{apiKey.name}"?
-									This action cannot be undone.
+									Are you sure you want to delete the API key "{apiKey.name}"? This action cannot be
+									undone.
 								</AlertDialogDescription>
 							</AlertDialogHeader>
 							<AlertDialogFooter>
@@ -123,12 +119,8 @@ export function ApiKeyDetails({ apiKey, deleteApiKey }: Props) {
 					<div className="flex items-start gap-2">
 						<Clock className="text-muted-foreground mt-0.5 h-4 w-4" />
 						<div>
-							<p className="text-muted-foreground text-xs font-medium">
-								Created
-							</p>
-							<p className="text-foreground text-sm">
-								{formatRelativeTime(apiKey.createdAt)}
-							</p>
+							<p className="text-muted-foreground text-xs font-medium">Created</p>
+							<p className="text-foreground text-sm">{formatRelativeTime(apiKey.createdAt)}</p>
 						</div>
 					</div>
 				</div>
@@ -137,12 +129,8 @@ export function ApiKeyDetails({ apiKey, deleteApiKey }: Props) {
 					<div className="flex items-start gap-2">
 						<Clock className="text-muted-foreground mt-0.5 h-4 w-4" />
 						<div>
-							<p className="text-muted-foreground text-xs font-medium">
-								Last Used
-							</p>
-							<p className="text-foreground text-sm">
-								{formatRelativeTime(apiKey.lastUsedAt)}
-							</p>
+							<p className="text-muted-foreground text-xs font-medium">Last Used</p>
+							<p className="text-foreground text-sm">{formatRelativeTime(apiKey.lastUsedAt)}</p>
 						</div>
 					</div>
 				</div>
@@ -151,12 +139,8 @@ export function ApiKeyDetails({ apiKey, deleteApiKey }: Props) {
 					<div className="bg-muted/50 flex items-start gap-3 rounded-lg p-3">
 						<Clock className="text-muted-foreground mt-0.5 h-4 w-4" />
 						<div>
-							<p className="text-muted-foreground mb-1 text-xs font-medium">
-								Expires
-							</p>
-							<p className="text-foreground text-sm">
-								{formatRelativeTime(apiKey.expiresAt)}
-							</p>
+							<p className="text-muted-foreground mb-1 text-xs font-medium">Expires</p>
+							<p className="text-foreground text-sm">{formatRelativeTime(apiKey.expiresAt)}</p>
 						</div>
 					</div>
 				)}
@@ -164,9 +148,7 @@ export function ApiKeyDetails({ apiKey, deleteApiKey }: Props) {
 
 			<div className="mt-3">
 				<div className="bg-muted/50 rounded-lg p-3">
-					<p className="text-muted-foreground mb-2 text-xs font-medium">
-						API Key (Masked)
-					</p>
+					<p className="text-muted-foreground mb-2 text-xs font-medium">API Key (Masked)</p>
 					<div className="flex items-center gap-2">
 						<code className="bg-background flex-1 rounded border p-2 font-mono text-sm">
 							mt_{'•'.repeat(32)}

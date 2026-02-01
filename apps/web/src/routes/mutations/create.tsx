@@ -14,13 +14,7 @@ import { Layout } from '@/components/layouts';
 import { RuleBuilder } from '@/components/rule-builder';
 import { SpreadsheetPreview } from '@/components/spreadsheet-preview';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,12 +28,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useWorkspaceStore } from '@/stores/workspace-store';
-import type {
-	Configuration,
-	TransformationRule,
-	UploadedFile,
-	Webhook,
-} from '@/types';
+import type { Configuration, TransformationRule, UploadedFile, Webhook } from '@/types';
 
 export const Route = createFileRoute('/mutations/create')({
 	component: CreateMutationComponent,
@@ -137,10 +126,7 @@ function CreateMutationComponent() {
 	}
 
 	return (
-		<Layout
-			title="Create Mutation"
-			description="Design a new data transformation pipeline"
-		>
+		<Layout title="Create Mutation" description="Design a new data transformation pipeline">
 			<Form {...form}>
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<div className="grid grid-cols-1 gap-8 xl:grid-cols-12">
@@ -175,22 +161,12 @@ function CreateMutationComponent() {
 									</CardHeader>
 									<CardContent>
 										<TabsContent value="preview">
-											<h3 className="text-foreground mb-4 text-lg font-medium">
-												Live Preview
-											</h3>
-											<SpreadsheetPreview
-												file={uploadedFile}
-												rules={watchedRules}
-											/>
+											<h3 className="text-foreground mb-4 text-lg font-medium">Live Preview</h3>
+											<SpreadsheetPreview file={uploadedFile} rules={watchedRules} />
 										</TabsContent>
 										<TabsContent value="data">
-											<h3 className="text-foreground mb-4 text-lg font-medium">
-												Sample Data
-											</h3>
-											<FileUpload
-												onFileUploaded={setUploadedFile}
-												currentFile={uploadedFile}
-											/>
+											<h3 className="text-foreground mb-4 text-lg font-medium">Sample Data</h3>
+											<FileUpload onFileUploaded={setUploadedFile} currentFile={uploadedFile} />
 										</TabsContent>
 									</CardContent>
 								</Card>
@@ -200,8 +176,7 @@ function CreateMutationComponent() {
 								<CardHeader>
 									<CardTitle>Output Preview</CardTitle>
 									<CardDescription>
-										Preview the final CSV output with your transformations
-										applied
+										Preview the final CSV output with your transformations applied
 									</CardDescription>
 								</CardHeader>
 								<CardContent>
@@ -223,9 +198,7 @@ function CreateMutationComponent() {
 							<Card>
 								<CardHeader>
 									<CardTitle>Configuration</CardTitle>
-									<CardDescription>
-										Basic settings for your transformation
-									</CardDescription>
+									<CardDescription>Basic settings for your transformation</CardDescription>
 								</CardHeader>
 								<CardContent className="space-y-5">
 									<div>
@@ -237,17 +210,11 @@ function CreateMutationComponent() {
 											control={control}
 											rules={{ required: 'Mutation name is required' }}
 											render={({ field }) => (
-												<Input
-													{...field}
-													id="name"
-													placeholder="Enter mutation name"
-												/>
+												<Input {...field} id="name" placeholder="Enter mutation name" />
 											)}
 										/>
 										{errors.name && (
-											<p className="text-destructive mt-2 text-sm">
-												{errors.name.message}
-											</p>
+											<p className="text-destructive mt-2 text-sm">{errors.name.message}</p>
 										)}
 									</div>
 									<div>
@@ -270,15 +237,10 @@ function CreateMutationComponent() {
 											name="webhookUrlId"
 											control={control}
 											render={({ field }) => {
-												const selectValue = field.value
-													? String(field.value)
-													: undefined;
+												const selectValue = field.value ? String(field.value) : undefined;
 
 												return (
-													<Select
-														onValueChange={field.onChange}
-														value={selectValue}
-													>
+													<Select onValueChange={field.onChange} value={selectValue}>
 														<SelectTrigger>
 															<SelectValue placeholder="Use organization default" />
 														</SelectTrigger>
@@ -294,8 +256,8 @@ function CreateMutationComponent() {
 											}}
 										/>
 										<p className="text-muted-foreground mt-1 text-xs">
-											Select a specific webhook URL for this configuration, or
-											leave blank to use the organization default.
+											Select a specific webhook URL for this configuration, or leave blank to use
+											the organization default.
 										</p>
 									</div>
 								</CardContent>
@@ -348,14 +310,9 @@ function CreateMutationComponent() {
 								<Button type="button" variant="outline" onClick={handleCancel}>
 									Cancel
 								</Button>
-								<Button
-									type="submit"
-									disabled={createMutation.isPending}
-								>
+								<Button type="submit" disabled={createMutation.isPending}>
 									<Plus className="mr-2 h-4 w-4" />
-									{createMutation.isPending
-										? 'Creating...'
-										: 'Create Mutation'}
+									{createMutation.isPending ? 'Creating...' : 'Create Mutation'}
 								</Button>
 							</div>
 						</div>

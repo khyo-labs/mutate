@@ -40,21 +40,21 @@
 ```typescript
 // Current approach
 try {
-  const result = await someOperation();
-  return { success: true, data: result };
+	const result = await someOperation();
+	return { success: true, data: result };
 } catch (error) {
-  return { success: false, error: error.message };
+	return { success: false, error: error.message };
 }
 
 // Effect approach
 Effect.gen(function* () {
-  const result = yield* someOperation();
-  return result;
+	const result = yield* someOperation();
+	return result;
 }).pipe(
-  Effect.catchTag("ConfigurationNotFound", () =>
-    Effect.fail(new UserFacingError("Configuration not found"))
-  )
-)
+	Effect.catchTag('ConfigurationNotFound', () =>
+		Effect.fail(new UserFacingError('Configuration not found')),
+	),
+);
 ```
 
 ### Built-in Retry Strategies
@@ -108,16 +108,9 @@ pnpm add effect @effect/schema @effect/platform @effect/platform-node
 ```typescript
 // apps/api/src/services/effect/database.service.ts
 export const DatabaseService = Effect.Tag<{
-	getConfiguration: (
-		id: string,
-	) => Effect.Effect<Configuration, ConfigNotFoundError>;
-	updateJobStatus: (
-		id: string,
-		status: JobStatus,
-	) => Effect.Effect<void, DatabaseError>;
-	transaction: <A, E>(
-		effect: Effect.Effect<A, E>,
-	) => Effect.Effect<A, E | DatabaseError>;
+	getConfiguration: (id: string) => Effect.Effect<Configuration, ConfigNotFoundError>;
+	updateJobStatus: (id: string, status: JobStatus) => Effect.Effect<void, DatabaseError>;
+	transaction: <A, E>(effect: Effect.Effect<A, E>) => Effect.Effect<A, E | DatabaseError>;
 }>();
 ```
 
@@ -126,10 +119,7 @@ export const DatabaseService = Effect.Tag<{
 ```typescript
 // apps/api/src/services/effect/storage.service.ts
 export const StorageService = Effect.Tag<{
-	upload: (
-		key: string,
-		buffer: Buffer,
-	) => Effect.Effect<UploadResult, StorageError>;
+	upload: (key: string, buffer: Buffer) => Effect.Effect<UploadResult, StorageError>;
 	generatePresignedUrl: (key: string) => Effect.Effect<string, StorageError>;
 	delete: (key: string) => Effect.Effect<boolean, StorageError>;
 }>();
@@ -139,15 +129,11 @@ export const StorageService = Effect.Tag<{
 
 ```typescript
 // apps/api/src/errors/index.ts
-export class ConfigNotFoundError extends Data.TaggedError(
-	'ConfigNotFoundError',
-)<{
+export class ConfigNotFoundError extends Data.TaggedError('ConfigNotFoundError')<{
 	configurationId: string;
 }> {}
 
-export class FileValidationError extends Data.TaggedError(
-	'FileValidationError',
-)<{
+export class FileValidationError extends Data.TaggedError('FileValidationError')<{
 	reason: string;
 	fileName: string;
 }> {}

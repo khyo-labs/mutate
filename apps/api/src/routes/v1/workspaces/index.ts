@@ -6,10 +6,7 @@ import { db } from '@/db/connection.js';
 import { organization } from '@/db/schema.js';
 import { auth } from '@/lib/auth.js';
 import { validateWorkspaceAccess } from '@/middleware/workspace-access.js';
-import {
-	createWorkspaceSchema,
-	updateWorkspaceSchema,
-} from '@/schemas/workspace.js';
+import { createWorkspaceSchema, updateWorkspaceSchema } from '@/schemas/workspace.js';
 import { deleteWorkspace } from '@/services/workspace.js';
 import '@/types/fastify.js';
 import { AppError, getErrorMessage } from '@/utils/error.js';
@@ -130,10 +127,7 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 								});
 							}
 						} catch (error) {
-							if (
-								error instanceof APIError &&
-								error?.body?.code === 'SLUG_IS_TAKEN'
-							) {
+							if (error instanceof APIError && error?.body?.code === 'SLUG_IS_TAKEN') {
 								return reply.status(409).send({
 									success: false,
 									error: {
@@ -201,10 +195,7 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 		async (request, reply) => {
 			try {
 				const { workspaceId } = request.params as { workspaceId: string };
-				const result = await deleteWorkspace(
-					workspaceId,
-					request.currentUser!.id,
-				);
+				const result = await deleteWorkspace(workspaceId, request.currentUser!.id);
 				return reply.send(result);
 			} catch (error) {
 				fastify.log.error(error);

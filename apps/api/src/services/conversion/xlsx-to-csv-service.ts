@@ -13,15 +13,8 @@ import {
 	RuleValidationError,
 	WorksheetNotFoundError,
 } from '@/services/conversion/conversion-errors.js';
-import {
-	ConversionErrorHandler,
-	type ErrorContext,
-} from '@/services/conversion/error-handler.js';
-import type {
-	Configuration,
-	CsvOutputFormat,
-	TransformationRule,
-} from '@/types/index.js';
+import { ConversionErrorHandler, type ErrorContext } from '@/services/conversion/error-handler.js';
+import type { Configuration, CsvOutputFormat, TransformationRule } from '@/types/index.js';
 import { getErrorMessage } from '@/utils/error.js';
 
 export class XlsxToCsvService extends BaseConversionService {
@@ -33,9 +26,7 @@ export class XlsxToCsvService extends BaseConversionService {
 	): Promise<ConversionResult> {
 		this.clearLog();
 		this.selectedSheetsHistory = [];
-		this.addLog(
-			`Starting XLSX to CSV conversion with configuration: ${configuration.name}`,
-		);
+		this.addLog(`Starting XLSX to CSV conversion with configuration: ${configuration.name}`);
 
 		try {
 			this.validateConfiguration(configuration);
@@ -77,16 +68,9 @@ export class XlsxToCsvService extends BaseConversionService {
 			// Apply transformation rules
 			for (let i = 0; i < configuration.rules.length; i++) {
 				const rule = configuration.rules[i];
-				this.addLog(
-					`Applying rule ${i + 1}/${configuration.rules.length}: ${rule.type}`,
-				);
+				this.addLog(`Applying rule ${i + 1}/${configuration.rules.length}: ${rule.type}`);
 
-				const result = await this.applyRule(
-					currentWorkbook,
-					rule,
-					selectedSheet,
-					i,
-				);
+				const result = await this.applyRule(currentWorkbook, rule, selectedSheet, i);
 
 				if (!result.success) {
 					this.addLog(`Rule failed: ${result.error}`);
@@ -111,11 +95,7 @@ export class XlsxToCsvService extends BaseConversionService {
 			const sheetName = selectedSheet || currentWorkbook.SheetNames[0];
 
 			if (!currentWorkbook.Sheets[sheetName]) {
-				throw new WorksheetNotFoundError(
-					sheetName,
-					currentWorkbook.SheetNames,
-					{ selectedSheet },
-				);
+				throw new WorksheetNotFoundError(sheetName, currentWorkbook.SheetNames, { selectedSheet });
 			}
 
 			this.addLog(`Converting sheet "${sheetName}" to CSV`);
@@ -151,14 +131,9 @@ export class XlsxToCsvService extends BaseConversionService {
 				}
 			};
 
-			const outputBuffer = Buffer.from(
-				csvData,
-				getBufferEncoding(outputFormat.encoding),
-			);
+			const outputBuffer = Buffer.from(csvData, getBufferEncoding(outputFormat.encoding));
 
-			this.addLog(
-				`Conversion completed successfully. Output size: ${outputBuffer.length} bytes`,
-			);
+			this.addLog(`Conversion completed successfully. Output size: ${outputBuffer.length} bytes`);
 
 			return {
 				success: true,
@@ -174,15 +149,10 @@ export class XlsxToCsvService extends BaseConversionService {
 				fileSize: fileBuffer.length,
 			};
 
-			const detailedError = ConversionErrorHandler.formatError(
-				error,
-				errorContext,
-				this.log,
-			);
+			const detailedError = ConversionErrorHandler.formatError(error, errorContext, this.log);
 
 			ConversionErrorHandler.logError(detailedError);
-			const userMessage =
-				ConversionErrorHandler.createUserFriendlyMessage(detailedError);
+			const userMessage = ConversionErrorHandler.createUserFriendlyMessage(detailedError);
 
 			this.addLog(`Conversion failed: ${userMessage}`);
 			return {
@@ -250,10 +220,7 @@ export class XlsxToCsvService extends BaseConversionService {
 					);
 			}
 		} catch (error) {
-			if (
-				error instanceof RuleExecutionError ||
-				error instanceof RuleValidationError
-			) {
+			if (error instanceof RuleExecutionError || error instanceof RuleValidationError) {
 				if (!error.details) error.details = {};
 				if (ruleIndex !== undefined) error.details.ruleIndex = ruleIndex;
 				error.details.ruleType = rule.type;
@@ -306,8 +273,7 @@ export class XlsxToCsvService extends BaseConversionService {
 
 			case 'pattern':
 				const regex = new RegExp(params.value, 'i');
-				targetSheet =
-					workbook.SheetNames.find((name) => regex.test(name)) || null;
+				targetSheet = workbook.SheetNames.find((name) => regex.test(name)) || null;
 				break;
 		}
 
@@ -315,9 +281,7 @@ export class XlsxToCsvService extends BaseConversionService {
 			this.addLog(
 				`WARNING: No worksheet found matching ${params.type}: "${params.value}". Available worksheets: ${workbook.SheetNames.join(', ')}`,
 			);
-			this.addLog(
-				`Falling back to first available worksheet: "${workbook.SheetNames[0]}"`,
-			);
+			this.addLog(`Falling back to first available worksheet: "${workbook.SheetNames[0]}"`);
 			targetSheet = workbook.SheetNames[0];
 		}
 
@@ -351,9 +315,7 @@ export class XlsxToCsvService extends BaseConversionService {
 		const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:A1');
 		const actualColumns = range.e.c + 1;
 
-		this.addLog(
-			`Validating columns. Expected: ${params.numOfColumns}, Actual: ${actualColumns}`,
-		);
+		this.addLog(`Validating columns. Expected: ${params.numOfColumns}, Actual: ${actualColumns}`);
 
 		if (actualColumns !== params.numOfColumns) {
 			const message = `Column count mismatch. Expected ${params.numOfColumns}, found ${actualColumns}`;
@@ -500,11 +462,7 @@ export class XlsxToCsvService extends BaseConversionService {
 							shouldDelete = !cell || !cell.v || String(cell.v).trim() === '';
 						} else {
 							let hasContent = false;
-							for (
-								let colIndex = range.s.c;
-								colIndex <= range.e.c;
-								colIndex++
-							) {
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 								const cellAddr = XLSX.utils.encode_cell({
 									c: colIndex,
 									r: rowIndex,
@@ -517,10 +475,7 @@ export class XlsxToCsvService extends BaseConversionService {
 							}
 							shouldDelete = !hasContent;
 						}
-					} else if (
-						params.condition.type === 'contains' &&
-						params.condition.value
-					) {
+					} else if (params.condition.type === 'contains' && params.condition.value) {
 						if (params.condition.column) {
 							const colIndex = XLSX.utils.decode_col(params.condition.column);
 							const cellAddr = XLSX.utils.encode_cell({
@@ -529,35 +484,22 @@ export class XlsxToCsvService extends BaseConversionService {
 							});
 							const cell = worksheet[cellAddr];
 							const cellValue = cell && cell.v ? String(cell.v) : '';
-							shouldDelete = cellValue
-								.toLowerCase()
-								.includes(params.condition.value.toLowerCase());
+							shouldDelete = cellValue.toLowerCase().includes(params.condition.value.toLowerCase());
 						} else {
-							for (
-								let colIndex = range.s.c;
-								colIndex <= range.e.c;
-								colIndex++
-							) {
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 								const cellAddr = XLSX.utils.encode_cell({
 									c: colIndex,
 									r: rowIndex,
 								});
 								const cell = worksheet[cellAddr];
 								const cellValue = cell && cell.v ? String(cell.v) : '';
-								if (
-									cellValue
-										.toLowerCase()
-										.includes(params.condition.value.toLowerCase())
-								) {
+								if (cellValue.toLowerCase().includes(params.condition.value.toLowerCase())) {
 									shouldDelete = true;
 									break;
 								}
 							}
 						}
-					} else if (
-						params.condition.type === 'pattern' &&
-						params.condition.value
-					) {
+					} else if (params.condition.type === 'pattern' && params.condition.value) {
 						const regex = new RegExp(params.condition.value, 'i');
 						if (params.condition.column) {
 							const colIndex = XLSX.utils.decode_col(params.condition.column);
@@ -569,11 +511,7 @@ export class XlsxToCsvService extends BaseConversionService {
 							const cellValue = cell && cell.v ? String(cell.v) : '';
 							shouldDelete = regex.test(cellValue);
 						} else {
-							for (
-								let colIndex = range.s.c;
-								colIndex <= range.e.c;
-								colIndex++
-							) {
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 								const cellAddr = XLSX.utils.encode_cell({
 									c: colIndex,
 									r: rowIndex,
@@ -670,10 +608,7 @@ export class XlsxToCsvService extends BaseConversionService {
 
 			// Try to resolve provided identifiers to zero-based column indices.
 			// Supports: column letters (e.g. "A"), 1-based numbers (e.g. "3"), and header names (e.g. "Debtor").
-			const parseCol = (
-				identifier: string,
-				headerLookup?: Map<string, number>,
-			): number | null => {
+			const parseCol = (identifier: string, headerLookup?: Map<string, number>): number | null => {
 				const trimmed = String(identifier).trim();
 				// Numeric (assume 1-based like Excel UI)
 				const asNum = Number.parseInt(trimmed, 10);
@@ -736,20 +671,16 @@ export class XlsxToCsvService extends BaseConversionService {
 				.sort((a, b) => a - b);
 
 			if (toDelete.length === 0) {
-				this.addLog(
-					'DELETE_COLUMNS: Specified columns are outside current range, skipping',
-				);
+				this.addLog('DELETE_COLUMNS: Specified columns are outside current range, skipping');
 				return { success: true, workbook };
 			}
 
-			const countDeletedBefore = (c: number) =>
-				toDelete.filter((d) => d < c).length;
+			const countDeletedBefore = (c: number) => toDelete.filter((d) => d < c).length;
 
 			const newSheet: XLSX.WorkSheet = {} as any;
 			const props = ['!merges', '!cols', '!rows', '!protect', '!autofilter'];
 			for (const p of props)
-				if ((worksheet as any)[p] !== undefined)
-					(newSheet as any)[p] = (worksheet as any)[p];
+				if ((worksheet as any)[p] !== undefined) (newSheet as any)[p] = (worksheet as any)[p];
 
 			Object.keys(worksheet)
 				.filter((k) => !k.startsWith('!'))
@@ -808,8 +739,7 @@ export class XlsxToCsvService extends BaseConversionService {
 			return {
 				success: false,
 				workbook,
-				error:
-					'No source sheets provided and no prior SELECT_WORKSHEET selections found',
+				error: 'No source sheets provided and no prior SELECT_WORKSHEET selections found',
 			};
 		}
 
@@ -856,9 +786,7 @@ export class XlsxToCsvService extends BaseConversionService {
 
 				const headerSet = new Set<string>();
 				sheetsData.forEach((rows) => {
-					rows.forEach((row) =>
-						Object.keys(row).forEach((h) => headerSet.add(h)),
-					);
+					rows.forEach((row) => Object.keys(row).forEach((h) => headerSet.add(h)));
 				});
 				const headers = Array.from(headerSet);
 
@@ -962,9 +890,7 @@ export class XlsxToCsvService extends BaseConversionService {
 							} else {
 								// No cached value available, try to get it from the raw value
 								// or set to 0 for numeric formulas as a fallback
-								this.addLog(
-									`Warning: Formula at ${cellAddr} has no cached value`,
-								);
+								this.addLog(`Warning: Formula at ${cellAddr} has no cached value`);
 								cell.v = 0;
 								cell.t = 'n';
 								delete cell.f;
@@ -973,9 +899,7 @@ export class XlsxToCsvService extends BaseConversionService {
 					}
 				}
 
-				this.addLog(
-					`Evaluated ${formulaCount} formulas in worksheet "${sheetName}"`,
-				);
+				this.addLog(`Evaluated ${formulaCount} formulas in worksheet "${sheetName}"`);
 			} catch (error) {
 				throw new RuleExecutionError(
 					'EVALUATE_FORMULAS',
@@ -1044,11 +968,7 @@ export class XlsxToCsvService extends BaseConversionService {
 
 					for (let col = range.s.c; col <= range.e.c; col++) {
 						// Check if this column should be processed
-						if (
-							scope === 'specific_columns' &&
-							columnIndices &&
-							!columnIndices.includes(col)
-						) {
+						if (scope === 'specific_columns' && columnIndices && !columnIndices.includes(col)) {
 							continue;
 						}
 

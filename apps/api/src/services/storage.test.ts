@@ -14,16 +14,10 @@ describe('StorageService', () => {
 		(service as any).provider = mockProvider;
 
 		const buffer = Buffer.from('hello');
-		const result = await service.uploadTransformedFile(
-			buffer,
-			'file.csv',
-			'org',
-			'job',
-		);
+		const result = await service.uploadTransformedFile(buffer, 'file.csv', 'org', 'job');
 
 		expect(mockProvider.uploadFile).toHaveBeenCalled();
-		const [keyArg, bufferArg, contentType] =
-			mockProvider.uploadFile.mock.calls[0];
+		const [keyArg, bufferArg, contentType] = mockProvider.uploadFile.mock.calls[0];
 		expect(keyArg).toMatch(/\.csv$/);
 		expect(bufferArg).toBe(buffer);
 		expect(contentType).toBe('text/csv');

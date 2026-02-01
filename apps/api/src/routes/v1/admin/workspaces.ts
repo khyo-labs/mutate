@@ -47,10 +47,7 @@ export async function adminWorkspaceRoutes(fastify: FastifyInstance) {
 					organizationSubscriptions,
 					eq(organization.id, organizationSubscriptions.organizationId),
 				)
-				.leftJoin(
-					subscriptionPlans,
-					eq(organizationSubscriptions.planId, subscriptionPlans.id),
-				)
+				.leftJoin(subscriptionPlans, eq(organizationSubscriptions.planId, subscriptionPlans.id))
 				.orderBy(desc(organization.createdAt));
 
 			// Get usage data for each workspace
@@ -100,14 +97,10 @@ export async function adminWorkspaceRoutes(fastify: FastifyInstance) {
 
 			// Log admin action
 			if (request.currentUser) {
-				await adminAuditService.logAdminAction(
-					request.currentUser.id,
-					'VIEW_WORKSPACES',
-					{
-						ipAddress: request.ip,
-						userAgent: request.headers['user-agent'],
-					},
-				);
+				await adminAuditService.logAdminAction(request.currentUser.id, 'VIEW_WORKSPACES', {
+					ipAddress: request.ip,
+					userAgent: request.headers['user-agent'],
+				});
 			}
 
 			return {
@@ -195,16 +188,12 @@ export async function adminWorkspaceRoutes(fastify: FastifyInstance) {
 
 			// Log admin action
 			if (request.currentUser) {
-				await adminAuditService.logAdminAction(
-					request.currentUser.id,
-					'VIEW_WORKSPACE_DETAILS',
-					{
-						resourceType: 'WORKSPACE',
-						resourceId: workspaceId,
-						ipAddress: request.ip,
-						userAgent: request.headers['user-agent'],
-					},
-				);
+				await adminAuditService.logAdminAction(request.currentUser.id, 'VIEW_WORKSPACE_DETAILS', {
+					resourceType: 'WORKSPACE',
+					resourceId: workspaceId,
+					ipAddress: request.ip,
+					userAgent: request.headers['user-agent'],
+				});
 			}
 
 			return {
@@ -243,16 +232,12 @@ export async function adminWorkspaceRoutes(fastify: FastifyInstance) {
 
 			// Log admin action
 			if (request.currentUser) {
-				await adminAuditService.logAdminAction(
-					request.currentUser.id,
-					'SUSPEND_WORKSPACE',
-					{
-						resourceType: 'WORKSPACE',
-						resourceId: workspaceId,
-						ipAddress: request.ip,
-						userAgent: request.headers['user-agent'],
-					},
-				);
+				await adminAuditService.logAdminAction(request.currentUser.id, 'SUSPEND_WORKSPACE', {
+					resourceType: 'WORKSPACE',
+					resourceId: workspaceId,
+					ipAddress: request.ip,
+					userAgent: request.headers['user-agent'],
+				});
 			}
 
 			return {
@@ -285,16 +270,12 @@ export async function adminWorkspaceRoutes(fastify: FastifyInstance) {
 
 			// Log admin action
 			if (request.currentUser) {
-				await adminAuditService.logAdminAction(
-					request.currentUser.id,
-					'ACTIVATE_WORKSPACE',
-					{
-						resourceType: 'WORKSPACE',
-						resourceId: workspaceId,
-						ipAddress: request.ip,
-						userAgent: request.headers['user-agent'],
-					},
-				);
+				await adminAuditService.logAdminAction(request.currentUser.id, 'ACTIVATE_WORKSPACE', {
+					resourceType: 'WORKSPACE',
+					resourceId: workspaceId,
+					ipAddress: request.ip,
+					userAgent: request.headers['user-agent'],
+				});
 			}
 
 			return {
@@ -345,17 +326,13 @@ export async function adminWorkspaceRoutes(fastify: FastifyInstance) {
 
 			// Log admin action
 			if (request.currentUser) {
-				await adminAuditService.logAdminAction(
-					request.currentUser.id,
-					'UPDATE_WORKSPACE_LIMITS',
-					{
-						resourceType: 'WORKSPACE',
-						resourceId: workspaceId,
-						changes: limits,
-						ipAddress: request.ip,
-						userAgent: request.headers['user-agent'],
-					},
-				);
+				await adminAuditService.logAdminAction(request.currentUser.id, 'UPDATE_WORKSPACE_LIMITS', {
+					resourceType: 'WORKSPACE',
+					resourceId: workspaceId,
+					changes: limits,
+					ipAddress: request.ip,
+					userAgent: request.headers['user-agent'],
+				});
 			}
 
 			return {

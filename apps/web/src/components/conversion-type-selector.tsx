@@ -1,10 +1,4 @@
-import {
-	FileBarChart,
-	FileJson,
-	FileSpreadsheet,
-	FileText,
-	Globe,
-} from 'lucide-react';
+import { FileBarChart, FileJson, FileSpreadsheet, FileText, Globe } from 'lucide-react';
 
 import type { ConversionType } from '@/types';
 
@@ -89,9 +83,7 @@ export function ConversionTypeSelector({
 	return (
 		<div className={`space-y-4 ${className}`}>
 			<div>
-				<h3 className="text-foreground text-lg font-semibold">
-					Choose Conversion Type
-				</h3>
+				<h3 className="text-foreground text-lg font-semibold">Choose Conversion Type</h3>
 				<p className="text-muted-foreground mt-1 text-sm">
 					Select what type of file transformation you want to create
 				</p>
@@ -115,14 +107,10 @@ export function ConversionTypeSelector({
 								isSelected
 									? 'border-primary bg-primary/10 ring-primary/20 ring-2'
 									: 'border-border hover:border-border/80 hover:bg-muted/50'
-							} ${
-								isDisabled
-									? 'bg-muted cursor-not-allowed opacity-50'
-									: 'hover:shadow-md'
-							} `}
+							} ${isDisabled ? 'bg-muted cursor-not-allowed opacity-50' : 'hover:shadow-md'} `}
 						>
 							{isDisabled && (
-								<div className="absolute right-2 top-2">
+								<div className="absolute top-2 right-2">
 									<span className="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">
 										Coming Soon
 									</span>
@@ -142,9 +130,7 @@ export function ConversionTypeSelector({
 									>
 										{conversion.name}
 									</h4>
-									<p className="text-muted-foreground mt-1 text-xs">
-										{conversion.description}
-									</p>
+									<p className="text-muted-foreground mt-1 text-xs">{conversion.description}</p>
 									<div className="mt-2 flex items-center space-x-2">
 										<span className="bg-muted text-muted-foreground inline-flex items-center rounded px-2 py-1 text-xs font-medium">
 											{conversion.inputFormat}

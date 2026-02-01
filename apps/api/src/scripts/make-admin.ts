@@ -7,11 +7,7 @@ import { platformAdmins, user } from '@/db/schema.js';
 async function makeUserAdmin(email: string) {
 	try {
 		// Find user by email
-		const users = await db
-			.select()
-			.from(user)
-			.where(eq(user.email, email))
-			.limit(1);
+		const users = await db.select().from(user).where(eq(user.email, email)).limit(1);
 
 		if (users.length === 0) {
 			console.error(`❌ User with email ${email} not found`);

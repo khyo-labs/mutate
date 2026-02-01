@@ -1,9 +1,4 @@
-import {
-	DatabaseService,
-	StorageService,
-	TransformError,
-	transformBuffer,
-} from '@mutate/core';
+import { DatabaseService, StorageService, TransformError, transformBuffer } from '@mutate/core';
 import { Duration, Effect, Option, pipe } from 'effect';
 
 import { effectBullProcessor, reportProgress } from '@/effect/adapters/bull.js';
@@ -25,14 +20,7 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 
 		// Convert base64 string back to Buffer
 		const fileBuffer = Buffer.from(data.fileData, 'base64');
-		const {
-			jobId,
-			organizationId,
-			configurationId,
-			fileName,
-			callbackUrl,
-			uid,
-		} = data;
+		const { jobId, organizationId, configurationId, fileName, callbackUrl, uid } = data;
 
 		console.log(`[Effect Worker] Processing job ${jobId}`, {
 			organizationId,
@@ -81,9 +69,7 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 		const transformResult = yield* transformBuffer(fileBuffer, config).pipe(
 			Effect.tapError((error: unknown) =>
 				database.updateJobStatus(jobId, 'failed', {
-					error: isTransformError(error)
-						? error.reason
-						: 'Transformation failed',
+					error: isTransformError(error) ? error.reason : 'Transformation failed',
 					completedAt: new Date(),
 					executionLog: [],
 				}),
@@ -96,11 +82,7 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 		const outputKey = `transformed/${organizationId}/${jobId}/${outputFileName}`;
 		const outputBuffer = Buffer.from(transformResult.csvData || '');
 
-		const outputResult = yield* storage.upload(
-			outputKey,
-			outputBuffer,
-			'text/csv',
-		);
+		const outputResult = yield* storage.upload(outputKey, outputBuffer, 'text/csv');
 		yield* reportProgress(job, 90);
 
 		// Update job as completed
@@ -181,18 +163,12 @@ const processMutationJob = (data: QueueJobData, job: any) =>
 						configurationId: errorConfigId,
 						organizationId: errorOrgId,
 						uid: errorUid,
-						error:
-							error instanceof Error ? error.message : 'Job processing failed',
+						error: error instanceof Error ? error.message : 'Job processing failed',
 						originalFileName: errorFileName,
 					});
 
 					yield* webhookService
-						.sendWebhookWithPriority(
-							errorOrgId,
-							errorConfigId,
-							webhookPayload,
-							errorCallbackUrl,
-						)
+						.sendWebhookWithPriority(errorOrgId, errorConfigId, webhookPayload, errorCallbackUrl)
 						.pipe(Effect.ignore);
 				}
 
@@ -207,21 +183,14 @@ const processMutationJob = (data: QueueJobData, job: any) =>
  * Initialize the worker with Effect processor
  */
 function initializeEffectWorker() {
-	console.log(
-		'[Effect Worker] Initializing mutation worker with Effect processor',
-	);
+	console.log('[Effect Worker] Initializing mutation worker with Effect processor');
 
 	// Process jobs using the Effect adapter
-	transformationQueue.process(
-		'mutate-file',
-		effectBullProcessor(processMutationJob),
-	);
+	transformationQueue.process('mutate-file', effectBullProcessor(processMutationJob));
 
 	// Handle shutdown gracefully
 	process.on('SIGTERM', async () => {
-		console.log(
-			'[Effect Worker] Received SIGTERM, shutting down gracefully...',
-		);
+		console.log('[Effect Worker] Received SIGTERM, shutting down gracefully...');
 		await transformationQueue.close();
 		await runtime.dispose();
 		process.exit(0);

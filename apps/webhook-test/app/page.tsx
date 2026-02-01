@@ -5,13 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
 	Dialog,
 	DialogContent,
@@ -38,9 +32,7 @@ import { Config, WebhookData } from '@/lib/webhook-store';
 export default function WebhookTestPage() {
 	const [webhooks, setWebhooks] = useState<WebhookData[]>([]);
 	const [config, setConfig] = useState<Config | null>(null);
-	const [selectedWebhook, setSelectedWebhook] = useState<WebhookData | null>(
-		null,
-	);
+	const [selectedWebhook, setSelectedWebhook] = useState<WebhookData | null>(null);
 	const [isPolling, setIsPolling] = useState(true);
 	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 	const lastWebhookCount = useRef(0);
@@ -52,10 +44,7 @@ export default function WebhookTestPage() {
 			const newWebhooks = data.webhooks || [];
 
 			// Check if we have new webhooks
-			if (
-				newWebhooks.length > 0 &&
-				newWebhooks.length > lastWebhookCount.current
-			) {
+			if (newWebhooks.length > 0 && newWebhooks.length > lastWebhookCount.current) {
 				const newCount = newWebhooks.length - lastWebhookCount.current;
 				if (lastWebhookCount.current > 0) {
 					toast({
@@ -191,9 +180,7 @@ export default function WebhookTestPage() {
 				<div className="flex h-96 items-center justify-center">
 					<div className="text-center">
 						<RefreshCw className="text-muted-foreground mx-auto h-8 w-8 animate-spin" />
-						<p className="text-muted-foreground mt-2">
-							Loading configuration...
-						</p>
+						<p className="text-muted-foreground mt-2">Loading configuration...</p>
 					</div>
 				</div>
 			</div>
@@ -214,11 +201,7 @@ export default function WebhookTestPage() {
 						<Activity className="h-3 w-3" />
 						{isPolling ? 'Live' : 'Paused'}
 					</Badge>
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={() => setIsPolling(!isPolling)}
-					>
+					<Button size="sm" variant="outline" onClick={() => setIsPolling(!isPolling)}>
 						{isPolling ? 'Pause' : 'Resume'}
 					</Button>
 				</div>
@@ -238,11 +221,7 @@ export default function WebhookTestPage() {
 										? `${window.location.origin}/webhook/*`
 										: 'http://localhost:8085/webhook/*'}
 								</code>
-								<Button
-									size="sm"
-									variant="outline"
-									onClick={() => copyUrl('/webhook/test')}
-								>
+								<Button size="sm" variant="outline" onClick={() => copyUrl('/webhook/test')}>
 									<Copy className="h-4 w-4" />
 								</Button>
 							</div>
@@ -254,16 +233,11 @@ export default function WebhookTestPage() {
 							<div>
 								<CardTitle>Received Webhooks</CardTitle>
 								<CardDescription>
-									{webhooks.length} webhook{webhooks.length !== 1 ? 's' : ''}{' '}
-									received
+									{webhooks.length} webhook{webhooks.length !== 1 ? 's' : ''} received
 								</CardDescription>
 							</div>
 							<div className="flex gap-2">
-								<Button
-									size="sm"
-									variant="outline"
-									onClick={() => window.location.reload()}
-								>
+								<Button size="sm" variant="outline" onClick={() => window.location.reload()}>
 									<RefreshCw className="h-4 w-4" />
 								</Button>
 								<Button size="sm" variant="destructive" onClick={clearWebhooks}>
@@ -290,9 +264,7 @@ export default function WebhookTestPage() {
 														<Badge className={getMethodColor(webhook.method)}>
 															{webhook.method}
 														</Badge>
-														<code className="text-sm font-medium">
-															{webhook.path}
-														</code>
+														<code className="text-sm font-medium">{webhook.path}</code>
 														{webhook.attemptCount > 1 && (
 															<Badge variant="outline" className="text-xs">
 																Attempt #{webhook.attemptCount}
@@ -336,17 +308,11 @@ export default function WebhookTestPage() {
 													{webhook.hmacValid !== null && (
 														<div className="flex items-center gap-1 text-xs">
 															{webhook.hmacValid ? (
-																<Badge
-																	variant="outline"
-																	className="text-xs text-green-600"
-																>
+																<Badge variant="outline" className="text-xs text-green-600">
 																	✓ HMAC Valid
 																</Badge>
 															) : (
-																<Badge
-																	variant="outline"
-																	className="text-xs text-red-600"
-																>
+																<Badge variant="outline" className="text-xs text-red-600">
 																	✗ HMAC Invalid
 																</Badge>
 															)}
@@ -361,8 +327,7 @@ export default function WebhookTestPage() {
 
 													{Object.keys(webhook.query || {}).length > 0 && (
 														<div className="text-muted-foreground text-xs">
-															Query params:{' '}
-															{Object.keys(webhook.query).join(', ')}
+															Query params: {Object.keys(webhook.query).join(', ')}
 														</div>
 													)}
 												</div>
@@ -386,9 +351,7 @@ export default function WebhookTestPage() {
 								<Label>Response Status</Label>
 								<Select
 									value={config.responseStatus.toString()}
-									onValueChange={(v) =>
-										setConfig({ ...config, responseStatus: parseInt(v) })
-									}
+									onValueChange={(v) => setConfig({ ...config, responseStatus: parseInt(v) })}
 								>
 									<SelectTrigger>
 										<SelectValue />
@@ -403,9 +366,7 @@ export default function WebhookTestPage() {
 										<SelectItem value="403">403 Forbidden</SelectItem>
 										<SelectItem value="404">404 Not Found</SelectItem>
 										<SelectItem value="429">429 Too Many Requests</SelectItem>
-										<SelectItem value="500">
-											500 Internal Server Error
-										</SelectItem>
+										<SelectItem value="500">500 Internal Server Error</SelectItem>
 										<SelectItem value="502">502 Bad Gateway</SelectItem>
 										<SelectItem value="503">503 Service Unavailable</SelectItem>
 									</SelectContent>
@@ -451,9 +412,7 @@ export default function WebhookTestPage() {
 								<Switch
 									id="simulate-timeout"
 									checked={config.simulateTimeout}
-									onCheckedChange={(checked) =>
-										setConfig({ ...config, simulateTimeout: checked })
-									}
+									onCheckedChange={(checked) => setConfig({ ...config, simulateTimeout: checked })}
 								/>
 							</div>
 
@@ -462,9 +421,7 @@ export default function WebhookTestPage() {
 								<Switch
 									id="verify-hmac"
 									checked={config.verifyHmac}
-									onCheckedChange={(checked) =>
-										setConfig({ ...config, verifyHmac: checked })
-									}
+									onCheckedChange={(checked) => setConfig({ ...config, verifyHmac: checked })}
 								/>
 							</div>
 
@@ -473,9 +430,7 @@ export default function WebhookTestPage() {
 									<Label>HMAC Secret</Label>
 									<Input
 										value={config.webhookSecret}
-										onChange={(e) =>
-											setConfig({ ...config, webhookSecret: e.target.value })
-										}
+										onChange={(e) => setConfig({ ...config, webhookSecret: e.target.value })}
 										placeholder="Enter HMAC secret key"
 									/>
 								</div>
@@ -486,9 +441,7 @@ export default function WebhookTestPage() {
 								<Switch
 									id="custom-body"
 									checked={config.returnCustomBody}
-									onCheckedChange={(checked) =>
-										setConfig({ ...config, returnCustomBody: checked })
-									}
+									onCheckedChange={(checked) => setConfig({ ...config, returnCustomBody: checked })}
 								/>
 							</div>
 
@@ -500,10 +453,7 @@ export default function WebhookTestPage() {
 				</div>
 			</div>
 
-			<Dialog
-				open={!!selectedWebhook}
-				onOpenChange={(open) => !open && setSelectedWebhook(null)}
-			>
+			<Dialog open={!!selectedWebhook} onOpenChange={(open) => !open && setSelectedWebhook(null)}>
 				<DialogContent className="flex max-h-[90vh] max-w-4xl flex-col overflow-hidden">
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2">
@@ -512,9 +462,7 @@ export default function WebhookTestPage() {
 									<Badge className={getMethodColor(selectedWebhook.method)}>
 										{selectedWebhook.method}
 									</Badge>
-									<span className="font-mono text-lg">
-										{selectedWebhook.path}
-									</span>
+									<span className="font-mono text-lg">{selectedWebhook.path}</span>
 								</>
 							)}
 						</DialogTitle>
@@ -522,14 +470,10 @@ export default function WebhookTestPage() {
 							{selectedWebhook && (
 								<div className="mt-2 space-y-1">
 									<div>ID: {selectedWebhook.id}</div>
-									<div>
-										Time: {new Date(selectedWebhook.timestamp).toLocaleString()}
-									</div>
+									<div>Time: {new Date(selectedWebhook.timestamp).toLocaleString()}</div>
 									{selectedWebhook.ip && <div>IP: {selectedWebhook.ip}</div>}
 									{selectedWebhook.processingTime && (
-										<div>
-											Processing Time: {selectedWebhook.processingTime}ms
-										</div>
+										<div>Processing Time: {selectedWebhook.processingTime}ms</div>
 									)}
 								</div>
 							)}
@@ -542,9 +486,7 @@ export default function WebhookTestPage() {
 								{selectedWebhook.jobId && (
 									<div className="flex items-center gap-2">
 										<Label className="text-sm font-medium">Job Details:</Label>
-										<Badge variant="outline">
-											Job ID: {selectedWebhook.jobId}
-										</Badge>
+										<Badge variant="outline">Job ID: {selectedWebhook.jobId}</Badge>
 										{selectedWebhook.status && (
 											<Badge
 												variant={
@@ -559,9 +501,7 @@ export default function WebhookTestPage() {
 											</Badge>
 										)}
 										{selectedWebhook.uid && (
-											<Badge variant="outline">
-												UID: {selectedWebhook.uid}
-											</Badge>
+											<Badge variant="outline">UID: {selectedWebhook.uid}</Badge>
 										)}
 									</div>
 								)}
@@ -582,11 +522,7 @@ export default function WebhookTestPage() {
 										{selectedWebhook.hmacValid !== null && (
 											<Badge
 												variant="outline"
-												className={
-													selectedWebhook.hmacValid
-														? 'text-green-600'
-														: 'text-red-600'
-												}
+												className={selectedWebhook.hmacValid ? 'text-green-600' : 'text-red-600'}
 											>
 												{selectedWebhook.hmacValid ? '✓ Valid' : '✗ Invalid'}
 											</Badge>
@@ -597,24 +533,16 @@ export default function WebhookTestPage() {
 								{selectedWebhook.attemptCount > 1 && (
 									<div className="flex items-center gap-2">
 										<Label className="text-sm font-medium">Attempt:</Label>
-										<Badge variant="outline">
-											#{selectedWebhook.attemptCount}
-										</Badge>
+										<Badge variant="outline">#{selectedWebhook.attemptCount}</Badge>
 									</div>
 								)}
 							</div>
 
-							<Tabs
-								defaultValue="body"
-								className="flex flex-1 flex-col overflow-hidden"
-							>
+							<Tabs defaultValue="body" className="flex flex-1 flex-col overflow-hidden">
 								<TabsList className="grid w-full grid-cols-4">
-									<TabsTrigger value="body">
-										Body {selectedWebhook.body ? '•' : ''}
-									</TabsTrigger>
+									<TabsTrigger value="body">Body {selectedWebhook.body ? '•' : ''}</TabsTrigger>
 									<TabsTrigger value="headers">
-										Headers ({Object.keys(selectedWebhook.headers || {}).length}
-										)
+										Headers ({Object.keys(selectedWebhook.headers || {}).length})
 									</TabsTrigger>
 									<TabsTrigger value="query">
 										Query ({Object.keys(selectedWebhook.query || {}).length})
@@ -622,10 +550,7 @@ export default function WebhookTestPage() {
 									<TabsTrigger value="raw">Raw</TabsTrigger>
 								</TabsList>
 
-								<TabsContent
-									value="body"
-									className="mt-4 flex-1 overflow-hidden"
-								>
+								<TabsContent value="body" className="mt-4 flex-1 overflow-hidden">
 									<ScrollArea className="h-[400px] w-full rounded border">
 										{selectedWebhook.body ? (
 											<div className="p-4">
@@ -633,9 +558,7 @@ export default function WebhookTestPage() {
 												selectedWebhook.body.executionLog ? (
 													<div className="space-y-4">
 														<div>
-															<h4 className="mb-2 text-sm font-medium">
-																Job Information
-															</h4>
+															<h4 className="mb-2 text-sm font-medium">Job Information</h4>
 															<div className="text-muted-foreground space-y-1 text-xs">
 																<div>
 																	<span className="font-medium">Job ID:</span>{' '}
@@ -646,31 +569,23 @@ export default function WebhookTestPage() {
 																	{selectedWebhook.body.status}
 																</div>
 																<div>
-																	<span className="font-medium">
-																		Configuration:
-																	</span>{' '}
+																	<span className="font-medium">Configuration:</span>{' '}
 																	{selectedWebhook.body.configurationId}
 																</div>
 																<div>
-																	<span className="font-medium">
-																		Organization:
-																	</span>{' '}
+																	<span className="font-medium">Organization:</span>{' '}
 																	{selectedWebhook.body.organizationId}
 																</div>
 																{selectedWebhook.body.originalFileName && (
 																	<div>
-																		<span className="font-medium">
-																			Original File:
-																		</span>{' '}
+																		<span className="font-medium">Original File:</span>{' '}
 																		{selectedWebhook.body.originalFileName}
 																	</div>
 																)}
 																{selectedWebhook.body.downloadUrl && (
 																	<div className="mt-2">
-																		<span className="font-medium">
-																			Download URL:
-																		</span>
-																		<div className="bg-muted mt-1 break-all rounded p-2">
+																		<span className="font-medium">Download URL:</span>
+																		<div className="bg-muted mt-1 rounded p-2 break-all">
 																			<a
 																				href={selectedWebhook.body.downloadUrl}
 																				target="_blank"
@@ -686,9 +601,7 @@ export default function WebhookTestPage() {
 														</div>
 
 														<div>
-															<h4 className="mb-2 text-sm font-medium">
-																Execution Log
-															</h4>
+															<h4 className="mb-2 text-sm font-medium">Execution Log</h4>
 															<div className="max-h-[150px] space-y-1 overflow-y-auto">
 																{selectedWebhook.body.executionLog.map(
 																	(log: string, index: number) => (
@@ -704,9 +617,7 @@ export default function WebhookTestPage() {
 														</div>
 
 														<div>
-															<h4 className="mb-2 text-sm font-medium">
-																Raw Body
-															</h4>
+															<h4 className="mb-2 text-sm font-medium">Raw Body</h4>
 															<pre className="bg-muted text-muted-foreground overflow-x-auto rounded p-2 text-xs">
 																{JSON.stringify(selectedWebhook.body, null, 2)}
 															</pre>
@@ -721,54 +632,40 @@ export default function WebhookTestPage() {
 												)}
 											</div>
 										) : (
-											<div className="text-muted-foreground p-4 text-center">
-												No body content
-											</div>
+											<div className="text-muted-foreground p-4 text-center">No body content</div>
 										)}
 									</ScrollArea>
 								</TabsContent>
 
-								<TabsContent
-									value="headers"
-									className="mt-4 flex-1 overflow-hidden"
-								>
+								<TabsContent value="headers" className="mt-4 flex-1 overflow-hidden">
 									<ScrollArea className="h-[400px] w-full rounded border">
 										<div className="space-y-2 p-4">
-											{Object.entries(selectedWebhook.headers || {}).map(
-												([key, value]) => (
-													<div key={key} className="flex">
-														<span className="text-muted-foreground min-w-[200px] font-mono text-xs font-medium">
-															{key}:
-														</span>
-														<span className="text-foreground ml-2 break-all font-mono text-xs">
-															{value}
-														</span>
-													</div>
-												),
-											)}
+											{Object.entries(selectedWebhook.headers || {}).map(([key, value]) => (
+												<div key={key} className="flex">
+													<span className="text-muted-foreground min-w-[200px] font-mono text-xs font-medium">
+														{key}:
+													</span>
+													<span className="text-foreground ml-2 font-mono text-xs break-all">
+														{value}
+													</span>
+												</div>
+											))}
 										</div>
 									</ScrollArea>
 								</TabsContent>
 
-								<TabsContent
-									value="query"
-									className="mt-4 flex-1 overflow-hidden"
-								>
+								<TabsContent value="query" className="mt-4 flex-1 overflow-hidden">
 									<ScrollArea className="h-[400px] w-full rounded border">
 										{Object.keys(selectedWebhook.query || {}).length > 0 ? (
 											<div className="space-y-2 p-4">
-												{Object.entries(selectedWebhook.query).map(
-													([key, value]) => (
-														<div key={key} className="flex">
-															<span className="text-muted-foreground min-w-[150px] font-mono text-xs font-medium">
-																{key}:
-															</span>
-															<span className="text-foreground ml-2 font-mono text-xs">
-																{value}
-															</span>
-														</div>
-													),
-												)}
+												{Object.entries(selectedWebhook.query).map(([key, value]) => (
+													<div key={key} className="flex">
+														<span className="text-muted-foreground min-w-[150px] font-mono text-xs font-medium">
+															{key}:
+														</span>
+														<span className="text-foreground ml-2 font-mono text-xs">{value}</span>
+													</div>
+												))}
 											</div>
 										) : (
 											<div className="text-muted-foreground p-4 text-center">
@@ -778,10 +675,7 @@ export default function WebhookTestPage() {
 									</ScrollArea>
 								</TabsContent>
 
-								<TabsContent
-									value="raw"
-									className="mt-4 flex-1 overflow-hidden"
-								>
+								<TabsContent value="raw" className="mt-4 flex-1 overflow-hidden">
 									<ScrollArea className="h-[400px] w-full rounded border">
 										<pre className="text-muted-foreground p-4 text-xs">
 											{JSON.stringify(selectedWebhook, null, 2)}

@@ -12,9 +12,7 @@ export class DocxToPdfService extends BaseConversionService {
 		options: ConversionOptions = {},
 	): Promise<ConversionResult> {
 		this.clearLog();
-		this.addLog(
-			`Starting DOCX to PDF conversion with configuration: ${configuration.name}`,
-		);
+		this.addLog(`Starting DOCX to PDF conversion with configuration: ${configuration.name}`);
 
 		try {
 			this.validateConfiguration(configuration);
@@ -36,8 +34,7 @@ export class DocxToPdfService extends BaseConversionService {
 				executionLog: this.log,
 			};
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : 'Unknown error';
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			this.addLog(`Conversion failed: ${errorMessage}`);
 			return {
 				success: false,

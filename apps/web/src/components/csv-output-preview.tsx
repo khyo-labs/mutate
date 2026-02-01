@@ -1,16 +1,8 @@
 import { ChevronDown, Download, Eye, EyeOff } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import {
-	escapeValues,
-	simulateTransformations,
-} from '@/lib/xlsx/transformations';
-import type {
-	Configuration,
-	ProcessedData,
-	TransformationRule,
-	UploadedFile,
-} from '@/types';
+import { escapeValues, simulateTransformations } from '@/lib/xlsx/transformations';
+import type { Configuration, ProcessedData, TransformationRule, UploadedFile } from '@/types';
 
 import { Button } from './ui/button';
 
@@ -60,8 +52,7 @@ export function CsvOutputPreview({
 
 		// Add data rows
 		processedData.data.forEach((row) => {
-			const delimiter =
-				'delimiter' in outputFormat ? outputFormat.delimiter : ',';
+			const delimiter = 'delimiter' in outputFormat ? outputFormat.delimiter : ',';
 			const csvRow = row
 				.map((cell) => escapeValues(cell?.toString() || '', delimiter))
 				.join(delimiter);
@@ -88,9 +79,7 @@ export function CsvOutputPreview({
 		return (
 			<div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
 				<Download className="mx-auto h-12 w-12 text-gray-400" />
-				<h3 className="mt-2 text-sm font-medium text-gray-900">
-					No Output Preview
-				</h3>
+				<h3 className="mt-2 text-sm font-medium text-gray-900">No Output Preview</h3>
 				<p className="mt-1 text-sm text-gray-500">
 					Upload a file and add transformation rules to see CSV output
 				</p>
@@ -105,9 +94,7 @@ export function CsvOutputPreview({
 					onClick={() => setIsCollapsed(false)}
 					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
 				>
-					<h3 className="text-lg font-medium text-gray-900">
-						CSV Output Preview
-					</h3>
+					<h3 className="text-lg font-medium text-gray-900">CSV Output Preview</h3>
 					<ChevronDown className="h-5 w-5 text-gray-400" />
 				</button>
 			</div>
@@ -120,9 +107,7 @@ export function CsvOutputPreview({
 			<div className="border-b border-gray-200 p-4">
 				<div className="flex items-center justify-between">
 					<div>
-						<h3 className="text-lg font-medium text-gray-900">
-							CSV Output Preview
-						</h3>
+						<h3 className="text-lg font-medium text-gray-900">CSV Output Preview</h3>
 						{processedData && (
 							<p className="mt-1 text-sm text-gray-500">
 								{processedData.rowCount} rows × {processedData.colCount} columns
@@ -136,27 +121,15 @@ export function CsvOutputPreview({
 						)}
 					</div>
 					<div className="flex items-center space-x-3">
-						<Button
-							size="sm"
-							variant="outline"
-							onClick={() => setShowRawCsv(!showRawCsv)}
-						>
-							{showRawCsv ? (
-								<Eye className="mr-1 h-3 w-3" />
-							) : (
-								<EyeOff className="mr-1 h-3 w-3" />
-							)}
+						<Button size="sm" variant="outline" onClick={() => setShowRawCsv(!showRawCsv)}>
+							{showRawCsv ? <Eye className="mr-1 h-3 w-3" /> : <EyeOff className="mr-1 h-3 w-3" />}
 							Raw CSV
 						</Button>
 						<Button size="sm" onClick={handleDownload} disabled={!csvOutput}>
 							<Download className="mr-1 h-3 w-3" />
 							Download
 						</Button>
-						<Button
-							onClick={() => setIsCollapsed(true)}
-							variant="ghost"
-							size="sm"
-						>
+						<Button onClick={() => setIsCollapsed(true)} variant="ghost" size="sm">
 							<ChevronDown className="h-5 w-5 rotate-180" />
 						</Button>
 					</div>
@@ -175,31 +148,28 @@ export function CsvOutputPreview({
 				)}
 
 				{/* Applied Rules */}
-				{processedData?.appliedRules &&
-					processedData.appliedRules.length > 0 && (
-						<div className="mt-3">
-							<h4 className="text-xs font-medium text-gray-700">
-								Applied Transformations:
-							</h4>
-							<div className="mt-1 flex flex-wrap gap-1">
-								{processedData.appliedRules.map((rule, index) => (
-									<span
-										key={index}
-										className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs text-green-800"
-									>
-										{rule}
-									</span>
-								))}
-							</div>
+				{processedData?.appliedRules && processedData.appliedRules.length > 0 && (
+					<div className="mt-3">
+						<h4 className="text-xs font-medium text-gray-700">Applied Transformations:</h4>
+						<div className="mt-1 flex flex-wrap gap-1">
+							{processedData.appliedRules.map((rule, index) => (
+								<span
+									key={index}
+									className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs text-green-800"
+								>
+									{rule}
+								</span>
+							))}
 						</div>
-					)}
+					</div>
+				)}
 			</div>
 
 			{/* Content */}
 			<div className="max-h-96 overflow-auto p-4">
 				{showRawCsv ? (
 					<div className="rounded bg-gray-50 p-3">
-						<pre className="whitespace-pre-wrap font-mono text-xs text-gray-800">
+						<pre className="font-mono text-xs whitespace-pre-wrap text-gray-800">
 							{csvOutput.slice(0, 2000)}
 							{csvOutput.length > 2000 && '\n... (truncated)'}
 						</pre>
@@ -227,10 +197,7 @@ export function CsvOutputPreview({
 									{processedData.data.slice(0, 20).map((row, rowIndex) => (
 										<tr key={rowIndex}>
 											{row.map((cell, colIndex) => (
-												<td
-													key={colIndex}
-													className="border border-gray-200 px-3 py-1 text-xs"
-												>
+												<td key={colIndex} className="border border-gray-200 px-3 py-1 text-xs">
 													{cell?.toString() || ''}
 												</td>
 											))}

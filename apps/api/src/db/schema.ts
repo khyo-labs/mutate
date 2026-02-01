@@ -131,20 +131,14 @@ export const configurations = pgTable('configuration', {
 		.notNull(),
 	name: varchar('name', { length: 255 }).notNull(),
 	description: text('description'),
-	conversionType: varchar('conversion_type', { length: 50 })
-		.default('XLSX_TO_CSV')
-		.notNull(),
-	inputFormat: varchar('input_format', { length: 20 })
-		.default('XLSX')
-		.notNull(),
+	conversionType: varchar('conversion_type', { length: 50 }).default('XLSX_TO_CSV').notNull(),
+	inputFormat: varchar('input_format', { length: 20 }).default('XLSX').notNull(),
 	outputFormat: jsonb('output_format').notNull(),
 	rules: jsonb('rules').notNull(),
 	version: integer('version').default(1).notNull(),
 	isActive: boolean('is_active').default(true).notNull(),
 	callbackUrl: text('callback_url'), // Default callback URL for this configuration
-	webhookUrlId: text('webhook_url_id').references(
-		() => organizationWebhooks.id,
-	), // Reference to org webhook URL
+	webhookUrlId: text('webhook_url_id').references(() => organizationWebhooks.id), // Reference to org webhook URL
 	createdBy: text('created_by')
 		.references(() => user.id)
 		.notNull(),
@@ -279,11 +273,7 @@ export const usageRecords = pgTable(
 		updatedAt: timestamp('updated_at').defaultNow().notNull(),
 	},
 	(table) => ({
-		uniqueOrgMonthYear: unique().on(
-			table.organizationId,
-			table.month,
-			table.year,
-		),
+		uniqueOrgMonthYear: unique().on(table.organizationId, table.month, table.year),
 	}),
 );
 
@@ -371,22 +361,19 @@ export const systemMetrics = pgTable('system_metrics', {
 	recordedAt: timestamp('recorded_at').defaultNow().notNull(),
 });
 
-export const organizationRelations = relations(
-	organization,
-	({ many, one }) => ({
-		members: many(member),
-		configurations: many(configurations),
-		transformationJobs: many(transformationJobs),
-		apiKeys: many(apiKeys),
-		auditLogs: many(auditLogs),
-		invitations: many(invitation),
-		webhooks: many(organizationWebhooks),
-		subscription: one(organizationSubscriptions),
-		usageRecords: many(usageRecords),
-		activeConversions: many(activeConversions),
-		billingEvents: many(billingEvents),
-	}),
-);
+export const organizationRelations = relations(organization, ({ many, one }) => ({
+	members: many(member),
+	configurations: many(configurations),
+	transformationJobs: many(transformationJobs),
+	apiKeys: many(apiKeys),
+	auditLogs: many(auditLogs),
+	invitations: many(invitation),
+	webhooks: many(organizationWebhooks),
+	subscription: one(organizationSubscriptions),
+	usageRecords: many(usageRecords),
+	activeConversions: many(activeConversions),
+	billingEvents: many(billingEvents),
+}));
 
 export const userRelations = relations(user, ({ many }) => ({
 	sessions: many(session),
@@ -401,68 +388,56 @@ export const userRelations = relations(user, ({ many }) => ({
 	passkeys: many(passkey),
 }));
 
-export const organizationWebhooksRelations = relations(
-	organizationWebhooks,
-	({ one, many }) => ({
-		organization: one(organization, {
-			fields: [organizationWebhooks.organizationId],
-			references: [organization.id],
-		}),
-		configurations: many(configurations),
+export const organizationWebhooksRelations = relations(organizationWebhooks, ({ one, many }) => ({
+	organization: one(organization, {
+		fields: [organizationWebhooks.organizationId],
+		references: [organization.id],
 	}),
-);
+	configurations: many(configurations),
+}));
 
-export const configurationsRelations = relations(
-	configurations,
-	({ one, many }) => ({
-		organization: one(organization, {
-			fields: [configurations.organizationId],
-			references: [organization.id],
-		}),
-		createdBy: one(user, {
-			fields: [configurations.createdBy],
-			references: [user.id],
-		}),
-		webhookUrl: one(organizationWebhooks, {
-			fields: [configurations.webhookUrlId],
-			references: [organizationWebhooks.id],
-		}),
-		transformationJobs: many(transformationJobs),
-		versions: many(configurationVersions),
+export const configurationsRelations = relations(configurations, ({ one, many }) => ({
+	organization: one(organization, {
+		fields: [configurations.organizationId],
+		references: [organization.id],
 	}),
-);
+	createdBy: one(user, {
+		fields: [configurations.createdBy],
+		references: [user.id],
+	}),
+	webhookUrl: one(organizationWebhooks, {
+		fields: [configurations.webhookUrlId],
+		references: [organizationWebhooks.id],
+	}),
+	transformationJobs: many(transformationJobs),
+	versions: many(configurationVersions),
+}));
 
-export const configurationVersionsRelations = relations(
-	configurationVersions,
-	({ one }) => ({
-		configuration: one(configurations, {
-			fields: [configurationVersions.configurationId],
-			references: [configurations.id],
-		}),
-		createdBy: one(user, {
-			fields: [configurationVersions.createdBy],
-			references: [user.id],
-		}),
+export const configurationVersionsRelations = relations(configurationVersions, ({ one }) => ({
+	configuration: one(configurations, {
+		fields: [configurationVersions.configurationId],
+		references: [configurations.id],
 	}),
-);
+	createdBy: one(user, {
+		fields: [configurationVersions.createdBy],
+		references: [user.id],
+	}),
+}));
 
-export const transformationJobsRelations = relations(
-	transformationJobs,
-	({ one }) => ({
-		organization: one(organization, {
-			fields: [transformationJobs.organizationId],
-			references: [organization.id],
-		}),
-		configuration: one(configurations, {
-			fields: [transformationJobs.configurationId],
-			references: [configurations.id],
-		}),
-		createdBy: one(user, {
-			fields: [transformationJobs.createdBy],
-			references: [user.id],
-		}),
+export const transformationJobsRelations = relations(transformationJobs, ({ one }) => ({
+	organization: one(organization, {
+		fields: [transformationJobs.organizationId],
+		references: [organization.id],
 	}),
-);
+	configuration: one(configurations, {
+		fields: [transformationJobs.configurationId],
+		references: [configurations.id],
+	}),
+	createdBy: one(user, {
+		fields: [transformationJobs.createdBy],
+		references: [user.id],
+	}),
+}));
 
 export const apiKeysRelations = relations(apiKeys, ({ one }) => ({
 	organization: one(organization, {
@@ -545,12 +520,9 @@ export const invitationRelations = relations(invitation, ({ one }) => ({
 	}),
 }));
 
-export const subscriptionPlansRelations = relations(
-	subscriptionPlans,
-	({ many }) => ({
-		subscriptions: many(organizationSubscriptions),
-	}),
-);
+export const subscriptionPlansRelations = relations(subscriptionPlans, ({ many }) => ({
+	subscriptions: many(organizationSubscriptions),
+}));
 
 export const organizationSubscriptionsRelations = relations(
 	organizationSubscriptions,
@@ -573,19 +545,16 @@ export const usageRecordsRelations = relations(usageRecords, ({ one }) => ({
 	}),
 }));
 
-export const activeConversionsRelations = relations(
-	activeConversions,
-	({ one }) => ({
-		organization: one(organization, {
-			fields: [activeConversions.organizationId],
-			references: [organization.id],
-		}),
-		job: one(transformationJobs, {
-			fields: [activeConversions.jobId],
-			references: [transformationJobs.id],
-		}),
+export const activeConversionsRelations = relations(activeConversions, ({ one }) => ({
+	organization: one(organization, {
+		fields: [activeConversions.organizationId],
+		references: [organization.id],
 	}),
-);
+	job: one(transformationJobs, {
+		fields: [activeConversions.jobId],
+		references: [transformationJobs.id],
+	}),
+}));
 
 export const billingEventsRelations = relations(billingEvents, ({ one }) => ({
 	organization: one(organization, {
@@ -594,30 +563,24 @@ export const billingEventsRelations = relations(billingEvents, ({ one }) => ({
 	}),
 }));
 
-export const platformAdminsRelations = relations(
-	platformAdmins,
-	({ one, many }) => ({
-		user: one(user, {
-			fields: [platformAdmins.userId],
-			references: [user.id],
-		}),
-		createdByUser: one(user, {
-			fields: [platformAdmins.createdBy],
-			references: [user.id],
-		}),
-		auditLogs: many(platformAuditLogs),
+export const platformAdminsRelations = relations(platformAdmins, ({ one, many }) => ({
+	user: one(user, {
+		fields: [platformAdmins.userId],
+		references: [user.id],
 	}),
-);
+	createdByUser: one(user, {
+		fields: [platformAdmins.createdBy],
+		references: [user.id],
+	}),
+	auditLogs: many(platformAuditLogs),
+}));
 
-export const platformAuditLogsRelations = relations(
-	platformAuditLogs,
-	({ one }) => ({
-		admin: one(platformAdmins, {
-			fields: [platformAuditLogs.adminId],
-			references: [platformAdmins.id],
-		}),
+export const platformAuditLogsRelations = relations(platformAuditLogs, ({ one }) => ({
+	admin: one(platformAdmins, {
+		fields: [platformAuditLogs.adminId],
+		references: [platformAdmins.id],
 	}),
-);
+}));
 
 // Webhook delivery tracking (idempotency, retries, DLQ)
 export const webhookDeliveries = pgTable('webhook_delivery', {
@@ -629,13 +592,9 @@ export const webhookDeliveries = pgTable('webhook_delivery', {
 		.references(() => configurations.id)
 		.notNull(),
 	targetUrl: text('target_url').notNull(),
-	webhookUrlId: text('webhook_url_id').references(
-		() => organizationWebhooks.id,
-	),
+	webhookUrlId: text('webhook_url_id').references(() => organizationWebhooks.id),
 	eventType: varchar('event_type', { length: 100 }).notNull(),
-	idempotencyKey: varchar('idempotency_key', { length: 128 })
-		.notNull()
-		.unique(),
+	idempotencyKey: varchar('idempotency_key', { length: 128 }).notNull().unique(),
 	payload: jsonb('payload').notNull(),
 	payloadHash: varchar('payload_hash', { length: 128 }).notNull(),
 	signature: text('signature'),
@@ -651,20 +610,17 @@ export const webhookDeliveries = pgTable('webhook_delivery', {
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export const webhookDeliveriesRelations = relations(
-	webhookDeliveries,
-	({ one }) => ({
-		organization: one(organization, {
-			fields: [webhookDeliveries.organizationId],
-			references: [organization.id],
-		}),
-		configuration: one(configurations, {
-			fields: [webhookDeliveries.configurationId],
-			references: [configurations.id],
-		}),
-		webhookUrl: one(organizationWebhooks, {
-			fields: [webhookDeliveries.webhookUrlId],
-			references: [organizationWebhooks.id],
-		}),
+export const webhookDeliveriesRelations = relations(webhookDeliveries, ({ one }) => ({
+	organization: one(organization, {
+		fields: [webhookDeliveries.organizationId],
+		references: [organization.id],
 	}),
-);
+	configuration: one(configurations, {
+		fields: [webhookDeliveries.configurationId],
+		references: [configurations.id],
+	}),
+	webhookUrl: one(organizationWebhooks, {
+		fields: [webhookDeliveries.webhookUrlId],
+		references: [organizationWebhooks.id],
+	}),
+}));

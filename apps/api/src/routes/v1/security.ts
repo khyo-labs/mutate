@@ -52,8 +52,7 @@ export async function securityRoutes(fastify: FastifyInstance) {
 				success: false,
 				error: {
 					code: 'ENABLE_2FA_FAILED',
-					message:
-						error.message || 'Failed to enable two-factor authentication',
+					message: error.message || 'Failed to enable two-factor authentication',
 				},
 			});
 		}
@@ -126,8 +125,7 @@ export async function securityRoutes(fastify: FastifyInstance) {
 				success: false,
 				error: {
 					code: 'DISABLE_2FA_FAILED',
-					message:
-						error.message || 'Failed to disable two-factor authentication',
+					message: error.message || 'Failed to disable two-factor authentication',
 				},
 			});
 		}

@@ -53,10 +53,7 @@ export class ConversionErrorHandler {
 
 		return {
 			code: 'UNKNOWN_ERROR',
-			message: getErrorMessage(
-				error,
-				'An unknown error occurred during conversion',
-			),
+			message: getErrorMessage(error, 'An unknown error occurred during conversion'),
 			context: { ...context, timestamp },
 			executionLog,
 		};
@@ -66,21 +63,15 @@ export class ConversionErrorHandler {
 		const messages: string[] = [error.message];
 
 		if (error.context?.ruleType && error.context?.ruleIndex !== undefined) {
-			messages.push(
-				`(Rule ${error.context.ruleIndex + 1}: ${error.context.ruleType})`,
-			);
+			messages.push(`(Rule ${error.context.ruleIndex + 1}: ${error.context.ruleType})`);
 		}
 
 		if (error.details?.availableSheets) {
-			messages.push(
-				`Available sheets: ${error.details.availableSheets.join(', ')}`,
-			);
+			messages.push(`Available sheets: ${error.details.availableSheets.join(', ')}`);
 		}
 
 		if (error.details?.expected && error.details?.actual) {
-			messages.push(
-				`Expected: ${error.details.expected}, Actual: ${error.details.actual}`,
-			);
+			messages.push(`Expected: ${error.details.expected}, Actual: ${error.details.actual}`);
 		}
 
 		return messages.join(' ');

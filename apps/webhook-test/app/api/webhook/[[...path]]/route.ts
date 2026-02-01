@@ -10,11 +10,7 @@ export async function POST(
 	return handleWebhook(request, 'POST', path || []);
 }
 
-async function handleWebhook(
-	request: NextRequest,
-	method: string,
-	pathSegments: string[],
-) {
+async function handleWebhook(request: NextRequest, method: string, pathSegments: string[]) {
 	const startTime = Date.now();
 	const path = `/webhook/${pathSegments.join('/')}`;
 	const config = webhookStore.getConfigRaw();
@@ -24,13 +20,8 @@ async function handleWebhook(
 	const attemptCount = webhookStore.incrementAttempt(attemptKey);
 
 	// Check if should fail after N attempts
-	if (
-		config.failAfterAttempts > 0 &&
-		attemptCount <= config.failAfterAttempts
-	) {
-		console.log(
-			`Simulating failure for attempt ${attemptCount}/${config.failAfterAttempts}`,
-		);
+	if (config.failAfterAttempts > 0 && attemptCount <= config.failAfterAttempts) {
+		console.log(`Simulating failure for attempt ${attemptCount}/${config.failAfterAttempts}`);
 		return NextResponse.json(
 			{
 				error: 'Simulated failure',
@@ -86,9 +77,7 @@ async function handleWebhook(
 
 	// Extract special headers
 	const signature =
-		headers['mutate-signature'] ||
-		headers['x-webhook-signature'] ||
-		headers['x-hub-signature-256'];
+		headers['mutate-signature'] || headers['x-webhook-signature'] || headers['x-hub-signature-256'];
 	const event = headers['x-webhook-event'];
 
 	// Check signature if required
@@ -101,20 +90,12 @@ async function handleWebhook(
 	// HMAC verification
 	let hmacValid: boolean | null = null;
 	if (config.verifyHmac && signature) {
-		const rawBody =
-			typeof body === 'object' ? JSON.stringify(body) : String(body);
-		hmacValid = webhookStore.verifySignature(
-			rawBody,
-			signature,
-			config.webhookSecret,
-		);
+		const rawBody = typeof body === 'object' ? JSON.stringify(body) : String(body);
+		hmacValid = webhookStore.verifySignature(rawBody, signature, config.webhookSecret);
 
 		if (!hmacValid) {
 			console.log('Webhook signature verification failed');
-			return NextResponse.json(
-				{ error: 'Invalid webhook signature' },
-				{ status: 401 },
-			);
+			return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 401 });
 		}
 	}
 
@@ -137,10 +118,7 @@ async function handleWebhook(
 		signature,
 		hmacValid,
 		event,
-		ip:
-			request.headers.get('x-forwarded-for') ||
-			request.headers.get('x-real-ip') ||
-			'unknown',
+		ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
 		jobId: body?.jobId,
 		status: body?.status,
 		uid: body?.uid,

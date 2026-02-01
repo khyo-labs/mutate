@@ -6,8 +6,7 @@ import type { Configuration } from '@/types/index.js';
 import type { Converter } from './core/types.js';
 
 export const jsonToXlsxConverter: Converter = {
-	supports: (input: string, output: string) =>
-		input === 'json' && output === 'xlsx',
+	supports: (input: string, output: string) => input === 'json' && output === 'xlsx',
 
 	convert: (file: Buffer, config?: Configuration) =>
 		Effect.tryPromise({
@@ -23,11 +22,7 @@ export const jsonToXlsxConverter: Converter = {
 					for (const [sheetName, data] of Object.entries(jsonData)) {
 						if (Array.isArray(data)) {
 							const worksheet = XLSX.utils.json_to_sheet(data);
-							XLSX.utils.book_append_sheet(
-								workbook,
-								worksheet,
-								sheetName.slice(0, 31),
-							);
+							XLSX.utils.book_append_sheet(workbook, worksheet, sheetName.slice(0, 31));
 						}
 					}
 
@@ -46,13 +41,11 @@ export const jsonToXlsxConverter: Converter = {
 
 				return Buffer.from(xlsxBuffer);
 			},
-			catch: (error) =>
-				new Error(`JSON to XLSX conversion failed: ${String(error)}`),
+			catch: (error) => new Error(`JSON to XLSX conversion failed: ${String(error)}`),
 		}),
 
 	metadata: {
-		description:
-			'Converts a JSON array or object into a single-sheet workbook.',
+		description: 'Converts a JSON array or object into a single-sheet workbook.',
 		status: 'supported',
 		experimental: false,
 		costEstimate: null,

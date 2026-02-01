@@ -41,10 +41,7 @@ export class AdminService {
 		return admin[0].require2fa;
 	}
 
-	async checkTrustedIP(
-		adminUserId: string,
-		ipAddress: string,
-	): Promise<boolean> {
+	async checkTrustedIP(adminUserId: string, ipAddress: string): Promise<boolean> {
 		const admin = await db
 			.select({ trustedIps: platformAdmins.trustedIps })
 			.from(platformAdmins)

@@ -209,8 +209,7 @@ function FeatureFlagsManagement() {
 			(f) => f.enabled && f.rolloutPercentage > 0 && f.rolloutPercentage < 100,
 		).length,
 		withOverrides: flags.filter(
-			(f) =>
-				f.workspaceOverrides && Object.keys(f.workspaceOverrides).length > 0,
+			(f) => f.workspaceOverrides && Object.keys(f.workspaceOverrides).length > 0,
 		).length,
 	};
 
@@ -226,9 +225,7 @@ function FeatureFlagsManagement() {
 		<div className="space-y-6">
 			<div>
 				<h2 className="text-2xl font-bold">Feature Flags</h2>
-				<p className="text-muted-foreground">
-					Manage feature rollouts and A/B testing
-				</p>
+				<p className="text-muted-foreground">Manage feature rollouts and A/B testing</p>
 			</div>
 
 			{/* Statistics */}
@@ -257,9 +254,7 @@ function FeatureFlagsManagement() {
 
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Partial Rollout
-						</CardTitle>
+						<CardTitle className="text-sm font-medium">Partial Rollout</CardTitle>
 						<Percent className="h-4 w-4 text-blue-600" />
 					</CardHeader>
 					<CardContent>
@@ -270,9 +265,7 @@ function FeatureFlagsManagement() {
 
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							With Overrides
-						</CardTitle>
+						<CardTitle className="text-sm font-medium">With Overrides</CardTitle>
 						<Settings className="h-4 w-4 text-purple-600" />
 					</CardHeader>
 					<CardContent>
@@ -340,18 +333,14 @@ function FeatureFlagsManagement() {
 														<Copy className="h-3 w-3" />
 													</Button>
 												</div>
-												<p className="text-muted-foreground text-xs">
-													{flag.description}
-												</p>
+												<p className="text-muted-foreground text-xs">{flag.description}</p>
 											</div>
 										</TableCell>
 										<TableCell>
 											<div className="flex items-center gap-2">
 												<Switch
 													checked={flag.enabled}
-													onCheckedChange={(checked) =>
-														toggleFlag(flag.id, checked)
-													}
+													onCheckedChange={(checked) => toggleFlag(flag.id, checked)}
 												/>
 												<Badge variant={flag.enabled ? 'default' : 'secondary'}>
 													{flag.enabled ? 'Enabled' : 'Disabled'}
@@ -364,10 +353,7 @@ function FeatureFlagsManagement() {
 													<div className="flex items-center justify-between text-xs">
 														<span>{flag.rolloutPercentage}%</span>
 													</div>
-													<Progress
-														value={flag.rolloutPercentage}
-														className="mt-1"
-													/>
+													<Progress value={flag.rolloutPercentage} className="mt-1" />
 												</div>
 											)}
 										</TableCell>
@@ -375,8 +361,7 @@ function FeatureFlagsManagement() {
 											{flag.workspaceOverrides &&
 											Object.keys(flag.workspaceOverrides).length > 0 ? (
 												<Badge variant="outline">
-													{Object.keys(flag.workspaceOverrides).length}{' '}
-													overrides
+													{Object.keys(flag.workspaceOverrides).length} overrides
 												</Badge>
 											) : (
 												<span className="text-muted-foreground text-sm">-</span>
@@ -420,9 +405,7 @@ function FeatureFlagsManagement() {
 														<Settings className="mr-2 h-4 w-4" />
 														Manage Overrides
 													</DropdownMenuItem>
-													<DropdownMenuItem
-														onClick={() => copyFlagName(flag.name)}
-													>
+													<DropdownMenuItem onClick={() => copyFlagName(flag.name)}>
 														<Code className="mr-2 h-4 w-4" />
 														Copy Name
 													</DropdownMenuItem>
@@ -458,9 +441,7 @@ function FeatureFlagsManagement() {
 			>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>
-							{editingFlag ? 'Edit Feature Flag' : 'Create Feature Flag'}
-						</DialogTitle>
+						<DialogTitle>{editingFlag ? 'Edit Feature Flag' : 'Create Feature Flag'}</DialogTitle>
 						<DialogDescription>
 							{editingFlag
 								? 'Update the feature flag configuration'
@@ -474,14 +455,10 @@ function FeatureFlagsManagement() {
 								id="name"
 								placeholder="e.g., new_dashboard_ui"
 								value={formData.name}
-								onChange={(e) =>
-									setFormData({ ...formData, name: e.target.value })
-								}
+								onChange={(e) => setFormData({ ...formData, name: e.target.value })}
 								disabled={!!editingFlag}
 							/>
-							<p className="text-muted-foreground mt-1 text-xs">
-								Use snake_case for consistency
-							</p>
+							<p className="text-muted-foreground mt-1 text-xs">Use snake_case for consistency</p>
 						</div>
 						<div>
 							<Label htmlFor="description">Description</Label>
@@ -489,9 +466,7 @@ function FeatureFlagsManagement() {
 								id="description"
 								placeholder="Describe what this feature flag controls..."
 								value={formData.description}
-								onChange={(e) =>
-									setFormData({ ...formData, description: e.target.value })
-								}
+								onChange={(e) => setFormData({ ...formData, description: e.target.value })}
 								rows={3}
 							/>
 						</div>
@@ -500,16 +475,12 @@ function FeatureFlagsManagement() {
 							<Switch
 								id="enabled"
 								checked={formData.enabled}
-								onCheckedChange={(checked) =>
-									setFormData({ ...formData, enabled: checked })
-								}
+								onCheckedChange={(checked) => setFormData({ ...formData, enabled: checked })}
 							/>
 						</div>
 						{formData.enabled && (
 							<div>
-								<Label htmlFor="rollout">
-									Rollout Percentage: {formData.rolloutPercentage}%
-								</Label>
+								<Label htmlFor="rollout">Rollout Percentage: {formData.rolloutPercentage}%</Label>
 								<Slider
 									id="rollout"
 									min={0}
@@ -538,9 +509,7 @@ function FeatureFlagsManagement() {
 						>
 							Cancel
 						</Button>
-						<Button
-							onClick={editingFlag ? updateFeatureFlag : createFeatureFlag}
-						>
+						<Button onClick={editingFlag ? updateFeatureFlag : createFeatureFlag}>
 							{editingFlag ? 'Update' : 'Create'} Flag
 						</Button>
 					</DialogFooter>
@@ -569,9 +538,7 @@ function FeatureFlagsManagement() {
 													className="flex items-center justify-between rounded-lg border p-2"
 												>
 													<div className="flex items-center gap-2">
-														<span className="font-mono text-sm">
-															{workspaceId}
-														</span>
+														<span className="font-mono text-sm">{workspaceId}</span>
 														<Badge variant={enabled ? 'default' : 'secondary'}>
 															{enabled ? 'Enabled' : 'Disabled'}
 														</Badge>
@@ -579,9 +546,7 @@ function FeatureFlagsManagement() {
 													<Button
 														variant="ghost"
 														size="sm"
-														onClick={() =>
-															removeOverride(selectedFlag.id, workspaceId)
-														}
+														onClick={() => removeOverride(selectedFlag.id, workspaceId)}
 													>
 														<Trash2 className="h-4 w-4" />
 													</Button>
@@ -616,16 +581,10 @@ function FeatureFlagsManagement() {
 						</div>
 					</div>
 					<DialogFooter>
-						<Button
-							variant="outline"
-							onClick={() => setShowOverrideModal(false)}
-						>
+						<Button variant="outline" onClick={() => setShowOverrideModal(false)}>
 							Close
 						</Button>
-						<Button
-							onClick={addWorkspaceOverride}
-							disabled={!overrideData.workspaceId}
-						>
+						<Button onClick={addWorkspaceOverride} disabled={!overrideData.workspaceId}>
 							Add Override
 						</Button>
 					</DialogFooter>

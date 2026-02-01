@@ -1,8 +1,6 @@
 import * as XLSX from 'xlsx';
 
-export function worksheetToMatrix(
-	ws: XLSX.WorkSheet,
-): (string | number | null)[][] {
+export function worksheetToMatrix(ws: XLSX.WorkSheet): (string | number | null)[][] {
 	const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
 	const data: (string | number | null)[][] = [];
 
@@ -19,7 +17,5 @@ export function worksheetToMatrix(
 }
 
 export function extractHeaders(data: (string | number | null)[][]): string[] {
-	return data.length > 0
-		? data[0].map((cell, idx) => cell?.toString() || `Column ${idx + 1}`)
-		: [];
+	return data.length > 0 ? data[0].map((cell, idx) => cell?.toString() || `Column ${idx + 1}`) : [];
 }

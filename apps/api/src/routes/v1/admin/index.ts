@@ -127,23 +127,17 @@ export async function adminRoutes(fastify: FastifyInstance) {
 				db
 					.select({ count: sql<number>`count(*)` })
 					.from(transformationJobs)
-					.where(
-						sql`created_at >= ${oneDayAgo.toISOString()} AND status = 'failed'`,
-					)
+					.where(sql`created_at >= ${oneDayAgo.toISOString()} AND status = 'failed'`)
 					.then((rows) => Number(rows[0]?.count || 0)),
 			]);
 
 			const errorRate = totalJobs > 0 ? (failedJobs / totalJobs) * 100 : 0;
 
 			if (request.currentUser) {
-				await adminAuditService.logAdminAction(
-					request.currentUser.id,
-					'VIEW_PLATFORM_OVERVIEW',
-					{
-						ipAddress: request.ip,
-						userAgent: request.headers['user-agent'],
-					},
-				);
+				await adminAuditService.logAdminAction(request.currentUser.id, 'VIEW_PLATFORM_OVERVIEW', {
+					ipAddress: request.ip,
+					userAgent: request.headers['user-agent'],
+				});
 			}
 
 			return {

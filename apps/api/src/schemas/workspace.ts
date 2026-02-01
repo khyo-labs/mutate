@@ -13,10 +13,7 @@ export const updateWorkspaceSchema = z.object({
 	slug: z
 		.string()
 		.min(1, 'Workspace slug is required')
-		.regex(
-			/^[a-z0-9-]+$/,
-			'Slug can only contain lowercase letters, numbers, and hyphens',
-		)
+		.regex(/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens')
 		.refine((value) => !value.startsWith('-') && !value.endsWith('-'), {
 			message: 'Slug cannot start or end with a hyphen',
 		})

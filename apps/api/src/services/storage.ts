@@ -1,8 +1,4 @@
-import {
-	GetObjectCommand,
-	PutObjectCommand,
-	S3Client,
-} from '@aws-sdk/client-s3';
+import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ulid } from 'ulid';
 
@@ -43,11 +39,7 @@ class S3StorageProvider implements StorageProvider {
 		this.bucket = bucket;
 	}
 
-	async uploadFile(
-		key: string,
-		buffer: Buffer,
-		contentType: string,
-	): Promise<string> {
+	async uploadFile(key: string, buffer: Buffer, contentType: string): Promise<string> {
 		const command = new PutObjectCommand({
 			Bucket: this.bucket,
 			Key: key,
@@ -63,10 +55,7 @@ class S3StorageProvider implements StorageProvider {
 		return key;
 	}
 
-	async generatePresignedUrl(
-		key: string,
-		expiresIn: number = 3600,
-	): Promise<string> {
+	async generatePresignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
 		const command = new GetObjectCommand({
 			Bucket: this.bucket,
 			Key: key,
@@ -101,11 +90,7 @@ class LocalStorageProvider implements StorageProvider {
 		this.storagePath = storagePath;
 	}
 
-	async uploadFile(
-		key: string,
-		buffer: Buffer,
-		contentType: string,
-	): Promise<string> {
+	async uploadFile(key: string, buffer: Buffer, contentType: string): Promise<string> {
 		const fs = await import('fs/promises');
 		const path = await import('path');
 
@@ -121,10 +106,7 @@ class LocalStorageProvider implements StorageProvider {
 		return key;
 	}
 
-	async generatePresignedUrl(
-		key: string,
-		expiresIn: number = 3600,
-	): Promise<string> {
+	async generatePresignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
 		// For local storage, return a direct URL (in production, you'd want a proper signed URL system)
 		// This is just for development/testing
 		const encodedKey = encodeURIComponent(key);
@@ -155,10 +137,7 @@ export class StorageService {
 	private createProvider(): StorageProvider {
 		switch (config.STORAGE_TYPE) {
 			case 's3':
-				if (
-					config.CLOUDFLARE_R2_ACCESS_KEY_ID &&
-					config.CLOUDFLARE_R2_SECRET_ACCESS_KEY
-				) {
+				if (config.CLOUDFLARE_R2_ACCESS_KEY_ID && config.CLOUDFLARE_R2_SECRET_ACCESS_KEY) {
 					// Use Cloudflare R2
 					return new S3StorageProvider(
 						config.CLOUDFLARE_R2_ACCESS_KEY_ID,
@@ -176,9 +155,7 @@ export class StorageService {
 						config.AWS_S3_BUCKET!,
 					);
 				} else {
-					throw new Error(
-						'S3 storage type selected but no credentials provided',
-					);
+					throw new Error('S3 storage type selected but no credentials provided');
 				}
 
 			case 'local':

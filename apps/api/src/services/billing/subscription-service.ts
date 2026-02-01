@@ -11,16 +11,11 @@ import {
 import type { ConversionLimits } from '@/services/billing/types.js';
 
 export class SubscriptionService {
-	async getOrganizationLimits(
-		organizationId: string,
-	): Promise<ConversionLimits> {
+	async getOrganizationLimits(organizationId: string): Promise<ConversionLimits> {
 		const subscription = await db
 			.select()
 			.from(organizationSubscriptions)
-			.innerJoin(
-				subscriptionPlans,
-				eq(organizationSubscriptions.planId, subscriptionPlans.id),
-			)
+			.innerJoin(subscriptionPlans, eq(organizationSubscriptions.planId, subscriptionPlans.id))
 			.where(eq(organizationSubscriptions.organizationId, organizationId))
 			.limit(1);
 
@@ -29,17 +24,13 @@ export class SubscriptionService {
 			return this.getDefaultFreeLimits();
 		}
 
-		const { organization_subscription: orgSub, subscription_plan: plan } =
-			subscription[0];
+		const { organization_subscription: orgSub, subscription_plan: plan } = subscription[0];
 
 		return {
-			monthlyConversionLimit:
-				orgSub.overrideMonthlyLimit ?? plan.monthlyConversionLimit,
-			concurrentConversionLimit:
-				orgSub.overrideConcurrentLimit ?? plan.concurrentConversionLimit,
+			monthlyConversionLimit: orgSub.overrideMonthlyLimit ?? plan.monthlyConversionLimit,
+			concurrentConversionLimit: orgSub.overrideConcurrentLimit ?? plan.concurrentConversionLimit,
 			maxFileSizeMb: orgSub.overrideMaxFileSizeMb ?? plan.maxFileSizeMb,
-			overagePriceCents:
-				orgSub.overrideOveragePriceCents ?? plan.overagePriceCents,
+			overagePriceCents: orgSub.overrideOveragePriceCents ?? plan.overagePriceCents,
 		};
 	}
 
@@ -47,10 +38,7 @@ export class SubscriptionService {
 		const subscription = await db
 			.select()
 			.from(organizationSubscriptions)
-			.innerJoin(
-				subscriptionPlans,
-				eq(organizationSubscriptions.planId, subscriptionPlans.id),
-			)
+			.innerJoin(subscriptionPlans, eq(organizationSubscriptions.planId, subscriptionPlans.id))
 			.where(eq(organizationSubscriptions.organizationId, organizationId))
 			.limit(1);
 
@@ -106,10 +94,7 @@ export class SubscriptionService {
 		}
 	}
 
-	async setOrganizationOverrides(
-		organizationId: string,
-		overrides: Partial<ConversionLimits>,
-	) {
+	async setOrganizationOverrides(organizationId: string, overrides: Partial<ConversionLimits>) {
 		await db
 			.update(organizationSubscriptions)
 			.set({
@@ -138,12 +123,7 @@ export class SubscriptionService {
 		const plans = await db
 			.select()
 			.from(subscriptionPlans)
-			.where(
-				and(
-					eq(subscriptionPlans.active, true),
-					eq(subscriptionPlans.isDefault, true),
-				),
-			)
+			.where(and(eq(subscriptionPlans.active, true), eq(subscriptionPlans.isDefault, true)))
 			.limit(1);
 
 		return plans[0] || null;
@@ -270,10 +250,7 @@ export class SubscriptionService {
 				organizationSubscriptions,
 				eq(organization.id, organizationSubscriptions.organizationId),
 			)
-			.leftJoin(
-				subscriptionPlans,
-				eq(organizationSubscriptions.planId, subscriptionPlans.id),
-			);
+			.leftJoin(subscriptionPlans, eq(organizationSubscriptions.planId, subscriptionPlans.id));
 
 		// Get usage for each organization
 		const orgsWithUsage = await Promise.all(

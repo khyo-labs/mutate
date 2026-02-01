@@ -61,12 +61,9 @@ export const jobsApi = {
 		params?: JobsQueryParams,
 	): Promise<JobsListResponse> {
 		const searchParams = new URLSearchParams();
-		if (params?.configurationId)
-			searchParams.append('configurationId', params.configurationId);
-		if (params?.limit)
-			searchParams.append('limit', params.limit.toString());
-		if (params?.offset)
-			searchParams.append('offset', params.offset.toString());
+		if (params?.configurationId) searchParams.append('configurationId', params.configurationId);
+		if (params?.limit) searchParams.append('limit', params.limit.toString());
+		if (params?.offset) searchParams.append('offset', params.offset.toString());
 		if (params?.status) searchParams.append('status', params.status);
 
 		let url = `/v1/workspace/${workspaceId}/jobs`;
@@ -77,9 +74,7 @@ export const jobsApi = {
 		return api.get<JobsListResponse>(url);
 	},
 
-	getJobStats: async function (
-		workspaceId: string,
-	): Promise<JobStatsResponse> {
+	getJobStats: async function (workspaceId: string): Promise<JobStatsResponse> {
 		return api.get<JobStatsResponse>(`/v1/workspace/${workspaceId}/jobs/stats`);
 	},
 
@@ -87,8 +82,6 @@ export const jobsApi = {
 		mutationId: string,
 		jobId: string,
 	): Promise<JobDownloadResponse> {
-		return api.post<JobDownloadResponse>(
-			`/v1/mutate/${mutationId}/jobs/${jobId}/download`,
-		);
+		return api.post<JobDownloadResponse>(`/v1/mutate/${mutationId}/jobs/${jobId}/download`);
 	},
 };

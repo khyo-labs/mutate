@@ -103,8 +103,7 @@ export async function mutateRoutes(app: FastifyInstance) {
 						fileBuffer = yield* Effect.tryPromise({
 							try: async () => {
 								const chunks: Buffer[] = [];
-								for await (const chunk of multipartData.file)
-									chunks.push(chunk);
+								for await (const chunk of multipartData.file) chunks.push(chunk);
 								return Buffer.concat(chunks);
 							},
 							catch: (error) => ({
@@ -178,9 +177,7 @@ export async function mutateRoutes(app: FastifyInstance) {
 									configurationId: config.id,
 									fileData: fileBuffer.toString('base64'),
 									fileName,
-									conversionType: config.conversionType as
-										| 'XLSX_TO_CSV'
-										| 'DOCX_TO_PDF',
+									conversionType: config.conversionType as 'XLSX_TO_CSV' | 'DOCX_TO_PDF',
 									callbackUrl: callbackUrl,
 									uid,
 									options: {},
@@ -260,9 +257,7 @@ export async function mutateRoutes(app: FastifyInstance) {
 			},
 		},
 		effectHandler(
-			(
-				req: FastifyRequest<{ Params: { mutationId: string; jobId: string } }>,
-			) =>
+			(req: FastifyRequest<{ Params: { mutationId: string; jobId: string } }>) =>
 				Effect.gen(function* () {
 					const database = yield* DatabaseService;
 					const storage = yield* StorageService;
@@ -280,9 +275,7 @@ export async function mutateRoutes(app: FastifyInstance) {
 					if (job.status === 'completed' && job.metadata?.outputFileKey) {
 						downloadUrl = yield* storage
 							.signGet(job.metadata.outputFileKey, 3600)
-							.pipe(
-								Effect.orElse(() => Effect.succeed(job.metadata?.downloadUrl)),
-							);
+							.pipe(Effect.orElse(() => Effect.succeed(job.metadata?.downloadUrl)));
 					}
 
 					return {
@@ -330,9 +323,7 @@ export async function mutateRoutes(app: FastifyInstance) {
 			},
 		},
 		effectHandler(
-			(
-				req: FastifyRequest<{ Params: { mutationId: string; jobId: string } }>,
-			) =>
+			(req: FastifyRequest<{ Params: { mutationId: string; jobId: string } }>) =>
 				Effect.gen(function* () {
 					const database = yield* DatabaseService;
 					const storage = yield* StorageService;
@@ -355,10 +346,7 @@ export async function mutateRoutes(app: FastifyInstance) {
 					}
 
 					// Generate a fresh presigned URL
-					const downloadUrl = yield* storage.signGet(
-						job.metadata.outputFileKey,
-						3600,
-					);
+					const downloadUrl = yield* storage.signGet(job.metadata.outputFileKey, 3600);
 
 					return {
 						downloadUrl,

@@ -48,8 +48,7 @@ export function ApiKeyDrawer({
 	});
 
 	const updateApiKey = useMutation({
-		mutationFn: ({ id, data }: { id: string; data: ApiKeyFormData }) =>
-			apiKeysApi.update(id, data),
+		mutationFn: ({ id, data }: { id: string; data: ApiKeyFormData }) => apiKeysApi.update(id, data),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['workspace', 'api-keys'] });
 			closeButtonRef.current?.click();
@@ -75,10 +74,7 @@ export function ApiKeyDrawer({
 			<div className="flex-1 overflow-y-auto p-4">
 				{
 					<Form {...form}>
-						<form
-							onSubmit={form.handleSubmit(handleSubmit)}
-							className="space-y-4"
-						>
+						<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
 							<FormField
 								control={form.control}
 								name="name"
@@ -86,11 +82,7 @@ export function ApiKeyDrawer({
 									<FormItem>
 										<FormLabel>Name</FormLabel>
 										<FormControl>
-											<Input
-												{...field}
-												placeholder="e.g., Production API"
-												autoComplete="off"
-											/>
+											<Input {...field} placeholder="e.g., Production API" autoComplete="off" />
 										</FormControl>
 									</FormItem>
 								)}
@@ -117,9 +109,7 @@ export function ApiKeyDrawer({
 
 							<div className="bg-muted/50 rounded-lg p-3 text-sm">
 								<p className="font-medium">Permissions</p>
-								<p className="text-muted-foreground mt-1">
-									This API key will have access to:
-								</p>
+								<p className="text-muted-foreground mt-1">This API key will have access to:</p>
 								<ul className="text-muted-foreground mt-2 list-inside list-disc">
 									<li>Mutate files</li>
 									<li>Check status of mutations</li>

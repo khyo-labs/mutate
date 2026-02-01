@@ -1,10 +1,7 @@
 import { FastifyInstance } from 'fastify';
 
 import { requireAdmin } from '@/middleware/auth.js';
-import {
-	QuotaEnforcementService,
-	SubscriptionService,
-} from '@/services/billing/index.js';
+import { QuotaEnforcementService, SubscriptionService } from '@/services/billing/index.js';
 import '@/types/fastify.js';
 import { logError } from '@/utils/logger.js';
 
@@ -115,8 +112,7 @@ export async function adminBillingRoutes(fastify: FastifyInstance) {
 			};
 		} catch (error) {
 			logError(request.log, 'Delete plan error:', error);
-			const message =
-				error instanceof Error ? error.message : 'Failed to delete plan';
+			const message = error instanceof Error ? error.message : 'Failed to delete plan';
 			return reply.code(400).send({
 				success: false,
 				error: {
@@ -153,8 +149,7 @@ export async function adminBillingRoutes(fastify: FastifyInstance) {
 
 	fastify.get('/workspaces', async (request, reply) => {
 		try {
-			const organizations =
-				await subscriptionService.getAllOrganizationsWithUsage();
+			const organizations = await subscriptionService.getAllOrganizationsWithUsage();
 
 			return {
 				success: true,
@@ -218,8 +213,7 @@ export async function adminBillingRoutes(fastify: FastifyInstance) {
 			}
 
 			await subscriptionService.upgradePlan(orgId, planId);
-			const subscription =
-				await subscriptionService.getOrganizationSubscription(orgId);
+			const subscription = await subscriptionService.getOrganizationSubscription(orgId);
 
 			return {
 				success: true,

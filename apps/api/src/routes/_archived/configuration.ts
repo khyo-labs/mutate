@@ -6,11 +6,7 @@ import { db } from '@/db/connection.js';
 import { configurationVersions, configurations } from '@/db/schema.js';
 import { requireRole } from '@/middleware/auth.js';
 import { validateWorkspaceAccess } from '@/middleware/workspace-access.js';
-import {
-	configurationQuerySchema,
-	createSchema,
-	updateSchema,
-} from '@/schemas/configuration.js';
+import { configurationQuerySchema, createSchema, updateSchema } from '@/schemas/configuration.js';
 import '@/types/fastify.js';
 import { logError } from '@/utils/logger.js';
 
@@ -45,15 +41,8 @@ export async function configRoutes(fastify: FastifyInstance) {
 				});
 			}
 
-			const {
-				name,
-				description,
-				conversionType,
-				inputFormat,
-				rules,
-				outputFormat,
-				callbackUrl,
-			} = validationResult.data;
+			const { name, description, conversionType, inputFormat, rules, outputFormat, callbackUrl } =
+				validationResult.data;
 
 			try {
 				// Workspace is always available from validateWorkspaceAccess middleware
@@ -294,8 +283,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 			const updateData = validationResult.data;
 
 			try {
-				const organizationId =
-					request.workspace?.id || request.currentUser!.organizationId;
+				const organizationId = request.workspace?.id || request.currentUser!.organizationId;
 
 				// Check if configuration exists and user has access
 				const [existingConfig] = await db
@@ -339,8 +327,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 						configurationId: id,
 						version: newVersion,
 						rules: updateData.rules,
-						outputFormat:
-							updateData.outputFormat || existingConfig.outputFormat,
+						outputFormat: updateData.outputFormat || existingConfig.outputFormat,
 						createdBy: request.currentUser!.id,
 					});
 				}
@@ -372,8 +359,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 			const { id } = request.params as { id: string };
 
 			try {
-				const organizationId =
-					request.workspace?.id || request.currentUser!.organizationId;
+				const organizationId = request.workspace?.id || request.currentUser!.organizationId;
 
 				const [deletedConfig] = await db
 					.update(configurations)
@@ -424,8 +410,7 @@ export async function configRoutes(fastify: FastifyInstance) {
 			const { id } = request.params as { id: string };
 
 			try {
-				const organizationId =
-					request.workspace?.id || request.currentUser!.organizationId;
+				const organizationId = request.workspace?.id || request.currentUser!.organizationId;
 
 				// Get original configuration
 				const [originalConfig] = await db

@@ -1,22 +1,10 @@
 import { createHash, createHmac } from 'crypto';
 import { eq } from 'drizzle-orm';
-import {
-	Context,
-	Duration,
-	Effect,
-	Layer,
-	Option,
-	Schedule,
-	pipe,
-} from 'effect';
+import { Context, Duration, Effect, Layer, Option, Schedule, pipe } from 'effect';
 
 import { config } from '@/config.js';
 import { db } from '@/db/connection.js';
-import {
-	configurations,
-	organizationWebhooks,
-	webhookDeliveries,
-} from '@/db/schema.js';
+import { configurations, organizationWebhooks, webhookDeliveries } from '@/db/schema.js';
 import { webhookDeliveryQueue } from '@/services/queue.js';
 
 export interface WebhookPayload {
@@ -80,9 +68,7 @@ export class WebhookService extends Context.Tag('WebhookService')<
 			payload: WebhookPayload,
 			transformCallbackUrl?: string,
 		) => Effect.Effect<Option.Option<WebhookDelivery>, never>;
-		readonly validateWebhookUrl: (
-			url: string,
-		) => Effect.Effect<void, WebhookValidationError>;
+		readonly validateWebhookUrl: (url: string) => Effect.Effect<void, WebhookValidationError>;
 		readonly verifySignature: (
 			payload: string,
 			signature: string,
@@ -106,8 +92,7 @@ export class WebhookService extends Context.Tag('WebhookService')<
 	}
 >() {}
 
-const sha256 = (input: string): string =>
-	createHash('sha256').update(input).digest('hex');
+const sha256 = (input: string): string => createHash('sha256').update(input).digest('hex');
 
 const buildIdempotencyKey = (input: {
 	organizationId: string;
@@ -160,13 +145,9 @@ const makeHttpRequest = (
 					}),
 				catch: (error) => {
 					if (error instanceof Error && error.name === 'AbortError') {
-						return new WebhookDeliveryError(
-							`Request timeout after ${timeout}ms`,
-						);
+						return new WebhookDeliveryError(`Request timeout after ${timeout}ms`);
 					}
-					return new WebhookDeliveryError(
-						error instanceof Error ? error.message : 'Unknown error',
-					);
+					return new WebhookDeliveryError(error instanceof Error ? error.message : 'Unknown error');
 				},
 			});
 
@@ -200,9 +181,7 @@ const validateWebhookUrl = (url: string) =>
 
 			if (!['http:', 'https:'].includes(urlObj.protocol)) {
 				return yield* Effect.fail(
-					new WebhookValidationError(
-						'Webhook URL must use HTTP or HTTPS protocol',
-					),
+					new WebhookValidationError('Webhook URL must use HTTP or HTTPS protocol'),
 				);
 			}
 
@@ -212,23 +191,17 @@ const validateWebhookUrl = (url: string) =>
 				(urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1')
 			) {
 				return yield* Effect.fail(
-					new WebhookValidationError(
-						'Localhost URLs are not allowed in production',
-					),
+					new WebhookValidationError('Localhost URLs are not allowed in production'),
 				);
 			}
 		} catch {
-			return yield* Effect.fail(
-				new WebhookValidationError('Invalid URL format'),
-			);
+			return yield* Effect.fail(new WebhookValidationError('Invalid URL format'));
 		}
 	});
 
 const verifySignature = (payload: string, signature: string, secret: string) =>
 	Effect.sync(() => {
-		const expectedSignature = createHmac('sha256', secret)
-			.update(payload)
-			.digest('hex');
+		const expectedSignature = createHmac('sha256', secret).update(payload).digest('hex');
 
 		const providedSignature = signature.replace('sha256=', '');
 
@@ -238,8 +211,7 @@ const verifySignature = (payload: string, signature: string, secret: string) =>
 
 		let result = 0;
 		for (let i = 0; i < expectedSignature.length; i++) {
-			result |=
-				expectedSignature.charCodeAt(i) ^ providedSignature.charCodeAt(i);
+			result |= expectedSignature.charCodeAt(i) ^ providedSignature.charCodeAt(i);
 		}
 
 		return result === 0;
@@ -315,10 +287,7 @@ const sendWebhook = (
 			Effect.tapError((error) =>
 				Effect.sync(() => {
 					delivery.status = 'failed';
-					delivery.error =
-						error instanceof WebhookDeliveryError
-							? error.message
-							: 'Unknown error';
+					delivery.error = error instanceof WebhookDeliveryError ? error.message : 'Unknown error';
 					console.error(`Webhook delivery failed: ${delivery.id}`, {
 						url: delivery.url,
 						jobId: delivery.payload.jobId,
@@ -376,9 +345,7 @@ const sendWebhookWithPriority = (
 				});
 
 				const payloadHash = sha256(JSON.stringify(payload));
-				const id = `wh_${Date.now()}_${Math.random()
-					.toString(36)
-					.slice(2, 10)}`;
+				const id = `wh_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 
 				yield* Effect.tryPromise(() =>
 					db
@@ -405,11 +372,7 @@ const sendWebhookWithPriority = (
 				);
 
 				yield* Effect.tryPromise(() =>
-					webhookDeliveryQueue.add(
-						'deliver-webhook',
-						{ deliveryId: id },
-						{ jobId: id },
-					),
+					webhookDeliveryQueue.add('deliver-webhook', { deliveryId: id }, { jobId: id }),
 				).pipe(
 					Effect.catchAll((error) => {
 						console.error('Failed to queue webhook delivery:', error);
@@ -428,26 +391,22 @@ const sendWebhookWithPriority = (
 
 		// Priority 1: Transform request callback URL
 		if (transformCallbackUrl) {
-			const validation = yield* validateWebhookUrl(transformCallbackUrl).pipe(
-				Effect.either,
-			);
+			const validation = yield* validateWebhookUrl(transformCallbackUrl).pipe(Effect.either);
 
 			if (validation._tag === 'Right') {
 				console.log(`Using transform callback URL for job ${payload.jobId}`);
 				const delivery = yield* createDeliveryRecord(transformCallbackUrl);
 				return Option.some(delivery);
 			} else {
-				console.error(
-					`Invalid transform callback URL: ${validation.left.message}`,
-				);
+				console.error(`Invalid transform callback URL: ${validation.left.message}`);
 			}
 		}
 
 		// Priority 2: Configuration-selected org webhook URL
 		if (configuration?.webhookUrl) {
-			const validation = yield* validateWebhookUrl(
-				configuration.webhookUrl.url,
-			).pipe(Effect.either);
+			const validation = yield* validateWebhookUrl(configuration.webhookUrl.url).pipe(
+				Effect.either,
+			);
 
 			if (validation._tag === 'Right') {
 				console.log(
@@ -471,14 +430,10 @@ const sendWebhookWithPriority = (
 
 		// Priority 3: Legacy configuration callback URL
 		if (configuration?.callbackUrl) {
-			const validation = yield* validateWebhookUrl(
-				configuration.callbackUrl,
-			).pipe(Effect.either);
+			const validation = yield* validateWebhookUrl(configuration.callbackUrl).pipe(Effect.either);
 
 			if (validation._tag === 'Right') {
-				console.log(
-					`Using configuration callback URL for job ${payload.jobId}`,
-				);
+				console.log(`Using configuration callback URL for job ${payload.jobId}`);
 				const delivery = yield* createDeliveryRecord(
 					configuration.callbackUrl,
 					configuration?.webhookUrlId || undefined,

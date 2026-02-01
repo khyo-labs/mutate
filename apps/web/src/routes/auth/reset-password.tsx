@@ -79,9 +79,7 @@ export function ResetPasswordComponent() {
 				navigate({ to: '/login' });
 			}, 3000);
 		} catch (error) {
-			setApiError(
-				error instanceof Error ? error.message : 'Failed to reset password',
-			);
+			setApiError(error instanceof Error ? error.message : 'Failed to reset password');
 		} finally {
 			setIsLoading(false);
 		}
@@ -92,12 +90,9 @@ export function ResetPasswordComponent() {
 			<PublicLayout>
 				<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 					<div className="bg-card rounded-lg border p-6 text-center shadow-sm">
-						<h2 className="text-2xl font-bold text-green-600">
-							Password Reset!
-						</h2>
+						<h2 className="text-2xl font-bold text-green-600">Password Reset!</h2>
 						<p className="mt-4 text-gray-600">
-							Your password has been successfully reset. You will be redirected
-							to the login page.
+							Your password has been successfully reset. You will be redirected to the login page.
 						</p>
 					</div>
 				</div>
@@ -109,9 +104,7 @@ export function ResetPasswordComponent() {
 		<PublicLayout>
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
 				<div className="bg-card rounded-lg border p-6 shadow-sm">
-					<h2 className="mb-6 text-center text-2xl font-bold">
-						Reset Password
-					</h2>
+					<h2 className="mb-6 text-center text-2xl font-bold">Reset Password</h2>
 
 					<Form {...form}>
 						<form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
@@ -122,11 +115,7 @@ export function ResetPasswordComponent() {
 									<FormItem>
 										<FormLabel>New Password</FormLabel>
 										<FormControl>
-											<Input
-												type="password"
-												placeholder="Enter your new password"
-												{...field}
-											/>
+											<Input type="password" placeholder="Enter your new password" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -140,11 +129,7 @@ export function ResetPasswordComponent() {
 									<FormItem>
 										<FormLabel>Confirm New Password</FormLabel>
 										<FormControl>
-											<Input
-												type="password"
-												placeholder="Confirm your new password"
-												{...field}
-											/>
+											<Input type="password" placeholder="Confirm your new password" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>

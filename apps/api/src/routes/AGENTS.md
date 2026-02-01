@@ -5,6 +5,7 @@
 All routes are registered in `v1/index.ts` with version prefix `/v1/`. Each route file exports an `async function fooRoutes(fastify: FastifyInstance)` that registers handlers.
 
 **Prefix mapping** (`v1/index.ts`):
+
 ```
 /v1/health       -> health.ts          (no auth)
 /v1/auth         -> better-auth.ts     (Better Auth proxy, no auth)
@@ -23,6 +24,7 @@ All routes are registered in `v1/index.ts` with version prefix `/v1/`. Each rout
 ## Auth Middleware Ordering
 
 Apply as `preHandler` hooks in this order:
+
 ```
 1. fastify.authenticate          # Session or API key auth
 2. fastify.requireVerifiedEmail  # Skipped for API key users
@@ -31,6 +33,7 @@ Apply as `preHandler` hooks in this order:
 ```
 
 Example:
+
 ```typescript
 fastify.get('/', {
   preHandler: [fastify.authenticate, validateWorkspaceAccess],
@@ -40,6 +43,7 @@ fastify.get('/', {
 ## Workspace-Scoped Routes
 
 Routes under `workspaces/` use `:workspaceId` param. Sub-routes registered in `workspaces/index.ts`:
+
 ```
 /:workspaceId/configuration  -> configuration.ts
 /:workspaceId/api-keys       -> api-keys.ts
@@ -52,6 +56,7 @@ The `validateWorkspaceAccess` middleware verifies the user is a member and attac
 ## Admin Routes
 
 Routes under `admin/` require both `fastify.authenticate` and `requireAdmin` middleware. Sub-routes:
+
 ```
 /v1/admin/check-access  -> inline (admin/index.ts)
 /v1/admin/overview      -> inline (admin/index.ts)
@@ -69,15 +74,19 @@ Routes under `admin/` require both `fastify.authenticate` and `requireAdmin` mid
 **Effect-based** (mutate.ts, convert.ts, configuration.ts, webhooks-effect.ts): Uses `effectHandler()` adapter from `@/effect/adapters/fastify.ts`. The adapter runs an Effect pipeline with the app runtime providing DatabaseService, StorageService, LoggerService, and WebhookService. Success automatically wraps in `{ success: true, data: result }`. Errors are unwrapped from Effect's FiberFailure and serialized.
 
 ```typescript
-fastify.post('/', {
-  preHandler: [fastify.authenticate],
-}, effectHandler((req) =>
-  Effect.gen(function* () {
-    const db = yield* DatabaseService;
-    // ... pipeline
-    return result;
-  })
-));
+fastify.post(
+	'/',
+	{
+		preHandler: [fastify.authenticate],
+	},
+	effectHandler((req) =>
+		Effect.gen(function* () {
+			const db = yield* DatabaseService;
+			// ... pipeline
+			return result;
+		}),
+	),
+);
 ```
 
 ## Validation

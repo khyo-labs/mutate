@@ -3,9 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 (process as any).on = vi.fn();
 
 vi.mock('ioredis', () => ({
-	default: vi
-		.fn()
-		.mockImplementation(() => ({ options: {}, disconnect: vi.fn() })),
+	default: vi.fn().mockImplementation(() => ({ options: {}, disconnect: vi.fn() })),
 }));
 
 vi.mock('bull', () => {

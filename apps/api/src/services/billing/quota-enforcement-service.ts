@@ -20,8 +20,7 @@ export class QuotaEnforcementService {
 		organizationId: string,
 		fileSizeMb: number,
 	): Promise<QuotaValidationResult> {
-		const limits =
-			await this.subscriptionService.getOrganizationLimits(organizationId);
+		const limits = await this.subscriptionService.getOrganizationLimits(organizationId);
 		const usage = await this.usageTrackingService.getUsageStats(
 			organizationId,
 			limits.monthlyConversionLimit,
@@ -53,10 +52,7 @@ export class QuotaEnforcementService {
 		}
 
 		// Check monthly conversion limit
-		if (
-			limits.monthlyConversionLimit &&
-			usage.currentUsage >= limits.monthlyConversionLimit
-		) {
+		if (limits.monthlyConversionLimit && usage.currentUsage >= limits.monthlyConversionLimit) {
 			// If overage pricing is available, allow conversion
 			if (limits.overagePriceCents) {
 				return {
@@ -87,10 +83,7 @@ export class QuotaEnforcementService {
 		organizationId: string,
 		fileSizeMb: number,
 	): Promise<QuotaValidationResult> {
-		const validation = await this.validateConversionQuota(
-			organizationId,
-			fileSizeMb,
-		);
+		const validation = await this.validateConversionQuota(organizationId, fileSizeMb);
 
 		if (!validation.canProceed) {
 			return validation;
@@ -100,8 +93,7 @@ export class QuotaEnforcementService {
 	}
 
 	async isOverageConversion(organizationId: string): Promise<boolean> {
-		const limits =
-			await this.subscriptionService.getOrganizationLimits(organizationId);
+		const limits = await this.subscriptionService.getOrganizationLimits(organizationId);
 		const usage = await this.usageTrackingService.getUsageStats(
 			organizationId,
 			limits.monthlyConversionLimit,
@@ -112,19 +104,13 @@ export class QuotaEnforcementService {
 			: false;
 	}
 
-	async getQuotaStatus(
-		organizationId: string,
-	): Promise<QuotaStatusResponse> {
-		const limits =
-			await this.subscriptionService.getOrganizationLimits(organizationId);
+	async getQuotaStatus(organizationId: string): Promise<QuotaStatusResponse> {
+		const limits = await this.subscriptionService.getOrganizationLimits(organizationId);
 		const usage = await this.usageTrackingService.getUsageStats(
 			organizationId,
 			limits.monthlyConversionLimit,
 		);
-		const sub =
-			await this.subscriptionService.getOrganizationSubscription(
-				organizationId,
-			);
+		const sub = await this.subscriptionService.getOrganizationSubscription(organizationId);
 
 		const monthly = limits.monthlyConversionLimit ?? 100;
 		const concurrent = limits.concurrentConversionLimit ?? 1;
@@ -132,8 +118,7 @@ export class QuotaEnforcementService {
 		const warnings: string[] = [];
 
 		if (limits.monthlyConversionLimit && usage.remainingConversions !== null) {
-			const usagePercentage =
-				(usage.currentUsage / limits.monthlyConversionLimit) * 100;
+			const usagePercentage = (usage.currentUsage / limits.monthlyConversionLimit) * 100;
 
 			if (usagePercentage >= 90) {
 				warnings.push('You have used 90% of your monthly conversions');

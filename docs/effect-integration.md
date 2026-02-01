@@ -112,14 +112,8 @@ import { Context, Effect } from 'effect';
 import { ConfigNotFound, DbError } from '../errors';
 
 export interface DatabaseService {
-	getConfiguration: (
-		id: string,
-	) => Effect.Effect<Configuration, ConfigNotFound | DbError>;
-	updateJobStatus: (
-		id: string,
-		status: JobStatus,
-		meta?: unknown,
-	) => Effect.Effect<void, DbError>;
+	getConfiguration: (id: string) => Effect.Effect<Configuration, ConfigNotFound | DbError>;
+	updateJobStatus: (id: string, status: JobStatus, meta?: unknown) => Effect.Effect<void, DbError>;
 }
 
 export const DatabaseService = Context.Tag<DatabaseService>('DatabaseService');
@@ -140,10 +134,7 @@ export interface StorageService {
 		contentType?: string,
 	) => Effect.Effect<{ url: string }, StorageError>;
 	get: (key: string) => Effect.Effect<Buffer, StorageError>;
-	signGet: (
-		key: string,
-		expires: number,
-	) => Effect.Effect<string, StorageError>;
+	signGet: (key: string, expires: number) => Effect.Effect<string, StorageError>;
 	remove: (key: string) => Effect.Effect<void, StorageError>;
 }
 
@@ -172,8 +163,7 @@ export const transformFile = (fileKey: string, configurationId: string) =>
 		const workbook = yield* _(parseWorkbook(file));
 		const result = yield* _(
 			config.rules.reduce(
-				(acc, rule) =>
-					acc.pipe(Effect.flatMap((state) => applyRule(state, rule))),
+				(acc, rule) => acc.pipe(Effect.flatMap((state) => applyRule(state, rule))),
 				Effect.succeed({ workbook, selectedSheet: null }),
 			),
 		).pipe(
@@ -189,12 +179,7 @@ export const transformFile = (fileKey: string, configurationId: string) =>
 		const csv = yield* _(toCsv(result.workbook, result.selectedSheet));
 		return { csv };
 	}).pipe(
-		Effect.retry(
-			Schedule.exponential('250 millis').pipe(
-				Schedule.jittered,
-				Schedule.recurs(3),
-			),
-		),
+		Effect.retry(Schedule.exponential('250 millis').pipe(Schedule.jittered, Schedule.recurs(3))),
 		Effect.withSpan('transformFile'),
 	);
 ```
@@ -222,13 +207,9 @@ const processor = effectBullProcessor(
 			yield* _(db.updateJobStatus(data.jobId, 'processing'));
 
 			const result = yield* _(
-				transformFile(data.fileKey, data.configurationId).pipe(
-					Effect.timeout(Duration.minutes(5)),
-				),
+				transformFile(data.fileKey, data.configurationId).pipe(Effect.timeout(Duration.minutes(5))),
 			);
-			const uploaded = yield* _(
-				storage.upload(`jobs/${data.jobId}.csv`, result.csv, 'text/csv'),
-			);
+			const uploaded = yield* _(storage.upload(`jobs/${data.jobId}.csv`, result.csv, 'text/csv'));
 
 			yield* _(
 				db.updateJobStatus(data.jobId, 'completed', {
@@ -237,9 +218,7 @@ const processor = effectBullProcessor(
 			);
 			return uploaded;
 		}).pipe(
-			Effect.retry(
-				Schedule.exponential('1s').pipe(Schedule.recurs(3), Schedule.jittered),
-			),
+			Effect.retry(Schedule.exponential('1s').pipe(Schedule.recurs(3), Schedule.jittered)),
 			Effect.withSpan('mutationJob'),
 		),
 	runWithRuntime,
@@ -253,11 +232,7 @@ Webhook Delivery
 
 ```typescript
 // packages/core/src/webhook.ts
-import {
-	HttpClient,
-	HttpClientRequest,
-	HttpClientResponse,
-} from '@effect/platform';
+import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
 import { Duration, Effect, Schedule } from 'effect';
 
 import { WebhookError } from './errors';

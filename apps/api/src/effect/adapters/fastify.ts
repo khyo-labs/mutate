@@ -1,9 +1,5 @@
 import { Effect } from 'effect';
-import type {
-	FastifyReply,
-	FastifyRequest,
-	RouteGenericInterface,
-} from 'fastify';
+import type { FastifyReply, FastifyRequest, RouteGenericInterface } from 'fastify';
 
 import { runtime } from '@/effect/runtime.js';
 
@@ -16,11 +12,7 @@ export interface EffectHandlerOptions<A, E> {
  * Adapter to use Effect pipelines as Fastify route handlers
  * The runtime provides DatabaseService, LoggerService, and StorageService
  */
-export function effectHandler<
-	A,
-	E,
-	T extends RouteGenericInterface = RouteGenericInterface,
->(
+export function effectHandler<A, E, T extends RouteGenericInterface = RouteGenericInterface>(
 	effectFn: (req: FastifyRequest<T>) => Effect.Effect<A, E, any>,
 	options?: EffectHandlerOptions<A, E>,
 ) {
@@ -94,9 +86,7 @@ function unwrapEffectError(error: unknown): unknown {
 	return error;
 }
 
-function isFiberFailure(
-	error: unknown,
-): error is { _tag: string; cause: unknown } {
+function isFiberFailure(error: unknown): error is { _tag: string; cause: unknown } {
 	return (
 		typeof error === 'object' &&
 		error !== null &&

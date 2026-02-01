@@ -1,7 +1,7 @@
+import { passkey } from '@better-auth/passkey';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { createAuthMiddleware, organization } from 'better-auth/plugins';
-import { passkey } from '@better-auth/passkey';
 import { twoFactor } from 'better-auth/plugins/two-factor';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { eq } from 'drizzle-orm';
@@ -14,9 +14,7 @@ import { EmailArgs, sendEmail } from '@/services/email/index.js';
 
 export const auth = betterAuth({
 	appName: 'Mutate',
-	secret:
-		process.env.BETTER_AUTH_SECRET ||
-		'fallback-secret-for-development-only-minimum-32-chars',
+	secret: process.env.BETTER_AUTH_SECRET || 'fallback-secret-for-development-only-minimum-32-chars',
 	database: drizzleAdapter(db, {
 		provider: 'pg',
 	}),
@@ -73,9 +71,7 @@ export const auth = betterAuth({
 		passkey({
 			rpName: 'Mutate',
 			rpID:
-				config.NODE_ENV === 'production'
-					? new URL(config.CORS_ORIGINS[0]).hostname
-					: 'localhost',
+				config.NODE_ENV === 'production' ? new URL(config.CORS_ORIGINS[0]).hostname : 'localhost',
 			origin: process.env.BASE_URL || 'http://localhost:5173',
 		}),
 		twoFactor({
@@ -108,10 +104,7 @@ export const auth = betterAuth({
 					if (!session.userId) {
 						return { data: session };
 					}
-					const [userData] = await db
-						.select()
-						.from(user)
-						.where(eq(user.id, session.userId));
+					const [userData] = await db.select().from(user).where(eq(user.id, session.userId));
 
 					if (!userData) {
 						return { data: session };
@@ -120,8 +113,7 @@ export const auth = betterAuth({
 					return {
 						data: {
 							...session,
-							activeOrganizationId:
-								userData.activeOrganizationId || session.activeOrganizationId,
+							activeOrganizationId: userData.activeOrganizationId || session.activeOrganizationId,
 						},
 					};
 				},

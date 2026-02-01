@@ -41,19 +41,13 @@ export interface ConfigurationVersionInput {
 }
 
 export interface DatabaseService {
-	getConfiguration: (
-		id: string,
-	) => Effect.Effect<Configuration, ConfigNotFound | DbError>;
+	getConfiguration: (id: string) => Effect.Effect<Configuration, ConfigNotFound | DbError>;
 
-	createConfiguration: (
-		input: ConfigurationInput,
-	) => Effect.Effect<Configuration, DbError>;
+	createConfiguration: (input: ConfigurationInput) => Effect.Effect<Configuration, DbError>;
 
 	updateConfiguration: (
 		id: string,
-		updates: Partial<
-			Omit<ConfigurationInput, 'id' | 'organizationId' | 'createdBy'>
-		>,
+		updates: Partial<Omit<ConfigurationInput, 'id' | 'organizationId' | 'createdBy'>>,
 	) => Effect.Effect<Configuration, ConfigNotFound | DbError>;
 
 	deleteConfiguration: (id: string) => Effect.Effect<void, DbError>;
@@ -68,9 +62,7 @@ export interface DatabaseService {
 		search?: string,
 	) => Effect.Effect<number, DbError>;
 
-	createConfigurationVersion: (
-		input: ConfigurationVersionInput,
-	) => Effect.Effect<void, DbError>;
+	createConfigurationVersion: (input: ConfigurationVersionInput) => Effect.Effect<void, DbError>;
 
 	updateJobStatus: (
 		id: string,
@@ -98,6 +90,4 @@ export interface DatabaseService {
 	>;
 }
 
-export const DatabaseService = Context.GenericTag<DatabaseService>(
-	'@mutate/core/DatabaseService',
-);
+export const DatabaseService = Context.GenericTag<DatabaseService>('@mutate/core/DatabaseService');

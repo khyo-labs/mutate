@@ -6,10 +6,7 @@ import { LoggerService } from '../services/logger.js';
 import type { TransformationState } from '../transform/types.js';
 import type { DeleteRowsRule } from '../types.js';
 
-export function applyDeleteRows(
-	state: TransformationState,
-	rule: DeleteRowsRule,
-) {
+export function applyDeleteRows(state: TransformationState, rule: DeleteRowsRule) {
 	return Effect.gen(function* () {
 		const logger = yield* LoggerService;
 		const { workbook, selectedSheet } = state;
@@ -57,11 +54,7 @@ export function applyDeleteRows(
 							shouldDelete = !cell || !cell.v || String(cell.v).trim() === '';
 						} else {
 							let hasContent = false;
-							for (
-								let colIndex = range.s.c;
-								colIndex <= range.e.c;
-								colIndex++
-							) {
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 								const cellAddr = XLSX.utils.encode_cell({
 									c: colIndex,
 									r: rowIndex,
@@ -74,10 +67,7 @@ export function applyDeleteRows(
 							}
 							shouldDelete = !hasContent;
 						}
-					} else if (
-						params.condition.type === 'contains' &&
-						params.condition.value
-					) {
+					} else if (params.condition.type === 'contains' && params.condition.value) {
 						if (params.condition.column) {
 							const colIndex = XLSX.utils.decode_col(params.condition.column);
 							const cellAddr = XLSX.utils.encode_cell({
@@ -86,35 +76,22 @@ export function applyDeleteRows(
 							});
 							const cell = worksheet[cellAddr];
 							const cellValue = cell && cell.v ? String(cell.v) : '';
-							shouldDelete = cellValue
-								.toLowerCase()
-								.includes(params.condition.value.toLowerCase());
+							shouldDelete = cellValue.toLowerCase().includes(params.condition.value.toLowerCase());
 						} else {
-							for (
-								let colIndex = range.s.c;
-								colIndex <= range.e.c;
-								colIndex++
-							) {
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 								const cellAddr = XLSX.utils.encode_cell({
 									c: colIndex,
 									r: rowIndex,
 								});
 								const cell = worksheet[cellAddr];
 								const cellValue = cell && cell.v ? String(cell.v) : '';
-								if (
-									cellValue
-										.toLowerCase()
-										.includes(params.condition.value.toLowerCase())
-								) {
+								if (cellValue.toLowerCase().includes(params.condition.value.toLowerCase())) {
 									shouldDelete = true;
 									break;
 								}
 							}
 						}
-					} else if (
-						params.condition.type === 'pattern' &&
-						params.condition.value
-					) {
+					} else if (params.condition.type === 'pattern' && params.condition.value) {
 						const regex = new RegExp(params.condition.value, 'i');
 						if (params.condition.column) {
 							const colIndex = XLSX.utils.decode_col(params.condition.column);
@@ -126,11 +103,7 @@ export function applyDeleteRows(
 							const cellValue = cell && cell.v ? String(cell.v) : '';
 							shouldDelete = regex.test(cellValue);
 						} else {
-							for (
-								let colIndex = range.s.c;
-								colIndex <= range.e.c;
-								colIndex++
-							) {
+							for (let colIndex = range.s.c; colIndex <= range.e.c; colIndex++) {
 								const cellAddr = XLSX.utils.encode_cell({
 									c: colIndex,
 									r: rowIndex,
@@ -195,8 +168,7 @@ export function applyDeleteRows(
 			return yield* Effect.fail(
 				new TransformError({
 					rule: 'DELETE_ROWS',
-					reason:
-						error instanceof Error ? error.message : 'Failed to delete rows',
+					reason: error instanceof Error ? error.message : 'Failed to delete rows',
 				}),
 			);
 		}

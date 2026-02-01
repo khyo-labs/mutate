@@ -13,11 +13,7 @@ import { Effect, Layer } from 'effect';
 import { ulid } from 'ulid';
 
 import { db } from '@/db/connection.js';
-import {
-	configurationVersions,
-	configurations,
-	transformationJobs,
-} from '@/db/schema.js';
+import { configurationVersions, configurations, transformationJobs } from '@/db/schema.js';
 
 const DrizzleDatabaseService = DatabaseService.of({
 	getConfiguration: (id: string) =>
@@ -40,8 +36,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 					description: config.description || undefined,
 					rules: config.rules as Configuration['rules'],
 					outputFormat: config.outputFormat as Configuration['outputFormat'],
-					conversionType:
-						config.conversionType as Configuration['conversionType'],
+					conversionType: config.conversionType as Configuration['conversionType'],
 					inputFormat: config.inputFormat as Configuration['inputFormat'],
 					version: config.version,
 					callbackUrl: config.callbackUrl || undefined,
@@ -79,16 +74,12 @@ const DrizzleDatabaseService = DatabaseService.of({
 					if (meta.inputFileKey) updateData.inputFileKey = meta.inputFileKey;
 					if (meta.outputFileUrl) updateData.outputFileUrl = meta.outputFileUrl;
 					if (meta.outputFileKey) updateData.outputFileKey = meta.outputFileKey;
-					if (meta.originalFileName)
-						updateData.originalFileName = meta.originalFileName;
+					if (meta.originalFileName) updateData.originalFileName = meta.originalFileName;
 					if (meta.fileSize) updateData.fileSize = meta.fileSize;
 					if (meta.executionLog) updateData.executionLog = meta.executionLog;
 				}
 
-				await db
-					.update(transformationJobs)
-					.set(updateData)
-					.where(eq(transformationJobs.id, id));
+				await db.update(transformationJobs).set(updateData).where(eq(transformationJobs.id, id));
 			},
 			catch: (error) =>
 				new DbError({
@@ -97,12 +88,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 				}),
 		}),
 
-	createJob: (
-		organizationId: string,
-		configurationId: string,
-		fileName: string,
-		userId: string,
-	) =>
+	createJob: (organizationId: string, configurationId: string, fileName: string, userId: string) =>
 		Effect.tryPromise({
 			try: async () => {
 				const id = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -212,8 +198,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 					description: config.description || undefined,
 					rules: config.rules as Configuration['rules'],
 					outputFormat: config.outputFormat as Configuration['outputFormat'],
-					conversionType:
-						config.conversionType as Configuration['conversionType'],
+					conversionType: config.conversionType as Configuration['conversionType'],
 					inputFormat: config.inputFormat as Configuration['inputFormat'],
 					version: config.version,
 					callbackUrl: config.callbackUrl || undefined,
@@ -232,9 +217,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 
 	updateConfiguration: (
 		id: string,
-		updates: Partial<
-			Omit<ConfigurationInput, 'id' | 'organizationId' | 'createdBy'>
-		>,
+		updates: Partial<Omit<ConfigurationInput, 'id' | 'organizationId' | 'createdBy'>>,
 	) =>
 		Effect.tryPromise({
 			try: async () => {
@@ -258,8 +241,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 					description: config.description || undefined,
 					rules: config.rules as Configuration['rules'],
 					outputFormat: config.outputFormat as Configuration['outputFormat'],
-					conversionType:
-						config.conversionType as Configuration['conversionType'],
+					conversionType: config.conversionType as Configuration['conversionType'],
 					inputFormat: config.inputFormat as Configuration['inputFormat'],
 					version: config.version,
 					callbackUrl: config.callbackUrl || undefined,
@@ -318,8 +300,7 @@ const DrizzleDatabaseService = DatabaseService.of({
 					description: config.description || undefined,
 					rules: config.rules as Configuration['rules'],
 					outputFormat: config.outputFormat as Configuration['outputFormat'],
-					conversionType:
-						config.conversionType as Configuration['conversionType'],
+					conversionType: config.conversionType as Configuration['conversionType'],
 					inputFormat: config.inputFormat as Configuration['inputFormat'],
 					version: config.version,
 					callbackUrl: config.callbackUrl || undefined,
@@ -378,7 +359,4 @@ const DrizzleDatabaseService = DatabaseService.of({
 		}),
 });
 
-export const DrizzleDatabaseLayer = Layer.succeed(
-	DatabaseService,
-	DrizzleDatabaseService,
-);
+export const DrizzleDatabaseLayer = Layer.succeed(DatabaseService, DrizzleDatabaseService);
