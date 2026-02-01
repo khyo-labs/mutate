@@ -30,6 +30,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMutations } from '@/hooks/use-mutations';
+import { formatConversionType } from '@/lib/format';
 
 export const Route = createFileRoute('/mutations/')({
 	component: ConfigurationsComponent,
@@ -185,7 +186,7 @@ export function ConfigurationsComponent() {
 													</div>
 													<div className="flex items-center">
 														<span className="font-medium">
-															{config.conversionType?.replace('_', ' → ') || 'XLSX → CSV'}
+															{formatConversionType(config.conversionType)}
 														</span>
 													</div>
 												</div>

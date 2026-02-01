@@ -16,3 +16,17 @@ export function getRuleTypeLabel(ruleType: string): string {
 		.toLowerCase()
 		.replace(/\b\w/g, (l) => l.toUpperCase());
 }
+
+const MUTATION_TYPE_DISPLAY: Record<string, string> = {
+	XLSX_TO_CSV: 'XLSX → CSV',
+	DOCX_TO_PDF: 'DOCX → PDF',
+	HTML_TO_PDF: 'HTML → PDF',
+	PDF_TO_CSV: 'PDF → CSV',
+	JSON_TO_CSV: 'JSON → CSV',
+	CSV_TO_JSON: 'CSV → JSON',
+};
+
+export function formatConversionType(conversionType: string | undefined | null): string {
+	if (!conversionType) return 'XLSX → CSV';
+	return MUTATION_TYPE_DISPLAY[conversionType] ?? conversionType.replace(/_TO_/g, ' → ');
+}

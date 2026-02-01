@@ -14,7 +14,7 @@ import '@/types/fastify.js';
 interface CreateConfigurationBody {
 	name: string;
 	description?: string;
-	conversionType: 'XLSX_TO_CSV' | 'DOCX_TO_PDF';
+	conversionType: 'XLSX_TO_CSV';
 	inputFormat: any;
 	rules: any;
 	outputFormat: any;
