@@ -49,6 +49,7 @@ export async function jobRoutes(fastify: FastifyInstance) {
 					status: transformationJobs.status,
 					originalFileName: transformationJobs.originalFileName,
 					fileSize: transformationJobs.fileSize,
+					inputFileKey: transformationJobs.inputFileKey,
 					outputFileKey: transformationJobs.outputFileKey,
 					errorMessage: transformationJobs.errorMessage,
 					startedAt: transformationJobs.startedAt,

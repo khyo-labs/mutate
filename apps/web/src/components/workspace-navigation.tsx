@@ -1,5 +1,14 @@
 import { Link, useLocation, useNavigate } from '@tanstack/react-router';
-import { Check, FileText, Key, MoreHorizontal, Plus, Users, Webhook } from 'lucide-react';
+import {
+	Check,
+	ChevronsUpDown,
+	FileText,
+	Key,
+	MoreHorizontal,
+	Plus,
+	Users,
+	Webhook,
+} from 'lucide-react';
 
 import { useMutations } from '@/hooks/use-mutations';
 import { useListWorkspace } from '@/hooks/use-workspaces';
@@ -12,9 +21,6 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 
@@ -44,9 +50,6 @@ export function WorkspaceNavigation({ isCollapsed = false, setIsMobileOpen }: Pr
 			icon: FileText,
 			badge: mutations?.pagination?.total?.toString() || '0',
 		},
-	];
-
-	const moreItems: NavigationItem[] = [
 		{
 			name: 'Webhooks',
 			href: '/settings/workspace/webhooks',
@@ -63,6 +66,8 @@ export function WorkspaceNavigation({ isCollapsed = false, setIsMobileOpen }: Pr
 			icon: Users,
 		},
 	];
+
+	const moreItems: NavigationItem[] = [];
 
 	function isActiveRoute(href: string) {
 		const currentPath = location.pathname;
@@ -116,7 +121,60 @@ export function WorkspaceNavigation({ isCollapsed = false, setIsMobileOpen }: Pr
 				);
 			})}
 
-			<div className="space-y-1">
+			{workspaces && workspaces.length > 0 && (
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<button
+							className={cn(
+								'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200',
+								'bg-accent/50 text-muted-foreground hover:text-foreground hover:bg-accent',
+								isCollapsed && 'justify-center px-2',
+							)}
+						>
+							<ChevronsUpDown className="h-4 w-4 flex-shrink-0" />
+							{!isCollapsed && <span className="flex-1 text-left">Switch workspace</span>}
+						</button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="start" className="w-64">
+						{workspaces.map((workspace) => (
+							<DropdownMenuItem
+								key={workspace.id}
+								onClick={() => {
+									if (activeWorkspace?.id === workspace.id) {
+										return;
+									}
+									setActiveWorkspace(workspace);
+									router.navigate({ to: '/' });
+								}}
+								className="flex items-center justify-between px-2 py-2"
+							>
+								<div className="flex items-center gap-2">
+									<div className="bg-primary text-primary-foreground flex h-6 w-6 items-center justify-center rounded text-xs font-bold">
+										{getInitials(workspace.name)}
+									</div>
+									<span className="text-sm">{workspace.name}</span>
+								</div>
+								{activeWorkspace?.id === workspace.id && (
+									<Check className="h-4 w-4 text-green-600" />
+								)}
+							</DropdownMenuItem>
+						))}
+						<DropdownMenuSeparator />
+						<DropdownMenuItem
+							onClick={() => {
+								navigate({ to: '/join' });
+								setIsMobileOpen(false);
+							}}
+							className="flex items-center gap-2 px-2 py-2"
+						>
+							<Plus className="h-4 w-4" />
+							<span className="text-sm">Create a workspace</span>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			)}
+
+			{moreItems.length > 0 && (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<button
@@ -143,57 +201,9 @@ export function WorkspaceNavigation({ isCollapsed = false, setIsMobileOpen }: Pr
 								</Link>
 							</DropdownMenuItem>
 						))}
-						{workspaces && workspaces.length > 0 && (
-							<>
-								<DropdownMenuSeparator />
-								<DropdownMenuSub>
-									<DropdownMenuSubTrigger className="flex items-center justify-between">
-										<span>Switch workspace</span>
-									</DropdownMenuSubTrigger>
-									<DropdownMenuSubContent className="w-64">
-										<div className="p-2">
-											{workspaces.map((workspace) => (
-												<DropdownMenuItem
-													key={workspace.id}
-													onClick={() => {
-														if (activeWorkspace?.id === workspace.id) {
-															return;
-														}
-														setActiveWorkspace(workspace);
-														router.navigate({ to: '/' });
-													}}
-													className="flex items-center justify-between px-2 py-2"
-												>
-													<div className="flex items-center gap-2">
-														<div className="bg-primary text-primary-foreground flex h-6 w-6 items-center justify-center rounded text-xs font-bold">
-															{getInitials(workspace.name)}
-														</div>
-														<span className="text-sm">{workspace.name}</span>
-													</div>
-													{activeWorkspace?.id === workspace.id && (
-														<Check className="h-4 w-4 text-green-600" />
-													)}
-												</DropdownMenuItem>
-											))}
-											<DropdownMenuSeparator />
-											<DropdownMenuItem
-												onClick={() => {
-													navigate({ to: '/join' });
-													setIsMobileOpen(false);
-												}}
-												className="flex items-center gap-2 px-2 py-2"
-											>
-												<Plus className="h-4 w-4" />
-												<span className="text-sm">Create a workspace</span>
-											</DropdownMenuItem>
-										</div>
-									</DropdownMenuSubContent>
-								</DropdownMenuSub>
-							</>
-						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
-			</div>
+			)}
 		</div>
 	);
 }

@@ -13,15 +13,6 @@ export function getMimeTypes(fileType: string): string[] {
 	return MIME_TYPE_MAP[fileType.toLowerCase()] || [];
 }
 
-export function getFileExtension(mimeType: string): string | null {
-	for (const [ext, mimes] of Object.entries(MIME_TYPE_MAP)) {
-		if (mimes.includes(mimeType.toLowerCase())) {
-			return ext;
-		}
-	}
-	return null;
-}
-
 export function validateMimeType(mimeType: string, expectedType: string): boolean {
 	const validMimeTypes = getMimeTypes(expectedType);
 	return validMimeTypes.some((valid) => mimeType.toLowerCase().includes(valid.toLowerCase()));

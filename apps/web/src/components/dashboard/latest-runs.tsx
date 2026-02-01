@@ -1,18 +1,34 @@
 import { formatDistanceToNow } from 'date-fns';
-import { Download, FileText, Loader2 } from 'lucide-react';
+import { Download, FileInput, FileOutput, FileText, Loader2 } from 'lucide-react';
 
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useJobDownload, useRecentJobs } from '@/hooks/use-jobs';
 import { formatDuration, formatFileSize } from '@/lib/format';
 
-function DownloadButton({ configurationId, jobId }: { configurationId: string; jobId: string }) {
+function DownloadActions({
+	configurationId,
+	jobId,
+	hasInput,
+	hasOutput,
+}: {
+	configurationId: string;
+	jobId: string;
+	hasInput: boolean;
+	hasOutput: boolean;
+}) {
 	const { mutate: download, isPending } = useJobDownload();
 
-	function handleDownload() {
+	function handleDownload(type: 'input' | 'output') {
 		download(
-			{ mutationId: configurationId, jobId },
+			{ mutationId: configurationId, jobId, type },
 			{
 				onSuccess: (response) => {
 					if (response.data?.downloadUrl) {
@@ -23,12 +39,38 @@ function DownloadButton({ configurationId, jobId }: { configurationId: string; j
 		);
 	}
 
+	if (hasInput && hasOutput) {
+		return (
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<Button variant="ghost" size="icon" className="h-7 w-7" disabled={isPending}>
+						{isPending ? (
+							<Loader2 className="h-3.5 w-3.5 animate-spin" />
+						) : (
+							<Download className="h-3.5 w-3.5" />
+						)}
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end">
+					<DropdownMenuItem onClick={() => handleDownload('input')}>
+						<FileInput className="h-4 w-4" />
+						Original File
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => handleDownload('output')}>
+						<FileOutput className="h-4 w-4" />
+						Converted File
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		);
+	}
+
 	return (
 		<Button
 			variant="ghost"
 			size="icon"
 			className="h-7 w-7"
-			onClick={handleDownload}
+			onClick={() => handleDownload(hasInput ? 'input' : 'output')}
 			disabled={isPending}
 		>
 			{isPending ? (
@@ -101,8 +143,13 @@ export function LatestRuns() {
 						</div>
 					</div>
 
-					{job.status === 'completed' && job.outputFileKey && (
-						<DownloadButton configurationId={job.configurationId} jobId={job.id} />
+					{job.status === 'completed' && (job.outputFileKey || job.inputFileKey) && (
+						<DownloadActions
+							configurationId={job.configurationId}
+							jobId={job.id}
+							hasInput={!!job.inputFileKey}
+							hasOutput={!!job.outputFileKey}
+						/>
 					)}
 				</div>
 			))}

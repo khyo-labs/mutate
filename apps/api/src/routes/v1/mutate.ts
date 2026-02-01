@@ -308,6 +308,7 @@ export async function mutateRoutes(app: FastifyInstance) {
 	// Download transformed file using Effect
 	app.post<{
 		Params: { mutationId: string; jobId: string };
+		Body: { type?: 'input' | 'output' };
 	}>(
 		'/:mutationId/jobs/:jobId/download',
 		{
@@ -320,14 +321,26 @@ export async function mutateRoutes(app: FastifyInstance) {
 					},
 					required: ['mutationId', 'jobId'],
 				},
+				body: {
+					type: 'object',
+					properties: {
+						type: { type: 'string', enum: ['input', 'output'] },
+					},
+				},
 			},
 		},
 		effectHandler(
-			(req: FastifyRequest<{ Params: { mutationId: string; jobId: string } }>) =>
+			(
+				req: FastifyRequest<{
+					Params: { mutationId: string; jobId: string };
+					Body: { type?: 'input' | 'output' };
+				}>,
+			) =>
 				Effect.gen(function* () {
 					const database = yield* DatabaseService;
 					const storage = yield* StorageService;
 					const { jobId } = req.params;
+					const fileType = (req.body as any)?.type || 'output';
 
 					const job = yield* database.getJob(jobId);
 
@@ -338,6 +351,23 @@ export async function mutateRoutes(app: FastifyInstance) {
 						});
 					}
 
+					if (fileType === 'input') {
+						if (!job.metadata?.inputFileKey) {
+							return yield* Effect.fail({
+								code: 'FILE_NOT_FOUND',
+								message: 'Original input file not found',
+							});
+						}
+
+						const downloadUrl = yield* storage.signGet(job.metadata.inputFileKey, 3600);
+
+						return {
+							downloadUrl,
+							fileName: job.fileName,
+							expiresIn: 3600,
+						};
+					}
+
 					if (!job.metadata?.outputFileKey) {
 						return yield* Effect.fail({
 							code: 'FILE_NOT_FOUND',
@@ -345,7 +375,6 @@ export async function mutateRoutes(app: FastifyInstance) {
 						});
 					}
 
-					// Generate a fresh presigned URL
 					const downloadUrl = yield* storage.signGet(job.metadata.outputFileKey, 3600);
 
 					return {

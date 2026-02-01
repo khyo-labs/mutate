@@ -1,9 +1,23 @@
 import { formatDistanceToNow } from 'date-fns';
-import { Clock, Download, FileText, Loader2 } from 'lucide-react';
+import {
+	ChevronDown,
+	Clock,
+	Download,
+	FileInput,
+	FileOutput,
+	FileText,
+	Loader2,
+} from 'lucide-react';
 
 import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useJobDownload, useRecentJobs } from '@/hooks/use-jobs';
 import { formatDuration, formatFileSize } from '@/lib/format';
@@ -12,12 +26,22 @@ type RunHistoryProps = {
 	configurationId: string;
 };
 
-function DownloadButton({ configurationId, jobId }: { configurationId: string; jobId: string }) {
+function DownloadActions({
+	configurationId,
+	jobId,
+	hasInput,
+	hasOutput,
+}: {
+	configurationId: string;
+	jobId: string;
+	hasInput: boolean;
+	hasOutput: boolean;
+}) {
 	const { mutate: download, isPending } = useJobDownload();
 
-	function handleDownload() {
+	function handleDownload(type: 'input' | 'output') {
 		download(
-			{ mutationId: configurationId, jobId },
+			{ mutationId: configurationId, jobId, type },
 			{
 				onSuccess: (response) => {
 					if (response.data?.downloadUrl) {
@@ -28,12 +52,40 @@ function DownloadButton({ configurationId, jobId }: { configurationId: string; j
 		);
 	}
 
+	if (hasInput && hasOutput) {
+		return (
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<Button variant="ghost" size="sm" className="h-8 shrink-0 gap-1.5" disabled={isPending}>
+						{isPending ? (
+							<Loader2 className="h-3.5 w-3.5 animate-spin" />
+						) : (
+							<Download className="h-3.5 w-3.5" />
+						)}
+						Download
+						<ChevronDown className="h-3 w-3" />
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end">
+					<DropdownMenuItem onClick={() => handleDownload('input')}>
+						<FileInput className="h-4 w-4" />
+						Original File
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => handleDownload('output')}>
+						<FileOutput className="h-4 w-4" />
+						Converted File
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		);
+	}
+
 	return (
 		<Button
 			variant="ghost"
 			size="sm"
 			className="h-8 shrink-0 gap-1.5"
-			onClick={handleDownload}
+			onClick={() => handleDownload(hasInput ? 'input' : 'output')}
 			disabled={isPending}
 		>
 			{isPending ? (
@@ -130,8 +182,13 @@ export function RunHistory({ configurationId }: RunHistoryProps) {
 									</div>
 								</div>
 
-								{job.status === 'completed' && job.outputFileKey && (
-									<DownloadButton configurationId={configurationId} jobId={job.id} />
+								{job.status === 'completed' && (job.outputFileKey || job.inputFileKey) && (
+									<DownloadActions
+										configurationId={configurationId}
+										jobId={job.id}
+										hasInput={!!job.inputFileKey}
+										hasOutput={!!job.outputFileKey}
+									/>
 								)}
 							</div>
 						))}

@@ -7,6 +7,7 @@ export type TransformationJobListItem = {
 	status: string;
 	originalFileName: string | null;
 	fileSize: number | null;
+	inputFileKey: string | null;
 	outputFileKey: string | null;
 	errorMessage: string | null;
 	startedAt: string | null;
@@ -81,7 +82,10 @@ export const jobsApi = {
 	getJobDownloadUrl: async function (
 		mutationId: string,
 		jobId: string,
+		type: 'input' | 'output' = 'output',
 	): Promise<JobDownloadResponse> {
-		return api.post<JobDownloadResponse>(`/v1/mutate/${mutationId}/jobs/${jobId}/download`);
+		return api.post<JobDownloadResponse>(`/v1/mutate/${mutationId}/jobs/${jobId}/download`, {
+			type,
+		});
 	},
 };

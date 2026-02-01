@@ -32,7 +32,14 @@ export function useJobStats() {
 
 export function useJobDownload() {
 	return useMutation({
-		mutationFn: ({ mutationId, jobId }: { mutationId: string; jobId: string }) =>
-			jobsApi.getJobDownloadUrl(mutationId, jobId),
+		mutationFn: ({
+			mutationId,
+			jobId,
+			type = 'output',
+		}: {
+			mutationId: string;
+			jobId: string;
+			type?: 'input' | 'output';
+		}) => jobsApi.getJobDownloadUrl(mutationId, jobId, type),
 	});
 }
