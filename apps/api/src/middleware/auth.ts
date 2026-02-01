@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { db } from '@/db/connection.js';
@@ -48,6 +48,13 @@ export async function authenticateSession(
 			}
 		}
 
+		const activeOrgId = (session.session as any).activeOrganizationId;
+
+		const conditions = [eq(member.userId, session.user.id)];
+		if (activeOrgId) {
+			conditions.push(eq(member.organizationId, activeOrgId));
+		}
+
 		const membership = await db
 			.select({
 				organizationId: member.organizationId,
@@ -56,7 +63,7 @@ export async function authenticateSession(
 			})
 			.from(member)
 			.leftJoin(organization, eq(member.organizationId, organization.id))
-			.where(eq(member.userId, session.user.id))
+			.where(and(...conditions))
 			.limit(1);
 
 		const userOrgInfo = membership[0];
