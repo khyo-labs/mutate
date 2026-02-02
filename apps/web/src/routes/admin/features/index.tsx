@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import {
+	Check,
+	ChevronsUpDown,
 	Code,
 	Copy,
 	Edit,
@@ -13,13 +15,21 @@ import {
 	ToggleRight,
 	Trash2,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { api } from '@/api/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command';
 import {
 	Dialog,
 	DialogContent,
@@ -38,6 +48,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -50,12 +61,13 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
 export const Route = createFileRoute('/admin/features/')({
 	component: FeatureFlagsManagement,
 });
 
-interface FeatureFlag {
+type FeatureFlag = {
 	id: string;
 	name: string;
 	description: string;
@@ -64,7 +76,13 @@ interface FeatureFlag {
 	workspaceOverrides?: Record<string, boolean>;
 	createdAt: string;
 	updatedAt: string;
-}
+};
+
+type AdminWorkspace = {
+	id: string;
+	name: string;
+	slug: string;
+};
 
 function FeatureFlagsManagement() {
 	const [flags, setFlags] = useState<FeatureFlag[]>([]);
@@ -86,6 +104,12 @@ function FeatureFlagsManagement() {
 		workspaceId: '',
 		enabled: true,
 	});
+
+	const [workspaceResults, setWorkspaceResults] = useState<AdminWorkspace[]>([]);
+	const [workspaceMap, setWorkspaceMap] = useState<Record<string, AdminWorkspace>>({});
+	const [selectedWorkspace, setSelectedWorkspace] = useState<AdminWorkspace | null>(null);
+	const [comboboxOpen, setComboboxOpen] = useState(false);
+	const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
 	useEffect(() => {
 		fetchFeatureFlags();
@@ -163,8 +187,7 @@ function FeatureFlagsManagement() {
 				enabled: overrideData.enabled,
 			});
 			toast.success('Workspace override added');
-			setShowOverrideModal(false);
-			setOverrideData({ workspaceId: '', enabled: true });
+			closeOverrideModal();
 			fetchFeatureFlags();
 		} catch (error) {
 			toast.error('Failed to add workspace override');
@@ -189,6 +212,73 @@ function FeatureFlagsManagement() {
 			rolloutPercentage: 0,
 		});
 	}
+
+	function closeOverrideModal() {
+		setShowOverrideModal(false);
+		setSelectedWorkspace(null);
+		setWorkspaceResults([]);
+		setOverrideData({ workspaceId: '', enabled: true });
+	}
+
+	async function searchWorkspaces(query: string) {
+		try {
+			const results = await api.get<AdminWorkspace[]>(
+				`/v1/admin/workspaces/search?q=${encodeURIComponent(query)}`,
+			);
+			setWorkspaceResults(results);
+			setWorkspaceMap((prev) => {
+				const next = { ...prev };
+				for (const ws of results) {
+					next[ws.id] = ws;
+				}
+				return next;
+			});
+		} catch {
+			// ignore search errors
+		}
+	}
+
+	function debouncedSearchWorkspaces(query: string) {
+		clearTimeout(searchTimeoutRef.current);
+		searchTimeoutRef.current = setTimeout(() => {
+			searchWorkspaces(query);
+		}, 300);
+	}
+
+	useEffect(() => {
+		if (!showOverrideModal || !selectedFlag) return;
+
+		searchWorkspaces('');
+
+		if (selectedFlag.workspaceOverrides) {
+			const unknownIds = Object.keys(selectedFlag.workspaceOverrides).filter((id) => !workspaceMap[id]);
+			if (unknownIds.length > 0) {
+				Promise.all(
+					unknownIds.map(async (id) => {
+						try {
+							const result = await api.get<{
+								success: boolean;
+								data: { workspace: { id: string; name: string; slug: string } };
+							}>(`/v1/admin/workspaces/${id}`);
+							return result.data.workspace;
+						} catch {
+							return null;
+						}
+					}),
+				).then((results) => {
+					setWorkspaceMap((prev) => {
+						const next = { ...prev };
+						for (const ws of results) {
+							if (ws) {
+								next[ws.id] = ws;
+							}
+						}
+						return next;
+					});
+				});
+			}
+		}
+	}, [showOverrideModal, selectedFlag]);
 
 	function copyFlagName(name: string) {
 		navigator.clipboard.writeText(name);
@@ -517,7 +607,13 @@ function FeatureFlagsManagement() {
 			</Dialog>
 
 			{/* Override Modal */}
-			<Dialog open={showOverrideModal} onOpenChange={setShowOverrideModal}>
+			<Dialog
+				open={showOverrideModal}
+				onOpenChange={(open) => {
+					if (!open) closeOverrideModal();
+					else setShowOverrideModal(true);
+				}}
+			>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Workspace Overrides</DialogTitle>
@@ -532,45 +628,106 @@ function FeatureFlagsManagement() {
 									<Label>Current Overrides</Label>
 									<div className="mt-2 space-y-2">
 										{Object.entries(selectedFlag.workspaceOverrides).map(
-											([workspaceId, enabled]) => (
-												<div
-													key={workspaceId}
-													className="flex items-center justify-between rounded-lg border p-2"
-												>
-													<div className="flex items-center gap-2">
-														<span className="font-mono text-sm">{workspaceId}</span>
-														<Badge variant={enabled ? 'default' : 'secondary'}>
-															{enabled ? 'Enabled' : 'Disabled'}
-														</Badge>
-													</div>
-													<Button
-														variant="ghost"
-														size="sm"
-														onClick={() => removeOverride(selectedFlag.id, workspaceId)}
+											([workspaceId, enabled]) => {
+												const ws = workspaceMap[workspaceId];
+												return (
+													<div
+														key={workspaceId}
+														className="flex items-center justify-between rounded-lg border p-2"
 													>
-														<Trash2 className="h-4 w-4" />
-													</Button>
-												</div>
-											),
+														<div className="flex items-center gap-2">
+															<div>
+																<span className="text-sm font-medium">
+																	{ws?.name ?? workspaceId}
+																</span>
+																{ws?.slug && (
+																	<span className="text-muted-foreground ml-2 text-xs">
+																		{ws.slug}
+																	</span>
+																)}
+															</div>
+															<Badge variant={enabled ? 'default' : 'secondary'}>
+																{enabled ? 'Enabled' : 'Disabled'}
+															</Badge>
+														</div>
+														<Button
+															variant="ghost"
+															size="sm"
+															onClick={() =>
+																removeOverride(selectedFlag.id, workspaceId)
+															}
+														>
+															<Trash2 className="h-4 w-4" />
+														</Button>
+													</div>
+												);
+											},
 										)}
 									</div>
 								</div>
 							)}
 
 						<div>
-							<Label htmlFor="workspaceId">Add Override</Label>
+							<Label>Add Override</Label>
 							<div className="mt-2 flex gap-2">
-								<Input
-									id="workspaceId"
-									placeholder="Workspace ID"
-									value={overrideData.workspaceId}
-									onChange={(e) =>
-										setOverrideData({
-											...overrideData,
-											workspaceId: e.target.value,
-										})
-									}
-								/>
+								<Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+									<PopoverTrigger asChild>
+										<Button
+											variant="outline"
+											role="combobox"
+											className="flex-1 justify-between"
+										>
+											{selectedWorkspace
+												? `${selectedWorkspace.name} (${selectedWorkspace.slug})`
+												: 'Search workspaces...'}
+											<ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent className="p-0" align="start">
+										<Command shouldFilter={false}>
+											<CommandInput
+												placeholder="Search by name or slug..."
+												onValueChange={(value) => {
+													debouncedSearchWorkspaces(value);
+												}}
+											/>
+											<CommandList>
+												<CommandEmpty>No workspaces found.</CommandEmpty>
+												<CommandGroup>
+													{workspaceResults.map((ws) => (
+														<CommandItem
+															key={ws.id}
+															value={ws.id}
+															onSelect={() => {
+																setSelectedWorkspace(ws);
+																setOverrideData({
+																	...overrideData,
+																	workspaceId: ws.id,
+																});
+																setComboboxOpen(false);
+															}}
+														>
+															<div>
+																<span className="font-medium">{ws.name}</span>
+																<span className="text-muted-foreground ml-2 text-xs">
+																	{ws.slug}
+																</span>
+															</div>
+															<Check
+																className={cn(
+																	'ml-auto h-4 w-4',
+																	selectedWorkspace?.id === ws.id
+																		? 'opacity-100'
+																		: 'opacity-0',
+																)}
+															/>
+														</CommandItem>
+													))}
+												</CommandGroup>
+											</CommandList>
+										</Command>
+									</PopoverContent>
+								</Popover>
 								<Switch
 									checked={overrideData.enabled}
 									onCheckedChange={(checked) =>
@@ -581,7 +738,7 @@ function FeatureFlagsManagement() {
 						</div>
 					</div>
 					<DialogFooter>
-						<Button variant="outline" onClick={() => setShowOverrideModal(false)}>
+						<Button variant="outline" onClick={closeOverrideModal}>
 							Close
 						</Button>
 						<Button onClick={addWorkspaceOverride} disabled={!overrideData.workspaceId}>

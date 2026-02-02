@@ -7,10 +7,12 @@ import { organization } from '@/db/schema.js';
 import { auth } from '@/lib/auth.js';
 import { validateWorkspaceAccess } from '@/middleware/workspace-access.js';
 import { createWorkspaceSchema, updateWorkspaceSchema } from '@/schemas/workspace.js';
+import { getEnabledFlagsForWorkspace } from '@/services/feature-flags.js';
 import { deleteWorkspace } from '@/services/workspace.js';
 import '@/types/fastify.js';
 import { AppError, getErrorMessage } from '@/utils/error.js';
 
+import { aiRoutes } from './ai.js';
 import { apiKeyRoutes } from './api-keys.js';
 import { configurationRoutes } from './configuration.js';
 import { jobRoutes } from './jobs.js';
@@ -18,6 +20,10 @@ import { memberRoutes } from './members.js';
 import { webhookRoutes } from './webhooks.js';
 
 export async function workspaceRoutes(fastify: FastifyInstance) {
+	fastify.register(aiRoutes, {
+		prefix: '/:workspaceId/ai',
+	});
+
 	fastify.register(configurationRoutes, {
 		prefix: '/:workspaceId/configuration',
 	});
@@ -39,6 +45,27 @@ export async function workspaceRoutes(fastify: FastifyInstance) {
 	});
 
 	fastify.addHook('preHandler', fastify.authenticate);
+
+	fastify.get(
+		'/:workspaceId/features',
+		{ preHandler: [validateWorkspaceAccess] },
+		async (request, reply) => {
+			try {
+				const { workspaceId } = request.params as { workspaceId: string };
+				const features = await getEnabledFlagsForWorkspace(workspaceId);
+				return reply.send({ success: true, data: { features } });
+			} catch (error) {
+				fastify.log.error(error);
+				return reply.status(500).send({
+					success: false,
+					error: {
+						code: 'FAILED_TO_GET_FEATURES',
+						message: getErrorMessage(error, 'Failed to get workspace features'),
+					},
+				});
+			}
+		},
+	);
 
 	fastify.patch(
 		'/:workspaceId',

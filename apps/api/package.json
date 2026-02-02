@@ -18,6 +18,7 @@
 		"test": "vitest run"
 	},
 	"dependencies": {
+		"@ai-sdk/anthropic": "^3.0.35",
 		"@aws-sdk/client-s3": "^3.946.0",
 		"@aws-sdk/s3-request-presigner": "^3.946.0",
 		"@better-auth/passkey": "^1.4.5",
@@ -33,9 +34,11 @@
 		"@simplewebauthn/server": "^13.2.2",
 		"@types/bcryptjs": "^3.0.0",
 		"@types/node": "^24.10.1",
+		"ai": "^6.0.67",
 		"bcryptjs": "^3.0.3",
 		"better-auth": "^1.4.5",
 		"bull": "^4.16.5",
+		"csv-parse": "^6.1.0",
 		"dotenv": "^17.2.3",
 		"drizzle-orm": "^0.45.0",
 		"effect": "^3.19.9",

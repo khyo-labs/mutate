@@ -49,7 +49,7 @@ await fastify.register(multipart, {
 		fieldSize: 100,
 		fields: 10,
 		fileSize: 52_428_800, // 50MB
-		files: 1,
+		files: 2,
 		headerPairs: 2_000,
 	},
 });

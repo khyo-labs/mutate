@@ -76,6 +76,14 @@ class ApiClient {
 	delete<T>(endpoint: string): Promise<T> {
 		return this.makeRequest({ endpoint, method: 'DELETE' });
 	}
+
+	async postForm<T>(endpoint: string, formData: FormData): Promise<T> {
+		const response: AxiosResponse<T> = await this.axios.post(endpoint, formData, {
+			headers: { 'Content-Type': 'multipart/form-data' },
+			timeout: 60_000,
+		});
+		return response.data;
+	}
 }
 
 export const api = new ApiClient();

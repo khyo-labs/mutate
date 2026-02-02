@@ -119,6 +119,43 @@ export async function adminWorkspaceRoutes(fastify: FastifyInstance) {
 		}
 	});
 
+	// Search workspaces (lightweight)
+	fastify.get('/search', async (request, reply) => {
+		try {
+			const { q } = request.query as { q?: string };
+			const searchTerm = (q || '').trim();
+
+			let workspaces;
+			if (searchTerm.length === 0) {
+				workspaces = await db
+					.select({ id: organization.id, name: organization.name, slug: organization.slug })
+					.from(organization)
+					.orderBy(desc(organization.createdAt))
+					.limit(20);
+			} else {
+				workspaces = await db
+					.select({ id: organization.id, name: organization.name, slug: organization.slug })
+					.from(organization)
+					.where(
+						sql`${organization.name} ILIKE ${'%' + searchTerm + '%'}
+						 OR ${organization.slug} ILIKE ${'%' + searchTerm + '%'}`,
+					)
+					.limit(20);
+			}
+
+			return reply.send(workspaces);
+		} catch (error) {
+			logError(request.log, 'Search workspaces error:', error);
+			return reply.code(500).send({
+				success: false,
+				error: {
+					code: 'SEARCH_WORKSPACES_FAILED',
+					message: 'Failed to search workspaces',
+				},
+			});
+		}
+	});
+
 	// Get workspace details
 	fastify.get('/:workspaceId', async (request, reply) => {
 		const { workspaceId } = request.params as { workspaceId: string };

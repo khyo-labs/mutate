@@ -50,6 +50,8 @@ const configSchema = z.object({
 
 	SENDGRID_API_KEY: z.string(),
 	SENDGRID_FROM_EMAIL: z.string().email(),
+
+	ANTHROPIC_API_KEY: z.string().optional(),
 });
 
 const env = {
@@ -84,6 +86,7 @@ const env = {
 	LOG_LEVEL: process.env.LOG_LEVEL,
 	SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
 	SENDGRID_FROM_EMAIL: process.env.SENDGRID_FROM_EMAIL,
+	ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
 };
 
 // For CLI generation, we need to handle missing env vars gracefully

@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 
 import { mutApi } from '@/api/mutations';
 import { workspaceApi } from '@/api/workspaces';
+import { AiRuleGenerator } from '@/components/ai-rule-generator';
+import { useFeatureFlag } from '@/hooks/use-feature-flag';
 import { CsvOutputPreview } from '@/components/csv-output-preview';
 import { FileUpload } from '@/components/file-upload';
 import { JsonConfigPanel } from '@/components/json-config-panel';
@@ -45,6 +47,8 @@ function CreateMutationComponent() {
 	const navigate = useNavigate();
 	const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
 	const { activeWorkspace } = useWorkspaceStore();
+
+	const { enabled: aiEnabled } = useFeatureFlag('ai_rule_generation');
 
 	const { data: webhooks = [] } = useQuery({
 		queryKey: ['workspace', 'webhooks', activeWorkspace?.id],
@@ -195,6 +199,13 @@ function CreateMutationComponent() {
 						</div>
 
 						<div className="space-y-8 xl:col-span-4">
+							{aiEnabled && (
+								<AiRuleGenerator
+									onRulesGenerated={(rules) => setValue('rules', rules)}
+									existingRulesCount={watchedRules.length}
+								/>
+							)}
+
 							<Card>
 								<CardHeader>
 									<CardTitle>Configuration</CardTitle>
