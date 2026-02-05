@@ -134,6 +134,13 @@
 			"when": 1759092601394,
 			"tag": "0018_uneven_thena",
 			"breakpoints": true
+		},
+		{
+			"idx": 19,
+			"version": "7",
+			"when": 1770177732483,
+			"tag": "0019_mighty_wolverine",
+			"breakpoints": true
 		}
 	]
 }

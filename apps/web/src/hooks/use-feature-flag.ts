@@ -14,9 +14,7 @@ export function useFeatureFlag(flagName: string) {
 	const { data, isLoading } = useQuery({
 		queryKey: ['workspace', activeWorkspace?.id, 'features'],
 		queryFn: () =>
-			api.get<SuccessResponse<FeaturesResponse>>(
-				`/v1/workspace/${activeWorkspace!.id}/features`,
-			),
+			api.get<SuccessResponse<FeaturesResponse>>(`/v1/workspace/${activeWorkspace!.id}/features`),
 		enabled: !!activeWorkspace,
 		staleTime: 60_000,
 	});

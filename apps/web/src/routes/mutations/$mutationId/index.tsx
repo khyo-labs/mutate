@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router';
 import { formatDistanceToNow } from 'date-fns';
-import { AlertCircle, ArrowLeft, Calendar, Clock, Edit, FileText } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Calendar, Clock, Edit, FileText, ShieldCheck } from 'lucide-react';
 
 import { api } from '@/api/client';
 import { Layout } from '@/components/layouts';
@@ -262,6 +262,48 @@ export function ConfigurationDetailComponent() {
 								</div>
 							</CardContent>
 						</Card>
+
+						{config.outputValidation?.enabled && (
+							<Card>
+								<CardHeader>
+									<div className="flex items-center gap-2">
+										<ShieldCheck className="h-4 w-4" />
+										<CardTitle>Output Validation</CardTitle>
+									</div>
+								</CardHeader>
+								<CardContent>
+									<div className="space-y-3 text-sm">
+										<div className="flex justify-between">
+											<span className="text-muted-foreground">Status</span>
+											<Badge variant="secondary">Enabled</Badge>
+										</div>
+										<Separator />
+										<div className="flex justify-between">
+											<span className="text-muted-foreground">Expected Column Count</span>
+											<span className="text-foreground font-medium">
+												{config.outputValidation.expectedColumnCount}
+											</span>
+										</div>
+										{config.outputValidation.notificationEmails &&
+											config.outputValidation.notificationEmails.length > 0 && (
+												<>
+													<Separator />
+													<div>
+														<span className="text-muted-foreground">Notification Emails</span>
+														<div className="mt-1.5 flex flex-wrap gap-1">
+															{config.outputValidation.notificationEmails.map((email) => (
+																<Badge key={email} variant="outline" className="font-normal">
+																	{email}
+																</Badge>
+															))}
+														</div>
+													</div>
+												</>
+											)}
+									</div>
+								</CardContent>
+							</Card>
+						)}
 					</div>
 
 					<div className="lg:col-span-1">

@@ -133,7 +133,12 @@ export class XlsxToCsvService extends BaseConversionService {
 
 			const outputBuffer = Buffer.from(csvData, getBufferEncoding(outputFormat.encoding));
 
-			this.addLog(`Conversion completed successfully. Output size: ${outputBuffer.length} bytes`);
+			const firstLine = csvData.split('\n')[0];
+			const outputColumnCount = firstLine ? firstLine.split(outputFormat.delimiter).length : 0;
+
+			this.addLog(
+				`Conversion completed successfully. Output size: ${outputBuffer.length} bytes, columns: ${outputColumnCount}`,
+			);
 
 			return {
 				success: true,
@@ -141,6 +146,7 @@ export class XlsxToCsvService extends BaseConversionService {
 				executionLog: this.log,
 				mimeType: 'text/csv',
 				fileExtension: 'csv',
+				outputColumnCount,
 			};
 		} catch (error) {
 			const errorContext: ErrorContext = {

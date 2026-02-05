@@ -26,6 +26,7 @@ export interface ConfigurationInput {
 	inputFormat: any;
 	rules: any;
 	outputFormat: any;
+	outputValidation?: any;
 	callbackUrl?: string;
 	version: number;
 	createdBy: string;

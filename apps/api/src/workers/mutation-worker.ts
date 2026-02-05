@@ -4,6 +4,7 @@ import { config } from '@/config.js';
 import { db } from '@/db/connection.js';
 import { configurations, transformationJobs } from '@/db/schema.js';
 import { ConversionServiceFactory } from '@/services/conversion/index.js';
+import { NotificationService } from '@/services/notification.js';
 import {
 	type JobResult,
 	type TransformationJobData as MutationJobData,
@@ -16,6 +17,7 @@ import type {
 	ConversionType,
 	InputFormat,
 	OutputFormatConfig,
+	OutputValidationConfig,
 	TransformationRule,
 } from '@/types/index.js';
 
@@ -125,6 +127,49 @@ class MutationWorker {
 
 			if (!result.outputData) {
 				throw new Error('Conversion succeeded but no output data was produced');
+			}
+
+			const outputValidation = configuration.outputValidation as OutputValidationConfig | null;
+			if (
+				outputValidation?.enabled &&
+				result.outputColumnCount !== undefined &&
+				result.outputColumnCount !== outputValidation.expectedColumnCount
+			) {
+				const validationError = `Output validation failed: expected ${outputValidation.expectedColumnCount} columns but got ${result.outputColumnCount}`;
+
+				await this.updateJobStatus(jobId, 'failed', {
+					errorMessage: validationError,
+					validationResult: {
+						expected: outputValidation.expectedColumnCount,
+						actual: result.outputColumnCount,
+					},
+					executionLog: result.executionLog,
+					completedAt: new Date(),
+				});
+
+				try {
+					await NotificationService.createOutputValidationNotification({
+						organizationId: jobData.organizationId,
+						configurationId: jobData.configurationId,
+						configurationName: configuration.name,
+						jobId,
+						expectedColumnCount: outputValidation.expectedColumnCount,
+						actualColumnCount: result.outputColumnCount,
+						notificationEmails: outputValidation.notificationEmails,
+						createdByUserId: configuration.createdBy,
+					});
+				} catch (notifError) {
+					console.error(`Failed to create validation notification for job ${jobId}:`, notifError);
+				}
+
+				await this.sendWebhookNotification(
+					jobData,
+					undefined,
+					result.executionLog,
+					validationError,
+				);
+
+				return { success: false, error: validationError };
 			}
 
 			const outputBuffer = result.outputData;

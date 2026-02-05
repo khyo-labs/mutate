@@ -19,6 +19,11 @@ interface CreateConfigurationBody {
 	rules: any;
 	outputFormat: any;
 	callbackUrl?: string;
+	outputValidation?: {
+		enabled: boolean;
+		expectedColumnCount: number;
+		notificationEmails?: string[];
+	};
 }
 
 interface UpdateConfigurationBody {
@@ -27,6 +32,11 @@ interface UpdateConfigurationBody {
 	rules?: any;
 	outputFormat?: any;
 	callbackUrl?: string;
+	outputValidation?: {
+		enabled: boolean;
+		expectedColumnCount: number;
+		notificationEmails?: string[];
+	} | null;
 }
 
 interface ConfigurationParams {
@@ -80,6 +90,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 						outputFormat: { type: 'object' },
 						callbackUrl: { type: 'string' },
 						webhookUrlId: { type: 'string' },
+						outputValidation: { type: 'object' },
 					},
 				},
 			},
@@ -114,6 +125,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 						rules,
 						outputFormat,
 						callbackUrl,
+						outputValidation,
 					} = validationResult.data;
 
 					// Workspace is always available from middleware
@@ -131,6 +143,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 						inputFormat,
 						rules,
 						outputFormat,
+						outputValidation,
 						callbackUrl,
 						version: 1,
 						createdBy: userId,
@@ -322,6 +335,7 @@ export async function configurationRoutes(fastify: FastifyInstance) {
 						rules: { type: 'array' },
 						outputFormat: { type: 'object' },
 						callbackUrl: { type: 'string' },
+						outputValidation: { type: 'object' },
 					},
 				},
 			},

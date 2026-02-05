@@ -170,6 +170,12 @@ export interface JsonOutputFormat {
 
 export type OutputFormatConfig = CsvOutputFormat | PdfOutputFormat | JsonOutputFormat;
 
+export interface OutputValidationConfig {
+	enabled: boolean;
+	expectedColumnCount: number;
+	notificationEmails?: string[];
+}
+
 // Configuration structure
 export interface Configuration {
 	id: string;
@@ -180,6 +186,7 @@ export interface Configuration {
 	inputFormat: InputFormat;
 	outputFormat: OutputFormatConfig;
 	rules: TransformationRule[];
+	outputValidation?: OutputValidationConfig;
 	version: number;
 	isActive: boolean;
 	createdBy: string;

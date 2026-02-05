@@ -1,4 +1,6 @@
 import { formatDistanceToNow } from 'date-fns';
+import { toast } from 'sonner';
+
 import {
 	ChevronDown,
 	Clock,
@@ -7,6 +9,7 @@ import {
 	FileOutput,
 	FileText,
 	Loader2,
+	RefreshCw,
 } from 'lucide-react';
 
 import { StatusBadge } from '@/components/status-badge';
@@ -19,7 +22,8 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useJobDownload, useRecentJobs } from '@/hooks/use-jobs';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useJobDownload, useJobReplay, useRecentJobs } from '@/hooks/use-jobs';
 import { formatDuration, formatFileSize } from '@/lib/format';
 
 type RunHistoryProps = {
@@ -103,7 +107,22 @@ export function RunHistory({ configurationId }: RunHistoryProps) {
 		configurationId,
 		limit: 10,
 	});
+	const { mutate: replayJob, isPending: isReplaying } = useJobReplay();
 	const jobs = jobsData?.data || [];
+
+	function handleReplay(jobId: string) {
+		replayJob(
+			{ mutationId: configurationId, jobId },
+			{
+				onSuccess: () => {
+					toast.success('Job replay queued');
+				},
+				onError: () => {
+					toast.error('Failed to replay job');
+				},
+			},
+		);
+	}
 
 	if (isLoading) {
 		return (
@@ -182,14 +201,34 @@ export function RunHistory({ configurationId }: RunHistoryProps) {
 									</div>
 								</div>
 
-								{job.status === 'completed' && (job.outputFileKey || job.inputFileKey) && (
-									<DownloadActions
-										configurationId={configurationId}
-										jobId={job.id}
-										hasInput={!!job.inputFileKey}
-										hasOutput={!!job.outputFileKey}
-									/>
-								)}
+								<div className="flex items-center gap-1">
+									{job.inputFileKey && (
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<Button
+														variant="ghost"
+														size="sm"
+														className="h-8 w-8 shrink-0 p-0"
+														onClick={() => handleReplay(job.id)}
+														disabled={isReplaying}
+													>
+														<RefreshCw className="h-3.5 w-3.5" />
+													</Button>
+												</TooltipTrigger>
+												<TooltipContent>Replay this job</TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+									)}
+									{job.status === 'completed' && (job.outputFileKey || job.inputFileKey) && (
+										<DownloadActions
+											configurationId={configurationId}
+											jobId={job.id}
+											hasInput={!!job.inputFileKey}
+											hasOutput={!!job.outputFileKey}
+										/>
+									)}
+								</div>
 							</div>
 						))}
 					</div>

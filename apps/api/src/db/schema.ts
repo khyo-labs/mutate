@@ -135,10 +135,11 @@ export const configurations = pgTable('configuration', {
 	inputFormat: varchar('input_format', { length: 20 }).default('XLSX').notNull(),
 	outputFormat: jsonb('output_format').notNull(),
 	rules: jsonb('rules').notNull(),
+	outputValidation: jsonb('output_validation'),
 	version: integer('version').default(1).notNull(),
 	isActive: boolean('is_active').default(true).notNull(),
-	callbackUrl: text('callback_url'), // Default callback URL for this configuration
-	webhookUrlId: text('webhook_url_id').references(() => organizationWebhooks.id), // Reference to org webhook URL
+	callbackUrl: text('callback_url'),
+	webhookUrlId: text('webhook_url_id').references(() => organizationWebhooks.id),
 	createdBy: text('created_by')
 		.references(() => user.id)
 		.notNull(),
@@ -176,8 +177,9 @@ export const transformationJobs = pgTable('transformation_job', {
 	originalFileName: varchar('original_file_name', { length: 255 }),
 	fileSize: integer('file_size'), // Size in bytes
 	errorMessage: text('error_message'),
+	validationResult: jsonb('validation_result'),
 	executionLog: jsonb('execution_log'),
-	callbackUrl: text('callback_url'), // Specific callback URL for this job
+	callbackUrl: text('callback_url'),
 	uid: text('uid'), // User-provided identifier for tracking this job
 	webhookDelivered: boolean('webhook_delivered').default(false), // Has webhook been successfully delivered
 	webhookAttempts: integer('webhook_attempts').default(0), // Number of webhook delivery attempts
@@ -373,6 +375,7 @@ export const organizationRelations = relations(organization, ({ many, one }) => 
 	usageRecords: many(usageRecords),
 	activeConversions: many(activeConversions),
 	billingEvents: many(billingEvents),
+	notifications: many(notifications),
 }));
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -609,6 +612,32 @@ export const webhookDeliveries = pgTable('webhook_delivery', {
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const notifications = pgTable('notification', {
+	id: text('id').primaryKey(),
+	organizationId: text('organization_id')
+		.references(() => organization.id, { onDelete: 'cascade' })
+		.notNull(),
+	userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+	type: varchar('type', { length: 50 }).notNull(),
+	title: varchar('title', { length: 255 }).notNull(),
+	message: text('message').notNull(),
+	metadata: jsonb('metadata'),
+	read: boolean('read').default(false).notNull(),
+	emailSent: boolean('email_sent').default(false).notNull(),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+	organization: one(organization, {
+		fields: [notifications.organizationId],
+		references: [organization.id],
+	}),
+	user: one(user, {
+		fields: [notifications.userId],
+		references: [user.id],
+	}),
+}));
 
 export const webhookDeliveriesRelations = relations(webhookDeliveries, ({ one }) => ({
 	organization: one(organization, {

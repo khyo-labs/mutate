@@ -113,6 +113,12 @@ export interface OutputFormatConfig {
 	encoding?: string;
 }
 
+export interface OutputValidationConfig {
+	enabled: boolean;
+	expectedColumnCount: number;
+	notificationEmails?: string[];
+}
+
 export interface Configuration {
 	id: string;
 	organizationId: string;
@@ -122,6 +128,7 @@ export interface Configuration {
 	outputFormat: OutputFormatConfig;
 	conversionType: ConversionType;
 	inputFormat: InputFormat;
+	outputValidation?: OutputValidationConfig;
 	version: number;
 	isActive: boolean;
 	createdBy: string;

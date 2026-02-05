@@ -11,6 +11,7 @@ export interface ConversionResult {
 	executionLog?: string[];
 	mimeType?: string;
 	fileExtension?: string;
+	outputColumnCount?: number;
 }
 
 export abstract class BaseConversionService {

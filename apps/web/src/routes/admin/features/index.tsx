@@ -251,7 +251,9 @@ function FeatureFlagsManagement() {
 		searchWorkspaces('');
 
 		if (selectedFlag.workspaceOverrides) {
-			const unknownIds = Object.keys(selectedFlag.workspaceOverrides).filter((id) => !workspaceMap[id]);
+			const unknownIds = Object.keys(selectedFlag.workspaceOverrides).filter(
+				(id) => !workspaceMap[id],
+			);
 			if (unknownIds.length > 0) {
 				Promise.all(
 					unknownIds.map(async (id) => {
@@ -653,9 +655,7 @@ function FeatureFlagsManagement() {
 														<Button
 															variant="ghost"
 															size="sm"
-															onClick={() =>
-																removeOverride(selectedFlag.id, workspaceId)
-															}
+															onClick={() => removeOverride(selectedFlag.id, workspaceId)}
 														>
 															<Trash2 className="h-4 w-4" />
 														</Button>
@@ -672,11 +672,7 @@ function FeatureFlagsManagement() {
 							<div className="mt-2 flex gap-2">
 								<Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
 									<PopoverTrigger asChild>
-										<Button
-											variant="outline"
-											role="combobox"
-											className="flex-1 justify-between"
-										>
+										<Button variant="outline" role="combobox" className="flex-1 justify-between">
 											{selectedWorkspace
 												? `${selectedWorkspace.name} (${selectedWorkspace.slug})`
 												: 'Search workspaces...'}
@@ -716,9 +712,7 @@ function FeatureFlagsManagement() {
 															<Check
 																className={cn(
 																	'ml-auto h-4 w-4',
-																	selectedWorkspace?.id === ws.id
-																		? 'opacity-100'
-																		: 'opacity-0',
+																	selectedWorkspace?.id === ws.id ? 'opacity-100' : 'opacity-0',
 																)}
 															/>
 														</CommandItem>

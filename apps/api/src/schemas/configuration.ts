@@ -125,6 +125,12 @@ const outputFormatSchema = z.discriminatedUnion('type', [
 	jsonOutputFormatSchema,
 ]);
 
+export const outputValidationSchema = z.object({
+	enabled: z.boolean(),
+	expectedColumnCount: z.number().min(1, 'Expected column count must be at least 1'),
+	notificationEmails: z.array(z.string().email('Invalid email address')).optional(),
+});
+
 export const createSchema = z.object({
 	name: z.string().min(1, 'Name is required').max(255, 'Name too long'),
 	description: z.string().max(1000, 'Description too long').optional(),
@@ -136,6 +142,7 @@ export const createSchema = z.object({
 	rules: z.array(transformationRuleSchema).min(1, 'At least one rule is required'),
 	callbackUrl: z.string().url('Invalid callback URL').optional(),
 	webhookUrlId: z.string().optional(),
+	outputValidation: outputValidationSchema.optional().nullable(),
 });
 
 export const updateSchema = z.object({
@@ -149,6 +156,7 @@ export const updateSchema = z.object({
 	rules: z.array(transformationRuleSchema).min(1, 'At least one rule is required').optional(),
 	callbackUrl: z.url('Invalid callback URL').optional().nullable(),
 	webhookUrlId: z.string().optional().nullable(),
+	outputValidation: outputValidationSchema.optional().nullable(),
 });
 
 export const configurationQuerySchema = z.object({

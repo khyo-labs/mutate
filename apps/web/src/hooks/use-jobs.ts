@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { type JobStatsResponse, type JobsListResponse, jobsApi } from '@/api/jobs';
 import { useWorkspaceStore } from '@/stores/workspace-store';
@@ -41,5 +41,17 @@ export function useJobDownload() {
 			jobId: string;
 			type?: 'input' | 'output';
 		}) => jobsApi.getJobDownloadUrl(mutationId, jobId, type),
+	});
+}
+
+export function useJobReplay() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ mutationId, jobId }: { mutationId: string; jobId: string }) =>
+			jobsApi.replayJob(mutationId, jobId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['jobs'] });
+		},
 	});
 }

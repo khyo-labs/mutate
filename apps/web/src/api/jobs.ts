@@ -88,4 +88,11 @@ export const jobsApi = {
 			type,
 		});
 	},
+
+	replayJob: async function (
+		mutationId: string,
+		jobId: string,
+	): Promise<{ success: boolean; data: { jobId: string; status: string } }> {
+		return api.post(`/v1/mutate/${mutationId}/jobs/${jobId}/replay`);
+	},
 };

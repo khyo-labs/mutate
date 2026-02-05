@@ -166,6 +166,12 @@ export type JsonOutputFormat = {
 
 export type OutputFormatConfig = CsvOutputFormat | PdfOutputFormat | JsonOutputFormat;
 
+export type OutputValidationConfig = {
+	enabled: boolean;
+	expectedColumnCount: number;
+	notificationEmails?: string[];
+};
+
 // Configuration
 export type Configuration = {
 	id: string;
@@ -176,12 +182,26 @@ export type Configuration = {
 	inputFormat: InputFormat;
 	outputFormat: OutputFormatConfig;
 	rules: TransformationRule[];
+	outputValidation?: OutputValidationConfig;
 	webhookUrlId?: string | null;
 	version: number;
 	isActive: boolean;
 	createdBy: string;
 	createdAt: string;
 	updatedAt: string;
+};
+
+export type Notification = {
+	id: string;
+	organizationId: string;
+	userId?: string;
+	type: string;
+	title: string;
+	message: string;
+	metadata?: Record<string, unknown>;
+	read: boolean;
+	emailSent: boolean;
+	createdAt: string;
 };
 
 // API response types

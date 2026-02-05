@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle, ChevronDown, Copy, Download, Upload } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import type { Configuration, TransformationRule } from '../types';
+import type { Configuration, OutputValidationConfig, TransformationRule } from '../types';
 import { Button } from './ui/button';
 
 interface JsonConfigPanelProps {
@@ -9,11 +9,13 @@ interface JsonConfigPanelProps {
 	description: string;
 	rules: TransformationRule[];
 	outputFormat: Configuration['outputFormat'];
+	outputValidation?: OutputValidationConfig;
 	onImport: (config: {
 		name: string;
 		description: string;
 		rules: TransformationRule[];
 		outputFormat: Configuration['outputFormat'];
+		outputValidation?: OutputValidationConfig;
 	}) => void;
 }
 
@@ -22,6 +24,7 @@ interface ConfigurationJSON {
 	description: string;
 	rules: TransformationRule[];
 	outputFormat: Configuration['outputFormat'];
+	outputValidation?: OutputValidationConfig;
 }
 
 export function JsonConfigPanel({
@@ -29,6 +32,7 @@ export function JsonConfigPanel({
 	description,
 	rules,
 	outputFormat,
+	outputValidation,
 	onImport,
 }: JsonConfigPanelProps) {
 	const [isCollapsed, setIsCollapsed] = useState(true);
@@ -44,8 +48,11 @@ export function JsonConfigPanel({
 			rules,
 			outputFormat,
 		};
+		if (outputValidation?.enabled) {
+			config.outputValidation = outputValidation;
+		}
 		return JSON.stringify(config, null, 2);
-	}, [name, description, rules, outputFormat]);
+	}, [name, description, rules, outputFormat, outputValidation]);
 
 	function handleCopy() {
 		navigator.clipboard.writeText(configJson);
@@ -124,6 +131,19 @@ export function JsonConfigPanel({
 					includeHeaders: outputFormatObj.includeHeaders !== false,
 				},
 			};
+
+			if (parsed.outputValidation && typeof parsed.outputValidation === 'object') {
+				const ov = parsed.outputValidation as Record<string, unknown>;
+				if (ov.enabled && typeof ov.expectedColumnCount === 'number') {
+					validConfig.outputValidation = {
+						enabled: true,
+						expectedColumnCount: ov.expectedColumnCount,
+						notificationEmails: Array.isArray(ov.notificationEmails)
+							? (ov.notificationEmails as string[])
+							: undefined,
+					};
+				}
+			}
 
 			onImport(validConfig);
 			setImportSuccess(true);

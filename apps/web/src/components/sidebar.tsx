@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore, useSession } from '@/stores/auth-store';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 
+import { NotificationBell } from './notifications/notification-bell';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -94,6 +95,7 @@ export function Sidebar() {
 								</DropdownMenu>
 							)}
 						</div>
+						{!isCollapsed && <NotificationBell />}
 					</div>
 				</div>
 			</div>

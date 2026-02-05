@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { AlertCircle, Eye, FileText, Save } from 'lucide-react';
+import { AlertCircle, Eye, FileText, Save, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -29,9 +29,16 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useWorkspaceStore } from '@/stores/workspace-store';
-import type { Configuration, TransformationRule, UploadedFile, Webhook } from '@/types';
+import type {
+	Configuration,
+	OutputValidationConfig,
+	TransformationRule,
+	UploadedFile,
+	Webhook,
+} from '@/types';
 
 export const Route = createFileRoute('/mutations/$mutationId/edit')({
 	component: ConfigurationEditComponent,
@@ -42,6 +49,7 @@ type FormData = {
 	description: string;
 	rules: TransformationRule[];
 	webhookUrlId?: string;
+	outputValidation?: OutputValidationConfig;
 };
 
 export function ConfigurationEditComponent() {
@@ -75,6 +83,7 @@ export function ConfigurationEditComponent() {
 			description: '',
 			rules: [],
 			webhookUrlId: '',
+			outputValidation: undefined,
 		},
 	});
 
@@ -98,6 +107,7 @@ export function ConfigurationEditComponent() {
 				description: config.description || '',
 				rules: config.rules,
 				webhookUrlId: config.webhookUrlId || '',
+				outputValidation: config.outputValidation || undefined,
 			});
 		}
 	}, [config, isWebhooksLoading, reset]);
@@ -126,13 +136,18 @@ export function ConfigurationEditComponent() {
 				configurationData.webhookUrlId = null; // Explicitly set to null to clear
 			}
 
-			// Always include outputFormat
 			configurationData.outputFormat = {
 				type: 'CSV' as const,
 				delimiter: ',',
 				encoding: 'UTF-8' as const,
 				includeHeaders: true,
 			};
+
+			if (data.outputValidation?.enabled) {
+				configurationData.outputValidation = data.outputValidation;
+			} else {
+				configurationData.outputValidation = undefined;
+			}
 
 			const updatedConfig = await mutApi.update(mutationId, configurationData);
 			return updatedConfig;
@@ -172,10 +187,12 @@ export function ConfigurationEditComponent() {
 		description: string;
 		rules: TransformationRule[];
 		outputFormat: Configuration['outputFormat'];
+		outputValidation?: OutputValidationConfig;
 	}) {
 		setValue('name', importedConfig.name);
 		setValue('description', importedConfig.description);
 		setValue('rules', importedConfig.rules);
+		setValue('outputValidation', importedConfig.outputValidation);
 	}
 
 	if (isLoading) {
@@ -413,6 +430,134 @@ export function ConfigurationEditComponent() {
 								</CardContent>
 							</Card>
 
+							{/* Output Validation Card */}
+							<Card>
+								<CardHeader>
+									<CardTitle>Output Validation</CardTitle>
+									<CardDescription>
+										Validate the output column count after transformation
+									</CardDescription>
+								</CardHeader>
+								<CardContent className="space-y-4">
+									<Controller
+										name="outputValidation"
+										control={control}
+										render={({ field }) => {
+											const validation = field.value || {
+												enabled: false,
+												expectedColumnCount: 1,
+												notificationEmails: [],
+											};
+
+											function handleToggle(enabled: boolean) {
+												if (enabled) {
+													field.onChange({
+														...validation,
+														enabled: true,
+													});
+												} else {
+													field.onChange(undefined);
+												}
+											}
+
+											function handleColumnCountChange(value: string) {
+												const num = parseInt(value, 10);
+												if (!isNaN(num) && num >= 1) {
+													field.onChange({
+														...validation,
+														expectedColumnCount: num,
+													});
+												}
+											}
+
+											function handleAddEmail(email: string) {
+												const trimmed = email.trim();
+												if (!trimmed) return;
+												const emails = validation.notificationEmails || [];
+												if (emails.includes(trimmed)) return;
+												field.onChange({
+													...validation,
+													notificationEmails: [...emails, trimmed],
+												});
+											}
+
+											function handleRemoveEmail(email: string) {
+												const emails = validation.notificationEmails || [];
+												field.onChange({
+													...validation,
+													notificationEmails: emails.filter((e: string) => e !== email),
+												});
+											}
+
+											return (
+												<>
+													<div className="flex items-center justify-between">
+														<Label htmlFor="outputValidationEnabled">Enable validation</Label>
+														<Switch
+															id="outputValidationEnabled"
+															checked={validation.enabled}
+															onCheckedChange={handleToggle}
+														/>
+													</div>
+
+													{validation.enabled && (
+														<>
+															<div>
+																<Label htmlFor="expectedColumnCount">Expected column count</Label>
+																<Input
+																	id="expectedColumnCount"
+																	type="number"
+																	min={1}
+																	value={validation.expectedColumnCount}
+																	onChange={(e) => handleColumnCountChange(e.target.value)}
+																/>
+															</div>
+															<div>
+																<Label>Notification emails</Label>
+																<div className="mt-1 flex flex-wrap gap-1.5">
+																	{(validation.notificationEmails || []).map((email: string) => (
+																		<span
+																			key={email}
+																			className="bg-muted text-foreground inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs"
+																		>
+																			{email}
+																			<button
+																				type="button"
+																				onClick={() => handleRemoveEmail(email)}
+																				className="text-muted-foreground hover:text-foreground"
+																			>
+																				<X className="h-3 w-3" />
+																			</button>
+																		</span>
+																	))}
+																</div>
+																<Input
+																	className="mt-2"
+																	type="email"
+																	placeholder="Add email addresses to notify"
+																	onKeyDown={(e) => {
+																		if (e.key === 'Enter') {
+																			e.preventDefault();
+																			const input = e.currentTarget;
+																			handleAddEmail(input.value);
+																			input.value = '';
+																		}
+																	}}
+																/>
+																<p className="text-muted-foreground mt-1 text-xs">
+																	Press Enter to add. Falls back to configuration creator's email if
+																	none specified.
+																</p>
+															</div>
+														</>
+													)}
+												</>
+											);
+										}}
+									/>
+								</CardContent>
+							</Card>
+
 							{/* JSON Configuration Card */}
 							<Card>
 								<CardHeader>
@@ -429,6 +574,7 @@ export function ConfigurationEditComponent() {
 											encoding: 'UTF-8',
 											includeHeaders: true,
 										}}
+										outputValidation={watch('outputValidation')}
 										onImport={handleImportConfig}
 									/>
 								</CardContent>

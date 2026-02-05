@@ -94,6 +94,7 @@ result = response.json()`;
 			description: config.description,
 			rules: config.rules,
 			outputFormat: config.outputFormat,
+			...(config.outputValidation?.enabled && { outputValidation: config.outputValidation }),
 		},
 		null,
 		2,

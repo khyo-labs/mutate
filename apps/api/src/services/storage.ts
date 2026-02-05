@@ -8,6 +8,7 @@ export interface StorageProvider {
 	uploadFile(key: string, buffer: Buffer, contentType: string): Promise<string>;
 	generatePresignedUrl(key: string, expiresIn: number): Promise<string>;
 	deleteFile(key: string): Promise<boolean>;
+	downloadFile(key: string): Promise<Buffer>;
 }
 
 export interface UploadResult {
@@ -81,6 +82,20 @@ class S3StorageProvider implements StorageProvider {
 			return false;
 		}
 	}
+
+	async downloadFile(key: string): Promise<Buffer> {
+		const command = new GetObjectCommand({
+			Bucket: this.bucket,
+			Key: key,
+		});
+		const response = await this.client.send(command);
+		const stream = response.Body as NodeJS.ReadableStream;
+		const chunks: Buffer[] = [];
+		for await (const chunk of stream) {
+			chunks.push(Buffer.from(chunk));
+		}
+		return Buffer.concat(chunks);
+	}
 }
 
 class LocalStorageProvider implements StorageProvider {
@@ -124,6 +139,13 @@ class LocalStorageProvider implements StorageProvider {
 			console.error(`Failed to delete local file ${key}:`, error);
 			return false;
 		}
+	}
+
+	async downloadFile(key: string): Promise<Buffer> {
+		const fs = await import('fs/promises');
+		const path = await import('path');
+		const filePath = path.join(this.storagePath, key);
+		return fs.readFile(filePath);
 	}
 }
 
@@ -223,6 +245,10 @@ export class StorageService {
 
 	async deleteFile(key: string): Promise<boolean> {
 		return await this.provider.deleteFile(key);
+	}
+
+	async downloadFile(key: string): Promise<Buffer> {
+		return await this.provider.downloadFile(key);
 	}
 
 	private getFileExtension(fileName: string): string {

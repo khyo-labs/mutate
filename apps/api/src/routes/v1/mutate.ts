@@ -1,9 +1,14 @@
 import { DatabaseService, StorageService, transformBuffer } from '@mutate/core';
+import { eq } from 'drizzle-orm';
 import { Effect, pipe } from 'effect';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 
+import { db } from '@/db/connection.js';
+import { configurations, transformationJobs } from '@/db/schema.js';
 import { effectHandler, serializeError } from '@/effect/adapters/fastify.js';
 import { transformationQueue } from '@/services/queue.js';
+import { storageService } from '@/services/storage.js';
+import { getErrorMessage } from '@/utils/error.js';
 
 interface MutateRequestBody {
 	file?: {
@@ -397,5 +402,117 @@ export async function mutateRoutes(app: FastifyInstance) {
 				}),
 			},
 		),
+	);
+
+	app.post<{
+		Params: { mutationId: string; jobId: string };
+	}>(
+		'/:mutationId/jobs/:jobId/replay',
+		{
+			schema: {
+				params: {
+					type: 'object',
+					properties: {
+						mutationId: { type: 'string' },
+						jobId: { type: 'string' },
+					},
+					required: ['mutationId', 'jobId'],
+				},
+			},
+		},
+		async (request, reply) => {
+			try {
+				const userId = request.currentUser?.id;
+				if (!userId) {
+					return reply.status(401).send({
+						success: false,
+						error: { code: 'NOT_AUTHENTICATED', message: 'Authentication required' },
+					});
+				}
+
+				const { mutationId, jobId } = request.params;
+
+				const [originalJob] = await db
+					.select()
+					.from(transformationJobs)
+					.where(eq(transformationJobs.id, jobId))
+					.limit(1);
+
+				if (!originalJob) {
+					return reply.status(404).send({
+						success: false,
+						error: { code: 'JOB_NOT_FOUND', message: 'Original job not found' },
+					});
+				}
+
+				if (originalJob.configurationId !== mutationId) {
+					return reply.status(400).send({
+						success: false,
+						error: { code: 'JOB_MISMATCH', message: 'Job does not belong to this configuration' },
+					});
+				}
+
+				if (!originalJob.inputFileKey) {
+					return reply.status(400).send({
+						success: false,
+						error: { code: 'NO_INPUT_FILE', message: 'Original job has no stored input file' },
+					});
+				}
+
+				const [configuration] = await db
+					.select()
+					.from(configurations)
+					.where(eq(configurations.id, mutationId))
+					.limit(1);
+
+				if (!configuration) {
+					return reply.status(404).send({
+						success: false,
+						error: { code: 'CONFIGURATION_NOT_FOUND', message: 'Configuration not found' },
+					});
+				}
+
+				const inputFileBuffer = await storageService.downloadFile(originalJob.inputFileKey);
+
+				const newJobId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+				await db.insert(transformationJobs).values({
+					id: newJobId,
+					organizationId: originalJob.organizationId,
+					configurationId: mutationId,
+					status: 'pending',
+					originalFileName: originalJob.originalFileName,
+					callbackUrl: originalJob.callbackUrl,
+					createdBy: userId,
+					createdAt: new Date(),
+				});
+
+				await transformationQueue.add('mutate-file', {
+					jobId: newJobId,
+					organizationId: originalJob.organizationId,
+					configurationId: mutationId,
+					fileData: inputFileBuffer.toString('base64'),
+					fileName: originalJob.originalFileName || 'replay_upload',
+					conversionType: configuration.conversionType as 'XLSX_TO_CSV' | 'DOCX_TO_PDF',
+					callbackUrl: originalJob.callbackUrl || undefined,
+					uid: originalJob.uid || undefined,
+					options: {},
+				});
+
+				return reply.send({
+					success: true,
+					data: { jobId: newJobId, status: 'queued' },
+				});
+			} catch (error) {
+				request.log.error(error);
+				return reply.status(500).send({
+					success: false,
+					error: {
+						code: 'REPLAY_FAILED',
+						message: getErrorMessage(error, 'Failed to replay job'),
+					},
+				});
+			}
+		},
 	);
 }
