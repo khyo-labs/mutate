@@ -123,7 +123,7 @@ export function Sidebar() {
 									)}
 									onClick={() => setIsMobileOpen(false)}
 								>
-									<Icon className="h-4 w-4 flex-shrink-0" />
+									<Icon className="h-4 w-4 shrink-0" />
 									{!isCollapsed && (
 										<>
 											<span className="flex-1">{item.name}</span>
@@ -211,7 +211,7 @@ export function Sidebar() {
 												)}
 												onClick={() => setIsMobileOpen(false)}
 											>
-												<Icon className="h-4 w-4 flex-shrink-0" />
+												<Icon className="h-4 w-4 shrink-0" />
 												<span className="flex-1">{item.name}</span>
 												{item.badge && (
 													<span
@@ -241,7 +241,7 @@ export function Sidebar() {
 								onClick={handleLogout}
 								className="text-muted-foreground hover:bg-accent/50 hover:text-destructive flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200"
 							>
-								<LogOut className="h-4 w-4 flex-shrink-0" />
+								<LogOut className="h-4 w-4 shrink-0" />
 								<span className="flex-1 text-left">Logout</span>
 							</button>
 						</nav>

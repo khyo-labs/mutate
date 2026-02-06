@@ -145,7 +145,7 @@ export function AdminSidebar() {
 									isCollapsed && 'justify-center px-2',
 								)}
 							>
-								<Icon className="h-4 w-4 flex-shrink-0" />
+								<Icon className="h-4 w-4 shrink-0" />
 								{!isCollapsed && (
 									<>
 										<span className="flex-1">{item.name}</span>

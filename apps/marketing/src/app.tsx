@@ -22,7 +22,7 @@ function App() {
 				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 					<div className="flex h-16 items-center justify-between">
 						<div className="flex items-center">
-							<div className="flex-shrink-0">
+							<div className="shrink-0">
 								<h1 className="text-2xl font-bold text-gray-900">mutate</h1>
 							</div>
 						</div>

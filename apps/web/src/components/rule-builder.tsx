@@ -99,7 +99,7 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 					>
 						<GripVertical className="h-4 w-4" />
 					</Button>
-					<div className="bg-primary/10 flex-shrink-0 rounded-lg p-2">
+					<div className="bg-primary/10 shrink-0 rounded-lg p-2">
 						<Icon className="text-primary h-4 w-4" />
 					</div>
 					<div className="flex-1 overflow-hidden">
@@ -109,7 +109,7 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 						<p className="text-muted-foreground text-xs">{ruleDescriptions[rule.type]}</p>
 					</div>
 				</div>
-				<div className="flex flex-shrink-0 items-center gap-2">
+				<div className="flex shrink-0 items-center gap-2">
 					<span className="text-muted-foreground text-xs">#{index + 1}</span>
 					<Button
 						variant="ghost"
@@ -190,7 +190,7 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 								className="h-auto w-full justify-start overflow-hidden p-3 text-left"
 							>
 								<div className="flex w-full items-start gap-3">
-									<div className="bg-muted flex-shrink-0 rounded-lg p-2">
+									<div className="bg-muted shrink-0 rounded-lg p-2">
 										<Icon className="text-muted-foreground h-4 w-4" />
 									</div>
 									<div className="flex-1 overflow-hidden">

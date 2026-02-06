@@ -170,16 +170,18 @@ export function JsonConfigPanel({
 
 	if (isCollapsed) {
 		return (
-			<div className="rounded-lg border border-gray-200 bg-white">
+			<div className="rounded-lg border border-border bg-card text-card-foreground">
 				<Button
 					variant="ghost"
 					onClick={() => setIsCollapsed(false)}
-					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
+					className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/60"
 				>
 					<div>
-						<p className="text-sm text-gray-500">Preview or import configuration as JSON</p>
+						<p className="text-sm text-muted-foreground">
+							Preview or import configuration as JSON
+						</p>
 					</div>
-					<ChevronDown className="h-5 w-5 text-gray-400" />
+					<ChevronDown className="h-5 w-5 text-muted-foreground" />
 				</Button>
 			</div>
 		);
@@ -187,18 +189,20 @@ export function JsonConfigPanel({
 
 	if (showImport) {
 		return (
-			<div className="rounded-lg border border-gray-200 bg-white">
-				<div className="border-b border-gray-200 p-4">
+			<div className="rounded-lg border border-border bg-card text-card-foreground">
+				<div className="border-b border-border p-4">
 					<div className="flex items-center justify-between">
 						<div>
-							<h3 className="text-lg font-medium text-gray-900">Import Configuration</h3>
-							<p className="text-sm text-gray-500">Paste your JSON configuration below</p>
+							<h3 className="text-lg font-medium text-foreground">Import Configuration</h3>
+							<p className="text-sm text-muted-foreground">
+								Paste your JSON configuration below
+							</p>
 						</div>
 						<Button
 							variant="ghost"
 							size="sm"
 							onClick={() => setIsCollapsed(true)}
-							className="text-gray-400 hover:text-gray-600"
+							className="text-muted-foreground hover:text-foreground"
 						>
 							<ChevronDown className="h-5 w-5 rotate-180" />
 						</Button>
@@ -208,7 +212,7 @@ export function JsonConfigPanel({
 				<div className="p-4">
 					<div className="space-y-4">
 						<div>
-							<label className="mb-2 block text-sm font-medium text-gray-700">
+							<label className="mb-2 block text-sm font-medium text-foreground">
 								JSON Configuration
 							</label>
 							<textarea
@@ -216,21 +220,21 @@ export function JsonConfigPanel({
 								onChange={(e) => setImportText(e.target.value)}
 								placeholder="Paste your JSON configuration here..."
 								rows={12}
-								className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-xs focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+								className="w-full rounded border border-input bg-background px-3 py-2 font-mono text-xs text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
 							/>
 						</div>
 
 						{importError && (
-							<div className="flex items-center space-x-2 rounded-md bg-red-50 p-3">
-								<AlertTriangle className="h-4 w-4 text-red-500" />
-								<span className="text-sm text-red-700">{importError}</span>
+							<div className="flex items-center space-x-2 rounded-md bg-red-50 p-3 text-red-700 dark:bg-red-500/15 dark:text-red-200">
+								<AlertTriangle className="h-4 w-4" />
+								<span className="text-sm">{importError}</span>
 							</div>
 						)}
 
 						{importSuccess && (
-							<div className="flex items-center space-x-2 rounded-md bg-green-50 p-3">
-								<CheckCircle className="h-4 w-4 text-green-500" />
-								<span className="text-sm text-green-700">Configuration imported successfully!</span>
+							<div className="flex items-center space-x-2 rounded-md bg-emerald-50 p-3 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-200">
+								<CheckCircle className="h-4 w-4" />
+								<span className="text-sm">Configuration imported successfully!</span>
 							</div>
 						)}
 
@@ -250,11 +254,11 @@ export function JsonConfigPanel({
 	}
 
 	return (
-		<div className="rounded-lg border border-gray-200 bg-white">
-			<div className="border-b border-gray-200 p-4">
+		<div className="rounded-lg border border-border bg-card text-card-foreground">
+			<div className="border-b border-border p-4">
 				<div className="flex flex-col items-center justify-between space-y-2">
 					<div>
-						<p className="text-sm text-gray-500">
+						<p className="text-sm text-muted-foreground">
 							{rules.length} rule{rules.length !== 1 ? 's' : ''} • {configJson.split('\n').length}{' '}
 							lines
 						</p>
@@ -264,7 +268,7 @@ export function JsonConfigPanel({
 							variant="secondary"
 							size="sm"
 							onClick={() => setShowImport(true)}
-							className="bg-green-100 text-green-700 hover:bg-green-200"
+							className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-200 dark:hover:bg-emerald-500/30"
 						>
 							<Upload className="mr-1 h-3 w-3" />
 							Import
@@ -277,7 +281,7 @@ export function JsonConfigPanel({
 							variant="secondary"
 							size="sm"
 							onClick={handleDownload}
-							className="bg-blue-100 text-blue-700 hover:bg-blue-200"
+							className="bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-500/20 dark:text-blue-200 dark:hover:bg-blue-500/30"
 						>
 							<Download className="mr-1 h-3 w-3" />
 							Download
@@ -286,7 +290,7 @@ export function JsonConfigPanel({
 							variant="ghost"
 							size="sm"
 							onClick={() => setIsCollapsed(true)}
-							className="text-gray-400 hover:text-gray-600"
+							className="text-muted-foreground hover:text-foreground"
 						>
 							<ChevronDown className="h-5 w-5 rotate-180" />
 						</Button>
@@ -295,8 +299,8 @@ export function JsonConfigPanel({
 			</div>
 
 			<div className="p-4">
-				<div className="rounded bg-gray-50 p-3">
-					<pre className="max-h-96 overflow-auto font-mono text-xs whitespace-pre-wrap text-gray-800">
+				<div className="rounded bg-muted/50 p-3">
+					<pre className="max-h-96 overflow-auto font-mono text-xs whitespace-pre-wrap text-foreground">
 						{configJson}
 					</pre>
 				</div>

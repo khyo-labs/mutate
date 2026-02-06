@@ -270,19 +270,19 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 
 	function getCellClassName(row: number, col: number): string {
 		const highlight = getCellHighlight(row, col);
-		if (!highlight) return 'border border-gray-200 bg-white';
+		if (!highlight) return 'border border-border bg-card';
 
 		switch (highlight.type) {
 			case 'select':
-				return 'border border-blue-300 bg-blue-50';
+				return 'border border-blue-300/70 bg-blue-50 dark:border-blue-500/40 dark:bg-blue-500/15';
 			case 'delete':
-				return 'border border-red-300 bg-red-50 line-through';
+				return 'border border-red-300/70 bg-red-50 line-through dark:border-red-500/40 dark:bg-red-500/15';
 			case 'modify':
-				return 'border border-yellow-300 bg-yellow-50';
+				return 'border border-yellow-300/70 bg-yellow-50 dark:border-yellow-500/40 dark:bg-yellow-500/15';
 			case 'warning':
-				return 'border border-orange-300 bg-orange-50';
+				return 'border border-orange-300/70 bg-orange-50 dark:border-orange-500/40 dark:bg-orange-500/15';
 			default:
-				return 'border border-gray-200 bg-white';
+				return 'border border-border bg-card';
 		}
 	}
 
@@ -292,10 +292,12 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 
 	if (!file) {
 		return (
-			<div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
-				<Eye className="mx-auto h-12 w-12 text-gray-400" />
-				<h3 className="mt-2 text-sm font-medium text-gray-900">No File Uploaded</h3>
-				<p className="mt-1 text-sm text-gray-500">Upload an Excel file to see the data preview</p>
+			<div className="rounded-lg border border-border bg-muted/40 p-8 text-center">
+				<Eye className="mx-auto h-12 w-12 text-muted-foreground" />
+				<h3 className="mt-2 text-sm font-medium text-foreground">No File Uploaded</h3>
+				<p className="mt-1 text-sm text-muted-foreground">
+					Upload an Excel file to see the data preview
+				</p>
 			</div>
 		);
 	}
@@ -308,29 +310,31 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 
 	if (isCollapsed) {
 		return (
-			<div className="rounded-lg border border-gray-200 bg-white">
+			<div className="rounded-lg border border-border bg-card text-card-foreground">
 				<button
 					onClick={() => setIsCollapsed(false)}
-					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
+					className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/60"
 				>
-					<h3 className="text-lg font-medium text-gray-900">Data Preview</h3>
-					<ChevronDown className="h-5 w-5 text-gray-400" />
+					<h3 className="text-lg font-medium text-foreground">Data Preview</h3>
+					<ChevronDown className="h-5 w-5 text-muted-foreground" />
 				</button>
 			</div>
 		);
 	}
 
 	return (
-		<div className="rounded-lg border border-gray-200 bg-white">
+		<div className="rounded-lg border border-border bg-card text-card-foreground">
 			{/* Header */}
-			<div className="border-b border-gray-200 p-4">
+			<div className="border-b border-border p-4">
 				<div className="flex items-center justify-between">
-					<h3 className="text-lg font-medium text-gray-900">Data Preview</h3>
+					<h3 className="text-lg font-medium text-foreground">Data Preview</h3>
 					<div className="flex items-center space-x-3">
 						<button
 							onClick={() => setShowHighlights(!showHighlights)}
 							className={`inline-flex items-center rounded px-2 py-1 text-xs font-medium ${
-								showHighlights ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+								showHighlights
+									? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200'
+									: 'bg-muted text-muted-foreground'
 							}`}
 						>
 							{showHighlights ? (
@@ -343,14 +347,16 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 						<button
 							onClick={() => setShowRowNumbers(!showRowNumbers)}
 							className={`inline-flex items-center rounded px-2 py-1 text-xs font-medium ${
-								showRowNumbers ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
+								showRowNumbers
+									? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200'
+									: 'bg-muted text-muted-foreground'
 							}`}
 						>
 							Row Numbers
 						</button>
 						<button
 							onClick={() => setIsCollapsed(true)}
-							className="text-gray-400 hover:text-gray-600"
+							className="text-muted-foreground hover:text-foreground"
 						>
 							<ChevronDown className="h-5 w-5 rotate-180" />
 						</button>
@@ -360,11 +366,11 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 				{/* Worksheet selector */}
 				{file.worksheets.length > 1 && (
 					<div className="mt-3">
-						<label className="block text-sm font-medium text-gray-700">Worksheet</label>
+						<label className="block text-sm font-medium text-foreground">Worksheet</label>
 						<select
 							value={activeWorksheet}
 							onChange={(e) => setActiveWorksheet(e.target.value)}
-							className="mt-1 block rounded border border-gray-300 px-3 py-1 text-sm focus:border-blue-500 focus:outline-none"
+							className="mt-1 block w-full rounded border border-input bg-background px-3 py-1 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
 						>
 							{file.worksheets.map((name) => (
 								<option key={name} value={name}>
@@ -384,7 +390,7 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 							<thead>
 								<tr>
 									{showRowNumbers && (
-										<th className="border border-gray-300 bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+										<th className="border border-border bg-muted/60 px-2 py-1 text-xs font-medium text-muted-foreground">
 											#
 										</th>
 									)}
@@ -395,7 +401,7 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 										(_, i) => (
 											<th
 												key={i}
-												className="border border-gray-300 bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700"
+												className="border border-border bg-muted/60 px-3 py-1 text-xs font-medium text-muted-foreground"
 											>
 												{getColumnLabel(worksheetData.range.s.c + i)}
 											</th>
@@ -407,7 +413,7 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 								{worksheetData.data.slice(0, 20).map((row, rowIndex) => (
 									<tr key={rowIndex}>
 										{showRowNumbers && (
-											<td className="border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-gray-600">
+											<td className="border border-border bg-muted/40 px-2 py-1 text-xs text-muted-foreground">
 												{rowIndex + 1}
 											</td>
 										)}
@@ -416,7 +422,7 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 											return (
 												<td
 													key={colIndex}
-													className={`px-3 py-1 text-xs ${getCellClassName(rowIndex, colIndex)}`}
+													className={`px-3 py-1 text-xs text-foreground ${getCellClassName(rowIndex, colIndex)}`}
 													title={highlight?.reason}
 												>
 													{cell?.toString() || ''}
@@ -428,7 +434,7 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 							</tbody>
 						</table>
 						{worksheetData.data.length > 20 && (
-							<div className="mt-2 text-center text-xs text-gray-500">
+							<div className="mt-2 text-center text-xs text-muted-foreground">
 								Showing first 20 rows of {worksheetData.data.length}
 							</div>
 						)}
@@ -438,23 +444,23 @@ export function SpreadsheetPreview({ file, rules, selectedWorksheet }: Spreadshe
 
 			{/* Legend */}
 			{showHighlights && cellHighlights.length > 0 && (
-				<div className="border-t border-gray-200 p-4">
-					<h4 className="mb-2 text-sm font-medium text-gray-700">Legend</h4>
+				<div className="border-t border-border p-4">
+					<h4 className="mb-2 text-sm font-medium text-foreground">Legend</h4>
 					<div className="flex flex-wrap gap-4 text-xs">
 						<div className="flex items-center space-x-2">
-							<div className="h-3 w-3 border border-blue-300 bg-blue-50"></div>
+							<div className="h-3 w-3 border border-blue-300/70 bg-blue-50 dark:border-blue-500/40 dark:bg-blue-500/15"></div>
 							<span>Selected</span>
 						</div>
 						<div className="flex items-center space-x-2">
-							<div className="h-3 w-3 border border-red-300 bg-red-50"></div>
+							<div className="h-3 w-3 border border-red-300/70 bg-red-50 dark:border-red-500/40 dark:bg-red-500/15"></div>
 							<span>Will Delete</span>
 						</div>
 						<div className="flex items-center space-x-2">
-							<div className="h-3 w-3 border border-yellow-300 bg-yellow-50"></div>
+							<div className="h-3 w-3 border border-yellow-300/70 bg-yellow-50 dark:border-yellow-500/40 dark:bg-yellow-500/15"></div>
 							<span>Will Modify</span>
 						</div>
 						<div className="flex items-center space-x-2">
-							<div className="h-3 w-3 border border-orange-300 bg-orange-50"></div>
+							<div className="h-3 w-3 border border-orange-300/70 bg-orange-50 dark:border-orange-500/40 dark:bg-orange-500/15"></div>
 							<span>Warning</span>
 						</div>
 					</div>

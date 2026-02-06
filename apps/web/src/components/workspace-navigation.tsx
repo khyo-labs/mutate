@@ -99,7 +99,7 @@ export function WorkspaceNavigation({ isCollapsed = false, setIsMobileOpen }: Pr
 						)}
 						onClick={() => setIsMobileOpen(false)}
 					>
-						<Icon className="h-4 w-4 flex-shrink-0" />
+						<Icon className="h-4 w-4 shrink-0" />
 						{!isCollapsed && (
 							<>
 								<span className="flex-1">{item.name}</span>
@@ -131,7 +131,7 @@ export function WorkspaceNavigation({ isCollapsed = false, setIsMobileOpen }: Pr
 								isCollapsed && 'justify-center px-2',
 							)}
 						>
-							<ChevronsUpDown className="h-4 w-4 flex-shrink-0" />
+							<ChevronsUpDown className="h-4 w-4 shrink-0" />
 							{!isCollapsed && <span className="flex-1 text-left">Switch workspace</span>}
 						</button>
 					</DropdownMenuTrigger>
@@ -184,7 +184,7 @@ export function WorkspaceNavigation({ isCollapsed = false, setIsMobileOpen }: Pr
 								isCollapsed && 'justify-center px-2',
 							)}
 						>
-							<MoreHorizontal className="h-4 w-4 flex-shrink-0" />
+							<MoreHorizontal className="h-4 w-4 shrink-0" />
 							{!isCollapsed && <span className="flex-1 text-left">More</span>}
 						</button>
 					</DropdownMenuTrigger>

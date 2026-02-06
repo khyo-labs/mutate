@@ -35,7 +35,8 @@
       "Bash(for file in src/services/conversion/*.ts)",
       "mcp__shadcn__search_items_in_registries",
       "Bash(npx turbo build:*)",
-      "Bash(bun:*)"
+      "Bash(bun:*)",
+      "Bash(bunx turbo typecheck:*)"
     ],
     "deny": [],
     "ask": []
