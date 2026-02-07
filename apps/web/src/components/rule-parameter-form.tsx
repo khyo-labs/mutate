@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useState } from 'react';
 
 import type {
@@ -9,14 +9,21 @@ import type {
 	UnmergeAndFillRule,
 	ValidateColumnsRule,
 } from '../types';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Switch } from './ui/switch';
 
 interface RuleParameterFormProps {
 	rule: TransformationRule;
 	onChange: (rule: TransformationRule) => void;
+	defaultExpanded?: boolean;
 }
 
-export function RuleParameterForm({ rule, onChange }: RuleParameterFormProps) {
-	const [isExpanded, setIsExpanded] = useState(false);
+export function RuleParameterForm({ rule, onChange, defaultExpanded }: RuleParameterFormProps) {
+	const [isExpanded, setIsExpanded] = useState(defaultExpanded ?? false);
 
 	function updateParams(newParams: Record<string, unknown>) {
 		onChange({
@@ -44,23 +51,25 @@ export function RuleParameterForm({ rule, onChange }: RuleParameterFormProps) {
 			case 'REPLACE_CHARACTERS':
 				return <ReplaceCharactersForm rule={rule} onChange={updateParams} />;
 			default:
-				return <div className="text-sm text-gray-500">No parameters</div>;
+				return <div className="text-muted-foreground text-sm">No parameters</div>;
 		}
 	}
 
 	return (
 		<div className="mt-3">
-			<button
+			<Button
 				type="button"
+				variant="ghost"
+				size="sm"
 				onClick={() => setIsExpanded(!isExpanded)}
-				className="flex w-full items-center justify-between text-left text-sm text-gray-600 hover:text-gray-800"
+				className="text-muted-foreground hover:text-foreground w-full justify-between px-0"
 			>
-				<span>Configure Parameters</span>
+				<span className="text-xs">Configure Parameters</span>
 				{isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-			</button>
+			</Button>
 
 			{isExpanded && (
-				<div className="mt-3 space-y-3 border-t border-gray-200 pt-3">{renderParameterForm()}</div>
+				<div className="border-border mt-3 space-y-3 border-t pt-3">{renderParameterForm()}</div>
 			)}
 		</div>
 	);
@@ -76,26 +85,29 @@ function SelectWorksheetForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">Identifier Type</label>
-				<select
+				<Label className="text-xs">Identifier Type</Label>
+				<Select
 					value={rule.params.type || 'name'}
-					onChange={(e) =>
+					onValueChange={(value) =>
 						onChange({
 							...rule.params,
-							type: e.target.value as SelectWorksheetRule['params']['type'],
+							type: value as SelectWorksheetRule['params']['type'],
 						})
 					}
-					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
-					<option value="name">By Name</option>
-					<option value="pattern">By Pattern</option>
-					<option value="index">By Index</option>
-				</select>
+					<SelectTrigger size="sm" className="mt-1 w-full text-xs">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="name">By Name</SelectItem>
+						<SelectItem value="pattern">By Pattern</SelectItem>
+						<SelectItem value="index">By Index</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 			<div>
-				<label className="block text-xs font-medium text-gray-700">Worksheet Identifier</label>
-				<input
-					type="text"
+				<Label className="text-xs">Worksheet Identifier</Label>
+				<Input
 					value={rule.params.value || ''}
 					onChange={(e) => onChange({ ...rule.params, value: e.target.value })}
 					placeholder={
@@ -105,7 +117,7 @@ function SelectWorksheetForm({
 								? 'e.g., Sheet*'
 								: 'e.g., Sheet1'
 					}
-					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+					className="mt-1 h-8 text-xs"
 				/>
 			</div>
 		</div>
@@ -122,8 +134,8 @@ function ValidateColumnsForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">Expected Column Count</label>
-				<input
+				<Label className="text-xs">Expected Column Count</Label>
+				<Input
 					type="number"
 					value={rule.params.numOfColumns || 0}
 					onChange={(e) =>
@@ -133,25 +145,29 @@ function ValidateColumnsForm({
 						})
 					}
 					min="1"
-					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+					className="mt-1 h-8 text-xs"
 				/>
 			</div>
 			<div>
-				<label className="block text-xs font-medium text-gray-700">On Failure</label>
-				<select
+				<Label className="text-xs">On Failure</Label>
+				<Select
 					value={rule.params.onFailure || 'stop'}
-					onChange={(e) =>
+					onValueChange={(value) =>
 						onChange({
 							...rule.params,
-							onFailure: e.target.value as ValidateColumnsRule['params']['onFailure'],
+							onFailure: value as ValidateColumnsRule['params']['onFailure'],
 						})
 					}
-					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
-					<option value="stop">Stop Processing</option>
-					<option value="notify">Notify and Continue</option>
-					<option value="continue">Continue Silently</option>
-				</select>
+					<SelectTrigger size="sm" className="mt-1 w-full text-xs">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="stop">Stop Processing</SelectItem>
+						<SelectItem value="notify">Notify and Continue</SelectItem>
+						<SelectItem value="continue">Continue Silently</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 		</div>
 	);
@@ -188,55 +204,52 @@ function UnmergeAndFillForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">Fill Direction</label>
-				<select
+				<Label className="text-xs">Fill Direction</Label>
+				<Select
 					value={rule.params.fillDirection || 'down'}
-					onChange={(e) =>
+					onValueChange={(value) =>
 						onChange({
 							...rule.params,
-							fillDirection: e.target.value as UnmergeAndFillRule['params']['fillDirection'],
+							fillDirection: value as UnmergeAndFillRule['params']['fillDirection'],
 						})
 					}
-					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
-					<option value="down">Fill Down</option>
-					<option value="up">Fill Up</option>
-				</select>
+					<SelectTrigger size="sm" className="mt-1 w-full text-xs">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="down">Fill Down</SelectItem>
+						<SelectItem value="up">Fill Up</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 			<div>
-				<label className="block text-xs font-medium text-gray-700">Columns to Process</label>
-				<div className="mt-1 flex space-x-1">
-					<input
-						type="text"
+				<Label className="text-xs">Columns to Process</Label>
+				<div className="mt-1 flex gap-1">
+					<Input
 						value={columnInput}
 						onChange={(e) => setColumnInput(e.target.value)}
+						onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColumn())}
 						placeholder="Column name or index"
-						className="flex-1 rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+						className="h-8 flex-1 text-xs"
 					/>
-					<button
-						type="button"
-						onClick={addColumn}
-						className="rounded bg-blue-500 px-2 py-1 text-xs text-white hover:bg-blue-600"
-					>
+					<Button type="button" size="sm" onClick={addColumn}>
 						Add
-					</button>
+					</Button>
 				</div>
 				{rule.params.columns && rule.params.columns.length > 0 && (
 					<div className="mt-2 flex flex-wrap gap-1">
 						{rule.params.columns.map((column: string, index: number) => (
-							<span
-								key={index}
-								className="inline-flex items-center rounded bg-gray-100 px-2 py-1 text-xs text-gray-800"
-							>
+							<Badge key={index} variant="secondary" className="gap-1 pr-1">
 								{column}
 								<button
 									type="button"
 									onClick={() => removeColumn(index)}
-									className="ml-1 text-gray-500 hover:text-gray-700"
+									className="text-muted-foreground hover:text-foreground rounded-full"
 								>
-									×
+									<X className="h-3 w-3" />
 								</button>
-							</span>
+							</Badge>
 						))}
 					</div>
 				)}
@@ -280,53 +293,57 @@ function DeleteRowsForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">Delete Method</label>
-				<select
+				<Label className="text-xs">Delete Method</Label>
+				<Select
 					value={method}
-					onChange={(e) =>
+					onValueChange={(value) =>
 						onChange({
-							method: e.target.value as 'condition' | 'rows',
-							// Clear the other method's params
-							...(e.target.value === 'condition' ? { rows: undefined } : { condition: undefined }),
+							method: value as 'condition' | 'rows',
+							...(value === 'condition' ? { rows: undefined } : { condition: undefined }),
 						})
 					}
-					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
-					<option value="condition">By Condition</option>
-					<option value="rows">By Row Numbers</option>
-				</select>
+					<SelectTrigger size="sm" className="mt-1 w-full text-xs">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="condition">By Condition</SelectItem>
+						<SelectItem value="rows">By Row Numbers</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 
 			{method === 'condition' && (
 				<>
 					<div>
-						<label className="block text-xs font-medium text-gray-700">Condition Type</label>
-						<select
+						<Label className="text-xs">Condition Type</Label>
+						<Select
 							value={rule.params.condition?.type || 'contains'}
-							onChange={(e) =>
+							onValueChange={(value) =>
 								onChange({
 									...rule.params,
 									condition: {
 										...rule.params.condition,
-										type: e.target.value as NonNullable<
-											DeleteRowsRule['params']['condition']
-										>['type'],
+										type: value as NonNullable<DeleteRowsRule['params']['condition']>['type'],
 									},
 								})
 							}
-							className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 						>
-							<option value="contains">Contains Text</option>
-							<option value="empty">Is Empty</option>
-							<option value="pattern">Matches Pattern</option>
-						</select>
+							<SelectTrigger size="sm" className="mt-1 w-full text-xs">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="contains">Contains Text</SelectItem>
+								<SelectItem value="empty">Is Empty</SelectItem>
+								<SelectItem value="pattern">Matches Pattern</SelectItem>
+							</SelectContent>
+						</Select>
 					</div>
 					<div>
-						<label className="block text-xs font-medium text-gray-700">
+						<Label className="text-xs">
 							Column {rule.params.condition?.type === 'empty' ? '(optional)' : ''}
-						</label>
-						<input
-							type="text"
+						</Label>
+						<Input
 							value={rule.params.condition?.column || ''}
 							onChange={(e) =>
 								onChange({
@@ -343,20 +360,19 @@ function DeleteRowsForm({
 									? "Leave empty to check all columns, or specify column (e.g., 'B', '1', 'Name')"
 									: "Column name, letter, or index (e.g., 'B', '1', 'Name')"
 							}
-							className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+							className="mt-1 h-8 text-xs"
 						/>
 						{rule.params.condition?.type === 'empty' && (
-							<div className="mt-1 text-xs text-gray-500">
+							<p className="text-muted-foreground mt-1 text-xs">
 								Leave blank to delete rows where ALL columns are empty, or specify a column to check
 								only that column
-							</div>
+							</p>
 						)}
 					</div>
 					{rule.params.condition?.type !== 'empty' && (
 						<div>
-							<label className="block text-xs font-medium text-gray-700">Value</label>
-							<input
-								type="text"
+							<Label className="text-xs">Value</Label>
+							<Input
 								value={rule.params.condition?.value || ''}
 								onChange={(e) =>
 									onChange({
@@ -371,7 +387,7 @@ function DeleteRowsForm({
 								placeholder={
 									rule.params.condition?.type === 'pattern' ? 'Regular expression' : 'Text to match'
 								}
-								className={`mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none ${
+								className={`mt-1 h-8 text-xs ${
 									rule.params.condition?.type === 'pattern' ? 'font-mono' : ''
 								}`}
 							/>
@@ -383,44 +399,38 @@ function DeleteRowsForm({
 			{method === 'rows' && (
 				<>
 					<div>
-						<label className="block text-xs font-medium text-gray-700">Row Numbers to Delete</label>
-						<div className="mt-1 flex space-x-1">
-							<input
+						<Label className="text-xs">Row Numbers to Delete</Label>
+						<div className="mt-1 flex gap-1">
+							<Input
 								type="number"
 								min="1"
 								value={rowInput}
 								onChange={(e) => setRowInput(e.target.value)}
+								onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addRow())}
 								placeholder="Row number (e.g., 1)"
-								className="flex-1 rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+								className="h-8 flex-1 text-xs"
 							/>
-							<button
-								type="button"
-								onClick={addRow}
-								className="rounded bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
-							>
+							<Button type="button" variant="destructive" size="sm" onClick={addRow}>
 								Add
-							</button>
+							</Button>
 						</div>
-						<div className="mt-1 text-xs text-gray-500">
+						<p className="text-muted-foreground mt-1 text-xs">
 							Row numbers are 1-based (first row is 1)
-						</div>
+						</p>
 					</div>
 					{rule.params.rows && rule.params.rows.length > 0 && (
 						<div className="mt-2 flex flex-wrap gap-1">
 							{rule.params.rows.map((rowNumber, index) => (
-								<span
-									key={index}
-									className="inline-flex items-center rounded bg-red-100 px-2 py-1 text-xs text-red-800"
-								>
+								<Badge key={index} variant="destructive" className="gap-1 pr-1">
 									Row {rowNumber}
 									<button
 										type="button"
 										onClick={() => removeRow(rowNumber)}
-										className="ml-1 text-red-500 hover:text-red-700"
+										className="hover:text-destructive-foreground/80 rounded-full"
 									>
-										×
+										<X className="h-3 w-3" />
 									</button>
-								</span>
+								</Badge>
 							))}
 						</div>
 					)}
@@ -459,39 +469,32 @@ function DeleteColumnsForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">Columns to Delete</label>
-				<div className="mt-1 flex space-x-1">
-					<input
-						type="text"
+				<Label className="text-xs">Columns to Delete</Label>
+				<div className="mt-1 flex gap-1">
+					<Input
 						value={columnInput}
 						onChange={(e) => setColumnInput(e.target.value)}
+						onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColumn())}
 						placeholder="Column name or index"
-						className="flex-1 rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+						className="h-8 flex-1 text-xs"
 					/>
-					<button
-						type="button"
-						onClick={addColumn}
-						className="rounded bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600"
-					>
+					<Button type="button" variant="destructive" size="sm" onClick={addColumn}>
 						Add
-					</button>
+					</Button>
 				</div>
 				{rule.params.columns && rule.params.columns.length > 0 && (
 					<div className="mt-2 flex flex-wrap gap-1">
 						{rule.params.columns.map((column: string, index: number) => (
-							<span
-								key={index}
-								className="inline-flex items-center rounded bg-red-100 px-2 py-1 text-xs text-red-800"
-							>
+							<Badge key={index} variant="destructive" className="gap-1 pr-1">
 								{column}
 								<button
 									type="button"
 									onClick={() => removeColumn(index)}
-									className="ml-1 text-red-500 hover:text-red-700"
+									className="hover:text-destructive-foreground/80 rounded-full"
 								>
-									×
+									<X className="h-3 w-3" />
 								</button>
-							</span>
+							</Badge>
 						))}
 					</div>
 				)}
@@ -531,58 +534,55 @@ function CombineWorksheetsForm({
 	return (
 		<div className="space-y-3">
 			<div>
-				<label className="block text-xs font-medium text-gray-700">Operation</label>
-				<select
+				<Label className="text-xs">Operation</Label>
+				<Select
 					value={rule.params.operation || 'append'}
-					onChange={(e) =>
+					onValueChange={(value) =>
 						onChange({
 							...rule.params,
-							operation: e.target.value as 'append' | 'merge',
+							operation: value as 'append' | 'merge',
 						})
 					}
-					className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
 				>
-					<option value="append">Append Rows</option>
-					<option value="merge">Merge Data</option>
-				</select>
+					<SelectTrigger size="sm" className="mt-1 w-full text-xs">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="append">Append Rows</SelectItem>
+						<SelectItem value="merge">Merge Data</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 			<div>
-				<label className="block text-xs font-medium text-gray-700">Source Sheets (optional)</label>
-				<div className="mt-1 text-xs text-gray-500">
+				<Label className="text-xs">Source Sheets (optional)</Label>
+				<p className="text-muted-foreground mt-1 text-xs">
 					Leave blank to use worksheets selected by prior SELECT_WORKSHEET rules.
-				</div>
-				<div className="mt-1 flex space-x-1">
-					<input
-						type="text"
+				</p>
+				<div className="mt-1 flex gap-1">
+					<Input
 						value={sheetInput}
 						onChange={(e) => setSheetInput(e.target.value)}
+						onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSheet())}
 						placeholder="Sheet name"
-						className="flex-1 rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+						className="h-8 flex-1 text-xs"
 					/>
-					<button
-						type="button"
-						onClick={addSheet}
-						className="rounded bg-blue-500 px-2 py-1 text-xs text-white hover:bg-blue-600"
-					>
+					<Button type="button" size="sm" onClick={addSheet}>
 						Add
-					</button>
+					</Button>
 				</div>
 				{rule.params.sourceSheets && rule.params.sourceSheets.length > 0 && (
 					<div className="mt-2 flex flex-wrap gap-1">
 						{rule.params.sourceSheets.map((sheet: string, index: number) => (
-							<span
-								key={index}
-								className="inline-flex items-center rounded bg-blue-100 px-2 py-1 text-xs text-blue-800"
-							>
+							<Badge key={index} variant="secondary" className="gap-1 pr-1">
 								{sheet}
 								<button
 									type="button"
 									onClick={() => removeSheet(index)}
-									className="ml-1 text-blue-500 hover:text-blue-700"
+									className="text-muted-foreground hover:text-foreground rounded-full"
 								>
-									×
+									<X className="h-3 w-3" />
 								</button>
-							</span>
+							</Badge>
 						))}
 					</div>
 				)}
@@ -599,18 +599,12 @@ function EvaluateFormulasForm({
 	onChange: (params: import('../types').EvaluateFormulasRule['params']) => void;
 }) {
 	return (
-		<div>
-			<label className="flex items-center space-x-2">
-				<input
-					type="checkbox"
-					checked={rule.params.enabled || false}
-					onChange={(e) => onChange({ enabled: e.target.checked })}
-					className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-				/>
-				<span className="text-xs text-gray-700">
-					Evaluate and replace formulas with calculated values
-				</span>
-			</label>
+		<div className="flex items-center gap-3">
+			<Switch
+				checked={rule.params.enabled || false}
+				onCheckedChange={(checked) => onChange({ enabled: checked })}
+			/>
+			<Label className="text-xs">Evaluate and replace formulas with calculated values</Label>
 		</div>
 	);
 }
@@ -626,44 +620,44 @@ function ReplaceCharactersForm({
 		rule.params.replacements || [{ find: '', replace: '', scope: 'all' }],
 	);
 
-	const updateReplacement = (
+	function updateReplacement(
 		index: number,
 		field: string,
 		value: string | string[] | number[] | 'all' | 'specific_columns' | 'specific_rows',
-	) => {
+	) {
 		const updated = [...replacements];
 		updated[index] = { ...updated[index], [field]: value };
 		setReplacements(updated);
 		onChange({ replacements: updated });
-	};
+	}
 
-	const addReplacement = () => {
+	function addReplacement() {
 		const updated = [...replacements, { find: '', replace: '', scope: 'all' as const }];
 		setReplacements(updated as typeof replacements);
 		onChange({ replacements: updated as typeof replacements });
-	};
+	}
 
-	const removeReplacement = (index: number) => {
+	function removeReplacement(index: number) {
 		const updated = replacements.filter((_: unknown, i: number) => i !== index);
 		setReplacements(updated);
 		onChange({ replacements: updated });
-	};
+	}
 
-	const handleColumnsChange = (index: number, value: string) => {
+	function handleColumnsChange(index: number, value: string) {
 		const columns = value
 			.split(',')
 			.map((col) => col.trim().toUpperCase())
 			.filter((col) => col);
 		updateReplacement(index, 'columns', columns);
-	};
+	}
 
-	const handleRowsChange = (index: number, value: string) => {
+	function handleRowsChange(index: number, value: string) {
 		const rows = value
 			.split(',')
 			.map((row) => parseInt(row.trim()))
 			.filter((row) => !isNaN(row));
 		updateReplacement(index, 'rows', rows);
-	};
+	}
 
 	return (
 		<div className="space-y-3">
@@ -672,88 +666,82 @@ function ReplaceCharactersForm({
 					replacement: import('../types').ReplaceCharactersRule['params']['replacements'][number],
 					index: number,
 				) => (
-					<div key={index} className="space-y-2 rounded border p-3">
+					<div key={index} className="border-border space-y-2 rounded-lg border p-3">
 						<div className="flex gap-2">
 							<div className="flex-1">
-								<label className="block text-xs font-medium text-gray-700">Find</label>
-								<input
-									type="text"
+								<Label className="text-xs">Find</Label>
+								<Input
 									value={replacement.find}
 									onChange={(e) => updateReplacement(index, 'find', e.target.value)}
 									placeholder="Character(s) to find"
-									className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+									className="mt-1 h-8 text-xs"
 								/>
 							</div>
 							<div className="flex-1">
-								<label className="block text-xs font-medium text-gray-700">Replace with</label>
-								<input
-									type="text"
+								<Label className="text-xs">Replace with</Label>
+								<Input
 									value={replacement.replace}
 									onChange={(e) => updateReplacement(index, 'replace', e.target.value)}
 									placeholder="Replace with"
-									className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+									className="mt-1 h-8 text-xs"
 								/>
 							</div>
 						</div>
 						<div>
-							<label className="block text-xs font-medium text-gray-700">Scope</label>
-							<select
-								value={replacement.scope}
-								onChange={(e) => updateReplacement(index, 'scope', e.target.value)}
-								className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+							<Label className="text-xs">Scope</Label>
+							<Select
+								value={replacement.scope || 'all'}
+								onValueChange={(value) => updateReplacement(index, 'scope', value)}
 							>
-								<option value="all">All cells</option>
-								<option value="specific_columns">Specific columns</option>
-								<option value="specific_rows">Specific rows</option>
-							</select>
+								<SelectTrigger size="sm" className="mt-1 w-full text-xs">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All cells</SelectItem>
+									<SelectItem value="specific_columns">Specific columns</SelectItem>
+									<SelectItem value="specific_rows">Specific rows</SelectItem>
+								</SelectContent>
+							</Select>
 						</div>
 						{replacement.scope === 'specific_columns' && (
 							<div>
-								<label className="block text-xs font-medium text-gray-700">
-									Columns (comma-separated, e.g., A, B, C)
-								</label>
-								<input
-									type="text"
+								<Label className="text-xs">Columns (comma-separated, e.g., A, B, C)</Label>
+								<Input
 									value={replacement.columns?.join(', ') || ''}
 									onChange={(e) => handleColumnsChange(index, e.target.value)}
 									placeholder="A, B, C"
-									className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+									className="mt-1 h-8 text-xs"
 								/>
 							</div>
 						)}
 						{replacement.scope === 'specific_rows' && (
 							<div>
-								<label className="block text-xs font-medium text-gray-700">
-									Row numbers (comma-separated, 1-based)
-								</label>
-								<input
-									type="text"
+								<Label className="text-xs">Row numbers (comma-separated, 1-based)</Label>
+								<Input
 									value={replacement.rows?.join(', ') || ''}
 									onChange={(e) => handleRowsChange(index, e.target.value)}
 									placeholder="1, 2, 3"
-									className="mt-1 block w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none"
+									className="mt-1 h-8 text-xs"
 								/>
 							</div>
 						)}
 						{replacements.length > 1 && (
-							<button
+							<Button
 								type="button"
+								variant="ghost"
+								size="sm"
 								onClick={() => removeReplacement(index)}
-								className="text-xs text-red-600 hover:text-red-800"
+								className="text-destructive hover:text-destructive/80 h-auto px-0 text-xs"
 							>
 								Remove
-							</button>
+							</Button>
 						)}
 					</div>
 				),
 			)}
-			<button
-				type="button"
-				onClick={addReplacement}
-				className="rounded bg-blue-500 px-3 py-1 text-xs text-white hover:bg-blue-600"
-			>
+			<Button type="button" size="sm" onClick={addReplacement}>
 				Add Replacement
-			</button>
+			</Button>
 		</div>
 	);
 }

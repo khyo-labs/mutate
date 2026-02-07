@@ -15,24 +15,14 @@ import {
 	verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import {
-	Calculator,
-	CheckCircle,
-	Columns,
-	Combine,
-	FileText,
-	GripVertical,
-	Merge,
-	Plus,
-	Replace,
-	Trash2,
-	X,
-} from 'lucide-react';
+import { GripVertical, Plus, X } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import React from 'react';
 
+import { ruleDescriptions, ruleIcons } from '@/lib/rule-metadata';
+
 import { useConfigurationStore } from '../stores/config-store';
-import type { TransformationRule, XlsxToCsvRuleType } from '../types';
+import type { TransformationRule } from '../types';
 import { RuleParameterForm } from './rule-parameter-form';
 import { Button } from './ui/button';
 
@@ -41,36 +31,15 @@ interface RuleBuilderProps {
 	onChange: (rules: TransformationRule[]) => void;
 }
 
-const ruleIcons: Record<XlsxToCsvRuleType, React.ComponentType<{ className?: string }>> = {
-	SELECT_WORKSHEET: FileText,
-	VALIDATE_COLUMNS: CheckCircle,
-	UNMERGE_AND_FILL: Merge,
-	DELETE_ROWS: Trash2,
-	DELETE_COLUMNS: Columns,
-	COMBINE_WORKSHEETS: Combine,
-	EVALUATE_FORMULAS: Calculator,
-	REPLACE_CHARACTERS: Replace,
-};
-
-const ruleDescriptions: Record<XlsxToCsvRuleType, string> = {
-	SELECT_WORKSHEET: 'Choose which worksheet to process',
-	VALIDATE_COLUMNS: 'Check column count matches expected',
-	UNMERGE_AND_FILL: 'Unmerge cells and fill empty cells',
-	DELETE_ROWS: 'Remove rows by condition',
-	DELETE_COLUMNS: 'Remove specific columns',
-	COMBINE_WORKSHEETS: 'Merge multiple sheets together',
-	EVALUATE_FORMULAS: 'Calculate formula values',
-	REPLACE_CHARACTERS: 'Replace specific characters in cell values',
-};
-
 interface SortableRuleProps {
 	rule: TransformationRule;
 	index: number;
 	onRemove: (id: string) => void;
 	onUpdate: (rule: TransformationRule) => void;
+	defaultExpanded?: boolean;
 }
 
-function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
+function SortableRule({ rule, index, onRemove, onUpdate, defaultExpanded }: SortableRuleProps) {
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: rule.id,
 	});
@@ -123,7 +92,7 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 			</div>
 
 			{/* Rule parameter configuration */}
-			<RuleParameterForm rule={rule} onChange={onUpdate} />
+			<RuleParameterForm rule={rule} onChange={onUpdate} defaultExpanded={defaultExpanded} />
 		</div>
 	);
 }
@@ -131,6 +100,7 @@ function SortableRule({ rule, index, onRemove, onUpdate }: SortableRuleProps) {
 export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 	const { availableRules } = useConfigurationStore();
 	const [, setActiveId] = React.useState<string | null>(null);
+	const newRuleIds = React.useRef<Set<string>>(new Set());
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -159,10 +129,12 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 	}
 
 	function addRule(ruleTemplate: TransformationRule) {
+		const id = nanoid();
 		const newRule: TransformationRule = {
 			...ruleTemplate,
-			id: nanoid(),
+			id,
 		};
+		newRuleIds.current.add(id);
 		onChange([...rules, newRule]);
 	}
 
@@ -233,6 +205,7 @@ export function RuleBuilder({ rules, onChange }: RuleBuilderProps) {
 										index={index}
 										onRemove={removeRule}
 										onUpdate={updateRule}
+										defaultExpanded={newRuleIds.current.has(rule.id)}
 									/>
 								))}
 							</div>

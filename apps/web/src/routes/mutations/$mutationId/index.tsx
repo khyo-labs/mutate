@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getRuleTypeLabel } from '@/lib/format';
+import { formatRuleParams, ruleDescriptions, ruleIcons } from '@/lib/rule-metadata';
 import { formatDate } from '@/lib/utils';
 import { useWorkspaceStore } from '@/stores/workspace-store';
 import type { ApiResponse, Configuration } from '@/types';
@@ -191,24 +192,39 @@ export function ConfigurationDetailComponent() {
 							<CardContent>
 								{config.rules.length > 0 ? (
 									<div className="space-y-3">
-										{config.rules.map((rule, index) => (
-											<div
-												key={rule.id}
-												className="bg-muted/50 flex items-start gap-3 rounded-lg border p-3"
-											>
-												<div className="bg-primary/10 text-primary flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
-													{index + 1}
+										{config.rules.map((rule, index) => {
+											const Icon = ruleIcons[rule.type as keyof typeof ruleIcons];
+											const description =
+												ruleDescriptions[rule.type as keyof typeof ruleDescriptions];
+											const paramsSummary = formatRuleParams(rule);
+
+											return (
+												<div
+													key={rule.id}
+													className="bg-muted/50 flex items-start gap-3 rounded-lg border p-3"
+												>
+													<div className="bg-primary/10 text-primary flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+														{index + 1}
+													</div>
+													{Icon && (
+														<div className="bg-primary/10 shrink-0 rounded-lg p-1.5">
+															<Icon className="text-primary h-4 w-4" />
+														</div>
+													)}
+													<div className="min-w-0 flex-1">
+														<p className="text-foreground text-sm font-medium">
+															{getRuleTypeLabel(rule.type)}
+														</p>
+														{description && (
+															<p className="text-muted-foreground text-xs">{description}</p>
+														)}
+														{paramsSummary && (
+															<p className="text-muted-foreground mt-1 text-xs">{paramsSummary}</p>
+														)}
+													</div>
 												</div>
-												<div className="min-w-0 flex-1">
-													<p className="text-foreground text-sm font-medium">
-														{getRuleTypeLabel(rule.type)}
-													</p>
-													<pre className="text-muted-foreground mt-1 overflow-x-auto font-mono text-xs">
-														{JSON.stringify(rule.params, null, 2)}
-													</pre>
-												</div>
-											</div>
-										))}
+											);
+										})}
 									</div>
 								) : (
 									<div className="text-muted-foreground py-8 text-center text-sm">
